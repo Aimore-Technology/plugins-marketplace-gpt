@@ -11,6 +11,10 @@ Read once per invocation. Installed files describe behavior; customer Notion sto
 - P0-A starts and resumes only on the operator's explicit request. A scanner may reuse its processing procedure for a new automatic task with a separate source and mode; it never takes over an existing manual task.
 - No automatic contact creation, quotation dispatch, delivery commitments, signing or payment. The operator handles those actions personally. General send approval does not authorize them.
 
+## Invocation scope
+
+A command may restrict this invocation to setup-only, manual-review, draft-only, report-only or one-cycle-no-customer-send. Apply its restrictions to every downstream action even when an otherwise valid saved approval exists. Pass the invocation policy explicitly to helpers. Keep it local to this invocation: defer excluded actions without cancelling them or rewriting approval/global settings. A later separately authorized invocation reevaluates its own scope and normal approval checks.
+
 ## Start, suspend and return
 
 1. Read Dashboard's RunSettings and the supplied task/run. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.

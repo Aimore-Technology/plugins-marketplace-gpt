@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "eightdegrees-sales-workflow",
-  "version": "0.1.1",
-  "description": "Seven English skills for reviewed customer communication, CRM Notes, sales email, bounded SMS follow-up and Notion operations.",
+  "version": "0.1.2",
+  "description": "Seven English sales-workflow skills plus a unified command entry for setup, communication intake, scanning, reports and reply drafts.",
   "author": {
     "name": "Aimore Technology",
     "url": "https://github.com/Aimore-Technology"

@@ -12,7 +12,7 @@ EXPECTED = {
     'eightdegrees-initialization', 'eightdegrees-email-scanning',
     'eightdegrees-communication-context-process', 'eightdegrees-client-persona-update',
     'eightdegrees-sms-follow-up', 'eightdegrees-sales-reply',
-    'eightdegrees-daily-brief-and-handover',
+    'eightdegrees-daily-brief-and-handover', 'eightdegrees-sales-workflow',
 }
 
 def require(condition, message):
@@ -104,6 +104,26 @@ def check():
                 target = (path.parent / link.split('#')[0]).resolve()
                 require(target.is_relative_to(plugin.resolve()), f'Unpackaged dependency: {path}: {link}')
                 require(target.exists(), f'Broken reference: {path}: {link}')
+        routes = read_json(plugin / 'references/commands.json')
+        require(set(routes) == {'init', 'add-communication', 'run-auto', 'report', 'reply-draft'}, 'Command inventory mismatch')
+        for alias, route in routes.items():
+            require(route['skill'] in EXPECTED - {'eightdegrees-sales-workflow'}, f'Invalid command target: {alias}')
+            require((plugin / 'skills' / route['skill'] / 'SKILL.md').is_file(), f'Missing command target: {alias}')
+            require(all(isinstance(route.get(k), str) and route[k].strip() for k in ('description', 'policy', 'instructions')), f'Incomplete command policy: {alias}')
+        if platform == 'claude':
+            command_files = sorted((plugin / 'commands').glob('*.md'))
+            require({p.stem for p in command_files} == set(routes), 'Native command inventory mismatch')
+            for command in command_files:
+                command_text = command.read_text(encoding='utf-8')
+                require(command_text.startswith('---\n'), f'Missing command frontmatter: {command}')
+                parts = command_text.split('---\n', 2)
+                require(len(parts) == 3, f'Invalid command frontmatter: {command}')
+                metadata = yaml.safe_load(parts[1])
+                require(metadata['description'] == routes[command.stem]['description'], f'Command metadata drift: {command}')
+                require('$ARGUMENTS' in parts[2], f'Command arguments not forwarded: {command}')
+                require(f'Dispatch `{command.stem}`' in parts[2], f'Wrong command dispatch: {command}')
+        else:
+            require(not (plugin / 'commands').exists(), 'Do not ship Claude commands as an OpenAI runtime component')
         defaults = read_json(plugin / 'references/pilot-defaults.json')
         require(defaults['configuration_version'] == 'pilot-v1', 'Configuration version drift')
         require(defaults['settings_schema_version'] == 2, 'Settings schema drift')
@@ -121,7 +141,7 @@ def check():
         require(defaults['sms_follow_up']['max_messages_per_cycle_including_manual'] == 2, 'SMS cap drift')
         require(defaults['sms_follow_up']['automatic_sending_enabled'] is False, 'Unverified SMS must stay disabled')
         require(defaults['data']['deliberate_redaction'] is False, 'Pilot data policy drift')
-        print(f'PASS {platform}: {name} {manifest["version"]}; seven English skills; local references, defaults and payload checked')
+        print(f'PASS {platform}: {name} {manifest["version"]}; eight English skills (seven workflows + command entry); command routes, references, defaults and payload checked')
     return platform
 
 if __name__ == '__main__':

@@ -1,0 +1,32 @@
+{
+  "init": {
+    "skill": "eightdegrees-initialization",
+    "description": "Initialize the customer workspace and inspect connection readiness.",
+    "policy": "setup-only",
+    "instructions": "Configure the operator and authorized accounts, create or reuse the clean Aimore structure and pilot settings, and report readiness. Use supplied context and saved settings; ask only for missing actual values. Do not enable/create schedules, send messages, or run live CRM write/send acceptance tests from this command. Return setup, missing-input and next-test links."
+  },
+  "add-communication": {
+    "skill": "eightdegrees-communication-context-process",
+    "description": "Add a manual communication for review, or explicitly continue its approved task.",
+    "policy": "manual-review",
+    "instructions": "Use Mode=Manual. Accept an authorized message link, pasted communication, transcript or original task link. New submissions prepare customer matching, Notes and proposed persona changes, then stop at ContentReview before CRM writes; return the original review task. Only an explicit \"continue <task URL>\" request resumes that specific Manual task after validating its actual approval/version and prior results. Continue only unfinished approved steps. Never treat the command itself as factual approval or send authorization. No customer sends."
+  },
+  "run-auto": {
+    "skill": "eightdegrees-email-scanning",
+    "description": "Run one configured mailbox and automatic-pending-task scan without customer sends.",
+    "policy": "one-cycle-no-customer-send",
+    "instructions": "Run ONE scan cycle using saved mailbox scope and execution ownership. Validate eligible Automatic tasks, prioritize stop/reply conditions and prepare drafts/review tasks. Do not resume Manual tasks or create/enable any schedule. Set CustomerSendAllowed=false for this entire invocation and all downstream helpers: preserve existing approvals, mark eligible sends deferred for this invocation, and never mark them cancelled or sent. Checkpoints and automatic tasks may still be validated; no email/SMS send to a customer is allowed. Due internal reminders follow only already configured/authorized channels; do not add a new notification destination. Return scope/completeness, handled/waiting/error counts and task links."
+  },
+  "report": {
+    "skill": "eightdegrees-daily-brief-and-handover",
+    "description": "Update and show the current daily action report with original task links.",
+    "policy": "report-only",
+    "instructions": "Upsert the daily brief for the configured business timezone and show pending review/approval/follow-up/manual-continue tasks, important-reminder state and actual failures with original links. Treat this as a report invocation, not a scheduled reminder run: do not send notifications or customer messages, create/change Calendar events, resume tasks, write CRM business data or run handover rehearsals. Read existing records and write only the report and required operational logs. Missing optional sources remain visible as incomplete coverage, not invented success."
+  },
+  "reply-draft": {
+    "skill": "eightdegrees-sales-reply",
+    "description": "Prepare a source-backed sales reply and matching Notion preview for approval.",
+    "policy": "draft-only",
+    "instructions": "Use the supplied authorized inquiry/message/task context and configured Dropbox sources. Prepare editable copy, source/version evidence and matching HTML preview; stop at SendApproval with draft/preview/task links. Do not send, start SMS follow-ups or consume an existing send approval from this command. Missing identity/facts or unavailable preview capability go to the appropriate pending category; do not invent an inquiry, project fact or working preview."
+  }
+}

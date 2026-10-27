@@ -1,0 +1,7 @@
+# 0.1.2 short command entrypoints
+
+Add a unified `eightdegrees-sales-workflow` routing skill alongside the seven existing workflow skills. It maps five deliberate prompt aliases to existing procedures without duplicating them: init, add-communication, run-auto, report and reply-draft. Claude additionally packages five native Markdown commands; OpenAI uses the portable routing skill, not Claude manifest fields.
+
+Command scope follows the earlier demos: setup/readiness without schedule activation; manual communication intake to review with an explicit approved-task continue path; one scan without customer sends; report-only output without notification/Calendar actions; and reply draft/preview stopping at SendApproval. Restrictions propagate through downstream skill calls. No command supplies implicit approval, fake context, credentials or a new execution owner. The original workflow skills remain callable directly for separately authorized operations.
+
+Verify catalog targets, relative resources, all skill/command frontmatter and archive contents with the repository gate and package builder. Compare common payloads across editions. Unknown/missing commands must show help without mutation; quoted command text must not execute. Test missing setup, invalid approval, Manual-task exclusion and suppressed sends through the installed host. Packaging does not prove actual native command registration, plugin mention UI behavior, connector access or live business results. Claude CLI is unavailable for native validation in this environment.
