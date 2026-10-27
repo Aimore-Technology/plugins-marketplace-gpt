@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "eightdegrees-sales-workflow",
-  "version": "0.1.2",
-  "description": "Seven English sales-workflow skills plus a unified command entry for setup, communication intake, scanning, reports and reply drafts.",
+  "version": "0.1.3",
+  "description": "English sales workflows for Notion, Gmail, Dropbox and CRM, with operator review and traceable task records.\n\nEnable/select the plugin, then use:\n@eightdegrees-sales-workflow init - Set up operator, accounts and the Aimore workspace.\n@eightdegrees-sales-workflow add-communication <content or message URL> - Prepare manual CRM Notes for review.\n@eightdegrees-sales-workflow run-auto - Run one mailbox and automatic-task scan; no customer sends or schedule activation.\n@eightdegrees-sales-workflow report - Update and show the daily action report; no notifications or Calendar changes.\n@eightdegrees-sales-workflow reply-draft <inquiry URL> - Prepare a reply and HTML preview; stop at send approval.",
   "author": {
     "name": "Aimore Technology",
     "url": "https://github.com/Aimore-Technology"
@@ -21,7 +21,7 @@
       "interface": {
         "displayName": "EightDegrees Sales Workflow",
         "shortDescription": "Reviewed sales email and CRM",
-        "longDescription": "English skills for customer-authorized Notion/CRM workflows, manually initiated P0-A, approved HTML sales replies, bounded SMS follow-ups and daily actions. Requires separately authorized service connectors. Scheduling is disabled until the actual host capability is verified.",
+        "longDescription": "English sales workflows for Notion, Gmail, Dropbox and CRM, with operator review and traceable task records.\n\nEnable/select the plugin, then use:\n@eightdegrees-sales-workflow init - Set up operator, accounts and the Aimore workspace.\n@eightdegrees-sales-workflow add-communication <content or message URL> - Prepare manual CRM Notes for review.\n@eightdegrees-sales-workflow run-auto - Run one mailbox and automatic-task scan; no customer sends or schedule activation.\n@eightdegrees-sales-workflow report - Update and show the daily action report; no notifications or Calendar changes.\n@eightdegrees-sales-workflow reply-draft <inquiry URL> - Prepare a reply and HTML preview; stop at send approval.\n\nStart with init and supply your authorized account and source references. Connectors must be authorized separately. These are plugin-routed prompt shortcuts; select the plugin in the host when required. Customer sends always require approval of the exact content and sending window.",
         "developerName": "Aimore Technology",
         "category": "Business & Operations",
         "capabilities": [],
