@@ -1,0 +1,19 @@
+---
+name: eightdegrees-email-scanning
+description: "Run one authorized EightDegrees mailbox scan, validate automatic pending tasks, route inquiries and due follow-ups, and refresh reminders without taking over manual P0-A work."
+---
+
+# Scan and resume automatic work
+
+Read [operating-contract](../../references/operating-contract.md), the task/approval sections of [notion-model](../../references/notion-model.md), and [platform-runtime](../../references/platform-runtime.md). Perform ONE cycle and exit; the host owns repetition.
+
+1. Read RunSettings, scan checkpoint, pending automatic tasks and previous runs. Establish the configured execution owner. Exclude Manual tasks; only show their links. An unchanged waiting task is not a new notification.
+2. List only messages matching authorized labels/exclusions/time range, exhausting tool pagination within scope. Fetch bodies individually only after scope is known. If only a mixed-scope thread can be fetched, pause that item and report the connector limitation. Do not open attachments by default. Reconcile existing source keys; save original source/progress before applying `AimoreScanned`.
+3. Classify internal stakeholders separately: Developer, Conveyancer, Accountant, Lender, InternalAgent or OtherToConfirm. Store organization/person, topic, related matter, next action, owner, known deadline and decision needed in Inbox's internal view. Drafts are allowed; John sends them manually. No customer persona write or SMS sequence. Unknown category goes to ContentReview for that item only.
+4. For customer mail, identify replies, rejection, complaints or do-not-contact first; stop applicable unsent follow-ups BEFORE any other processing. Match by verified email/phone in the configured CRM account; name/social account is supporting evidence only. Missing/ambiguous/conflicting identity goes to ClientMatching; never auto-create a contact.
+5. Save/reuse communication records. For a new automatic item, use [communication processing](../eightdegrees-communication-context-process/SKILL.md) with Mode=Automatic and its own source/run; preserve explicit fact review. Never convert an existing manual item to automatic. If matching/content review is pending, keep it suspended while other items continue.
+6. Route project inquiries to [sales reply](../eightdegrees-sales-reply/SKILL.md). For other permitted customer replies, prepare a source-linked draft from confirmed facts/style. Persist ContentReview and then a separate SendApproval for the exact version/window. No-reply-needed mail gets that explicit outcome. Quotes/commitments/signing/payment remain John's actions.
+7. Send general replies only after re-reading final approval, current content, newest accessible reply/stop state, target and original attempts. Apply the customer window and holiday/date check. Do not send a Sales-Reply-owned response here as well. Save provider IDs and actual status; logging failure never causes resend.
+8. Recheck Automatic PendingTasks for validated completed inputs or explicit version-bound decisions. Resume the recorded step, not the entire workflow; check cancel/stop/expiry/completed steps again. If a tool/write/send result is unknown, reconcile first through ExecutionExceptions.
+9. Process due [SMS follow-ups](../eightdegrees-sms-follow-up/SKILL.md) only for verified actual material sends and an enabled channel. Update [daily brief/reminders](../eightdegrees-daily-brief-and-handover/SKILL.md) when due. These helpers do not reenter the scan.
+10. Close the scan with scope, cutoff, pagination completeness, discovered/handled/waiting/error counts and links. Scan completion does not complete its waiting child runs. Save checkpoints for every partial result; failures must not silently skip mail on the next cycle.

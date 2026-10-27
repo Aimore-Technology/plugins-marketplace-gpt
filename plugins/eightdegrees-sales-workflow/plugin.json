@@ -1,0 +1,36 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "eightdegrees-sales-workflow",
+  "version": "0.1.0",
+  "description": "Seven English skills for reviewed customer communication, CRM Notes, sales email, bounded SMS follow-up and Notion operations.",
+  "author": {
+    "name": "Aimore Technology",
+    "url": "https://github.com/Aimore-Technology"
+  },
+  "repository": "https://github.com/Aimore-Technology/plugins-marketplace-gpt",
+  "keywords": [
+    "sales",
+    "email",
+    "crm",
+    "notion",
+    "eightdegrees"
+  ],
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/eightdegrees-initialization/SKILL.md",
+      "interface": {
+        "displayName": "EightDegrees Sales Workflow",
+        "shortDescription": "Reviewed sales email and CRM",
+        "longDescription": "English skills for customer-authorized Notion/CRM workflows, manually initiated P0-A, approved HTML sales replies, bounded SMS follow-ups and daily actions. Requires separately authorized service connectors. Scheduling is disabled until the actual host capability is verified.",
+        "developerName": "Aimore Technology",
+        "category": "Business & Operations",
+        "capabilities": [],
+        "defaultPrompt": [
+          "Initialize EightDegrees in my authorized Notion workspace.",
+          "Process this customer communication and prepare Notes for my review.",
+          "Run one scan of my configured mailbox scope."
+        ]
+      }
+    }
+  }
+}

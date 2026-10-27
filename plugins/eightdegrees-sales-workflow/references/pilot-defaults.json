@@ -1,0 +1,112 @@
+{
+  "configuration_version": "pilot-v1",
+  "timezone": "Australia/Adelaide",
+  "customer_send_window": {
+    "weekdays": [
+      "MON",
+      "TUE",
+      "WED",
+      "THU",
+      "FRI"
+    ],
+    "start": "10:00",
+    "end": "17:00",
+    "no_send_dates": [],
+    "holiday_list_verified": false,
+    "require_date_confirmation_without_holiday_list": true,
+    "approval_expiry": "send_not_after",
+    "allow_explicit_single_message_window": true
+  },
+  "sms_follow_up": {
+    "first_delay_minutes": 30,
+    "second_delay_hours": 24,
+    "max_messages_per_cycle_including_manual": 2,
+    "max_active_cycles_per_client": 1,
+    "new_cycle_requires_explicit_manual_start": true,
+    "automatic_sending_enabled": false
+  },
+  "daily_brief": {
+    "time": "08:30",
+    "include_weekends": true,
+    "missed_run_policy": "one_catch_up_with_actual_time"
+  },
+  "important_reminders": {
+    "priority": [
+      "verified_sms",
+      "john_gmail",
+      "verified_host_notification"
+    ],
+    "escalation_minutes": 19,
+    "acknowledgement_deadline_hours": 24,
+    "escalation_attempts": 1,
+    "overdue_notices": 1,
+    "only_connected_channels": true,
+    "single_channel_is_degraded": true
+  },
+  "dropbox": {
+    "read_only": true,
+    "retain_existing_versions": true,
+    "automatic_archive": false,
+    "automatic_cleanup": false,
+    "automatic_overwrite": false,
+    "migration": false
+  },
+  "notes": {
+    "sections": [
+      "Context Background",
+      "Action",
+      "Recommendation",
+      "Next Schedule"
+    ],
+    "write_mode": "append_one_combined_note_per_communication_version",
+    "create_custom_fields": false
+  },
+  "data": {
+    "deliberate_redaction": false,
+    "raw_sources": "link_preferred",
+    "gmail_attachments": "specific_file_authorization_only",
+    "sensitive_originals": "john_manual_only",
+    "automatic_deletion": false,
+    "vendor_retention": false
+  },
+  "stakeholders": {
+    "categories": [
+      "Developer",
+      "Conveyancer",
+      "Accountant",
+      "Lender",
+      "InternalAgent",
+      "OtherToConfirm"
+    ],
+    "automatic_send": false,
+    "customer_persona_update": false,
+    "customer_sms_enrollment": false
+  },
+  "scheduling": {
+    "enabled": false,
+    "target_scan_minutes": 15,
+    "actual_scan_minutes": null,
+    "schedule_ids": [],
+    "owner_host": null,
+    "single_owner_required": true
+  },
+  "customer_setup": {
+    "operator_id": null,
+    "operator_name": "John",
+    "notion_root_id": null,
+    "notion_ids": {},
+    "gmail_account": null,
+    "allowed_label_ids": [],
+    "excluded_label_ids": [],
+    "mail_time_range": null,
+    "internal_reminder_scope": null,
+    "dropbox_work_folders": [],
+    "crm_system_verified": false,
+    "crm_location_id": null,
+    "sender_account": null,
+    "signature": null,
+    "john_sms_number": null,
+    "calendar_id": null,
+    "capability_checks": {}
+  }
+}

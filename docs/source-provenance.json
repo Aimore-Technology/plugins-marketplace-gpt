@@ -1,0 +1,139 @@
+{
+  "source_url": "https://app.notion.com/p/405f4985b01c819b8559ec5f681b5266",
+  "retrieved_at": "2026-10-27T12:06:19.988Z",
+  "source_body_sha256": "e70db6fdc15454a197c563ba282d962fc6a1746eaae0a5599cef14f561b446b6",
+  "source_language": "zh-CN",
+  "package_language": "en",
+  "configuration_version": "pilot-v1",
+  "translation": "Operational English rewrite; no Chinese source archive is installed or committed.",
+  "section_mapping": {
+    "3": "eightdegrees-initialization",
+    "4": "eightdegrees-email-scanning",
+    "5": "eightdegrees-communication-context-process",
+    "6": "eightdegrees-client-persona-update",
+    "7": "eightdegrees-sms-follow-up",
+    "8": "eightdegrees-sales-reply",
+    "9": "eightdegrees-daily-brief-and-handover",
+    "1, 2, 10, 12": "references/operating-contract.md; references/notion-model.md",
+    "11": "references/pilot-acceptance.md",
+    "13.1": "references/pilot-defaults.json"
+  },
+  "platform": "gpt",
+  "template_check": {
+    "repository": "innolotus/InnoLotus.Codebase",
+    "revision": "6d68f7011dcf550a6d40e4c2b7da2a714c17356c",
+    "result": "No Claude or GPT marketplace template at this revision; minimal platform-specific scaffold used."
+  },
+  "configuration_references": {
+    "13.1.1": {
+      "file": "skills/eightdegrees-initialization/SKILL.md",
+      "steps": [
+        2
+      ],
+      "also": [
+        {
+          "file": "skills/eightdegrees-sales-reply/SKILL.md",
+          "steps": [
+            3
+          ]
+        }
+      ]
+    },
+    "13.1.2": {
+      "file": "skills/eightdegrees-initialization/SKILL.md",
+      "steps": [
+        4
+      ],
+      "also": [
+        {
+          "file": "skills/eightdegrees-communication-context-process/SKILL.md",
+          "steps": [
+            4,
+            5
+          ]
+        },
+        {
+          "file": "skills/eightdegrees-client-persona-update/SKILL.md",
+          "steps": [
+            2,
+            3
+          ]
+        }
+      ]
+    },
+    "13.1.3": {
+      "file": "skills/eightdegrees-sms-follow-up/SKILL.md",
+      "steps": [
+        3,
+        4,
+        5,
+        7
+      ],
+      "also": [
+        {
+          "file": "skills/eightdegrees-sales-reply/SKILL.md",
+          "steps": [
+            6,
+            7
+          ]
+        }
+      ]
+    },
+    "13.1.4": {
+      "file": "skills/eightdegrees-daily-brief-and-handover/SKILL.md",
+      "steps": [
+        2
+      ],
+      "also": [
+        {
+          "file": "skills/eightdegrees-initialization/SKILL.md",
+          "steps": [
+            8
+          ]
+        }
+      ]
+    },
+    "13.1.5": {
+      "file": "skills/eightdegrees-daily-brief-and-handover/SKILL.md",
+      "steps": [
+        3
+      ],
+      "reference": "references/reminders.md"
+    },
+    "13.1.6": {
+      "file": "skills/eightdegrees-initialization/SKILL.md",
+      "steps": [
+        3
+      ],
+      "reference": "references/operating-contract.md",
+      "note": "Deletion disabled; no automatic deletion step exists."
+    },
+    "13.1.7": {
+      "file": "skills/eightdegrees-email-scanning/SKILL.md",
+      "steps": [
+        2
+      ],
+      "also": [
+        {
+          "file": "skills/eightdegrees-communication-context-process/SKILL.md",
+          "steps": [
+            1
+          ]
+        },
+        {
+          "file": "skills/eightdegrees-sales-reply/SKILL.md",
+          "steps": [
+            5
+          ]
+        }
+      ],
+      "reference": "references/operating-contract.md"
+    },
+    "13.1.8": {
+      "file": "skills/eightdegrees-email-scanning/SKILL.md",
+      "steps": [
+        3
+      ]
+    }
+  }
+}
