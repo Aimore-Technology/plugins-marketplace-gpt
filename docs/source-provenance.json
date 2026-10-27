@@ -135,5 +135,12 @@
         3
       ]
     }
-  }
+  },
+  "user_overrides": [
+    {
+      "date": "2026-10-27",
+      "change": "Replace the fixed named operator with any configured user; retain Dropbox as the material source.",
+      "release": "0.1.1"
+    }
+  ]
 }

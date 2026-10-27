@@ -106,6 +106,14 @@ def check():
                 require(target.exists(), f'Broken reference: {path}: {link}')
         defaults = read_json(plugin / 'references/pilot-defaults.json')
         require(defaults['configuration_version'] == 'pilot-v1', 'Configuration version drift')
+        require(defaults['settings_schema_version'] == 2, 'Settings schema drift')
+        setup = defaults['customer_setup']
+        require(all(setup[k] is None for k in ('operator_id', 'operator_name', 'operator_email', 'operator_sms_number')), 'Do not ship a fixed operator identity/destination')
+        require('operator_gmail' in defaults['important_reminders']['priority'], 'Operator reminder channel missing')
+        require(defaults['data']['sensitive_originals'] == 'operator_manual_only', 'Manual-handling role drift')
+        for resource in plugin.rglob('*'):
+            if resource.is_file() and resource.suffix in {'.md', '.json'} and resource.name != 'operator-setup.md':
+                require(not re.search(r'john|vivian', resource.read_text(encoding='utf-8'), re.I), f'Fixed pilot person in runtime payload: {resource.relative_to(plugin)}')
         require(defaults['timezone'] == 'Australia/Adelaide', 'Pilot timezone drift')
         require(defaults['scheduling']['enabled'] is False, 'Package must not enable schedules')
         require(defaults['customer_setup']['allowed_label_ids'] == [], 'Do not ship a customer mail scope')

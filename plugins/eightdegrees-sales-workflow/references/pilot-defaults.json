@@ -33,7 +33,7 @@
   "important_reminders": {
     "priority": [
       "verified_sms",
-      "john_gmail",
+      "operator_gmail",
       "verified_host_notification"
     ],
     "escalation_minutes": 19,
@@ -65,7 +65,7 @@
     "deliberate_redaction": false,
     "raw_sources": "link_preferred",
     "gmail_attachments": "specific_file_authorization_only",
-    "sensitive_originals": "john_manual_only",
+    "sensitive_originals": "operator_manual_only",
     "automatic_deletion": false,
     "vendor_retention": false
   },
@@ -92,7 +92,7 @@
   },
   "customer_setup": {
     "operator_id": null,
-    "operator_name": "John",
+    "operator_name": null,
     "notion_root_id": null,
     "notion_ids": {},
     "gmail_account": null,
@@ -105,8 +105,10 @@
     "crm_location_id": null,
     "sender_account": null,
     "signature": null,
-    "john_sms_number": null,
     "calendar_id": null,
-    "capability_checks": {}
-  }
+    "capability_checks": {},
+    "operator_email": null,
+    "operator_sms_number": null
+  },
+  "settings_schema_version": 2
 }

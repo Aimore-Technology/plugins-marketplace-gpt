@@ -1,14 +1,14 @@
 # Important reminders
 
-Important by default: rejection/complaint/do-not-contact; unknown send/wrong customer/CRM write failure; appointment or committed action within two hours needing action; approved send blocked. John may mark another item important. Normal drafts waiting for review stay in the daily brief.
+Important by default: rejection/complaint/do-not-contact; unknown send/wrong customer/CRM write failure; appointment or committed action within two hours needing action; approved send blocked. The operator may mark another item important. Normal drafts waiting for review stay in the daily brief.
 
-Use verified SMS to John first, then his designated Gmail address, then an available verified host-task notification. Skip unconfigured/failed channels; if SMS is unverified, start with Gmail. Do not assume WhatsApp/Telegram/Hub access.
+Use verified SMS to the operator first, then the configured operator email address, then an available verified host-task notification. Skip unconfigured/failed channels; if SMS is unverified, start with Gmail. Do not assume WhatsApp/Telegram/Hub access.
 
 Persist ReminderKey, original task, reason, actual first notification time/channel/result, 19-minute checkpoint, escalation result, 24-hour deadline, acknowledgement evidence/time and last notice state. Reminder email subject: `Aimore reminder - <task short ID>`. Separate it from customer inquiries; use only the configured internal-reminder read scope. Never widen customer-mail access to track acknowledgements.
 
 At 19 minutes after actual first notification, if not acknowledged, switch to another usable channel ONCE. With one usable channel, repeat once there and record "degraded: no cross-channel escalation". At 24 hours without explicit receipt, keep overdue/unacknowledged and send one overdue notice. No repeating every scan. All channels unavailable means notification failure, shown in the current session/Dashboard; do not pretend notification succeeded.
 
-John can explicitly acknowledge in the current session or original Notion task; record unconnected-channel acknowledgement manually. Page opens, read receipts and "sent" are not acknowledgement. "Received" stops this reminder's chasing only; it does not approve customer sends, update personas, or finish the business action.
+The operator can explicitly acknowledge in the current session or original Notion task; record unconnected-channel acknowledgement manually. Page opens, read receipts and "sent" are not acknowledgement. "Received" stops this reminder's chasing only; it does not approve customer sends, update personas, or finish the business action.
 
 Record planned and actual times. A 15-minute polling target alone cannot ensure 19-minute escalation. Verify host scheduling; late checks/manual fallback are degraded and do not pass automatic timing acceptance. Independent ordinary workflows can still be tested. Do not add a separate backend to hide the limit.
 

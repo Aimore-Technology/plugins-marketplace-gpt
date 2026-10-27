@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.0. English-only instructions for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.1. English-only instructions for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -23,3 +23,5 @@ Australia/Adelaide; customer sends Mon-Fri 10:00-17:00; daily brief 08:30 includ
 ## First use
 
 Install the package, run initialization in the customer account, supply actual scope/account references, then follow `references/pilot-acceptance.md`. Missing connectors do not appear by installing skills. Every customer send still requires exact-version/window approval. Package checks do not prove channel readiness or business acceptance.
+
+Operator identity is configured at initialization; names, reminder destinations and approval ownership are not fixed. Dropbox remains the project-material source. See [operator setup and upgrade](references/operator-setup.md).
