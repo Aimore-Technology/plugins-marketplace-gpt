@@ -4,11 +4,11 @@ Use this contract when creating, upgrading or validating a DataCompletion task. 
 
 ## Task page
 
-Add `InputSubmitted` (checkbox, initially false) and `InputTemplateVersion` (text). A task with `InputTemplateVersion=task-input-v1` uses this submission contract. Keep the existing `OperatorInput` property and its original value for compatibility. Never erase operator answers or historical decisions during migration.
+Add `InputSubmitted` (checkbox, initially false) and `InputTemplateVersion` (text). A task with `InputTemplateVersion=task-input-v1` uses this submission contract. Keep the existing `OperatorInput` property and its original value for compatibility. New writes use a short plain-text summary only; structured answers stay in the editable task body, and accepted snapshots are separately fenced JSON. Follow [Notion I/O](notion-io.md) on property rejection; never assume submission succeeded. Never erase operator answers or historical decisions during migration.
 
 Use [task presentation](task-presentation.md) for a single current status/version summary, then put an editable **Input form** immediately below it. Render it in the configured `customer_setup.workspace_language`. Include:
 
-- A short reason and a field table: requested item, Required/Optional/Conditional, answer and an example or precise guidance. Include only fields needed by this paused step. Leave unknown required answers clearly blank, not plausible defaults. State any condition explicitly.
+- A short reason and a field table (show literal paths/file names in code style, not invented HTTP links): requested item, Required/Optional/Conditional, answer and an example or precise guidance. Include only fields needed by this paused step. Leave unknown required answers clearly blank, not plausible defaults. State any condition explicitly.
 - Separate native paragraph sections for long answers such as an email signature, explanation or multiple source links. Reference those sections from the table. Do not use a fenced code block as the primary editor or promise a custom textarea widget in a database property.
 - A submission instruction: finish the fields, check the `InputSubmitted` property, then wait for the next authorized scan for Automatic tasks or explicitly continue the original task for Manual tasks. There is no separate Save button or automatic host job created by this checkbox. Keep Category, State and Mode visible.
 - A **Validation result** section owned by the workflow, with missing fields, inaccessible links or version conflicts and the next action. Submission is neither content confirmation nor customer-send approval.

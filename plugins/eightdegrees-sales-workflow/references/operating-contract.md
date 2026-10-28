@@ -15,11 +15,15 @@ Read once per invocation. Installed files describe behavior; customer Notion sto
 
 A command may restrict this invocation to setup-only, manual-review, draft-only, report-only or one-cycle-no-customer-send. Apply its restrictions to every downstream action even when an otherwise valid saved approval exists. Pass the invocation policy explicitly to helpers. Keep it local to this invocation: defer excluded actions without cancelling them or rewriting approval/global settings. A later separately authorized invocation reevaluates its own scope and normal approval checks.
 
+## Notion operation integrity
+
+Read [Notion I/O](notion-io.md) for original-page approval checks, tool-error handling, quota-aware discovery and verified archival links. Fetch the original task before a dependent business action; candidate queries do not substitute for current approval evidence.
+
 ## Start, suspend and return
 
 1. Read Dashboard's RunSettings and the supplied task/run. Use the saved customer_setup.workspace_language for generated workspace task/input/report text; keep schema keys, original source text and approved customer payloads unchanged. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.
 2. Reuse `RunId`, source key, step and versions. For canonical identity and exact deduplication, read [source identity](source-identity.md); never compare rendered Notion Markdown as an identifier. A scan has its own run; each business item has a separate run linked by `ParentRunId`. Persona updates reuse their communication run.
-3. Before each mutation, check the original task, cancellations, customer mapping, approval/version and completed steps. Log the action and return actual record identifiers.
+3. Before a business mutation, fetch its original task and current content directly when already registered, inspect actual tool success, and check cancellations, customer mapping, approval/version and completed steps. Log the action and return actual record identifiers.
 4. Suspend only the affected item. Upsert a PendingTasks item keyed by source + paused step + issue, with reason, required inputs, task/run links and resume step. DataCompletion uses the task-body form and submission gate in [pending input](pending-input.md). Classify per notion-model; do not duplicate it every scan.
 5. Refresh the original task using [current task presentation](task-presentation.md), preserving editable answers/history. Return status, result links, pending-task link/reason, next step and execution mode. Waiting is not completion. Never claim a Notion record was saved if its write failed.
 

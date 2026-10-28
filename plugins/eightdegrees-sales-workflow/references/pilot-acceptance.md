@@ -42,3 +42,13 @@ These are behavioral acceptance cases to execute in the customer environment, no
 - Register an authorized dependency once, then verify a child inquiry reuses the applicable verified version and asks only for remaining facts. Unsubmitted Manual setup data and unrelated project versions must not be consumed.
 
 For a command-coverage test, report init, add-communication, run-auto, reply-draft and report separately. Record actual invocation and per-step Passed/Failed/Waiting/Untested; a helper run, package check or three scan rounds do not prove all commands passed. Label simulated operator actions, live test-account observations and real approvals separately. This regression list does not itself grant test approval or authorize a send.
+
+## Notion consistency and report regressions
+
+Before verifying a release fix, record the actual loaded manifest/skill version and the expected target. A run using an older cached version is baseline evidence, not acceptance of the new release; update/reload before claiming the fix passed. Preserve the original tested-version label.
+
+- Update a version-bound decision, then simulate a stale candidate query. Fetch the original task/content before action: do not reject valid saved evidence, consume an outdated version, invent approval or create another task.
+- Reject an OperatorInput property request. The dependent workflow must stop, reread the original submission flag and retain body input. Retry only the corrected plain summary/body representation; do not treat intended input as saved.
+- Limit SQL during a report/scan. Stop repeated restricted queries, disclose the limit and use supported complete saved-view pagination or known original page IDs. Known-item results cannot establish a global count or absence of duplicates; no new daily brief is created while the registered original exists.
+- Verify the original source's customer Communications move/link before ContentReview, preserving ID and mapping. A link failure remains a pending archival step.
+- Run report three times: one latest current summary at the top, explicit cutoff/coverage and older snapshots in history. Literal paths remain literal; Markdown tables and actual source links remain readable. Local evidence paths are not fabricated web URLs.

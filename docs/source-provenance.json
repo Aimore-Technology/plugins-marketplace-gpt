@@ -157,6 +157,12 @@
       "release": "0.1.6",
       "change": "Fix findings from the user-supplied pilot report: strict mail-decoding recovery, exact source-key lookup, current task/version presentation and dependency reuse.",
       "evidence_url": "https://app.notion.com/p/407f4985b01c813eab8ff7556935b37d"
+    },
+    {
+      "date": "2026-10-28",
+      "release": "0.1.7",
+      "change": "Apply second-report findings: original-page approval checks, tool-error gating, body input representation, SQL quota fallback, archival link verification and current daily summaries.",
+      "evidence_url": "https://app.notion.com/p/407f4985b01c81cfb2b2d6cdad94d69c"
     }
   ]
 }
