@@ -20,6 +20,8 @@ After reviewing a Manual communication task, explicitly continue it:
 
 The recorded content approval must still be valid; this phrase is not approval. Unknown command or the plugin mention alone shows command help without changing business records. Automatic scanning never takes over Manual tasks.
 
+For new/migrated tasks, use the ordinary page linked from `Aimore/Actions` to fill missing information or submit a specific content/send decision. Technical task properties are workflow detail. A Manual continuation may take that registered action-page URL instead of the original task URL; the workflow verifies its backlink and active binding before processing it. A bare action URL is not a continuation request.
+
 ## Claude native command equivalents
 
 The Claude edition also includes five native command files:
@@ -36,4 +38,4 @@ These are Claude command registrations, not OpenAI manifest fields. The GPT edit
 
 ## Completing missing data
 
-Open the original DataCompletion task, fill its body input form and check InputSubmitted. Automatic tasks are validated by the next authorized scan; run-auto runs one such cycle without customer sends. For a Manual setup task, explicitly ask initialization to continue that original task after submitting it. A checkbox does not start a schedule, take over Manual work or approve content/sending. See [pending input](pending-input.md).
+For new/migrated DataCompletion, open the registered ordinary action page, fill only requested fields and check its named submission to-do. The original task's InputSubmitted property is no longer a human control. Legacy task-input-v1 keeps its original task-body/property route until explicitly migrated. Automatic tasks validate on the next authorized scan; Manual work still requires its owner's explicit continuation. A checkbox starts no schedule and supplies no content/send approval. See [pending input](pending-input.md) and [operator actions](operator-actions.md).

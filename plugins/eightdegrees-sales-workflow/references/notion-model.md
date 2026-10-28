@@ -12,6 +12,7 @@ Aimore/
   UserPersona/{UserId}/Email
   Templates/ClientPersona
   Templates/CRMNotes
+  Actions
   PendingTasks
   DailyBriefs
   Dashboard/WorkflowRuns
@@ -32,16 +33,18 @@ RunSettings contains settings_schema_version 2, the pilot defaults, configured o
 | View / Category | Issue | Resume rule |
 | --- | --- | --- |
 | ClientMatching | Missing/ambiguous/conflicting identity | The operator supplies exact candidate or matching data; validate CRM account and contact. |
-| DataCompletion | Missing business facts, configuration, project source/version | Submit the task-body input form, then validate required facts; submission is not approval. See [pending input](pending-input.md). |
+| DataCompletion | Missing business facts, configuration, project source/version | Submit the registered action-page input form, then validate required facts; submission is not approval. Legacy routes follow [pending input](pending-input.md). |
 | ContentReview | Notes/persona/draft review or conflicting business facts | Explicit confirm/reject for the relevant version; not send approval. |
 | SendApproval | Final customer send decision | Exact payload and send window approved; changed/expired approval is invalid. |
 | ExecutionExceptions | Tool errors, unknown writes/sends or conflicting execution state | Reconcile actual outcome before continuing unfinished steps. |
 
 Fields: `Name` (title), `TaskId` (text), `OperatorId` (text), `Category` (select above), `State` (select: WaitingForOperator, NeedsCorrection, ReadyToValidate, InProgress, Completed, Cancelled), `Mode` (Manual/Automatic), `RunId`, `Workflow`, `StepId`, `SourceKey`, `SourceURL`, `ClientId`, `LocationId`, `ContactId`, `Reason`, `RequiredInputs`, `OperatorInput` (short plain-text summary; structured answers belong in the body), `InputSubmitted` (checkbox), `InputTemplateVersion` (text), `ContentVersion`, `Decision` (Confirm/Approve/Return/Cancel/Pause/Postpone), `DecisionVersion`, `Approver`, `ApproverId`, `DecisionTime`, `ObservedAt`, `SendNotBefore`, `SendNotAfter`, `Result`, `LastVerifiedAt`, `ResumeStep`, `ReminderKey`, `ReminderAcknowledgedAt`. Use text/URL/date/relation properties as appropriate; structured input and full approval/history may live in the task body.
 
-Keep Category separate from State and delivery status. For DataCompletion pages using task-input-v1, only submitted inputs are validated; follow [pending input](pending-input.md) for forms, submission, migration and accepted snapshots. Untemplated legacy tasks retain save-and-validate behavior until explicitly upgraded. Submission never completes a task; validation/application updates State. Approval always needs the relevant explicit Decision and version. Manual mode additionally waits for an explicit continue request. Preserve decision history when advancing a task from ContentReview to SendApproval. Different approval steps retain separate StepIds/history.
+Add ActionPageURL (URL) and ActionFormVersion (text) to the canonical task and keep the exact page/task/step/content/digest binding in workflow-owned history per [operator actions](operator-actions.md). Register the ordinary Actions hub's page ID in RunSettings. It is not a second database. New action pages have only a title property and relevant business fields/choices; technical fields remain on PendingTasks. On migrated tasks canonical input/decision properties are projections, not another submission route.
 
-Read [task presentation](task-presentation.md) when creating/updating tasks: one current state/version summary, localized next action, preserved history and reused verified dependencies. Only workflow-owned fields are updated by the model; reread the operator's input before each transition. Include the exact email/draft link, required action and reason in every notification. No unchanged-task notification every scan.
+Keep Category separate from State and delivery status. New DataCompletion uses task-input-v2; preserve task-input-v1 and untemplated legacy behavior until a verified explicit migration under [pending input](pending-input.md). Submission never completes a task; validation/application updates State. Approval needs a relevant explicit submitted choice, exact version and durable original evidence; the workflow records Decision/DecisionVersion/actor without asking the user to copy them. Manual mode still requires explicit owner continuation. ContentReview and SendApproval retain separate StepIds, histories and action pages. New content needs a new active review page with blank decisions.
+
+Read [task presentation](task-presentation.md) when creating/updating tasks: one current state/version summary, localized next action, preserved history and reused verified dependencies. Update only workflow-owned fields/sections; reread actual operator input before transitions. Permitted notifications link the primary action page, current email/draft and reason, with a secondary original-task link. No unchanged-task notification every scan. Terminal/superseded pages show no active form.
 
 Create the five views filtered by Category and excluding completed/cancelled items by default. If available tools cannot create views, create the single database, provide exact filters for the host/UI, and report view setup incomplete; do not create five databases or pretend views exist.
 

@@ -9,7 +9,7 @@
     "skill": "eightdegrees-communication-context-process",
     "description": "Add a manual communication for review, or explicitly continue its approved task.",
     "policy": "manual-review",
-    "instructions": "Use Mode=Manual. Accept an authorized message link, pasted communication, transcript or original task link. New submissions prepare customer matching, Notes and proposed persona changes, then stop at ContentReview before CRM writes; return the original review task. Only an explicit \"continue <task URL>\" request resumes that specific Manual task after validating its actual approval/version and prior results. Continue only unfinished approved steps. Never treat the command itself as factual approval or send authorization. No customer sends."
+    "instructions": "Use Mode=Manual. Accept an authorized message link, pasted communication, transcript or original task link. New submissions prepare matching, Notes/persona proposals and a dedicated review action page, then stop before CRM writes. Return that primary action link and original task details. Only explicit continue <task URL or registered action page URL> resumes that specific Manual task after verifying its original task, active page/binding, actual submitted decision/version and prior results. Preserve legacy input routes until migrated. Continue only unfinished approved steps; the command supplies no factual approval or send authorization. No customer sends."
   },
   "run-auto": {
     "skill": "eightdegrees-email-scanning",

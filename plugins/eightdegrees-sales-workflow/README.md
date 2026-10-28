@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.9. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.10. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -33,7 +33,7 @@ Use `@eightdegrees-sales-workflow init`, `add-communication`, `run-auto`, `repor
 
 ## Missing-data input
 
-DataCompletion tasks provide a tailored editable input form in the original task page. Fill the form and check InputSubmitted. Automatic tasks are validated on the next authorized scan; Manual tasks also require explicit continuation. Validation, content review and send approval remain separate. On first init, choose Chinese or English for workspace text; the saved choice is reused. See [input contract](references/pending-input.md).
+Open `Aimore/Actions` for ordinary task-specific input/review pages without the PendingTasks technical-property panel. Fill only requested information or choose one applicable decision, then check the named submission to-do. Workflow-managed IDs, actors, state and versions stay on the canonical task. Automatic tasks validate on the next authorized scan; Manual tasks still need explicit owner continuation. New DataCompletion uses task-input-v2; existing routes remain compatible until verified upgrade. Content confirmation, send approval and reminder receipt remain separate. See [operator actions](references/operator-actions.md) and [input contract](references/pending-input.md).
 
 ## Mail recovery and task clarity
 

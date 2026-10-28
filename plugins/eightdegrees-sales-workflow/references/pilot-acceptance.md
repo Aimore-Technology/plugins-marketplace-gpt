@@ -27,12 +27,22 @@ These are required live scenarios, not claims that packaging has executed custom
 ## Input forms and language checks
 
 - Fresh init asks Chinese/English once and persists the explicit choice. A later init reuses it. Verify both language branches produce localized task guidance while schema keys, customer language and exact approved payloads remain unchanged.
-- Upgrade an open task containing free text: preserve its page/run IDs, Mode and original OperatorInput; retain the supplied values in a tailored editable form. Add task-input-v1 only after saving the form. Do not treat migration as submission or execution.
-- Fill half a templated Automatic task without submitting: the scan must wait. Submit incomplete data: record NeedsCorrection and each missing field, preserve answers, clear the checkbox and request resubmission. Optional style examples must not block a standard business style.
+- Upgrade an eligible open task containing free text: preserve its page/run IDs, Mode and original OperatorInput; retain supplied values in the ordinary action-page form. Register its binding before enabling task-input-v2. Unresolved in-flight legacy records keep their original input route until reconciled. Migration supplies no new submission, decision or execution.
+- Fill half a templated Automatic task without submitting: the scan must wait. Submit incomplete data: record NeedsCorrection and each missing field, preserve answers, clear only the unchanged submission to-do (v2) or legacy InputSubmitted property (v1), and request resubmission. Optional style examples must not block a standard business style.
 - Submit complete data: validate authorized source/version, preserve the exact accepted snapshot and resume only the unfinished step. A Manual task remains pending during run-auto even when submitted. An explicit owner-skill continuation can validate it.
 - Withdraw or edit input during validation; stale data must not be consumed. Repeat a scan after successful application or interrupt after application: use recorded evidence to reconcile, without duplicate writes, new customer approval or sends.
 
 These are behavioral acceptance cases to execute in the customer environment, not packaging-pass claims.
+
+## Dedicated action-page regression scope (0.1.10)
+
+- Fresh init creates an ordinary Actions hub. For each of the five task categories, open the registered ordinary action page: only title properties, a short business summary, relevant answers/choices and a named submission to-do appear before technical history. The operator does not fill TaskId, DecisionVersion, ApproverId or State. Verify actual host presentation and direct primary links, not just Markdown structure. Native card/title clicks may still open the database record; the action link must work without a property-panel detour.
+- Half-fill an action page without checking submission: no consumption. Select zero/multiple exclusive choices or omit required data: NeedsCorrection, exact field errors, all answers/choices retained, only the unchanged submission flag reset. Supply valid data: original task receives a durable bound snapshot before application; Completed follows actual application/readback, not the checked to-do.
+- Submit ContentReview and separately SendApproval; verify localized intent-to-decision mapping and automatic version/actor recording. Content confirmation and reminder receipt cannot approve a send. Manual action forms stay untouched by run-auto, even when submitted; explicit owner continuation accepts the registered action URL and returns to its original task.
+- Change content/version after approval: a new active review page has blank choices; the old page becomes superseded. A copied page, old checked decision, direct legacy Decision edit on a migrated task, or a completed/cancelled page edit cannot approve/reopen current work.
+- Withdraw/change input between observation and action; reject stale snapshots. Interrupt after durable acceptance but before projection/checkbox/result saving: reconcile and repair the original records without duplicate CRM/send or demanding unchanged answers again. Consumed unchecked submission plus preserved accepted evidence is distinguishable from withdrawal.
+- Explicit upgrade migrates eligible open tasks in place, preserves answers/IDs/Mode/decisions and never manufactures a new submission. Unresolved in-flight legacy tasks remain clearly labeled on one original route until reconciled. Do not delete old properties or create closed-task forms.
+- Verify preview unavailable, expired approval, inaccessible action page, no active tasks and already cancelled cases each have a business explanation/next step rather than a live misleading form. A report-only invocation links forms but neither creates them nor consumes input. Package/CLI tests do not establish this live Notion UX or workflow coverage.
 
 ## Encoding, source identity and current-state regressions
 

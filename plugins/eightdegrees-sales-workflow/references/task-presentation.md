@@ -2,13 +2,15 @@
 
 Use whenever creating or updating a PendingTasks page or report. Render user-facing text in the saved workspace language; use the current conversation language temporarily if unset. Keep stable English schema/property/category names.
 
+For new/migrated tasks, [operator actions](operator-actions.md) defines the primary human surface under Actions. Keep the database task as execution detail; reports, hub links and permitted notifications lead to the registered action page, with the original task as a secondary details link. Do not rely on rearranging 30 database properties to make inputs discoverable.
+
 ## One current summary
 
 At the top of each task, maintain a workflow-owned **Current status** section:
 
 - Current State, Category and Manual/Automatic mode, with a brief localized explanation.
 - The exact current content/review version and one canonical source/draft/preview link. List unresolved differences before long Notes or history. For example, a change from required parking to preferred parking is an unresolved fact change, not an approved persona update.
-- The required next action: fill the body form, check InputSubmitted, then run the next authorized scan for Automatic tasks or explicitly continue the original Manual task. Do not promise a background job when no schedule is enabled. Editing/submitting data and content/send approval remain different actions.
+- The required next action: use the registered action-page answers/choice and named submission to-do, then run the next authorized scan for Automatic tasks or explicitly continue the original Manual task. Legacy task-input-v1 still uses the original InputSubmitted property until migrated. Do not promise a background job when no schedule is enabled. Editing/submitting data and content/send approval remain different actions.
 - Only currently missing/invalid items, or an explicit completed result. Completed data tasks explain that they are hidden from open views but remain accessible through the original inquiry/run link.
 
 Keep editable input, validation results, current review material and historical evidence in separate named sections. When a version advances or a correction is resolved, replace the current summary and move the superseded state/version into labeled history. Never leave an old NeedsCorrection notice or v1 approval request as a second current instruction before the active v2. Do not delete original operator answers, decisions, attachments or child pages.
@@ -23,4 +25,4 @@ An Automatic inquiry may use already registered verified setup data. It cannot r
 
 ## Views and reports
 
-Keep the DataCompletion view focused on Name, State, Mode, InputSubmitted, RequiredInputs, Result and original source link; wrap cells. Keep technical IDs/history available on the page without crowding primary actions. `report` links the original task and exposes its current state/version, missing dependencies and next action; it does not execute the dependency, create approvals or copy a second task/log body. Use [Notion I/O](notion-io.md) for quota-limited reads. Keep one current daily summary at the top with observation time, source cutoff, coverage and only known counts; move earlier generated summaries beneath labeled history instead of appending a new "current" section below stale headlines. A scoped snapshot must not inherit global counts or a false zero-failure claim. Report generation time and incomplete coverage honestly.
+Keep operator views focused on Name, State, Mode and ActionPageURL; wrap cells and keep technical properties out of the primary display when supported. Put active ordinary-page links on Actions so users can bypass database-property panels. `report` exposes current business state, missing dependency and next action with the original task as a secondary link; it does not create/edit action forms, execute dependencies, consume submissions or copy a second task/log body. Use [Notion I/O](notion-io.md) for quota-limited reads. Keep one current daily summary with observation time, source cutoff, coverage and only known counts; preserve older snapshots as history. Scoped snapshots must not inherit global counts or false zero-failure claims. Completed/cancelled tasks have no active input request; show their outcome and history only.
