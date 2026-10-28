@@ -26,7 +26,9 @@ def package(output_dir):
         manifest = json.loads(manifest_path.read_text())
         filename = f'{entry["name"]}-{manifest["version"]}-{platform}.zip'
         archive = output_dir / filename
-        files = sorted(p for p in plugin.rglob('*') if p.is_file())
+        files = sorted(p for p in plugin.rglob('*') if p.is_file()
+                       and '__pycache__' not in p.relative_to(plugin).parts
+                       and p.suffix != '.pyc')
         for p in files:
             if p.is_symlink() or not p.resolve().is_relative_to(plugin):
                 raise ValueError(f'Invalid archive member: {p}')

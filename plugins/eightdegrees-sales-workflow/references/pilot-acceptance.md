@@ -33,3 +33,12 @@ These are required live scenarios, not claims that packaging has executed custom
 - Withdraw or edit input during validation; stale data must not be consumed. Repeat a scan after successful application or interrupt after application: use recorded evidence to reconcile, without duplicate writes, new customer approval or sends.
 
 These are behavioral acceptance cases to execute in the customer environment, not packaging-pass claims.
+
+## Encoding, source identity and current-state regressions
+
+- Read GB2312/GBK/GB18030 and UTF-8 mail, base64/quoted-printable and multipart alternatives. When native full text is corrupt, verify the exact raw source and strict decoder result. Native failure and recovery success remain separate. Malformed MIME, unknown charset, doubtful output or unauthorized raw attachments must suspend that item rather than invent readable facts.
+- Fetch a source through a Notion view that renders mailto links/escaped colons. Exact typed/parameterized SourceKey lookup must reuse the original business record even after it moves out of Inbox. Multiple exact matches require reconciliation; a serial rerun is not a concurrency test.
+- Return incomplete input, then resubmit it and advance v1 to v2. Verify one current status/version and exact review/preview links at the top, with obsolete correction notices in history. Accepted inputs, original decisions and completed action evidence remain unchanged. Completed data tasks remain reachable from the original run.
+- Register an authorized dependency once, then verify a child inquiry reuses the applicable verified version and asks only for remaining facts. Unsubmitted Manual setup data and unrelated project versions must not be consumed.
+
+For a command-coverage test, report init, add-communication, run-auto, reply-draft and report separately. Record actual invocation and per-step Passed/Failed/Waiting/Untested; a helper run, package check or three scan rounds do not prove all commands passed. Label simulated operator actions, live test-account observations and real approvals separately. This regression list does not itself grant test approval or authorize a send.

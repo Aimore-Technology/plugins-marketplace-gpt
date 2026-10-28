@@ -18,10 +18,10 @@ A command may restrict this invocation to setup-only, manual-review, draft-only,
 ## Start, suspend and return
 
 1. Read Dashboard's RunSettings and the supplied task/run. Use the saved customer_setup.workspace_language for generated workspace task/input/report text; keep schema keys, original source text and approved customer payloads unchanged. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.
-2. Reuse `RunId`, source key, step and versions. A scan has its own run; each business item has a separate run linked by `ParentRunId`. Persona updates reuse their communication run.
+2. Reuse `RunId`, source key, step and versions. For canonical identity and exact deduplication, read [source identity](source-identity.md); never compare rendered Notion Markdown as an identifier. A scan has its own run; each business item has a separate run linked by `ParentRunId`. Persona updates reuse their communication run.
 3. Before each mutation, check the original task, cancellations, customer mapping, approval/version and completed steps. Log the action and return actual record identifiers.
 4. Suspend only the affected item. Upsert a PendingTasks item keyed by source + paused step + issue, with reason, required inputs, task/run links and resume step. DataCompletion uses the task-body form and submission gate in [pending input](pending-input.md). Classify per notion-model; do not duplicate it every scan.
-5. Return status, result links, pending-task link/reason, next step and execution mode. Waiting is not completion. Never claim a Notion record was saved if its write failed.
+5. Refresh the original task using [current task presentation](task-presentation.md), preserving editable answers/history. Return status, result links, pending-task link/reason, next step and execution mode. Waiting is not completion. Never claim a Notion record was saved if its write failed.
 
 Automatic tasks resume after validated submitted input (using the pending-input contract for DataCompletion) or a relevant explicit decision; page modification time alone is insufficient. Manual tasks additionally require the operator's explicit continue request. Retain the same RunId, completed steps and attempt evidence on recovery.
 
@@ -45,7 +45,7 @@ Use Australia/Adelaide with DST. Customer sends default to Mon-Fri 10:00-17:00, 
 
 P0 does not deliberately redact, anonymize, mask or require sanitized samples. Use authorized real business data within customer accounts; no copies in vendor systems, repositories or demos. Gmail labels filter workflow processing, not OAuth access permissions. Query allowed messages first; never fetch all bodies then filter. Do not fetch a mixed-scope thread if the tool cannot exclude out-of-scope messages.
 
-Raw email and Dropbox files remain source-linked, not mirrored. Customer Notion may store necessary ordinary summaries, personas, drafts, HTML previews, approvals and logs. Gmail attachments default to unopened; the operator may authorize a specific file. Do not open, upload, extract or copy ID/licence, credit-card or AML originals: record a manual-handling task and source only. Automatic deletion, archiving, cleanup, overwrites and migration are disabled. Existing Dropbox version maintenance and any local backups remain under the operator's control. Do not access unrelated private mail or family-calendar content.
+Unreadable or garbled mail cannot supply facts or approvals; use [mail decoding](mail-decoding.md) for a scoped recovery or pause. Raw email and Dropbox files remain source-linked, not mirrored. Customer Notion may store necessary ordinary summaries, personas, drafts, HTML previews, approvals and logs. Gmail attachments default to unopened; the operator may authorize a specific file. Do not open, upload, extract or copy ID/licence, credit-card or AML originals: record a manual-handling task and source only. Automatic deletion, archiving, cleanup, overwrites and migration are disabled. Existing Dropbox version maintenance and any local backups remain under the operator's control. Do not access unrelated private mail or family-calendar content.
 
 ## Logs and monitoring
 

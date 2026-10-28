@@ -11,6 +11,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -r requirements-dev.txt
+      - run: python -m unittest discover -s tests -v
       - run: python scripts/check-marketplace.py
       - run: python scripts/package.py --output-dir dist
       - uses: actions/upload-artifact@v4
