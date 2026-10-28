@@ -11,6 +11,7 @@ Aimore/
   Clients/{ClientId}/ClientPersona
   UserPersona/{UserId}/Email
   Templates/ClientPersona
+  Templates/CRMNotes
   PendingTasks
   DailyBriefs
   Dashboard/WorkflowRuns
@@ -44,21 +45,23 @@ Create the five views filtered by Category and excluding completed/cancelled ite
 
 ## CRM Notes and persona
 
-Append one note per CommunicationId + approved version; do not rewrite old Notes or add custom fields. Header: communication time/timezone, source, verified customer, CommunicationId and approved version for reconciliation. Four dot-point sections:
+Append one note per CommunicationId + approved version; do not rewrite old Notes or add custom fields. Use the complete plain-text template and pre-review/pre-write checks in [CRM Notes](crm-notes.md), registered as `Templates/CRMNotes`. Include communication time/timezone, source, verified LocationId/ContactId/customer, CommunicationId and content version. No Markdown/HTML formatting in the actual CRM body. Four dot-point sections:
 
 - Context Background: background and confirmed facts.
 - Action: actions actually performed.
 - Recommendation: suggestion, operator/AI origin and whether executed.
 - Next Schedule: next action, owner and time.
 
-Use "Not provided / To confirm" for missing facts. Communication processing owns the write when no persona changes exist; otherwise persona-update writes ONE combined note for both. Verified structured CRM mappings may additionally update fields; otherwise report "Notes synced; structured fields not enabled". Notion ClientPersona stores an approved snapshot with its source/version and actual sync status. Persona fields: property type, dwelling/bedroom preference, first buyer/investor status, age band only if supplied, budget, confirmed preferences, unresolved questions and next action. Do not infer unknown facts.
+Use "Not provided / To confirm" for missing facts; verified identity/source cannot be placeholders. Persona proposals belong inside the reviewed standard sections, not an unreviewed extra section appended during writing. Communication processing owns the write when no persona changes exist; otherwise persona-update writes ONE combined approved note for both. Verified structured CRM mappings may additionally update fields; otherwise report "Notes synced; structured fields not enabled". Notion ClientPersona stores an approved snapshot with its source/version and actual sync status. Persona fields: property type, dwelling/bedroom preference, first buyer/investor status, age band only if supplied, budget, confirmed preferences, unresolved questions and next action. Do not infer unknown facts.
 
 ## Runs, logs and health
 
 - WorkflowRuns: Name, RunId, ParentRunId, OperatorId, RecordType (Business/Scan/Initialization), Skill/version, Mode, customer mapping, SourceKey/URL, CurrentStep, Status (InProgress/WaitingForOperator/Paused/Completed/Error/Unknown/Cancelled), StartedAt, LastActiveAt, EndedAt, wait intervals, task/log links, approved version, external IDs, summary, LastVerifiedAt, LogBackfillRequired.
 - OperationLogs: title, EventId, RunId, StepId, ActionId, AttemptId, OccurredAt, ObservedAt, RecordedAt, actor/observer evidence with actual configured operator IDs when known, action type/phase, Mode, system/object link, input/output versions, before/after state, result (Success/Failure/Waiting/Unknown/Cancelled), error, external IDs, approval link, correction/backfill reason.
-- HealthStatus: one row per configured service, Enabled, check method, last attempt/success/error, expected interval for scheduled checks only, data cutoff, status (Unconfigured/Disabled/Healthy/Error/Unknown/Stale), run/log links.
+- HealthStatus: one row per configured service, Enabled, check method, last attempt/success/error, expected interval for scheduled checks only, data cutoff, status (Unconfigured/Disabled/Healthy/Degraded/Error/Unknown/Stale), run/log links. Follow [monitoring](monitoring.md) to update real attempt/success times, distinguish recovery from native capability, and preserve error history.
 
 Store message status separately: AwaitingApproval, ApprovedPending, Sending, ProviderAccepted, Delivered, Failed, Unknown, Cancelled. A completed review/run is not delivery evidence.
 
 DailyBriefs has one dated page per operator/business timezone. Upsert it; link original tasks/runs/logs. Show coverage, generated time, actual vs planned time, pending actions, important-reminder state and failures. Do not duplicate log bodies or build business KPI charts.
+
+Register GeneratedAt, DataCutoff, CurrentVersion, Coverage and PendingCount. Separate FailureCount (unresolved real workflow failures, including quality failures), UnknownCount and QualityIssueCount; RecoveredFailureCount and SyntheticFailureCount are separate historical/test metrics. Counts may overlap only when explicitly stated, for example quality as a subset of unresolved failures. Migrate absent fields on an explicit upgrade without resetting history; before migration show the labeled counts in the body and mark schema incomplete. Apply [monitoring](monitoring.md) to timestamps, scoped counts and existing legacy FailureCount meanings.

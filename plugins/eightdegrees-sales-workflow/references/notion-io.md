@@ -14,12 +14,16 @@ Record source, cutoff, pagination completeness and unavailable sources. Known-pa
 
 ## Check actual tool success
 
-Before any dependent step, inspect `isError` and documented structured error envelopes, including nested MCP result wrappers and JSON error content. An object returned by a tool is not itself success. Do not classify ordinary customer text containing the word "error" as a tool failure. Preserve the operation's actual error code and whether a side effect is known.
+Before any dependent step, inspect `isError` and documented structured error envelopes, including nested MCP result wrappers and JSON error content. An object returned by a tool is not itself success. Follow [connector I/O](connector-io.md) for non-JSON success text, actual request schemas and bounded service retries. Do not classify ordinary customer text containing the word "error" as a tool failure. Preserve the operation's actual error code and whether a side effect is known.
 
 After a rejected input/property write, fetch the same original page before correcting the request. Do not assume another field such as InputSubmitted was set by that request, and never process the intended value as if it had been saved. Correct only the rejected representation using the documented tool contract. An unknown write requires reconciliation before retry; known external success with only a failed Notion log needs log repair, not another CRM write or send. Use separate targeted updates when needed and verify relevant saved state before a dependent action.
+
+For targeted content updates, match a unique workflow-owned plain-text heading/sentence from the latest fetch. Do not use a whole rendered paragraph containing native mentions as old_str: Notion may serialize it differently. If no stable unique match exists, keep presentation repair pending and use a supported block update; never replace the whole page, drop history/children or reexecute the external action to fix a summary.
 
 ## Human input and archival links
 
 Keep editable structured answers in native body fields; store accepted machine snapshots separately as fenced JSON. OperatorInput is only a short plain-text compatibility summary, not a serialized configuration object. Do not copy a JSON object into that property as the main input. Preserve any existing legacy answer. Show literal file paths/names in code style so Notion does not create a fake HTTP link; use real hyperlinks only for verified provider URLs. Code formatting is a body/display concern; canonical identity properties remain plain values.
+
+Verify saved file-name/link presentation in the actual Notion output per [monitoring](monitoring.md). Keep the original source identity snapshot before moving a page out of Inbox; database properties may stop appearing after a move. Register its page/Business Run reference before moving, then fetch the original page and destination index. Recover through that canonical reference, never by copying the source or interpreting an empty Inbox as absence.
 
 Before a verified customer's communication reaches ContentReview, move the original page to Communications when supported or link that same page in the customer's Communications index. Verify its page ID, source and client mapping and save its canonical reference. A staged Inbox page with no customer archival link is not a completed archival step. If link saving fails, keep the source/progress and suspend the dependent review setup; do not copy another source page or postpone the link until a final report.

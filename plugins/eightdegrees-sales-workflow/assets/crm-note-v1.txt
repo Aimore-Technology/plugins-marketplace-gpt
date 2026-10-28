@@ -1,0 +1,21 @@
+NotesTemplate: aimore-crm-note-v1
+CommunicationId: {communication_id}
+ContentVersion: {content_version}
+CommunicationTime: {communication_time}
+Timezone: {timezone}
+Source: {source_url}
+LocationId: {location_id}
+ContactId: {contact_id}
+Customer: {customer_name}
+
+Context Background:
+{context_background}
+
+Action:
+{action}
+
+Recommendation:
+{recommendation}
+
+Next Schedule:
+{next_schedule}

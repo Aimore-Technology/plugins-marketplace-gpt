@@ -1,0 +1,13 @@
+# 0.1.8 Plain-text CRM Notes and operational consistency
+
+The fresh 0.1.7 test reported 40 Passed, 3 Failed, 1 Waiting and 5 Untested across 49 checks. Two approved CRM Notes omitted original communication time/timezone and verified customer audit headers despite successful transport/readback. Additional observations included tool argument errors, non-JSON success parsing, Gmail rate limits, auto-linked file names and stale/inconsistent report/health timestamps.
+
+Ship one canonical aimore-crm-note-v1 text template, registered at customer `Aimore/Templates/CRMNotes` by init. Use a required audit header and four fixed sections; keep all persona proposals inside the reviewed payload. The offline Python renderer/validator rejects incomplete fields, Markdown/HTML and timezone/offset errors, verifies exact approved bytes/digest and refuses to overwrite an existing note file. It has no network, approval or CRM-write capability. Communication and persona workflows validate before review and before append; approved legacy repairs require a new version/review, and old CRM Notes remain intact.
+
+Connector instructions now follow actual per-command schemas, preserve ordinary success text/null structured-content fallbacks, reconcile send results before retry and bound retryable read quota recovery. Notion updates avoid whole rendered mention paragraphs and verify file-name/link presentation. Monitoring uses actual operation times, one consistent report time snapshot, separate native/recovery health and distinct unresolved/quality/unknown/recovered/synthetic counts. Explicit init upgrades add template/monitoring schema while preserving IDs/history and deferring business execution.
+
+Acceptance distinguishes combined no-send conditions from independent version/expiry/stop checks and requires isolated fake-provider rehearsal plus separate authorized live acceptance. This package update does not claim to fix upstream Gmail decoding/rate limits or prove live HTML review, business sending, SMS, scheduling or concurrency.
+
+Validation: 20 offline tests per edition (10 Notes and 10 retained MIME regressions), skill/frontmatter/reference/package checks, and archive content/CRC inspection. Both editions share the template, helpers and business contracts. Live workflow reruns remain in the designated test session; no test email, CRM mutation, historical report rewrite or customer approval migration is performed by this release.
+
+Evidence: [0.1.7 test report](https://app.notion.com/p/407f4985b01c818fa4abd17fe8dc73ea). This evidence link is development provenance, not an installed workflow dependency.

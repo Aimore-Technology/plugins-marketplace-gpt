@@ -19,6 +19,8 @@ A command may restrict this invocation to setup-only, manual-review, draft-only,
 
 Read [Notion I/O](notion-io.md) for original-page approval checks, tool-error handling, quota-aware discovery and verified archival links. Fetch the original task before a dependent business action; candidate queries do not substitute for current approval evidence.
 
+Apply [connector I/O](connector-io.md) for actual schemas, text-only success and bounded rate-limit recovery. For CRM Notes use [standard Notes](crm-notes.md) before review and write; an approved incomplete/free-form note must not bypass template validation.
+
 ## Start, suspend and return
 
 1. Read Dashboard's RunSettings and the supplied task/run. Use the saved customer_setup.workspace_language for generated workspace task/input/report text; keep schema keys, original source text and approved customer payloads unchanged. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.
@@ -54,6 +56,8 @@ Unreadable or garbled mail cannot supply facts or approvals; use [mail decoding]
 ## Logs and monitoring
 
 Use WorkflowRuns for progress; append OperationLogs for observable actions and decisions; update HealthStatus only from actual connection observations. Begin/result events share ActionId; provider attempts have AttemptId; EventId deduplicates a log event. Preserve corrections as new linked events.
+
+Apply [monitoring](monitoring.md) for current service timestamps, partial health, consistent report times and separate unresolved/quality/recovered/simulated counts. Provider success alone does not mark an incomplete output as accepted quality.
 
 Log source/target identifiers, step, mode, input/output versions, approval evidence, timestamps and actual result. Avoid unnecessary body/attachment copies and credentials. Record provider success even if later Notion saving fails; reconcile before backfilling the original event. Unknown remains unknown.
 
