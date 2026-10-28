@@ -10,7 +10,7 @@ Enable/select EightDegrees Sales Workflow in the host first. The unified entry s
 @eightdegrees-sales-workflow reply-draft <inquiry URL>
 ```
 
-Initialize actual operator/account/scope values first. Missing values are requested rather than guessed. `run-auto` runs once and prepares/validates automatic work without sending customer messages or enabling a schedule. Existing approved messages remain pending for a separately requested execution. `report` updates Notion and shows links without sending notifications or changing appointments. `reply-draft` never sends. `add-communication` defaults to manual review before CRM writes.
+On first init, choose Chinese or English for workspace pages, input forms, guidance and reports. The saved choice is reused; it does not select the language of customer replies. Initialize actual operator/account/scope values first. Missing values are requested rather than guessed. `run-auto` runs once and prepares/validates automatic work without sending customer messages or enabling a schedule. Existing approved messages remain pending for a separately requested execution. `report` updates Notion and shows links without sending notifications or changing appointments. `reply-draft` never sends. `add-communication` defaults to manual review before CRM writes.
 
 After reviewing a Manual communication task, explicitly continue it:
 
@@ -33,3 +33,7 @@ The Claude edition also includes five native command files:
 ```
 
 These are Claude command registrations, not OpenAI manifest fields. The GPT edition uses the entry skill and does not package Claude command files. Native registration/autocomplete and real plugin mention handling must be tested in the installed target client; source validation alone does not verify its UI.
+
+## Completing missing data
+
+Open the original DataCompletion task, fill its body input form and check InputSubmitted. Automatic tasks are validated by the next authorized scan; run-auto runs one such cycle without customer sends. For a Manual setup task, explicitly ask initialization to continue that original task after submitting it. A checkbox does not start a schedule, take over Manual work or approve content/sending. See [pending input](pending-input.md).

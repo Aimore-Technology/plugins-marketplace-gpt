@@ -23,3 +23,13 @@ Not part of this pilot: automated deletion/archiving, sensitive-original process
 - Switch to another configured operator or sender account. Pending unsent approvals must not transfer; reconcile unknown external attempts before new approval/resume. Check read-only diagnosis remains possible while required operator setup is missing.
 
 These are required live scenarios, not claims that packaging has executed customer-account tests.
+
+## Input forms and language checks
+
+- Fresh init asks Chinese/English once and persists the explicit choice. A later init reuses it. Verify both language branches produce localized task guidance while schema keys, customer language and exact approved payloads remain unchanged.
+- Upgrade an open task containing free text: preserve its page/run IDs, Mode and original OperatorInput; retain the supplied values in a tailored editable form. Add task-input-v1 only after saving the form. Do not treat migration as submission or execution.
+- Fill half a templated Automatic task without submitting: the scan must wait. Submit incomplete data: record NeedsCorrection and each missing field, preserve answers, clear the checkbox and request resubmission. Optional style examples must not block a standard business style.
+- Submit complete data: validate authorized source/version, preserve the exact accepted snapshot and resume only the unfinished step. A Manual task remains pending during run-auto even when submitted. An explicit owner-skill continuation can validate it.
+- Withdraw or edit input during validation; stale data must not be consumed. Repeat a scan after successful application or interrupt after application: use recorded evidence to reconcile, without duplicate writes, new customer approval or sends.
+
+These are behavioral acceptance cases to execute in the customer environment, not packaging-pass claims.

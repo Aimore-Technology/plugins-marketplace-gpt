@@ -108,7 +108,8 @@
     "calendar_id": null,
     "capability_checks": {},
     "operator_email": null,
-    "operator_sms_number": null
+    "operator_sms_number": null,
+    "workspace_language": null
   },
   "settings_schema_version": 2
 }

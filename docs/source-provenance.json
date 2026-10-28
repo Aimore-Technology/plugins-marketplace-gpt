@@ -146,6 +146,11 @@
       "date": "2026-10-27",
       "release": "0.1.2",
       "change": "Add init, add-communication, run-auto, report and reply-draft command entrypoints matching the prior demos; retain their restricted invocation scope."
+    },
+    {
+      "date": "2026-10-28",
+      "release": "0.1.5",
+      "change": "Add task-body DataCompletion forms with explicit submission and validation; ask Chinese or English at init and retain the configured workspace language."
     }
   ]
 }

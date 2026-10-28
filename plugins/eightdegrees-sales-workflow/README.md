@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.4. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.5. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -30,3 +30,7 @@ Operator identity is configured at initialization; names, reminder destinations 
 ## Short commands
 
 Use `@eightdegrees-sales-workflow init`, `add-communication`, `run-auto`, `report`, or `reply-draft` with the plugin enabled/selected. See [command quickstart](references/commands.md) for inputs, boundaries and native Claude equivalents.
+
+## Missing-data input
+
+DataCompletion tasks provide a tailored editable input form in the original task page. Fill the form and check InputSubmitted. Automatic tasks are validated on the next authorized scan; Manual tasks also require explicit continuation. Validation, content review and send approval remain separate. On first init, choose Chinese or English for workspace text; the saved choice is reused. See [input contract](references/pending-input.md).

@@ -12,9 +12,13 @@ Record `OperatorId` on runs/tasks and `ApproverId` plus the display name on new 
 
 Changing the operator, sender account, reminder destination or relevant connected account is an explicit configuration change, never a guessed side effect of a login change. Pause affected automation, recheck actual authorization/scope and pending attempts, and obtain new approval for affected unsent actions. Preserve historical actors, approvals, task IDs, provider IDs and completed steps. Existing unknown external results must still be reconciled, not reassigned and retried.
 
+## Workspace language
+
+At fresh initialization, ask the operator to choose Chinese or English before creating user-facing pages. Accept an explicit choice already supplied in the request. Persist customer_setup.workspace_language as zh-CN or en; keep the packaged default null. Reuse the saved value on later init calls. A legacy installation with no choice is asked once on its next explicit init/upgrade; preserve its existing page content while awaiting the answer. Outside init, an unset choice may use the current conversation language for new guidance without saving it as a permanent preference. A language change affects newly generated task/input/report text, not schema/property keys, source documents, historical decisions or approved customer payloads. Ask separately before translating existing approved content.
+
 ## Upgrade from 0.1.0
 
-Only initialization performs a settings/schema upgrade in the customer's Notion, during an explicit setup/update request. Installing this package changes no live Notion data. Read and preserve the old settings and registered IDs first. Copy a legacy value into its new field only when the new field is absent; conflicting values require operator review. Never silently replace an existing operator name or claim the currently logged-in person made historical decisions.
+Only initialization performs a settings/schema upgrade in the customer's Notion, during an explicit setup/update request. Installing this package changes no live Notion data. For the additive task-input-v1 upgrade, follow [pending input](pending-input.md); keep settings_schema_version 2 and preserve all existing business settings. Workspace language is an optional additive setting until the operator chooses it. Read and preserve the old settings and registered IDs first. Copy a legacy value into its new field only when the new field is absent; conflicting values require operator review. Never silently replace an existing operator name or claim the currently logged-in person made historical decisions.
 
 | Legacy 0.1.0 key/value | Current key/value |
 | --- | --- |

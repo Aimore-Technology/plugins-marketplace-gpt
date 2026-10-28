@@ -17,13 +17,13 @@ A command may restrict this invocation to setup-only, manual-review, draft-only,
 
 ## Start, suspend and return
 
-1. Read Dashboard's RunSettings and the supplied task/run. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.
+1. Read Dashboard's RunSettings and the supplied task/run. Use the saved customer_setup.workspace_language for generated workspace task/input/report text; keep schema keys, original source text and approved customer payloads unchanged. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.
 2. Reuse `RunId`, source key, step and versions. A scan has its own run; each business item has a separate run linked by `ParentRunId`. Persona updates reuse their communication run.
 3. Before each mutation, check the original task, cancellations, customer mapping, approval/version and completed steps. Log the action and return actual record identifiers.
-4. Suspend only the affected item. Upsert a PendingTasks item keyed by source + paused step + issue, with reason, required inputs, task/run links and resume step. Classify per notion-model; do not duplicate it every scan.
+4. Suspend only the affected item. Upsert a PendingTasks item keyed by source + paused step + issue, with reason, required inputs, task/run links and resume step. DataCompletion uses the task-body form and submission gate in [pending input](pending-input.md). Classify per notion-model; do not duplicate it every scan.
 5. Return status, result links, pending-task link/reason, next step and execution mode. Waiting is not completion. Never claim a Notion record was saved if its write failed.
 
-Automatic tasks resume after validated field completion or a relevant explicit decision; page modification time alone is insufficient. Manual tasks additionally require the operator's explicit continue request. Retain the same RunId, completed steps and attempt evidence on recovery.
+Automatic tasks resume after validated submitted input (using the pending-input contract for DataCompletion) or a relevant explicit decision; page modification time alone is insufficient. Manual tasks additionally require the operator's explicit continue request. Retain the same RunId, completed steps and attempt evidence on recovery.
 
 ## Approval and sending
 
