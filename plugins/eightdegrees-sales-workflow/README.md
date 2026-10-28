@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.8. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.9. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -43,4 +43,8 @@ Garbled mail suspends fact extraction until the same authorized MIME source is s
 
 Init creates/reuses `Aimore/Templates/CRMNotes` with `aimore-crm-note-v1`: a required audit header and four fixed plain-text sections. Notes contain no Markdown/HTML. The offline renderer checks missing fields, timezone/offset, unsupported formatting and approved-byte integrity; it cannot grant approval or write CRM. See [CRM Notes](references/crm-notes.md). Existing incomplete approved notes require a corrected new review, without rewriting old CRM entries.
 
-For an existing installation, explicitly request an init upgrade after reloading 0.1.8 to register the new template and monitoring fields. Setup preserves IDs, decisions and history and does not resume business tasks. [Connector I/O](references/connector-io.md) handles current tool contracts, text-only success and bounded rate-limit recovery; [monitoring](references/monitoring.md) separates actual service times, native/recovery health and unresolved quality failures from recovered or simulated issues. Live behavior and independent send gates still need the designated test session.
+For an existing installation, explicitly request an init upgrade after reloading the current version to register the template and monitoring fields. Setup preserves IDs, decisions and history and does not resume business tasks. [Connector I/O](references/connector-io.md) handles current tool contracts, text-only success and bounded rate-limit recovery; [monitoring](references/monitoring.md) separates actual service times, native/recovery health and unresolved quality failures from recovered or simulated issues. Live behavior and independent send gates still need the designated test session.
+
+## Customer page names
+
+Clients shows verified customer names, with email/phone disambiguation for known same-name contacts. Exact CRM IDs remain in metadata; workflows reuse registered page IDs. An explicit init upgrade renames verified legacy ID-titled pages in place, preserving links, children and approvals. Operator-customized titles remain intact. See [customer pages](references/client-pages.md).

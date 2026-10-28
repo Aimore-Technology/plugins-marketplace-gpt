@@ -43,6 +43,13 @@ These are behavioral acceptance cases to execute in the customer environment, no
 
 For a command-coverage test, report init, add-communication, run-auto, reply-draft and report separately. Record actual invocation and per-step Passed/Failed/Waiting/Untested; a helper run, package check or three scan rounds do not prove all commands passed. Label simulated operator actions, live test-account observations and real approvals separately. This regression list does not itself grant test approval or authorize a send.
 
+## Customer navigation and title migration
+
+- Create/reuse a verified customer with a human-readable CRM name under Clients; full LocationId/ContactId remain in metadata and exact page registration. Matching and reruns still use those IDs, not the title.
+- Use two distinct contacts with the same name: show verified email/phone disambiguation while retaining separate mappings. A shared name/email across locations must not merge records.
+- Explicitly upgrade an ID-titled legacy customer page: rename that original page only, retaining its page/child IDs, Communications links, tasks and approvals. A later CRM name change may refresh a generated title, but an operator-customized title must remain intact. Verify no CRM write or historical approved-Notes rewrite occurs.
+- With missing name or unavailable CRM verification, use the documented display fallback or keep migration pending. Do not invent identity, create a duplicate client tree or block unrelated verified work for a cosmetic field.
+
 ## Notion consistency and report regressions
 
 Before verifying a release fix, record the actual loaded manifest/skill version and the expected target. A run using an older cached version is baseline evidence, not acceptance of the new release; update/reload before claiming the fix passed. Preserve the original tested-version label.

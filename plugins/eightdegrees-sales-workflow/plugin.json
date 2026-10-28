@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "eightdegrees-sales-workflow",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Sales workflows for Notion, Gmail, Dropbox and CRM, with operator review and traceable task records.\n\nEnable/select the plugin, then use:\n@eightdegrees-sales-workflow init - Choose Chinese or English; set up operator, accounts and the Aimore workspace.\n@eightdegrees-sales-workflow add-communication <content or message URL> - Prepare manual CRM Notes for review.\n@eightdegrees-sales-workflow run-auto - Run one mailbox and automatic-task scan; no customer sends or schedule activation.\n@eightdegrees-sales-workflow report - Update and show the daily action report; no notifications or Calendar changes.\n@eightdegrees-sales-workflow reply-draft <inquiry URL> - Prepare a reply and HTML preview; stop at send approval.",
   "author": {
     "name": "Aimore Technology",

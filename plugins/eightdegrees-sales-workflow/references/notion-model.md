@@ -7,8 +7,8 @@ Create or select `Aimore/` in the authorized customer workspace. Register actual
 ```text
 Aimore/
   Inbox
-  Clients/{ClientId}/Communications
-  Clients/{ClientId}/ClientPersona
+  Clients/{ClientDisplayName}/Communications
+  Clients/{ClientDisplayName}/ClientPersona
   UserPersona/{UserId}/Email
   Templates/ClientPersona
   Templates/CRMNotes
@@ -19,7 +19,9 @@ Aimore/
   Dashboard/HealthStatus
 ```
 
-Inbox can be a database with customer, unmatched and internal views; internal stakeholders use this same Inbox. Communications contains source-linked records/drafts. Move the original Inbox page when tools support it; otherwise retain it and link the canonical communication record. Do not create disconnected copies. Titles: local timestamp + summary + unique suffix; store timezone explicitly. SourceKey = account + direction + immutable provider message ID. Read [source identity](source-identity.md) before lookups or deduplication; use exact stored properties, not rendered Markdown or an empty moved-from Inbox view. ClientId maps to verified LocationId + ContactId, never just a name/email. UserId is separate.
+Inbox can be a database with customer, unmatched and internal views; internal stakeholders use this same Inbox. Communications contains source-linked records/drafts. Move the original Inbox page when tools support it; otherwise retain it and link the canonical communication record. Do not create disconnected copies. Communication titles: local timestamp + summary + unique suffix; store timezone explicitly. SourceKey = account + direction + immutable provider message ID. Read [source identity](source-identity.md) before lookups or deduplication; use exact stored properties, not rendered Markdown or an empty moved-from Inbox view. ClientId maps to verified LocationId + ContactId, never just a name/email. UserId is separate.
+
+ClientDisplayName is a human-readable customer page title, normally the verified CRM name; it is not ClientId. Follow [customer pages](client-pages.md) for same-name disambiguation, identity metadata, page-ID registration and in-place legacy-title migration. Full CRM IDs belong in metadata, not the primary navigation title. These are logical Notion paths; resolve actual pages by registered IDs rather than title/path text.
 
 Register saved-view IDs and dated brief IDs as they are created, alongside the actual source/page references. Reuse them under [Notion I/O](notion-io.md) when SQL is limited; identity or full-coverage checks that cannot be verified remain incomplete.
 

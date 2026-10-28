@@ -169,6 +169,11 @@
       "release": "0.1.8",
       "change": "Standardize plain-text CRM Notes with required headers and exact reviewed payload checks; repair tool contracts, bounded read recovery, report links/time consistency and service health/count semantics.",
       "evidence_url": "https://app.notion.com/p/407f4985b01c818fa4abd17fe8dc73ea"
+    },
+    {
+      "date": "2026-10-28",
+      "release": "0.1.9",
+      "change": "Show verified customer names in Clients navigation; preserve CRM IDs as metadata and exact page registry keys, with same-name disambiguation and in-place legacy title migration."
     }
   ]
 }
