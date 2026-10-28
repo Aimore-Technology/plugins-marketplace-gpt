@@ -21,7 +21,7 @@
     "skill": "eightdegrees-daily-brief-and-handover",
     "description": "Update and show the current daily action report with original task links.",
     "policy": "report-only",
-    "instructions": "Upsert the daily brief for the configured business timezone and show pending review/approval/follow-up/manual-continue tasks, important-reminder state and actual failures with original links. Treat this as a report invocation, not a scheduled reminder run: do not send notifications or customer messages, create/change Calendar events, resume tasks, write CRM business data or run handover rehearsals. Read existing records and write only the report and required operational logs. Missing optional sources remain visible as incomplete coverage, not invented success."
+    "instructions": "Upsert the daily brief for the configured business timezone and show pending review/approval/follow-up/manual-continue tasks, important-reminder state and actual failures with original links. Treat this as a report invocation, not a scheduled reminder run: do not send notifications or customer messages, create/change Calendar events, resume tasks, write CRM business data or run handover rehearsals. Read existing records and write only the report and required operational logs. Missing optional sources remain visible as incomplete coverage, not invented success. Freeze actual report/run/log target IDs at entry and preflight every mutation under notion-publishing.md. Quality recovery cannot edit tasks/actions/hub/previews/Health or call their owners from report. Describe outside-scope findings with a separate next owner command; audit actual writes at exit."
   },
   "reply-draft": {
     "skill": "eightdegrees-sales-reply",

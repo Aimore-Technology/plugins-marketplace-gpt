@@ -1,7 +1,11 @@
 <!-- Authoring layout: localize text, replace placeholders and omit irrelevant sections. -->
 <!-- Set the ordinary page title in properties; never copy these comments to the operator page. -->
 
-Status: {current_business_status}
+## Current status
+
+Status: {current_business_status}. Version: {current_review_version}.
+
+Next action: {only_the_current_step_or_no_action_required}
 
 {customer_and_topic}. {one_sentence_request_and_submission_effect}
 

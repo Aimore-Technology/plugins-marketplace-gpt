@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.11. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.12. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -52,3 +52,7 @@ Clients shows verified customer names, with email/phone disambiguation for known
 ## Evidence and continuation
 
 Use [task routing](references/task-routing.md) for explicit owner/resume metadata rather than dispatching every pending task as communication Notes. Use [offline evidence checks](references/evidence-checks.md) to preserve specific upstream errors, inspect page-wide saved Notion link patterns and validate routes under the actual shortcut policy. A scan may record an Automatic send decision while still deferring the send; these phases do not grant broader permission. Helpers never call connectors, approve or execute work. Explicit init upgrade repairs only proved legacy routes and retains the action-page changes from 0.1.10.
+
+## Current publication and report boundaries
+
+Owners synchronize task status, active action result and the one current Actions queue in the same transition, with old versions clearly historical. Native saved preview and exact downloaded bytes precede review. Report-only fixes its own reports and logs; outside task/preview issues are linked for a separate owner command. The offline publication helper plans exact status patches, checks direct-upload preview evidence and preflights report write targets. It is not a server or an authorization engine. See [Notion publication](references/notion-publishing.md).

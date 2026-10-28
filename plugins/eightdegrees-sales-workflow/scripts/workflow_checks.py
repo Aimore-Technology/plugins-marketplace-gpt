@@ -136,10 +136,17 @@ def check_links(text, allowed=()):
         raise ValueError("links: expected fetched Markdown and an optional list of verified exact URLs")
     visible, targets = visible_markdown(text), []
     pattern = r'!?\[(?:\\.|[^\]\\])*\]\((?:<([^>\n]+)>|([^\s)\n]+))(?:\s+"[^"\n]*")?\)'
+    covered = []
     for match in re.finditer(pattern, visible):
         targets.append((match.start(), match.group(1) or match.group(2)))
+        covered.append(match.span())
     for match in re.finditer(r'<(?:mention|embed|image|file)\b[^>]*?\b(?:url|source)="([^"]+)"', visible):
         targets.append((match.start(), match.group(1)))
+        covered.append(match.span())
+    # Pre-publication checks must also catch bare URLs that Notion will auto-link.
+    for match in re.finditer(r'''https?://[^\s<>"'`()]+''', visible):
+        if not any(start <= match.start() < end for start, end in covered):
+            targets.append((match.start(), match.group().rstrip(".,;:!?")))
     issues = []
     for position, target in targets:
         if target in allowed:

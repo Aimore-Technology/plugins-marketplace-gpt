@@ -8,6 +8,8 @@ Use the packaged [action page layout](../assets/task-action.md), rendered in the
 
 Keep active links ahead of historical child-page listings; do not turn a long list of superseded pages into the new primary queue. Preserve history and native child-page tags when updating the hub. If page creation/registration is uncertain, retain any returned page ID and reconcile the original parent/task before retrying; a failed URL projection must not create another action page.
 
+Apply [publication transitions](notion-publishing.md) in the same owner invocation after every state/version/action-binding change: refresh canonical task summary, action status/result and the one current hub entry before returning links. Do not defer synchronization to init/report. Historical queues and their old Current operation headings must be explicitly historical, preferably within a supported native toggle; preserve children and input. A failed projection is quality repair, never another external action.
+
 PendingTasks views may show Name, State, Category, Mode and ActionPageURL, hiding technical IDs when supported. A native database card/title may still open the database record: do not claim that its click target was changed. The visible action link and ordinary-page hub provide the direct route. Views/hiding are presentation, not access control. If tools cannot create/register an ordinary page, report action-page setup incomplete and offer the original task or an explicit chat reply; do not claim the clutter is fixed or invent widgets.
 
 ## One page for one task step and review version
@@ -31,6 +33,8 @@ At the top show the customer/topic, what is needed, current business status and 
 | ExecutionExceptions | Business explanation, what is already known, recommended next verification and only the missing evidence | Request reconciliation, keep paused or cancel; never a blind retry or a user-declared provider success |
 
 Show the few applicable choices as native Notion to-dos, all initially unchecked, with an instruction to choose exactly one per labeled choice group. Submission and reminder-receipt to-dos are not decision options. Validate candidate selection and review intent separately if both groups are needed. Notion to-dos are not radios: validate zero/multiple selections rather than pretending exclusivity is enforced. No generic Confirm label for actual sending. Candidate-to-contact and localized-label-to-decision mappings live in the canonical binding, not editable user-supplied IDs.
+
+Only render a choose-one instruction when that labeled group actually contains choices. A data-only form with missing fields has answers plus its specific submit to-do, with no generic choose-one or Confirm requirement. Receipt and submission controls never create an otherwise nonexistent choice group.
 
 After answers/selection/comments, place one separately named submission to-do: for example Submit supplied information, Submit content decision or Submit send decision. Explain that Notion saves edits automatically, but this checkbox requests processing only when an authorized workflow next runs. It is not a custom button, immediate execution or a new scheduled job. Do not precheck a decision or submission. Native paragraphs are multiline editors; do not promise a custom textarea widget.
 

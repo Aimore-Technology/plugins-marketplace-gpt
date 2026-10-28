@@ -84,6 +84,19 @@ class ToolResultTests(unittest.TestCase):
 
 
 class NotionLinkTests(unittest.TestCase):
+    def test_bare_url_before_publication_catches_swallowed_prose(self):
+        result = CHECKS.check_links(PAGE + "\uff1bscope=live")
+        self.assertEqual(result["issue_count"], 1)
+        self.assertIn("MalformedNotionPageTarget", result["issues"][0]["reasons"])
+
+    def test_explicit_links_are_not_double_counted_as_bare_urls(self):
+        result = CHECKS.check_links(f'[task]({PAGE}) <mention url="{PAGE}" />')
+        self.assertEqual(result["links_examined"], 2)
+
+    def test_bare_literal_file_url_is_ignored_in_code_only(self):
+        self.assertEqual(CHECKS.check_links("http://note.py")["issue_count"], 1)
+        self.assertEqual(CHECKS.check_links("`http://note.py`")["links_examined"], 0)
+
     def test_script_skill_filename_and_encoded_host_all_get_reviewed(self):
         text = "[note.py](http://note.py) [SKILL.md](http://SKILL.md) [example](http://%E4%B8%8Dexample.com)"
         result = CHECKS.check_links(text)

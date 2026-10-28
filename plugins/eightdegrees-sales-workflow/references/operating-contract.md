@@ -25,6 +25,8 @@ Every actionable task also needs the explicit owner/resume contract in [task rou
 
 Apply [connector I/O](connector-io.md) for actual schemas, text-only success and bounded rate-limit recovery. For CRM Notes use [standard Notes](crm-notes.md) before review and write; an approved incomplete/free-form note must not bypass template validation.
 
+Use [Notion publication](notion-publishing.md) for the shared state/action/hub transition, saved-preview prerequisite and per-write report scope check. Invocation limits apply to recovery and quality repair as well as the main business step; report must not call an owner or fix a task/preview as part of reporting.
+
 ## Start, suspend and return
 
 1. Read Dashboard's RunSettings and the supplied task/run. Use the saved customer_setup.workspace_language for generated workspace task/input/report text; keep schema keys, original source text and approved customer payloads unchanged. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.

@@ -16,6 +16,8 @@ Record source, cutoff, pagination completeness and unavailable sources. Known-pa
 
 ## Check actual tool success
 
+Apply the current-schema and targeted-patch checks in [Notion publication](notion-publishing.md). Do not guess docs URIs or DDL type names: discover the current contract (logical text is currently RICH_TEXT for Notion DDL). Short error properties contain plain text; full error JSON belongs in the body. Dropbox metadata arguments must also match the discovered schema. Reuse snapshots within an invocation and batch independent permitted reads/updates without weakening final decision checks.
+
 Before any dependent step, inspect `isError` and documented structured error envelopes, including nested MCP result wrappers and JSON error content. An object returned by a tool is not itself success. Follow [connector I/O](connector-io.md) for non-JSON success text, actual request schemas and bounded service retries. Do not classify ordinary customer text containing the word "error" as a tool failure. Preserve the operation's actual error code and whether a side effect is known.
 
 After a rejected input/property write, fetch the same original page before correcting the request. Do not assume another field such as InputSubmitted was set by that request, and never process the intended value as if it had been saved. Correct only the rejected representation using the documented tool contract. An unknown write requires reconciliation before retry; known external success with only a failed Notion log needs log repair, not another CRM write or send. Use separate targeted updates when needed and verify relevant saved state before a dependent action.

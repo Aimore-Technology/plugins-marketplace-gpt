@@ -1,6 +1,6 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing `eightdegrees-sales-workflow` 0.1.11: seven workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
+Private marketplace containing `eightdegrees-sales-workflow` 0.1.12: seven workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
 
 For a local ChatGPT/Codex marketplace, clone this private repository, open the checkout in the desktop host and use its plugin directory to install the listed plugin. With a compatible Codex CLI:
 
@@ -21,7 +21,7 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.11.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
+`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.12.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
 
 This is a skills-only distribution. It adds no server, secret, customer data, account authorization, actual schedule or automatic send. Readiness must be established in the customer's own environment. Real samples and test logs stay in customer accounts.
 
@@ -33,7 +33,7 @@ Use `@eightdegrees-sales-workflow init`, `add-communication`, `run-auto`, `repor
 
 ## Missing-data input
 
-DataCompletion tasks provide a tailored editable input form in the original task page. Fill the form and check InputSubmitted. Automatic tasks are validated on the next authorized scan; Manual tasks also require explicit continuation. Validation, content review and send approval remain separate. On first init, choose Chinese or English for workspace text; the saved choice is reused. See [input contract](plugins/eightdegrees-sales-workflow/references/pending-input.md).
+Open Aimore/Actions for dedicated task-specific ordinary input pages. Fill the requested fields and check the named submission to-do. Automatic tasks are validated on the next authorized scan; Manual tasks also require explicit continuation. Technical properties remain on the canonical PendingTasks record. Validation, content review and send approval remain separate. On first init, choose Chinese or English for workspace text; the saved choice is reused. See [input contract](plugins/eightdegrees-sales-workflow/references/pending-input.md).
 
 ## Mail recovery and task clarity
 

@@ -6,6 +6,8 @@ For new/migrated tasks, [operator actions](operator-actions.md) defines the prim
 
 ## One current summary
 
+Use the shared [publication transition](notion-publishing.md) for every owner state/version change, including accepted input, terminal results, Pause and new-page registration. It refreshes the task, action status and Actions queue together and verifies changed projections. Return a partial publication result when a display is stale; repair only that projection from durable canonical/provider evidence. A report can describe the stale display but cannot repair those business pages.
+
 At the top of each task, maintain a workflow-owned **Current status** section:
 
 - Current State, Category and Manual/Automatic mode, with a brief localized explanation.

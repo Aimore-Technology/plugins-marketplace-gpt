@@ -11,6 +11,8 @@ python3 <plugin>/scripts/workflow_checks.py resume-task --input <canonical-task.
 
 Store authorized captures outside the source repository. Inputs must be the actual original result/saved page/canonical task, not a reconstructed successful response. Preserve both text and structuredContent layers in tool-result captures.
 
+For publication regressions, use [Notion publication](notion-publishing.md) and its offline `notion_checks.py section-patch`, `preview` and `report-write` operations. They plan exact owned-section updates, verify saved embed/file evidence and compare proposed/captured writes to a frozen report target registry. They cannot authorize, execute or host-enforce a workflow. Run link checks before publishing too: bare URLs are examined because Notion may auto-link punctuation into their targets.
+
 ## Results
 
 - tool-result: Accepted is tool evidence, not delivery; Unclassified requires interpretation using the actual tool contract. Error preserves the specific upstream code/status plus wrapper diagnostics. In particular WORKFLOW_API_NOT_ENABLED_FOR_LOCATION is a capability unavailable to that location, even when a wrapper says INVALID_ARGUMENT. The helper never authorizes automatic retries; read retry rules and unknown-write reconciliation still apply.

@@ -185,6 +185,12 @@
       "release": "0.1.11",
       "change": "Fix upstream/wrapper error classification, full saved-Notion link-quality checks, explicit task owner/resume routing, scan checkpoint completion and observe-versus-execute restrictions; retain 0.1.10 action pages for joint acceptance.",
       "evidence_url": "https://app.notion.com/p/407f4985b01c81f0a90ad908cb843b3b"
+    },
+    {
+      "date": "2026-10-29",
+      "release": "0.1.12",
+      "change": "Repair findings from the 0.1.10/0.1.11 joint test: same-owner task/action/hub synchronization, history and data-only forms, saved native preview prerequisite, strict report mutation targets, current schema adapters and exact idempotent section patches. Add offline publication regressions; preserve prior approvals and external results.",
+      "evidence_url": "https://app.notion.com/p/407f4985b01c81048641cf60abbf7394"
     }
   ]
 }
