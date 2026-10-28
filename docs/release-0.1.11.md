@@ -1,0 +1,13 @@
+# 0.1.11 Evidence classification, report links and task ownership
+
+The 0.1.9 test passed standardized Notes and human-readable customer navigation, but remaining report links and incomplete task routing required correction. Its CRM fixture query exposed a generic structured INVALID_ARGUMENT wrapper over an upstream 403 WORKFLOW_API_NOT_ENABLED_FOR_LOCATION. This release retains 0.1.10 dedicated action pages and adds the checks needed to test both changes together.
+
+Ship offline workflow_checks.py with three read-only operations: inspect all documented MCP error layers without losing text diagnostics; scan the entire supplied saved Notion Markdown for suspicious auto-links; and validate explicit owner/resume metadata under current invocation restrictions. The helper has no network, connector, dispatcher, approval or write capability. Captured 0.1.9 evidence replay correctly identifies the GHL capability code and all 15 remaining suspicious report targets. This is offline evidence validation, not live release acceptance.
+
+Tasks now record OwnerSkill, ResumeStep and ResumeContractVersion=resume-v1. Parent Workflow remains provenance. Sales source/draft/send tasks have sales-reply ownership, Notes have communication ownership, and mail body/checkpoint recovery stays with scanning. Canonical routes are inventoried in task-routes.json. Missing/inconsistent routes remain pending; explicit init upgrade repairs only routes proved by original evidence, preserving IDs, approvals, previous attempts and legacy input authority.
+
+Distinguish observing/recording a submitted Automatic send decision from executing the send. run-auto may perform the former with the verified owner while its no-send policy defers the latter. Manual tasks, report-only and draft-only restrictions remain intact. Final approval/version/window/stop/reconciliation checks remain separate; no offline send engine or independent sending acceptance is claimed.
+
+Reports check actual saved pages across tables, file/script/Skill paths, examples and history; remaining issues cannot be hidden by repaired project cells or a local Markdown pass. Preserve exact upstream error diagnostics and capability-specific health. Use latest unique Notion update anchors, and do not complete a scan before required progress/checkpoint success.
+
+Validation: 48 offline regressions per edition (20 retained MIME/Notes and 28 evidence/link/routing checks), skill/reference/package validation, shared-payload parity and archive inspection. Live action-page UX, migration, independent gate/sending and connector behavior remain for the designated session. Original test resources/reports are preserved during packaging. The joint test prompt is in test-0.1.11.md.

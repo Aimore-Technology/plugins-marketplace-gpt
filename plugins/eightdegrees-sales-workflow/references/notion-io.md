@@ -22,6 +22,8 @@ After a rejected input/property write, fetch the same original page before corre
 
 For targeted content updates, match a unique workflow-owned plain-text heading/sentence from the latest fetch. Do not use a whole rendered paragraph containing native mentions as old_str: Notion may serialize it differently. If no stable unique match exists, keep presentation repair pending and use a supported block update; never replace the whole page, drop history/children or reexecute the external action to fix a summary.
 
+Use an exact unique plain heading plus a short adjacent workflow-owned line from the latest fetched representation; include enough context to distinguish current from history. Do not reuse an invented CURRENT_BRIEF marker, a broad repeated heading prefix or pre-serialization text with different escaping. On zero/multiple matches, stop and reread once; do not brute-force variants or turn a presentation refusal into a business retry. Save its unresolved quality status if no supported exact update can be established.
+
 ## Human input and archival links
 
 Keep editable structured answers on the registered ordinary action page for new/migrated tasks, and preserve legacy task-body routes until upgraded. Accepted machine snapshots remain separate in canonical task history as fenced JSON. OperatorInput is only a short plain-text compatibility summary, not the main editor or serialized configuration object. Preserve legacy answers. Show literal file paths/names in code style, not fake HTTP links; real links require verified provider URLs. Code formatting is a display concern; canonical identity properties remain plain values.

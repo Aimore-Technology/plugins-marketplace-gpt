@@ -5,6 +5,8 @@ description: "Build the EightDegrees daily Notion action list, track important r
 
 # Daily brief, reminders and handover
 
+Use [evidence checks](../../references/evidence-checks.md) on entire actual saved Notion reports, including script/Skill paths, tables, examples and history. Code-format local paths/file names and invalid-URL examples before writing; check actual targets after targeted repair. Partial coverage or remaining findings keep quality issues open; repaired project-name cells cannot prove a global clean-link/zero-quality claim. Report route defects and specific upstream capability codes without changing tasks/health or rerunning providers under report-only scope.
+
 Read [operating-contract](../../references/operating-contract.md), [reminders](../../references/reminders.md) and [platform-runtime](../../references/platform-runtime.md). Use [pilot acceptance](../../references/pilot-acceptance.md) for rehearsal/handover.
 
 1. Read authorized communication, PendingTasks, follow-up, CRM and run results. Distinguish waiting for the operator, approved/pending, completed, failed and unknown. Follow [task presentation](../../references/task-presentation.md) for current versions, missing dependencies and mode-specific next actions. Show Manual P0-A as "manual continue required"; do not execute it. Missing tool access is unverified, not healthy.

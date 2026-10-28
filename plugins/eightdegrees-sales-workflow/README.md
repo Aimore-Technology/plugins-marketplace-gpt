@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.10. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.11. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -48,3 +48,7 @@ For an existing installation, explicitly request an init upgrade after reloading
 ## Customer page names
 
 Clients shows verified customer names, with email/phone disambiguation for known same-name contacts. Exact CRM IDs remain in metadata; workflows reuse registered page IDs. An explicit init upgrade renames verified legacy ID-titled pages in place, preserving links, children and approvals. Operator-customized titles remain intact. See [customer pages](references/client-pages.md).
+
+## Evidence and continuation
+
+Use [task routing](references/task-routing.md) for explicit owner/resume metadata rather than dispatching every pending task as communication Notes. Use [offline evidence checks](references/evidence-checks.md) to preserve specific upstream errors, inspect page-wide saved Notion link patterns and validate routes under the actual shortcut policy. A scan may record an Automatic send decision while still deferring the send; these phases do not grant broader permission. Helpers never call connectors, approve or execute work. Explicit init upgrade repairs only proved legacy routes and retains the action-page changes from 0.1.10.

@@ -14,6 +14,8 @@ PendingTasks views may show Name, State, Category, Mode and ActionPageURL, hidin
 
 Register ActionPageURL and ActionFormVersion=`task-action-v1` on the canonical task. In workflow-owned task history, bind the actual action page ID to TaskId, StepId, Category, Mode, ContentVersion and exact review payload/manifest digest when relevant. This binding is system-owned; never ask the operator to copy an ID/version, type ApproverId or choose their own authority. Resolve actor from existing configured/authenticated evidence, distinguishing observation from actual decision time.
 
+Include verified OwnerSkill, ResumeStep and ResumeContractVersion from [task routing](task-routing.md) in that binding. Route observed submissions to their named owner, not the parent communication workflow. An unclear route is not an actionable form. Owner/step repairs preserve existing approved scope and follow explicit upgrade rules; operators do not edit routing fields.
+
 Reuse the registered page while task/step/content is unchanged. For new review content or a new approval step, create and register a new action page, preserve old input/decisions, mark the old page superseded and remove its active link from the hub. Never transfer checked choices to the new page. A copied/unregistered page or a superseded page cannot approve the active task. Customer-readable titles may include topic/short date to distinguish multiple tasks; matching still uses the registered IDs.
 
 ## Only relevant inputs
@@ -37,6 +39,8 @@ Keep the actual versioned review material inline when practical, or immediately 
 When a reminder exists, a separate Acknowledge receipt to-do may be shown with its ReminderKey bound internally. Its label states that it closes only reminder chasing. It does not submit answers, confirm content, approve sending or continue a Manual task.
 
 ## Observe, validate and record
+
+Validate explicit owner/step routing for input observation under [task routing](task-routing.md) before consuming a form. A permitted scan may record an Automatic send choice in observe phase while actual sending remains deferred in execute phase. Manual forms and report-only/draft-only send consumption remain excluded; an invalid route stays pending. Do not broaden the policy to obtain an eligible result.
 
 1. Discover eligible canonical Automatic tasks, then fetch each registered active action page once for candidate input, reusing that snapshot until the required final reread. Do not filter new-route candidates solely by the old InputSubmitted projection: the human now checks a body to-do. Do not scan every historical action page or fetch Manual forms from run-auto. Verify binding/current payload and actual saved checkbox/answers; a view row, page edit time or legacy Decision edit is not new submission. Leave unsubmitted drafts untouched. A page open/save is not a decision. Any unexamined eligible forms mean partial input coverage, not a zero-pending claim.
 2. Preserve the existing Mode and invocation limits. A scanner cannot process a Manual task's form/decision or take it over. For Manual work, show a ready-to-copy owner-skill `continue <action page URL>` request after submission; the operator must explicitly invoke that continuation. Resolve the page's original-task backlink, then verify that the task's active ActionPageURL and binding match; a copied page backlink alone is insufficient. No notification, customer send or schedule is enabled by submission.

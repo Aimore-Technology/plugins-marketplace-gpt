@@ -124,6 +124,13 @@ def check():
                 require(f'Dispatch `{command.stem}`' in parts[2], f'Wrong command dispatch: {command}')
         else:
             require(not (plugin / 'commands').exists(), 'Do not ship Claude commands as an OpenAI runtime component')
+        task_routes = read_json(plugin / 'references/task-routes.json')
+        require(bool(task_routes), 'Missing task resume routes')
+        for step, route in task_routes.items():
+            require(re.fullmatch(r'[A-Za-z][A-Za-z0-9]+', step), f'Invalid resume step: {step}')
+            require(route.get('owner') in EXPECTED - {'eightdegrees-sales-workflow'}, f'Unknown task owner: {step}')
+            require(bool(route.get('categories')) and set(route['categories']) <= {'ClientMatching', 'DataCompletion', 'ContentReview', 'SendApproval', 'ExecutionExceptions'}, f'Invalid task category: {step}')
+            require(route.get('effect') in {'read', 'crm', 'checkpoint', 'draft', 'customer-send', 'setup', 'report', 'calendar', 'internal-notification'}, f'Unknown task effect: {step}')
         defaults = read_json(plugin / 'references/pilot-defaults.json')
         require(defaults['configuration_version'] == 'pilot-v1', 'Configuration version drift')
         require(defaults['settings_schema_version'] == 2, 'Settings schema drift')

@@ -5,6 +5,8 @@ description: "Process authorized customer email, text or transcripts into review
 
 # Process customer communication
 
+Use [task routing](../../references/task-routing.md) for every waiting item: customer selection is communication/VerifyCustomer and Notes review/append is communication/ReviewCommunication. Explicit continuation validates the original owner/step/action binding first. A sales reply/send task supplied to add-communication is deferred with its correct next entry, never processed as Notes. A verified approved downstream persona recovery may use persona-update/SyncApprovedPersona while preserving parent evidence and avoiding duplicate append.
+
 Read [operating-contract](../../references/operating-contract.md) and [notion-model](../../references/notion-model.md). Default Mode=Manual for the operator's P0-A request. Only an explicit upstream automatic workflow may supply Mode=Automatic for a separate new item; it cannot adopt an existing Manual task.
 
 1. Save/reuse a source-linked Inbox record for the authorized email, text or transcript. Record account, original time/timezone and immutable SourceKey/CommunicationId; keep source and derived notes distinct. Link raw Gmail/Dropbox content rather than mirroring it. Mail-derived facts require readable source text; follow [mail decoding](../../references/mail-decoding.md) for corrupted bodies before matching or drafting. Sensitive originals follow manual handling.
