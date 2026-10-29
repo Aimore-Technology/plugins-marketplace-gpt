@@ -14,6 +14,8 @@ On `usage_limit_reached` or another entitlement error, stop repeating that restr
 
 Record source, cutoff, pagination completeness and unavailable sources. Known-page reads can support that page's version check, but cannot establish a global pending count, absence of duplicates, a new daily brief's uniqueness or overall health. Without complete candidate coverage, keep new identity-dependent creation and aggregate claims paused or explicitly incomplete; do not infer absence from a failed/partial query. Reuse a registered daily brief ID; do not create another because SQL was unavailable. For a genuinely new operator/date with complete discovery proving no matching brief exists, create once and register its page ID for later calls. If discovery is incomplete, keep first creation pending rather than claim uniqueness.
 
+Before row writes, validate enum/property values against the fetched data-source-state with schema-values under [publication validation](publication-validation.md). Missing-data reasons belong in their pending tasks, not invented source status options.
+
 ## Check actual tool success
 
 Apply the current-schema and targeted-patch checks in [Notion publication](notion-publishing.md). Do not guess docs URIs or DDL type names: discover the current contract (logical text is currently RICH_TEXT for Notion DDL). Short error properties contain plain text; full error JSON belongs in the body. Dropbox metadata arguments must also match the discovered schema. Reuse snapshots within an invocation and batch independent permitted reads/updates without weakening final decision checks.

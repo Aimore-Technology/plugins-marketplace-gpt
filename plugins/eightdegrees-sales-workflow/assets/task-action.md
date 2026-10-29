@@ -1,4 +1,5 @@
 <!-- Authoring layout: localize text, replace placeholders and omit irrelevant sections. -->
+<!-- On every transition update Current status AND Processing result; inactive input prompts/controls become historical while answers remain. -->
 <!-- Set the ordinary page title in properties; never copy these comments to the operator page. -->
 
 ## Current status

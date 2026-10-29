@@ -19,6 +19,8 @@ Keep editable input, validation results, current review material and historical 
 
 During a targeted update, fetch the page and reread operator input first. Patch only workflow-owned sections; do not replace the whole page just to update status. Persist state/result and refresh the summary, then verify their consistency when recovering a partial update. If only presentation saving failed, repair the presentation; do not repeat the CRM action or send. A stale summary is an implementation problem, not a request for the operator to repeat the completed business step.
 
+Verify all current workflow-owned status, Processing result and input instructions, not only the page header. Use [publication validation](publication-validation.md): a recorded Pause must not coexist with Not submitted or choose-one prompts. Preserve original answers/quoted content and explicitly labeled history.
+
 ## Reuse dependencies
 
 Show a small dependency table: original task/settings/source link, Verified/Waiting/NeedsCorrection/Unknown, relevant version and what remains missing. Reuse already verified applicable values from RunSettings or the original source; do not request the same file/version or sender information separately on every child task. Recheck authorization, applicability and current version before use. A changed/unknown version needs validation; a Dropbox root permission is not a project version, and a scanned mailbox is not an approved sender.
