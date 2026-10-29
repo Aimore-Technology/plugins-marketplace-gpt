@@ -166,6 +166,14 @@ def schema_values(data):
             issues.append({"property": key, "reason": "Unknown or read-only property"})
             continue
         kind = prop.get("type")
+        if name == "ExternalIds" and isinstance(value, str):
+            try:
+                shaped = json.loads(value)
+            except ValueError:
+                shaped = None
+            if isinstance(shaped, (dict, list)):
+                issues.append({"property": key, "reason": "Use a plain text ID index; this connector rejected JSON-shaped ExternalIds. Keep full JSON in owned page history."})
+                continue
         if kind not in {"select", "multi_select", "status"} or value is None:
             continue
         options = prop.get("options", prop.get(kind, {}).get("options", []))
@@ -174,7 +182,7 @@ def schema_values(data):
         if (kind == "multi_select" and not isinstance(value, list)) or any(v not in names for v in values):
             issues.append({"property": key, "reason": "Invalid enum value; do not add an option automatically", "allowed": names})
     return {"status": "NeedsCorrection" if issues else "ValidSelectValues", "issues": issues,
-            "entity_id": payload["id"], "scope": "Current enum/property preflight only; other types and permissions still require the actual tool schema"}
+            "entity_id": payload["id"], "scope": "Current enum/property and ExternalIds representation preflight only; other types and permissions still require the actual tool schema"}
 
 
 def task_display(data):
@@ -271,9 +279,11 @@ def owner_write(data):
     registry, call = data["registry"], data["call"]
     owner, policy = registry.get("owner_skill"), registry.get("policy")
     profiles = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
-    if owner not in profiles or policy not in {"setup-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "owner-workflow"}:
+    if owner not in profiles or policy not in {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "owner-workflow"}:
         return {"status": "Deferred", "reason": "Unknown owner/policy; report-only uses report-write"}
-    if (policy == "setup-only" and owner != "eightdegrees-initialization"
+    if (policy == "scheduling-only" and owner != "eightdegrees-automation-control"
+            or owner == "eightdegrees-automation-control" and policy != "scheduling-only"
+            or policy == "setup-only" and owner != "eightdegrees-initialization"
             or policy == "manual-review" and owner not in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"}
             or policy == "draft-only" and owner != "eightdegrees-sales-reply"):
         return {"status": "Deferred", "reason": "Owner conflicts with invocation restriction"}

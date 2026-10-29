@@ -12,7 +12,7 @@ EXPECTED = {
     'eightdegrees-initialization', 'eightdegrees-email-scanning',
     'eightdegrees-communication-context-process', 'eightdegrees-client-persona-update',
     'eightdegrees-sms-follow-up', 'eightdegrees-sales-reply',
-    'eightdegrees-daily-brief-and-handover', 'eightdegrees-sales-workflow',
+    'eightdegrees-daily-brief-and-handover', 'eightdegrees-sales-workflow', 'eightdegrees-automation-control',
 }
 
 def require(condition, message):
@@ -105,7 +105,7 @@ def check():
                 require(target.is_relative_to(plugin.resolve()), f'Unpackaged dependency: {path}: {link}')
                 require(target.exists(), f'Broken reference: {path}: {link}')
         routes = read_json(plugin / 'references/commands.json')
-        require(set(routes) == {'init', 'add-communication', 'run-auto', 'report', 'reply-draft'}, 'Command inventory mismatch')
+        require(set(routes) == {'init', 'start', 'stop', 'add-communication', 'run-auto', 'report', 'reply-draft'}, 'Command inventory mismatch')
         for alias, route in routes.items():
             require(route['skill'] in EXPECTED - {'eightdegrees-sales-workflow'}, f'Invalid command target: {alias}')
             require((plugin / 'skills' / route['skill'] / 'SKILL.md').is_file(), f'Missing command target: {alias}')
@@ -152,7 +152,7 @@ def check():
         require(defaults['sms_follow_up']['max_messages_per_cycle_including_manual'] == 2, 'SMS cap drift')
         require(defaults['sms_follow_up']['automatic_sending_enabled'] is False, 'Unverified SMS must stay disabled')
         require(defaults['data']['deliberate_redaction'] is False, 'Pilot data policy drift')
-        print(f'PASS {platform}: {name} {manifest["version"]}; eight English skills (seven workflows + command entry); command routes, references, defaults and payload checked')
+        print(f'PASS {platform}: {name} {manifest["version"]}; nine English skills (eight workflows + command entry); command routes, references, defaults and payload checked')
     return platform
 
 if __name__ == '__main__':

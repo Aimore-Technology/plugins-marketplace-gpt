@@ -1,12 +1,12 @@
 # Owner completion contract
 
-Apply to all seven workflow owners, including initialization, communication, persona, scanning, sales reply, SMS and daily brief. This is a local evidence/preflight contract, not an independent backend or host-enforced interceptor. The command policy and ordinary approval/attempt rules remain in force.
+Apply to all eight workflow owners, including initialization, communication, persona, scanning, sales reply, SMS, daily brief and automation control. This is a local evidence/preflight contract, not an independent backend or host-enforced interceptor. The command policy and ordinary approval/attempt rules remain in force.
 
 ## Begin, bind, check, then finish
 
 At owner entry, persist an invocation-specific completion plan in its own WorkflowRuns body/log BEFORE dependent business work. Use [owner-completion-profiles.json](owner-completion-profiles.json) for minimum check kinds. Record intended resource roles and known IDs, immutable task/content versions, invocation policy and required checks. Bind newly returned page IDs by an appended creation/result event before input consumption; do not drop required roles or fabricate a previously frozen plan after completion. The contract is workflow-owned evidence, not new operator form properties.
 
-1. Verify planned task owner/category/resume metadata before task/form registration and again before consuming input. Run resume-task against the ORIGINAL active record and real policy, adding PageId from its actual Notion page URL. CompleteCommunicationData is distinct from ReviewCommunication. Retain the pre-execution route evidence; terminal Deferred is not a replacement. Only named unfinished work proceeds.
+1. Verify planned task owner/category/resume metadata, create the canonical task, then run resume-task --phase register against that ORIGINAL record with the actual policy and PageId before enabling its form. ValidResumeRoute checks metadata only and does not require a fictitious Manual continuation. Run the normal execute/observe phase again before consuming input; add --explicit-continue only for a genuine requested Manual continuation. CompleteCommunicationData is distinct from ReviewCommunication. Retain the pre-execution route evidence; terminal Deferred is not a replacement. Only named unfinished work proceeds.
 2. Persist accepted input/AttemptId and actual provider result/readback as already required. Missing publication evidence never repeats that external action. Keep canonical task/run/source identifiers, inherited mode/scope and approval history.
 3. Prepare and verify current task/action/result/hub publication against the same version. Use typed page-links for original run/task/publication pages, task-display for each changed active action and its actual canonical task, and original route results for the named tasks. Include exact stored reply-draft verification for an email send. Required manual business predicates/provider reconciliation remain separately recorded, not manufactured helper successes.
 4. Run completion-gate with actual integer exits/results and the frozen current contract. Before any final Completed or final Success write, run notion_checks.py owner-write with that SAME registry, proposed actual Notion call and full completion input. It recomputes the gate, checks profile and target coverage, task versions, action-to-task bindings, route owner/policy and email transport evidence. Missing/stale/failed evidence yields Deferred. report-only uses report-write instead; do not choose another owner/policy to obtain a pass.
@@ -25,3 +25,22 @@ For normal downstream persona work, return per-step evidence to the communicatio
 ## Recovery and audit
 
 If an earlier run skipped its contract/gate, retain that failure and append a correction. Existing actual Notes/sent messages remain real results; do not rewind/reexecute them or invent earlier check timestamps. Recover only unfinished projections/new authorized work with current contracts. In acceptance, verify actual tool order and the original persisted plan, not merely an eventual EligibleForCompletion JSON object. These guards improve the executable preflight available to the model; actual live owner behavior remains a separate test.
+
+## Focused evidence and read cost
+
+Freeze only affected dependency roles. Unchanged installation roots, templates,
+other clients, unrelated Health rows and other owners' action pages are not
+publication targets just because their IDs are in settings. Reuse one successful
+capture per unchanged page/version within the same verification phase; run local
+checks over that capture instead of refetching for each helper. Invalidate it
+when a relevant write, human edit, version change or new decision is observed.
+The original task/active approval and latest stop/attempt/source evidence still
+need the required fresh read immediately before external action. After writing,
+read affected saved results before completion; after a final transition, refresh
+only changed surfaces and their dependent evidence. Keep actual tool order and
+preserve failures. Never reuse evidence across invocations or omit a required
+check to reduce latency. Record actual duration/calls; no unmeasured speed claim.
+
+Automation control owns only its schedule/settings/run/log projections, with no
+business task dispatch. Verify native schedule results separately under
+[scheduling](scheduling.md); local completion checks are not native task evidence.

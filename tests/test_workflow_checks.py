@@ -29,6 +29,32 @@ def task(step="SendApprovedReply", mode="Automatic"):
 
 
 class ToolResultTests(unittest.TestCase):
+    def test_manual_registration_checks_original_route_without_fake_continuation(self):
+        original = task("CompleteCommunicationData", "Manual"); original["PageId"] = "a" * 32
+        registered = CHECKS.check_resume(original, "manual-review", phase="register")
+        self.assertEqual(registered["status"], "ValidResumeRoute")
+        self.assertEqual(registered["entity_id"], original["PageId"])
+        self.assertEqual(CHECKS.check_resume(original, "manual-review")["status"], "Deferred")
+        self.assertEqual(CHECKS.check_resume(original, "manual-review", True)["status"], "EligibleForOwnerCheck")
+
+    def test_register_phase_does_not_bypass_wrong_owner_or_command(self):
+        original = task("CompleteCommunicationData", "Manual"); original["PageId"] = "a" * 32
+        for policy in ("setup-only", "one-cycle-no-customer-send", "report-only", "scheduling-only"):
+            self.assertEqual(CHECKS.check_resume(original, policy, phase="register")["status"], "Deferred")
+        original["OwnerSkill"] = "eightdegrees-sales-reply"
+        self.assertEqual(CHECKS.check_resume(original, "manual-review", phase="register")["status"], "NeedsCorrection")
+
+    def test_form_registration_needs_actual_page_and_send_is_still_deferred(self):
+        original = task("SendApprovedReply")
+        self.assertEqual(CHECKS.check_resume(original, "draft-only", phase="register")["status"], "NeedsCorrection")
+        original["PageId"] = "a" * 32
+        self.assertEqual(CHECKS.check_resume(original, "draft-only", phase="register")["status"], "ValidResumeRoute")
+        self.assertEqual(CHECKS.check_resume(original, "draft-only")["status"], "Deferred")
+
+    def test_scheduling_policy_cannot_dispatch_any_business_resume_route(self):
+        for step in json.loads(CHECKS.ROUTES_PATH.read_text()):
+            self.assertEqual(CHECKS.check_resume(task(step), "scheduling-only", True)["status"], "Deferred")
+
     def test_workflow_capability_error_is_not_lost_to_generic_wrapper(self):
         original = {"success": False, "status": 403, "operationId": "search-workflows",
                     "data": {"statusCode": 403, "error": "Forbidden",

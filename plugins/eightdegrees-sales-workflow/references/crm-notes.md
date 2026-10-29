@@ -56,3 +56,23 @@ Render checks required fields, timezone/offset agreement, sections and unsupport
 2. Immediately before appending, fetch the original task/current approved payload and, for migrated tasks, the registered active action page/current accepted input under [operator actions](operator-actions.md). Recheck mapping/version/mode/decision and prior attempts, and validate the exact payload again. Send the approved plain text without additions or conversions. API request JSON may wrap it; JSON serialization is not the Notes body.
 3. If an approved legacy note lacks fields or changes are needed, retain it and submit a new version for ContentReview. Do not silently repair approved bytes or rewrite an existing CRM note. For an already written incomplete note, preserve the append result and upsert one ExecutionExceptions quality task keyed by CommunicationId + approved version + NoteQuality, linking the actual NoteId, missing fields and original review/run. Do not duplicate it per scan. Obtain an explicit decision on any corrective new version, avoiding duplicate append on retry; ordinary schema upgrade must not automatically append corrections.
 4. Read back the actual CRM body and compare exact text/digest where supported. Record any provider normalization explicitly; an unverified difference is not an exact match. A successful API call with an incomplete or mismatched body is not quality acceptance. Save the NoteId and original approved version separately from quality status.
+
+## Business prose and unknown facts
+
+Keep the required technical header for traceability. Body bullets describe the
+customer's situation, business actions actually taken and future sales actions.
+Action may say the customer's requirements or budget basis were clarified; it
+must not narrate Skill calls, RunSettings, MCP operations, task transitions or
+archival plumbing. Recommendation states the useful next business action;
+Next Schedule states its owner/time, with unknown dates explicit. Merely reviewing
+this Notes task is not the customer's business follow-up. Put execution details,
+simulation provenance and diagnostics in Notion monitoring, not business prose.
+Do not remove genuine customer source facts or translate their meaning.
+
+The renderer now rejects specific execution terms in Action/Recommendation/
+Next Schedule before offering a draft for review. Context may quote a genuine
+source containing such words; headers remain unchanged. This narrow check is
+not a complete semantic writing review. [Customer fact semantics](customer-facts.md)
+apply before source/proposal writes; unknown finance stays null. Previously
+approved legacy text that fails a new check requires a fresh reviewed version,
+never silent editing or a repeated CRM append.

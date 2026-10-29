@@ -38,6 +38,24 @@ def payload():
 
 
 class CRMNoteTests(unittest.TestCase):
+    def test_execution_terms_in_business_sections_are_rejected_before_review(self):
+        for section in ("action", "recommendation", "next_schedule"):
+            for value in ("Saved RunSettings after Manual continue.", "Use the Communications archive.",
+                          "Resume PendingTasks using the MCP result.",
+                          "\u539f\u6765\u6e90\u53caRunSettings\u5df2\u5e94\u7528\u5e76\u56de\u8bfb\u3002",
+                          "Matched a CRM \u6d4b\u8bd5\u8054\u7cfb\u4eba."):
+                data = payload(); data["sections"][section] = [value]
+                with self.subTest(section=section, value=value), self.assertRaises(ValueError):
+                    MODULE.render(data)
+
+    def test_genuine_source_quote_and_business_follow_up_remain_plain_text(self):
+        data = payload()
+        data["sections"]["context_background"] = ["Customer quoted a document named RunSettings in the original inquiry."]
+        data["sections"]["action"] = ["Clarified that the purchase-price cap excludes acquisition costs."]
+        data["sections"]["recommendation"] = ["AI suggestion, pending: ask the sales desk to verify current availability."]
+        data["sections"]["next_schedule"] = ["Operator to request a Tuesday viewing slot; time unconfirmed; no appointment booked."]
+        self.assertIn(b"time unconfirmed", MODULE.render(data))
+
     def test_complete_plain_text_preserves_literal_ids_and_unicode(self):
         data = payload()
         data["sections"]["context_background"].append("\u5ba2\u6237\u504f\u597d\uff1a\u4e09\u5367\u3002")

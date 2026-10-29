@@ -20,3 +20,13 @@ Fit the draft BEFORE approval; validate the stable provider key BEFORE dispatch.
 ## Read failure versus write uncertainty
 
 A transient contact read failed once, then a later bounded read succeeded without a business retry. Retain both observations. Follow connector-io's bounded read policy; this is not permission to retry unknown writes or sends. Capability-specific failures, such as a location without Workflow API support, do not imply that contact/Notes access failed or that the account contains no automation.
+
+## Current source and property recovery
+
+Evidence: the 0.1.15 realistic-business run. Registered Dropbox IDs remained
+readable when folder search returned no results. Prefer ID/revision and current
+version-index reads; an empty search is not file absence. ExternalIds rejected a
+JSON-shaped string, then accepted a plain text index; full evidence stayed in
+owned page history. Preserve actual API refusal and recover only the projection.
+One bounded retry recovered explicit Internal errors on read-only discovery;
+that finding does not permit blind write/send retries.

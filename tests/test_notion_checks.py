@@ -35,6 +35,7 @@ def source_schema():
     state = {"url": "collection://" + PARENT, "schema": {
         "Status": {"type": "select", "options": [{"name": x} for x in ["Saved", "Waiting", "Completed"]]},
         "Tags": {"type": "multi_select", "options": [{"name": "TEST"}]},
+        "ExternalIds": {"type": "text"}, "Summary": {"type": "text"},
         "Created": {"type": "date", "readOnly": True}}}
     return {"id": state["url"], "metadata": {"type": "data_source"},
             "text": '<data-source-state>\n' + json.dumps(state) + '\n</data-source-state>'}
@@ -284,6 +285,15 @@ class PageCoverageTests(unittest.TestCase):
 
 
 class EnumPreflightTests(unittest.TestCase):
+    def test_observed_json_shaped_external_id_refusal_is_caught_before_dispatch(self):
+        for value in ('{"message_id":"message-1"}', '["message-1"]'):
+            data = {"data_source": source_schema(), "data_source_id": PARENT, "properties": {"ExternalIds": value}}
+            self.assertEqual(CHECKS.schema_values(data)["status"], "NeedsCorrection")
+        data["properties"] = {"ExternalIds": "MessageId=message-1; ThreadId=thread-1"}
+        self.assertEqual(CHECKS.schema_values(data)["status"], "ValidSelectValues")
+        data["properties"] = {"Summary": '{"verified":"ordinary rich text is not globally forbidden"}'}
+        self.assertEqual(CHECKS.schema_values(data)["status"], "ValidSelectValues")
+
     def test_current_schema_values_pass_without_schema_mutation(self):
         for value in ("Saved", "Waiting", "Completed", None):
             result = CHECKS.schema_values({"data_source": source_schema(), "data_source_id": PARENT, "properties": {"Status": value}})

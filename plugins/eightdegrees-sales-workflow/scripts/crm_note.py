@@ -26,6 +26,11 @@ MARKUP = re.compile(
     r"^(?:#{1,6}\s|>\s|[-*+]\s|\d+[.)]\s|\|)|"
     r"(?<!\w)(?:\*[^*\s][^*]*\*|_[^_\s][^_]*_)(?!\w)"
 )
+EXECUTION_TERMS = re.compile(
+    r"(?<![A-Za-z0-9_])(?:Manual\s+continue|RunSettings|Communications|PendingTasks|WorkflowRuns|"
+    r"OperationLogs|OwnerSkill|ResumeStep|TaskId|AttemptId|InputSubmitted|MCP|TestHarness)(?![A-Za-z0-9_])|"
+    r"add-communication|one-cycle-no-customer-send|\[TEST\]|\u6d4b\u8bd5\u8054\u7cfb\u4eba", re.I
+)
 
 
 def plain(value, label, allow_unknown=True, check_markup=True):
@@ -71,6 +76,8 @@ def render(payload):
         items = sections[key]
         if not isinstance(items, list) or not items:
             raise ValueError(f"{key}: at least one plain-text bullet is required")
+        if key != "context_background" and any(isinstance(item, str) and EXECUTION_TERMS.search(item) for item in items):
+            raise ValueError(f"{key}: use business actions and next steps; execution details belong in Notion logs")
         values[key] = "\n".join("- " + plain(item, key) for item in items)
     return TEMPLATE.read_text(encoding="utf-8").format(**values).encode("utf-8")
 

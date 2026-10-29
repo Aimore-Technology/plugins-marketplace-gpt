@@ -5,6 +5,8 @@ description: "Turn a verified customer project inquiry into a reviewed, versione
 
 # Reply to a sales inquiry
 
+Before saving extracted/clarified customer boolean facts or persona snapshots, apply [customer fact semantics](../../references/customer-facts.md) and run the fact helper on the actual proposal. Unknown is null, never a default false.
+
 Before the first owner mutation, establish the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
 
 Register sales-reply as OwnerSkill for project-source tasks (ResolveProjectSources), reply-content reviews (ReviewReplyDraft) and final send approvals (SendApprovedReply), using [task routing](../../references/task-routing.md). Parent Workflow may remain communication; it is not the executor. A resumed task/action URL must validate that explicit route and continue only the unfinished step. Missing/conflicting owner/step stays pending without communication fallback or duplicate Notes. Existing draft-only/no-send invocation restrictions still apply.

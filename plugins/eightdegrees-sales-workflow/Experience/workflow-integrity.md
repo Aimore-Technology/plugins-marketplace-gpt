@@ -17,3 +17,15 @@ Some early setup/manual/scan owners checked display text but registered Complete
 At each owner entry, identify its actual required dependency checks before work. Persist immutable input/attempt results before dependent mutations. Before publication completion, check every current status/result/input surface and required saved page against the same canonical version. Capture integer process exit AND structured result; missing, stale, skipped and malformed evidence blocks completion registration. Pass the full current completion input when the reporting preflight requires it. A correct header cannot excuse a stale Not submitted result or active prompt below it.
 
 The 0.1.15 owner-write helper applies owner-specific minimum checks, current bindings and frozen contracts across all seven owners; every owner Skill now directs its use. It does not prevent a model bypass at the host layer. Verify the original audit order: frozen contract, actual checks, gate, then completion event. Do not reconstruct a fictional earlier contract after execution. Report existing provider success even if publication remains incomplete, repair only missing projections, and append a correction for a premature Success rather than repeat a business action.
+
+## Realistic-business run lessons
+
+Evidence: the 0.1.15 realistic-business run. 'Finance not confirmed' was first
+projected as false, then corrected to null before review. Apply the customer-fact
+helper BEFORE any projection write. Notes business sections briefly narrated
+Manual continuation and settings; keep those details in Notion logs and use the
+business-prose renderer guard before review. For new form metadata use register
+phase with the actual policy/PageId; don't invent Manual continuation or use a
+setup policy. These offline safeguards still need live owner-order verification.
+For read cost, freeze affected targets and reuse unchanged captures only within
+the same invocation/phase; mandatory fresh approval/attempt checks remain.

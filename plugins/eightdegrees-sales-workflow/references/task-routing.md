@@ -43,3 +43,13 @@ Routing-only repair does not change approved bytes or manufacture approval. If i
 ### Communication data-completion upgrade
 
 CompleteCommunicationData is a draft/Notion-input step, with DataCompletion/ExecutionExceptions categories, not the CRM-writing ReviewCommunication step. It validates/applies only the submitted scope and then hands off to a separate Notes ContentReview. On explicit init upgrade, repair an open legacy ReviewCommunication+DataCompletion route only when its original missing-field/source/apply evidence proves this intent. Preserve TaskId/RunId/source/Mode and existing results. Follow active-page binding migration rules; changed bindings get fresh unchecked controls, not transferred approval. In-flight legacy submissions keep one authority until reconciled. Completed historical tasks keep their actual results and failure history; a new valid route does not retroactively pass an old invalid route or justify another Note append.
+
+## Registration versus continuation
+
+Before enabling a new ordinary form, create its canonical task and use
+`resume-task --phase register --policy <actual policy>` with its real PageId.
+ValidResumeRoute checks only the owner/category/step/mode contract. It does not
+consume a submission or satisfy a final completion route. Use execute/observe
+with the actual continuation context later. Never change to setup-only or set
+--explicit-continue merely to obtain a pre-form pass. scheduling-only cannot
+resume PendingTasks, and start/stop do not need business-task routes.

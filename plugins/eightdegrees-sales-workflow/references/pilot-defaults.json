@@ -88,7 +88,16 @@
     "actual_scan_minutes": null,
     "schedule_ids": [],
     "owner_host": null,
-    "single_owner_required": true
+    "single_owner_required": true,
+    "state": "Stopped",
+    "desired_state": "Stopped",
+    "generation": 0,
+    "owner_key": null,
+    "provider": null,
+    "account_id": null,
+    "prompt_sha256": null,
+    "pending_attempt": null,
+    "last_verified_at": null
   },
   "customer_setup": {
     "operator_id": null,

@@ -17,7 +17,7 @@ Read the [Experience index](../Experience/README.md) once and select only the ca
 
 ## Invocation scope
 
-A command may restrict this invocation to setup-only, manual-review, draft-only, report-only or one-cycle-no-customer-send. Apply its restrictions to every downstream action even when an otherwise valid saved approval exists. Pass the invocation policy explicitly to helpers. Keep it local to this invocation: defer excluded actions without cancelling them or rewriting approval/global settings. A later separately authorized invocation reevaluates its own scope and normal approval checks.
+A command may restrict this invocation to setup-only, scheduling-only, manual-review, draft-only, report-only or one-cycle-no-customer-send. Apply its restrictions to every downstream action even when an otherwise valid saved approval exists. Pass the invocation policy explicitly to helpers. Keep it local to this invocation: defer excluded actions without cancelling them or rewriting approval/global settings. A later separately authorized invocation reevaluates its own scope and normal approval checks.
 
 ## Notion operation integrity
 
@@ -76,3 +76,7 @@ Apply [monitoring](monitoring.md) for current service timestamps, partial health
 Log source/target identifiers, step, mode, input/output versions, approval evidence, timestamps and actual result. Avoid unnecessary body/attachment copies and credentials. Record provider success even if later Notion saving fails; reconcile before backfilling the original event. Unknown remains unknown.
 
 Direct Notion edits are logged when actually observed and validated; polling does not capture every intermediate edit. Manual inactivity is not an outage. A stopped scheduler cannot report its own failure: Dashboard shows the last recorded state and the operator checks host run history. Only basic operational counts/status are in scope; reply-rate/conversion analytics are deferred.
+
+## Explicit periodic control
+
+Only start/stop may create/delete the installation-owned native scan task. Follow [scheduling](scheduling.md); each tick remains run-auto with no customer sends. A schedule never approves content, takes over Manual tasks or creates another schedule. Initialization and installation remain disabled by default.

@@ -35,3 +35,22 @@ Keep editable structured answers on the registered ordinary action page for new/
 Verify saved file-name/link presentation in the actual Notion output per [monitoring](monitoring.md). Keep the original source identity snapshot before moving a page out of Inbox; database properties may stop appearing after a move. Register its page/Business Run reference before moving, then fetch the original page and destination index. Recover through that canonical reference, never by copying the source or interpreting an empty Inbox as absence.
 
 Before a verified customer's communication reaches ContentReview, move the original page to Communications when supported or link that same page in the customer's Communications index. Verify its page ID, source and client mapping and save its canonical reference. A staged Inbox page with no customer archival link is not a completed archival step. If link saving fails, keep the source/progress and suspend the dependent review setup; do not copy another source page or postpone the link until a final report.
+
+## Property proposals and read reuse
+
+Run schema-values on only the actual proposed property map, not a fetched row's
+system url/createdTime or whole wrapper. The helper checks enums, not every host
+argument constraint. The observed ExternalIds property rejected a JSON-shaped
+string; use a short ordinary text ID index there and preserve the complete JSON
+in owned page history or an evidence attachment. This is connector-specific,
+not a claim that Notion cannot store JSON text. After refusal, read the original
+before projection-only recovery; a metadata failure never replays a known send.
+
+Reuse one paginated candidate snapshot per invocation. If a canonical database
+query is supported, filter Automatic/open tasks once, then classify locally;
+otherwise exhaust the supported category views. Do not scan all five views and
+then repeat a full database listing for the same decision. Fetch only owned
+candidates that need a current per-item check. Re-read the original task/action
+immediately before acceptance/provider action and after writes as required.
+Static form-result prose should say 'awaiting workflow validation; last checked
+at ...', rather than asserting 'not submitted' after an unobserved native edit.

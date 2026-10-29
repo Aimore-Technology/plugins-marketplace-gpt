@@ -5,6 +5,8 @@ description: "Process authorized customer email, text or transcripts into review
 
 # Process customer communication
 
+Before saving extracted/clarified customer boolean facts or persona snapshots, apply [customer fact semantics](../../references/customer-facts.md) and run the fact helper on the actual proposal. Unknown is null, never a default false.
+
 Before the first owner mutation, establish the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
 
 Use [task routing](../../references/task-routing.md) for every waiting item: customer selection is communication/VerifyCustomer, missing required communication facts use communication/CompleteCommunicationData, and Notes review/append is communication/ReviewCommunication. Explicit continuation validates the original owner/step/action binding first. A sales reply/send task supplied to add-communication is deferred with its correct next entry, never processed as Notes. A verified approved downstream persona recovery may use persona-update/SyncApprovedPersona while preserving parent evidence and avoiding duplicate append.

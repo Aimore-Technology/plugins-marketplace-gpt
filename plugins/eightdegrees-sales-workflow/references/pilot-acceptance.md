@@ -105,3 +105,30 @@ During report, compare every actual mutation against frozen report/run/log targe
 Replay the actual invalid source enum and native-mention whole-section plan offline: both must refuse before mutation. Exclude database/view schema descriptions from typed page coverage, and block completion on failed/nonzero/missing/duplicate/stale/wrong-target results. Before final report Completed/Success, all registered report pages need current successful checks. A top Pause with Not submitted or a choose-one prompt in another current section fails task-display. Retain original answers/history and provider IDs on repair.
 
 Only on the operator's explicit real-channel test request, use separate owner-workflow invocations for an exact approved HTML reply and one AndroidSync SMS. Record actual recipients/device, immutable payload, AttemptId and one-message timing exception; waive only the requested hours/delay. Verify actual received mail/thread/MIME and SMS state/inbound evidence when available. An unobserved phone reply stays Waiting/Untested; simulation is not receipt. Shortcuts retain no-send policies, old stopped batches remain stopped and automatic enrollment stays disabled. A standalone channel probe does not establish material-follow-up acceptance.
+
+## 0.1.16 scheduling and realistic-business regression
+
+- Save finance not confirmed as null before any projection; false with an unknown
+  status must be rejected. Explicit sourced yes/no and unrelated control flags
+  retain their different meanings. Existing approved content is never silently
+  rewritten to satisfy a new guard.
+- New form registration uses the actual policy/PageId in register phase; it
+  supplies neither Manual continuation nor completion evidence. Execute checks
+  still enforce explicit continuation and owner scope.
+- Notes headers stay machine-readable; body uses business actions and future
+  customer follow-up. Execute terms are caught before review, without altering
+  approved bytes or suppressing source quotations.
+- On a connected native scheduler: start once, verify one actual active task,
+  exact 15 minutes, real ID, prompt and timezone. Repeat start must reuse it.
+  Missing native support, unknown create result, duplicate ownership and another
+  host's owner block creation; they must not produce a second scanner.
+- Trigger a real scheduled tick, verifying original scope and Automatic-only,
+  CustomerSendAllowed=false behavior. Repeat no-change ticks stay quiet. A busy
+  run must not launch a parallel catch-up. Measure actual wall time/call count.
+- stop must delete the exact owned native task, verify absence including paused
+  records and preserve unrelated schedules/business records. Repeat stop is a
+  verified no-op. A paused task, missing delete API or unknown result is not
+  Stopped. A stale queued tick must defer; manual run-auto remains usable.
+- Native schedule support, UI confirmation/deletion, live concurrency and actual
+  runtime speed remain untested until observed in that host. Source/package
+  checks and mocked normalized scheduler fixtures are not live acceptance.

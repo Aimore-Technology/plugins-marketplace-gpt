@@ -1,12 +1,13 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.15. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.16. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
 | Skill | Use |
 | --- | --- |
-| eightdegrees-sales-workflow | Route the five short commands to existing workflows. |
+| eightdegrees-sales-workflow | Route the seven short commands to existing workflows. |
+| eightdegrees-automation-control | Start/reuse or delete one native 15-minute scan schedule. |
 | eightdegrees-initialization | Set up customer Notion, actual connections, defaults and readiness. |
 | eightdegrees-email-scanning | One scoped scan and automatic-task validation cycle. |
 | eightdegrees-communication-context-process | Manual P0-A; reviewed communication to CRM Notes. |
@@ -29,7 +30,7 @@ Operator identity is configured at initialization; names, reminder destinations 
 
 ## Short commands
 
-Use `@eightdegrees-sales-workflow init`, `add-communication`, `run-auto`, `report`, or `reply-draft` with the plugin enabled/selected. See [command quickstart](references/commands.md) for inputs, boundaries and native Claude equivalents.
+Use `@eightdegrees-sales-workflow init`, `start`, `stop`, `add-communication`, `run-auto`, `report`, or `reply-draft` with the plugin enabled/selected. See [command quickstart](references/commands.md) for inputs, boundaries and native Claude equivalents.
 
 ## Missing-data input
 
@@ -65,4 +66,8 @@ Use [publication validation](references/publication-validation.md) for actual sc
 
 ## Data routes and stored replies
 
-Communication DataCompletion uses CompleteCommunicationData and cannot append Notes; Notes approval/append remains ReviewCommunication. Gmail replies use an actual stored draft: create, replace MIME without resetting reply context, verify raw draft, review, send_draft, then verify actual sent MIME. The HTML-only offline adapter rejects asset-bearing packages rather than dropping them. All seven owners use version/binding-aware owner-write completion preflight; provider success remains distinct from publication or delivery. See [owner completion](references/owner-completion.md) and [reply transport](references/reply-transport.md).
+Communication DataCompletion uses CompleteCommunicationData and cannot append Notes; Notes approval/append remains ReviewCommunication. Gmail replies use an actual stored draft: create, replace MIME without resetting reply context, verify raw draft, review, send_draft, then verify actual sent MIME. The HTML-only offline adapter rejects asset-bearing packages rather than dropping them. All eight owners use version/binding-aware owner-write completion preflight; provider success remains distinct from publication or delivery. See [owner completion](references/owner-completion.md) and [reply transport](references/reply-transport.md).
+
+## Periodic scan controls
+
+`@eightdegrees-sales-workflow start` creates/reuses one native 15-minute run-auto task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Every tick preserves no-customer-send and Manual-task boundaries. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).

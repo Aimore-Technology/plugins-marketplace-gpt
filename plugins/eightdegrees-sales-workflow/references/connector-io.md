@@ -26,3 +26,21 @@ For idempotent authorized reads, allow at most one retry per service per invocat
 Continue independent work on already verified sources only when it does not need unavailable current evidence. Incomplete mailbox discovery/latest-reply coverage blocks affected customer sends and global completeness claims. Known original tasks may still be read or validated if their own required evidence is available; Manual tasks remain Manual. Preserve failed scan history after a later full rescan succeeds. Checkpoints represent saved progress/pending outcomes, never evidence that all mail was read successfully. Unknown writes/sends follow reconciliation, not read-retry rules.
 
 Update per-service [monitoring](monitoring.md) from the actual attempt and result. Recovery does not repair the connector's native charset behavior or erase failure observations.
+
+## Known IDs, cached discovery and limited read retries
+
+Reuse actual connector schemas and operation IDs within an invocation unless a
+schema/capability error invalidates them. A recorded Dropbox file ID plus revision
+and current version index is the first lookup path; don't rediscover a known
+source by folder search on each step. An empty folder-search result does not
+prove the registered file is missing. Read the actual registered metadata/content
+within scope, retain the search observation, and check current index revisions.
+
+An explicit Internal error on an idempotent read may receive one bounded read
+retry, keeping the failed response. Apply the existing rate/access rules for
+quota and permission failures. This is not an unknown-write retry permission.
+Desktop bridge failure belongs to runtime connectivity, not a customer workflow
+assertion. Check available tools again after a host update; a deprecated dynamic
+tool may require the codex_app MCP server. Do not replace an unavailable bridge
+with session-file edits, hidden endpoints or CLI resume. Save the current task,
+actual input/approval and undelivered command for the operator to resume.

@@ -1,4 +1,4 @@
-"""All seven owner final-write profiles, using real helper outputs offline."""
+"""Owner final-write profiles, using real helper outputs offline."""
 
 import copy
 import json
@@ -29,6 +29,8 @@ def completion_for(owner, step=None):
                 "publication_page_ids": [HUB], "operation_log_source_ids": [LOGS],
                 "task_versions": {TASK: "test-v1"} if step else {}, "action_bindings": {ACTION: TASK} if step else {},
                 "task_page_ids": [TASK] if step else [], "action_page_ids": [ACTION] if step else []}
+    if owner == "eightdegrees-automation-control":
+        registry["policy"] = "scheduling-only"
 
     def add(name, kind, identity, result):
         required[name] = {"kind": kind, "entity_id": identity}
@@ -51,6 +53,21 @@ def completion_for(owner, step=None):
 
 
 class OwnerCompletionTests(unittest.TestCase):
+    def test_automation_owner_requires_schedule_only_policy_and_cannot_impersonate_business_owner(self):
+        data = completion_for("eightdegrees-automation-control")
+        self.assertEqual(CHECKS.owner_write(data)["status"], "WithinOwnerScope")
+        data["registry"]["policy"] = "owner-workflow"
+        self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
+        data = completion_for("eightdegrees-email-scanning"); data["registry"]["policy"] = "scheduling-only"
+        self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
+
+    def test_registration_proof_cannot_replace_execution_route_at_completion(self):
+        data = completion_for("eightdegrees-communication-context-process")
+        route = next(r for r in data["completion"]["checks"] if r["name"] == "route")
+        route["result"]["status"] = "ValidResumeRoute"
+        route["result"]["phase"] = "register"
+        self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
+
     def test_each_owner_refuses_completion_without_its_contract(self):
         for owner in PROFILES:
             with self.subTest(owner=owner):

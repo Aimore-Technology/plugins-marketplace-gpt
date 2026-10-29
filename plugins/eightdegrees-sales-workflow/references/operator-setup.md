@@ -31,3 +31,14 @@ Only initialization performs a settings/schema upgrade in the customer's Notion,
 Retain existing populated `operator_id` and `operator_name`; unset values require setup. For a new `operator_email`, propose an existing authorized notification destination and have the operator confirm it; never assume a sender or scanned mailbox is the correct recipient. Add `settings_schema_version: 2` only after validating the resulting settings. `configuration_version: pilot-v1` continues to identify the unchanged timing/business defaults.
 
 Preserve actual database/property/page IDs and task relationships. Reuse or rename registered properties/options/views only if supported; otherwise register an explicit legacy-to-current field mapping. Avoid creating a second database or disconnected input field. Keep historical decided/finished values intact, including actual person names in logs. An old pending send lacking a reliable operator binding must receive a new explicit approval; do not invent ApproverId or transfer the old approval to another user. Keep scheduling paused until required upgrade steps and execution ownership are verified.
+
+## Additive scheduling settings
+
+During explicit init upgrade, add absent lifecycle fields from scheduling
+without changing enabled state, known task IDs/executor or prior attempts.
+Init never enables a task. A legacy active schedule needs actual native ID,
+prompt/account/host verification before adoption; missing ownership remains
+NeedsReconciliation, not a new schedule. Only explicit start/stop manages the
+native task. Preserve customer facts, approved versions and pending Manual work.
+
+Fresh defaults are Stopped only for a new inactive installation. Do not copy Stopped/desired Stopped into a legacy enabled record as if native deletion had happened. Keep actual enabled/IDs/executor and record NeedsReconciliation until explicit start/stop reconciles its native ownership; installing this package changes no live task.

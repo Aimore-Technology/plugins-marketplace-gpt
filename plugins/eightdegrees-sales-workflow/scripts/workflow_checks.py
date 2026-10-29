@@ -10,7 +10,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROUTES_PATH = Path(__file__).resolve().parents[1] / "references/task-routes.json"
-POLICIES = ("setup-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "report-only", "owner-workflow")
+POLICIES = ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "report-only", "owner-workflow")
 
 
 def inspect_result(result):
@@ -180,7 +180,7 @@ def check_links(text, allowed=()):
 
 def check_resume(task, policy, explicit_continue=False, phase="execute"):
     required = ("TaskId", "RunId", "StepId", "SourceKey", "ContentVersion", "Mode", "State", "Category", "OwnerSkill", "ResumeStep", "ResumeContractVersion")
-    if not isinstance(task, dict) or policy not in POLICIES or phase not in ("observe", "execute"):
+    if not isinstance(task, dict) or policy not in POLICIES or phase not in ("register", "observe", "execute"):
         raise ValueError("resume-task: expected canonical fields and a supported invocation policy")
     if task.get("State") in ("Completed", "Cancelled"):
         return {"status": "Deferred", "reason": "Terminal task; no migration or action required"}
@@ -195,10 +195,25 @@ def check_resume(task, policy, explicit_continue=False, phase="execute"):
         return {"status": "NeedsCorrection", "reason": "Owner, step, category, mode or contract mismatch; no fallback to communication"}
     reason = None
     effect = route["effect"]
+    if phase == "register":
+        entity = task.get("PageId", task.get("url", task.get("id")))
+        if not entity:
+            return {"status": "NeedsCorrection", "reason": "Register the canonical task first; check its actual PageId before enabling a form"}
+        permitted = (policy == "owner-workflow" or policy == "one-cycle-no-customer-send" and task["Mode"] == "Automatic"
+                     or policy == "manual-review" and task["Mode"] == "Manual" and task["OwnerSkill"] in ("eightdegrees-communication-context-process", "eightdegrees-client-persona-update")
+                     or policy == "setup-only" and effect == "setup"
+                     or policy == "draft-only" and task["OwnerSkill"] == "eightdegrees-sales-reply")
+        return {"status": "ValidResumeRoute" if permitted else "Deferred", "entity_id": entity,
+                "policy": policy, "phase": "register", "mode": task["Mode"],
+                "owner": task["OwnerSkill"], "resume_step": task["ResumeStep"],
+                "content_version": task["ContentVersion"],
+                "scope": "Metadata registration only; no input consumption, approval, dispatch or completion eligibility"}
     if task["State"] in ("Completed", "Cancelled"):
         reason = "Terminal task; no action"
     elif policy == "report-only":
         reason = "Report-only cannot resume tasks"
+    elif policy == "scheduling-only":
+        reason = "Scheduling-only cannot resume business tasks"
     elif task["Mode"] == "Manual" and (policy == "one-cycle-no-customer-send" or not explicit_continue):
         reason = "Manual task requires an explicit owner continuation; scanner cannot take over"
     elif policy == "manual-review" and task["Mode"] != "Manual":
@@ -232,7 +247,7 @@ def main(argv=None):
     resume.add_argument("--input", required=True)
     resume.add_argument("--policy", choices=POLICIES, required=True)
     resume.add_argument("--explicit-continue", action="store_true")
-    resume.add_argument("--phase", choices=("observe", "execute"), default="execute")
+    resume.add_argument("--phase", choices=("register", "observe", "execute"), default="execute")
     args = parser.parse_args(argv)
     try:
         source = sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8")

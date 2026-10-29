@@ -23,3 +23,15 @@ For publication regressions, use [Notion publication](notion-publishing.md) and 
 CLI exit code 2 denotes Error/NeedsCorrection; valid Deferred and EligibleForOwnerCheck return 0 with different statuses. Always inspect the status, not exit code alone. Only a separately authorized owner-workflow invocation may use that policy; changing a helper argument cannot widen any command's scope.
 
 For saved Notion pages use the typed page-links check in [publication validation](publication-validation.md); database/view documentation is excluded rather than reported as a clean page. The same reference defines schema-values, task-display and completion-gate. Check actual process exit and structured result before completion; report-write requires full current gate evidence for final completion/Success.
+
+## Fact and native schedule checks
+
+Use `fact_checks.py --input <actual proposed facts>` before source/proposal or
+persona writes. Unknown/null is distinct from confirmed no/false; its schema and
+limits are in [customer facts](customer-facts.md).
+
+For new forms use workflow_checks.py resume-task with --phase register. The
+ValidResumeRoute result is metadata-only; it cannot satisfy completion-gate's
+executing route evidence. For start/stop use schedule_checks.py plan, then fresh
+native results with verify; scheduled ticks use guard. See [scheduling](scheduling.md).
+All helpers are offline: no job creation/deletion or automatic host enforcement.

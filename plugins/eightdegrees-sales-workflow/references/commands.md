@@ -4,6 +4,8 @@ Enable/select EightDegrees Sales Workflow in the host first. The unified entry s
 
 ```text
 @eightdegrees-sales-workflow init
+@eightdegrees-sales-workflow start
+@eightdegrees-sales-workflow stop
 @eightdegrees-sales-workflow add-communication <message URL or pasted content>
 @eightdegrees-sales-workflow run-auto
 @eightdegrees-sales-workflow report
@@ -24,10 +26,12 @@ For new/migrated tasks, use the ordinary page linked from `Aimore/Actions` to fi
 
 ## Claude native command equivalents
 
-The Claude edition also includes five native command files:
+The Claude edition also includes seven native command files:
 
 ```text
 /eightdegrees-sales-workflow:init
+/eightdegrees-sales-workflow:start
+/eightdegrees-sales-workflow:stop
 /eightdegrees-sales-workflow:add-communication <message URL or pasted content>
 /eightdegrees-sales-workflow:run-auto
 /eightdegrees-sales-workflow:report
@@ -39,3 +43,12 @@ These are Claude command registrations, not OpenAI manifest fields. The GPT edit
 ## Completing missing data
 
 For new/migrated DataCompletion, open the registered ordinary action page, fill only requested fields and check its named submission to-do. The original task's InputSubmitted property is no longer a human control. Legacy task-input-v1 keeps its original task-body/property route until explicitly migrated. Automatic tasks validate on the next authorized scan; Manual work still requires its owner's explicit continuation. A checkbox starts no schedule and supplies no content/send approval. See [pending input](pending-input.md) and [operator actions](operator-actions.md).
+
+## Periodic scanning
+
+After setup, `start` creates or reuses one native 15-minute task; `stop` deletes
+that task. `run-auto` still runs once. Start/stop manage schedules only: they do
+not immediately process mail, approve work or send customer messages. The task
+calls run-auto with CustomerSendAllowed=false. Actual host support and task
+readback are required; unsupported exact timing/deletion remains explicit, not
+an hourly fallback or a fake local-state success. See [schedule lifecycle](scheduling.md).

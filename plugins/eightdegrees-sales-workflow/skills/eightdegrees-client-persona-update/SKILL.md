@@ -5,6 +5,8 @@ description: "Apply explicitly approved customer persona changes from communicat
 
 # Apply approved persona changes
 
+Before saving extracted/clarified customer boolean facts or persona snapshots, apply [customer fact semantics](../../references/customer-facts.md) and run the fact helper on the actual proposal. Unknown is null, never a default false.
+
 Before the first owner mutation, establish the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
 
 Read [operating-contract](../../references/operating-contract.md) and the CRM section of [notion-model](../../references/notion-model.md). This is a downstream step, not an independent scheduled job. Reuse the parent RunId and approved version; do not call communication processing back.
