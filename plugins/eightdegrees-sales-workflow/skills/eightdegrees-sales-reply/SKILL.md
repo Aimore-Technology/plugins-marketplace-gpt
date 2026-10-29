@@ -7,6 +7,8 @@ description: "Turn a verified customer project inquiry into a reviewed, versione
 
 Register sales-reply as OwnerSkill for project-source tasks (ResolveProjectSources), reply-content reviews (ReviewReplyDraft) and final send approvals (SendApprovedReply), using [task routing](../../references/task-routing.md). Parent Workflow may remain communication; it is not the executor. A resumed task/action URL must validate that explicit route and continue only the unfinished step. Missing/conflicting owner/step stays pending without communication fallback or duplicate Notes. Existing draft-only/no-send invocation restrictions still apply.
 
+Before freezing or dispatching a reply, read [mail transport experience](../../Experience/mail-delivery.md), especially automatic quote mutation; prefix equality is not exact approved-body equality.
+
 Read [operating-contract](../../references/operating-contract.md) and [HTML approval](../../references/html-approval.md). Use [notion-model](../../references/notion-model.md) for tasks/drafts.
 
 1. Reuse the inquiry, message ID, verified customer mapping and upstream communication summary; do not recreate notes or rerun the scan. Use [task presentation](../../references/task-presentation.md) to show current source/version, unresolved differences and verified vs missing setup dependencies. Identity issues go to ClientMatching, missing project/question facts to DataCompletion, contradictory material facts to ContentReview. Unrelated optional persona fields need not block preparing a supported reply.

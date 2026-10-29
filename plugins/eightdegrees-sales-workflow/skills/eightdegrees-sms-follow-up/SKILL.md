@@ -5,6 +5,8 @@ description: "Prepare and execute approved, bounded SMS follow-ups after verifie
 
 # Follow up after materials
 
+Before approval/dispatch, read [connector experience](../../Experience/connector-contracts.md) for the observed AndroidSync body/key constraints and distinguish network state from delivery. Revalidate actual current limits; do not shorten approved text silently.
+
 Read [operating-contract](../../references/operating-contract.md) and [sms rules](../../references/sms-rules.md). Load task fields from [notion-model](../../references/notion-model.md) when creating or resuming records.
 
 An explicitly authorized one-message channel acceptance/timing exception follows sms-rules, with a separate owner invocation, exact test recipient/device/approval and actual status evidence. It does not enable automatic enrollment, bypass old stop/Pause or widen run-auto/report. A stand-alone probe is not a completed material-follow-up workflow.

@@ -197,6 +197,12 @@
       "release": "0.1.13",
       "change": "Repair directed-test findings: reject native-reference section patches, preflight actual enum values, type page-link inputs, gate final completion on current successful results and check all current action sections. Add user-authorized next-round real email/SMS acceptance with one-message timing exceptions, preserving shortcut policies, stopped old batches and automatic enrollment defaults.",
       "evidence_url": "https://app.notion.com/p/407f4985b01c8164af98d7b4687af059"
+    },
+    {
+      "date": "2026-10-29",
+      "release": "0.1.14",
+      "change": "Add the user-requested Experience library at the plugin root, distributed in both editions and read selectively by Skills. Triage all 11 observed 0.1.13 failure families; preserve verified behavior and open route/transport defects without declaring them fixed.",
+      "evidence_url": "https://app.notion.com/p/408f4985b01c81c0a6ddc8c136ae94f8"
     }
   ]
 }

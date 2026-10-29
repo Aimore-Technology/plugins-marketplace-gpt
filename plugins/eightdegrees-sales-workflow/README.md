@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.13. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.14. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -58,3 +58,7 @@ Use [task routing](references/task-routing.md) for explicit owner/resume metadat
 Owners synchronize task status, active action result and the one current Actions queue in the same transition, with old versions clearly historical. Native saved preview and exact downloaded bytes precede review. Report-only fixes its own reports and logs; outside task/preview issues are linked for a separate owner command. The offline publication helper plans exact status patches, checks direct-upload preview evidence and preflights report write targets. It is not a server or an authorization engine. See [Notion publication](references/notion-publishing.md).
 
 Use [publication validation](references/publication-validation.md) for actual schema enums, typed saved-page coverage, current status/result/input consistency and completion-gate evidence. Report completion/final Success is deferred until current required checks pass; native-reference sections are excluded from whole-section patch plans. Explicit one-message SMS channel acceptance and timing exceptions remain separate from automatic enrollment under [SMS rules](references/sms-rules.md).
+
+## Experience library
+
+[Experience/README.md](Experience/README.md) is the portable operation-to-tip index. The entry/shared contract directs Skills to read only relevant cards before risky operations, and to reuse them within the invocation. Cards distinguish verified observations from open route/transport defects; they grant no extra access or sending authority and do not claim a fix merely by documenting it. No historical development workspace access is required.
