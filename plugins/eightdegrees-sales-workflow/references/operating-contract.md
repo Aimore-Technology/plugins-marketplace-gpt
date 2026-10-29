@@ -31,6 +31,8 @@ Apply [connector I/O](connector-io.md) for actual schemas, text-only success and
 
 Use [Notion publication](notion-publishing.md) for the shared state/action/hub transition, saved-preview prerequisite and per-write report scope check. Invocation limits apply to recovery and quality repair as well as the main business step; report must not call an owner or fix a task/preview as part of reporting.
 
+Every owner uses the [owner completion contract](owner-completion.md), not only report: freeze its required checks before dependent work and call owner-write before final completion/Success. Existing actual provider results remain durable if publication is incomplete; repair evidence/projections without replay.
+
 ## Start, suspend and return
 
 1. Read Dashboard's RunSettings and the supplied task/run. Use the saved customer_setup.workspace_language for generated workspace task/input/report text; keep schema keys, original source text and approved customer payloads unchanged. Resolve the operator ID/name and actual accounts from those settings; follow [operator setup](operator-setup.md) when unset, changed or using a legacy schema. Missing setup goes to initialization; do not search the entire mailbox or infer actual account/folder values.

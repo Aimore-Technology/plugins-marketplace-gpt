@@ -147,6 +147,27 @@ class NotionLinkTests(unittest.TestCase):
 
 
 class ResumeRouteTests(unittest.TestCase):
+    def test_communication_data_completion_has_a_non_crm_owner_step(self):
+        item = task("CompleteCommunicationData", "Manual")
+        item["PageId"] = "a" * 32
+        result = CHECKS.check_resume(item, "manual-review", True)
+        self.assertEqual((result["status"], result["effect"], result["entity_id"]), ("EligibleForOwnerCheck", "draft", "a" * 32))
+        self.assertEqual(CHECKS.check_resume(item, "one-cycle-no-customer-send")["status"], "Deferred")
+        item["Mode"] = "Automatic"
+        self.assertEqual(CHECKS.check_resume(item, "one-cycle-no-customer-send")["status"], "EligibleForOwnerCheck")
+
+    def test_data_collection_cannot_be_misrouted_to_notes_append(self):
+        item = task("ReviewCommunication")
+        item["Category"] = "DataCompletion"
+        self.assertEqual(CHECKS.check_resume(item, "owner-workflow")["status"], "NeedsCorrection")
+
+    def test_terminal_deferred_does_not_validate_original_waiting_data_route(self):
+        item = task("ReviewCommunication")
+        item["Category"] = "DataCompletion"
+        self.assertEqual(CHECKS.check_resume(item, "owner-workflow")["status"], "NeedsCorrection")
+        item["State"] = "Completed"
+        self.assertEqual(CHECKS.check_resume(item, "owner-workflow")["status"], "Deferred")
+
     def test_every_registered_route_has_a_valid_owner_for_each_category(self):
         routes = json.loads(CHECKS.ROUTES_PATH.read_text())
         for step, route in routes.items():

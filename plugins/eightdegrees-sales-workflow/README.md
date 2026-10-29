@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.14. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.15. Seven workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -62,3 +62,7 @@ Use [publication validation](references/publication-validation.md) for actual sc
 ## Experience library
 
 [Experience/README.md](Experience/README.md) is the portable operation-to-tip index. The entry/shared contract directs Skills to read only relevant cards before risky operations, and to reuse them within the invocation. Cards distinguish verified observations from open route/transport defects; they grant no extra access or sending authority and do not claim a fix merely by documenting it. No historical development workspace access is required.
+
+## Data routes and stored replies
+
+Communication DataCompletion uses CompleteCommunicationData and cannot append Notes; Notes approval/append remains ReviewCommunication. Gmail replies use an actual stored draft: create, replace MIME without resetting reply context, verify raw draft, review, send_draft, then verify actual sent MIME. The HTML-only offline adapter rejects asset-bearing packages rather than dropping them. All seven owners use version/binding-aware owner-write completion preflight; provider success remains distinct from publication or delivery. See [owner completion](references/owner-completion.md) and [reply transport](references/reply-transport.md).

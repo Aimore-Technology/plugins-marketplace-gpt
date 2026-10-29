@@ -1,0 +1,9 @@
+{
+  "eightdegrees-initialization": ["page-links"],
+  "eightdegrees-communication-context-process": ["page-links", "task-display", "route"],
+  "eightdegrees-client-persona-update": ["page-links"],
+  "eightdegrees-email-scanning": ["page-links"],
+  "eightdegrees-sales-reply": ["page-links", "task-display", "route"],
+  "eightdegrees-sms-follow-up": ["page-links", "task-display", "route"],
+  "eightdegrees-daily-brief-and-handover": ["page-links"]
+}

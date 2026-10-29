@@ -214,7 +214,10 @@ def task_display(data):
             if (terminal or paused) and (re.search(request, visible, re.I) or re.search(r"^\s*- \[[ xX]\]|<todo\b", visible, re.M)):
                 issues.append({"section": role, "reason": "Inactive step still requests input or has live controls"})
     payload = object_result(data["page"])
+    if task.get("ActionPageURL") and page_id(task["ActionPageURL"]) != page_id(payload.get("id")):
+        issues.append({"section": "binding", "reason": "Page is not the task's registered active action"})
     return {"status": "NeedsCorrection" if issues else "DisplayConsistentForCheckedPatterns", "issues": issues,
+            "task_page_id": task.get("PageId", task.get("url", task.get("id"))), "content_version": version,
             "entity_id": payload.get("id"), "scope": "Current owned status/result/input sections only; original answers, review material and labeled history are excluded; prose still needs owner review"}
 
 
@@ -225,7 +228,9 @@ def completion_gate(data):
     if not invocation or not version or not isinstance(required, dict) or not required or not isinstance(checks, list):
         raise ValueError("Expected frozen invocation/version, nonempty required checks and their actual results")
     passed_status = {"page-links": "ClearForCheckedPatterns", "task-display": "DisplayConsistentForCheckedPatterns",
-                     "preview": "SavedEmbedAndBytesMatch", "schema-values": "ValidSelectValues"}
+                     "preview": "SavedEmbedAndBytesMatch", "schema-values": "ValidSelectValues",
+                     "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
+                     "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -250,11 +255,88 @@ def completion_gate(data):
             issues.append(name + ": page coverage or link check incomplete")
         if result.get("issues"):
             issues.append(name + ": unresolved findings")
+        if spec["kind"] == "reply-draft" and result.get("phase") != "draft":
+            issues.append(name + ": sent evidence cannot replace pre-send draft verification")
+        if spec["kind"] == "reply-sent" and result.get("phase") != "sent":
+            issues.append(name + ": draft evidence cannot replace actual sent-MIME verification")
         if spec.get("entity_id") is None or result.get("entity_id") is None or page_id(spec["entity_id"]) != page_id(result["entity_id"]):
             issues.append(name + ": missing or mismatched evidence target")
     return {"status": "NeedsCorrection" if issues else "EligibleForCompletion", "issues": issues,
             "invocation_id": invocation, "publication_version": version,
             "scope": "Offline current-result gate only; required checks must be frozen from actual workflow dependencies; no host enforcement, approval or business execution"}
+
+
+def owner_write(data):
+    """Preflight an owner's Notion completion/result write using its frozen checks."""
+    registry, call = data["registry"], data["call"]
+    owner, policy = registry.get("owner_skill"), registry.get("policy")
+    profiles = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
+    if owner not in profiles or policy not in {"setup-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "owner-workflow"}:
+        return {"status": "Deferred", "reason": "Unknown owner/policy; report-only uses report-write"}
+    if (policy == "setup-only" and owner != "eightdegrees-initialization"
+            or policy == "manual-review" and owner not in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"}
+            or policy == "draft-only" and owner != "eightdegrees-sales-reply"):
+        return {"status": "Deferred", "reason": "Owner conflicts with invocation restriction"}
+    groups = {k: {page_id(x) for x in registry.get(k, [])} for k in
+              ("run_page_ids", "task_page_ids", "action_page_ids", "publication_page_ids", "operation_log_source_ids")}
+    allowed_pages = set().union(*(v for k, v in groups.items() if k != "operation_log_source_ids"))
+    args, tool = call["args"], call["tool"]
+    allowed, final = False, False
+    if tool.endswith("__notion_notion_update_page") and args.get("command") == "update_properties":
+        allowed = page_id(args.get("page_id")) in allowed_pages
+        props = args.get("properties", {})
+        final = props.get("State", props.get("Status")) == "Completed" or props.get("Result") == "Success"
+    elif tool.endswith("__notion_notion_create_pages") and args.get("parent", {}).get("data_source_id"):
+        allowed = page_id(args["parent"]["data_source_id"]) in groups["operation_log_source_ids"]
+        final = any(p.get("properties", {}).get("Result") == "Success" and
+                    p.get("properties", {}).get("Phase", "Result") == "Result" for p in args.get("pages", []))
+    if not allowed:
+        return {"status": "Deferred", "reason": "Write is outside this owner's registered Notion records"}
+    if not final:
+        return {"status": "WithinOwnerScope", "scope": "Target comparison only; no business authorization"}
+    evidence = data.get("completion")
+    if not isinstance(evidence, dict) or evidence.get("required_checks") != registry.get("required_checks"):
+        return {"status": "Deferred", "reason": "Missing or changed frozen owner completion contract"}
+    gate = completion_gate(evidence)
+    if (gate["status"] != "EligibleForCompletion" or evidence["invocation_id"] != registry.get("invocation_id")
+            or evidence["publication_version"] != registry.get("publication_version")):
+        return {"status": "Deferred", "reason": "Failed/stale owner checks; final Completed/Success remains blocked"}
+    specs = list(evidence["required_checks"].values())
+    kinds = {s["kind"] for s in specs}
+    if not set(profiles[owner]) <= kinds or not groups["run_page_ids"]:
+        return {"status": "Deferred", "reason": "Owner profile checks or original run binding missing"}
+    for kind, ids in (("page-links", groups["run_page_ids"] | groups["task_page_ids"] | groups["publication_page_ids"]),
+                      ("task-display", groups["action_page_ids"]), ("route", groups["task_page_ids"])):
+        covered = {page_id(s["entity_id"]) for s in specs if s["kind"] == kind}
+        if not ids <= covered:
+            return {"status": "Deferred", "reason": "Missing required " + kind + " coverage for owner records"}
+    versions = {page_id(k): v for k, v in registry.get("task_versions", {}).items()}
+    bindings = {page_id(k): page_id(v) for k, v in registry.get("action_bindings", {}).items()}
+    if not groups["task_page_ids"] <= versions.keys() or not groups["action_page_ids"] <= bindings.keys():
+        return {"status": "Deferred", "reason": "Current task versions or action-to-task bindings missing"}
+    mail_targets, mail_verified, sent_verified = set(), set(), set()
+    for item in evidence["checks"]:
+        spec, result = evidence["required_checks"][item["name"]], item["result"]
+        identity = page_id(spec["entity_id"])
+        if spec["kind"] == "route":
+            if result.get("owner") != owner or result.get("policy") != policy or result.get("content_version") != versions.get(identity):
+                return {"status": "Deferred", "reason": "Route evidence belongs to a different owner/policy/task version"}
+            if result.get("resume_step") in {"SendApprovedReply", "SendGeneralReply"}:
+                mail_targets.add(identity)
+        if spec["kind"] == "task-display" and identity in bindings:
+            task_id = bindings[identity]
+            if (result.get("task_page_id") is None or page_id(result["task_page_id"]) != task_id
+                    or result.get("content_version") != versions.get(task_id)):
+                return {"status": "Deferred", "reason": "Action display evidence belongs to another task/version"}
+        if spec["kind"] == "reply-draft" and result.get("content_version") == versions.get(identity):
+            mail_verified.add(identity)
+        if spec["kind"] == "reply-sent" and result.get("content_version") == versions.get(identity):
+            sent_verified.add(identity)
+    if not mail_targets <= mail_verified or not mail_targets <= sent_verified:
+        return {"status": "Deferred", "reason": "Email completion requires current pre-send draft AND actual sent-MIME verification; preserve partial provider success"}
+    return {"status": "WithinOwnerScope", "invocation_id": evidence["invocation_id"],
+            "publication_version": evidence["publication_version"],
+            "scope": "Offline Notion completion gate; not host enforcement or permission to call a provider"}
 
 
 def report_write(data):
@@ -332,7 +414,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     operations = {"section-patch": section_patch, "preview": check_preview, "report-write": report_write,
                   "page-links": page_links, "schema-values": schema_values, "task-display": task_display,
-                  "completion-gate": completion_gate}
+                  "completion-gate": completion_gate, "owner-write": owner_write}
     parser.add_argument("command", choices=tuple(operations))
     parser.add_argument("--input", required=True)
     args = parser.parse_args(argv)

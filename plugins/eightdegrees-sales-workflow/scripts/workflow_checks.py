@@ -212,6 +212,8 @@ def check_resume(task, policy, explicit_continue=False, phase="execute"):
     elif policy == "draft-only" and task["ResumeStep"] not in ("VerifyCustomer", "ResolveProjectSources", "ReviewReplyDraft"):
         reason = "Draft-only excludes unrelated business work"
     return {"status": "Deferred" if reason else ("EligibleForInputCheck" if phase == "observe" else "EligibleForOwnerCheck"), "reason": reason,
+            "entity_id": task.get("PageId", task.get("url", task.get("id"))),
+            "policy": policy, "mode": task["Mode"], "content_version": task["ContentVersion"],
             "owner": task["OwnerSkill"], "resume_step": task["ResumeStep"], "effect": effect,
             "phase": phase,
             "scope": "Route validation only; original action/approval/attempt/ownership checks remain mandatory"}

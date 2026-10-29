@@ -1,5 +1,6 @@
 {
   "VerifyCustomer": {"owner": "eightdegrees-communication-context-process", "categories": ["ClientMatching"], "effect": "read"},
+  "CompleteCommunicationData": {"owner": "eightdegrees-communication-context-process", "categories": ["DataCompletion", "ExecutionExceptions"], "effect": "draft"},
   "ReviewCommunication": {"owner": "eightdegrees-communication-context-process", "categories": ["ContentReview", "ExecutionExceptions"], "effect": "crm"},
   "SyncApprovedPersona": {"owner": "eightdegrees-client-persona-update", "categories": ["ExecutionExceptions"], "effect": "crm"},
   "ReadMessageBody": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions"], "effect": "read"},

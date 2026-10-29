@@ -131,6 +131,10 @@ def check():
             require(route.get('owner') in EXPECTED - {'eightdegrees-sales-workflow'}, f'Unknown task owner: {step}')
             require(bool(route.get('categories')) and set(route['categories']) <= {'ClientMatching', 'DataCompletion', 'ContentReview', 'SendApproval', 'ExecutionExceptions'}, f'Invalid task category: {step}')
             require(route.get('effect') in {'read', 'crm', 'checkpoint', 'draft', 'customer-send', 'setup', 'report', 'calendar', 'internal-notification'}, f'Unknown task effect: {step}')
+        owner_profiles = read_json(plugin / 'references/owner-completion-profiles.json')
+        require(set(owner_profiles) == EXPECTED - {'eightdegrees-sales-workflow'}, 'Owner completion profile inventory mismatch')
+        for owner, kinds in owner_profiles.items():
+            require(bool(kinds) and set(kinds) <= {'page-links', 'task-display', 'route'}, f'Unknown owner completion checks: {owner}')
         defaults = read_json(plugin / 'references/pilot-defaults.json')
         require(defaults['configuration_version'] == 'pilot-v1', 'Configuration version drift')
         require(defaults['settings_schema_version'] == 2, 'Settings schema drift')

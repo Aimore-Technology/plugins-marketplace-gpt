@@ -5,6 +5,8 @@ description: "Build the EightDegrees daily Notion action list, track important r
 
 # Daily brief, reminders and handover
 
+Before the first owner mutation, establish the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
+
 For report-only, first apply [Notion publication](../../references/notion-publishing.md): freeze the actual report/run/log target registry and preflight EACH mutation, including corrections. Execute only the reporting parts of steps 1, 2, 4, 6 and 7 below; step 6 reads existing Health/Dashboard evidence without updating those records. Do not run reminder, Calendar, handover-test or business-repair procedures. Outside-registry task/action/hub/preview defects are findings with a separate owner continuation, never child calls from report. Audit actual writes at exit against the same registry; a later clean publication does not erase an earlier violation.
 
 Before registering Completed or final Success, apply [publication validation](../../references/publication-validation.md): freeze required page checks, validate actual entity types, capture both exit code and structured output, and pass the current completion-gate input to report-write. A nonpage exclusion, missing result or later passing revision cannot erase an earlier failure.

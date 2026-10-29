@@ -2,6 +2,8 @@
 
 Use the existing offline [notion_checks.py](../scripts/notion_checks.py) with `--input <capture.json>` or JSON on stdin via `--input -`. It performs no connector calls or writes. These checks improve model execution; they are not a host-enforced runtime. Preserve failed observations and original logs even after a later check passes.
 
+All owners additionally follow [owner completion](owner-completion.md) and owner-write; report retains report-write. completion-gate also accepts route (EligibleForOwnerCheck), route-observe (EligibleForInputCheck) reply-draft (StoredReplyVerified, phase=draft) and reply-sent (StoredReplyVerified, phase=sent) evidence, bound to the actual Notion task page. Sent-message evidence cannot stand in for pre-send draft proof.
+
 ## Actual schemas and entity types
 
 Before creating/updating data-source rows, `schema-values` takes the original `data_source` fetch, actual target `data_source_id` and exact proposed `properties`. It reads the JSON data-source-state supplied by the tool, checks source identity and rejects unknown/read-only properties or enum values outside actual options. For a page batch, check each row. Other types still need the actual tool contract. Do not invent a source Status such as NeedsData, add an option to make a request pass or conflate source state with PendingTasks.Category. Use an existing appropriate source status; put the missing-data reason in its task. Reconcile the original page/source after an actual refusal; do not assume intended fields partially saved.

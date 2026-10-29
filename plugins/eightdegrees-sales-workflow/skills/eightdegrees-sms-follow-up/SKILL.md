@@ -5,6 +5,8 @@ description: "Prepare and execute approved, bounded SMS follow-ups after verifie
 
 # Follow up after materials
 
+Before the first owner mutation, establish the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
+
 Before approval/dispatch, read [connector experience](../../Experience/connector-contracts.md) for the observed AndroidSync body/key constraints and distinguish network state from delivery. Revalidate actual current limits; do not shorten approved text silently.
 
 Read [operating-contract](../../references/operating-contract.md) and [sms rules](../../references/sms-rules.md). Load task fields from [notion-model](../../references/notion-model.md) when creating or resuming records.

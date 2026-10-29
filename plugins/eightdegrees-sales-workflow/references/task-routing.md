@@ -11,6 +11,7 @@ New tasks store OwnerSkill (text), ResumeStep (text) and ResumeContractVersion=`
 | Paused work | OwnerSkill | ResumeStep |
 | --- | --- | --- |
 | Customer association | eightdegrees-communication-context-process | VerifyCustomer |
+| Missing required communication facts | eightdegrees-communication-context-process | CompleteCommunicationData |
 | Reviewed Notes and combined append | eightdegrees-communication-context-process | ReviewCommunication |
 | Downstream persona sync recovery | eightdegrees-client-persona-update | SyncApprovedPersona |
 | Unreadable mail / unsaved scan checkpoint | eightdegrees-email-scanning | ReadMessageBody / SaveMailCheckpoint |
@@ -38,3 +39,7 @@ During explicit init upgrade, add the fields and inspect only eligible open task
 Do not guess from Category=ContentReview or a friendly title. If original evidence is missing/conflicting, keep execution paused and surface a route-repair setup/exception task owned by initialization/ValidateSetupInput. Ask only which business action was intended, not for technical IDs. Keep the original task and successful steps; no duplication, old Notes rewrite or customer send.
 
 Routing-only repair does not change approved bytes or manufacture approval. If it would change the action's meaning/scope, require a new decision. Existing action pages whose owner/step binding changes need a new verified binding/page before consumption; old checked choices do not transfer. In-flight legacy inputs remain on one original input authority until reconciled under operator-actions. Closed records remain historical, without forced migration.
+
+### Communication data-completion upgrade
+
+CompleteCommunicationData is a draft/Notion-input step, with DataCompletion/ExecutionExceptions categories, not the CRM-writing ReviewCommunication step. It validates/applies only the submitted scope and then hands off to a separate Notes ContentReview. On explicit init upgrade, repair an open legacy ReviewCommunication+DataCompletion route only when its original missing-field/source/apply evidence proves this intent. Preserve TaskId/RunId/source/Mode and existing results. Follow active-page binding migration rules; changed bindings get fresh unchecked controls, not transferred approval. In-flight legacy submissions keep one authority until reconciled. Completed historical tasks keep their actual results and failure history; a new valid route does not retroactively pass an old invalid route or justify another Note append.
