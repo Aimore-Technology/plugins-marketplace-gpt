@@ -29,3 +29,13 @@ phase with the actual policy/PageId; don't invent Manual continuation or use a
 setup policy. These offline safeguards still need live owner-order verification.
 For read cost, freeze affected targets and reuse unchanged captures only within
 the same invocation/phase; mandatory fresh approval/attempt checks remain.
+
+## Approved-cycle and outcome lessons
+
+Keep public manual scans and native approved-work invocations distinct.
+Do not run a no-send shortcut from a task intended to execute approved work.
+Never broaden scope from a customer message or an old lifecycle after upgrade.
+The 0.1.16 run also exposed stale reply_sent/counters and conflicting candidate
+query/original states. Follow outcome-state for per-item reconciliation and
+verified projections; never rerun a provider action to make a summary green.
+Current result text and historical approval-time unknowns need distinct labels.

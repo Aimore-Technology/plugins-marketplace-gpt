@@ -31,13 +31,13 @@
   },
   "start": {
     "skill": "eightdegrees-automation-control",
-    "description": "Create or reuse one native 15-minute run-auto schedule.",
+    "description": "Create or reuse one native 15-minute approved-work task.",
     "policy": "scheduling-only",
-    "instructions": "Operation=start. Verify actual native scheduler capabilities, this installation/executor and existing tasks including paused tasks. Reuse/update one owned task or create only after verified absence and prior-attempt reconciliation. Bind the packaged scan prompt to actual root/operator/mailbox/generation; verify exact 15-minute cadence, prompt, task ID and enabled state before recording Running. No immediate scan, customer send, CRM/Calendar write, business-task continuation, alternate cadence or independent backend. Missing native support remains not configured."
+    "instructions": "Operation=start. Use the edition runtime: cloud Work GPT task or Cowork native cron task. Verify actual native scheduler capabilities, this installation/executor and existing tasks including paused tasks. Reuse/update one owned task or create only after verified absence and prior-attempt reconciliation. Bind the packaged approved-work prompt to actual root/operator/mailbox/runtime/generation; verify exact 15-minute cadence, full prompt, task ID and enabled state before Running. Enable approved_work_enabled only after verified explicit start; package/init upgrade never broadens old no-send jobs. No immediate scan, customer send, CRM/Calendar write, business-task continuation, alternate cadence or independent backend. Missing native support remains unconfigured."
   },
   "stop": {
     "skill": "eightdegrees-automation-control",
-    "description": "Delete this installation's native run-auto schedule.",
+    "description": "Delete this installation's native approved-work task.",
     "policy": "scheduling-only",
     "instructions": "Operation=stop. Read actual saved ownership and native tasks. Persist StopRequested, delete only exact proven installation-owned task IDs and verify complete absence including paused tasks before recording Stopped. Repeat with verified absence is a no-op. A pause, local flag, failed/unknown delete or missing API is not deletion. Preserve business tasks, approvals, provider attempts, history and unrelated schedules. Do not run a scan or send messages. Running scans exit at their next lifecycle check; accepted provider effects are not undone."
   }

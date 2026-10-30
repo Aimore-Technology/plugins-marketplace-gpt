@@ -24,3 +24,14 @@ Read [operating-contract](../../references/operating-contract.md), [reminders](.
 7. At handover, provide the brief/settings/task/run links, connected vs disabled capabilities, failed/untested checks, manual recovery and pause/resume instructions. Rehearse the inquiry -> material -> SMS -> email path with a designated test contact and the operator, iterate 1-2 feedback rounds and use 5-10 authorized real cases without deliberate redaction. Separate package checks, simulation, channel tests and actual business acceptance.
 
 Finish only for the requested summary/handover action; open business tasks and unacknowledged reminders retain their own states. Do not call the scanner recursively or send customer messages from the brief.
+
+## Scheduled entry and current evidence
+
+The native approved-work cycle calls due daily/reminder/confirmed-appointment
+steps under [scheduled work](../../references/scheduled-work.md). It is not the
+report-only shortcut: public report still sends no notifications and changes no
+Calendar/business state. Use one saved business-day summary/notification marker
+and actual event IDs; missed runs catch up once with observed time. Use current
+canonical outcome evidence from [outcome state](../../references/outcome-state.md),
+not historical init counters. Conflicting candidate/original states are disclosed
+with scoped counts; do not repair business tasks from reporting.

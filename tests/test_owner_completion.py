@@ -61,6 +61,21 @@ class OwnerCompletionTests(unittest.TestCase):
         data = completion_for("eightdegrees-email-scanning"); data["registry"]["policy"] = "scheduling-only"
         self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
 
+    def test_scheduled_completion_needs_current_guard_and_matching_automatic_route(self):
+        from test_schedule_checks import SCHEDULE, scheduled_guard
+        import workflow_checks
+        data = completion_for('eightdegrees-sales-reply')
+        data['registry']['policy'] = 'scheduled-approved-work'
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+        guard = SCHEDULE.guard(scheduled_guard())
+        data['registry'].update(schedule_guard=guard, operator_id=guard['operator_id'])
+        item = task('ReviewReplyDraft', 'Automatic'); item.update(PageId=TASK, OperatorId=guard['operator_id'])
+        route = next(x for x in data['completion']['checks'] if x['name'] == 'route')
+        route['result'] = workflow_checks.check_resume(item, 'scheduled-approved-work', schedule_guard=guard)
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'WithinOwnerScope')
+        data['registry']['schedule_guard'] = {**guard, 'operator_id': 'different'}
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+
     def test_registration_proof_cannot_replace_execution_route_at_completion(self):
         data = completion_for("eightdegrees-communication-context-process")
         route = next(r for r in data["completion"]["checks"] if r["name"] == "route")
@@ -158,9 +173,45 @@ class OwnerCompletionTests(unittest.TestCase):
         data["completion"]["required_checks"]["sent"] = spec_sent
         data["completion"]["checks"].append({"name": "sent", "invocation_id": "run-1", "publication_version": "publication-v1",
                                             "exit_code": 0, "result": ADAPTER.verify(sent)})
-        self.assertEqual(CHECKS.owner_write(data)["status"], "WithinOwnerScope")
-        data["completion"]["checks"][-2]["result"]["phase"] = "sent"
         self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
+        from test_scheduled_outcomes import RECEIPT, OUTCOME, receipt_input, note_readback, saved_outcome
+        receipt = receipt_input()
+        manifest = reply['manifest']
+        for key, value in {'sender': manifest['from_address'], 'recipient': manifest['to'],
+                           'subject': manifest['subject'], 'payload_sha256': manifest['html_sha256']}.items():
+            receipt['approved'][key] = receipt['sent'][key] = value
+        receipt['note_readback'] = note_readback(receipt)
+        for name, kind, result in [('outcome', 'outcome', OUTCOME.verify_projection(saved_outcome())),
+                                   ('receipt', 'crm-receipt', RECEIPT.verify(receipt))]:
+            spec = {'kind': kind, 'entity_id': TASK}
+            data['registry']['required_checks'][name] = spec
+            data['completion']['required_checks'][name] = spec
+            data['completion']['checks'].append({'name': name, 'invocation_id': 'run-1',
+                'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
+        self.assertEqual(CHECKS.owner_write(data)["status"], "WithinOwnerScope")
+        bad = copy.deepcopy(data)
+        bad['completion']['checks'][-1]['result']['message_id'] = 'another-send'
+        self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
+        bad = copy.deepcopy(data)
+        bad['completion']['checks'][-1]['result']['content_version'] = 'old-version'
+        self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
+        next(r for r in data['completion']['checks'] if r['name'] == 'mail')['result']['phase'] = 'sent'
+        self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
+
+    def test_receipt_only_recovery_binds_current_outcome_without_replaying_mail(self):
+        from test_scheduled_outcomes import RECEIPT, OUTCOME, receipt_input, note_readback, saved_outcome
+        data = completion_for('eightdegrees-sales-reply', 'RecordSendReceipt')
+        receipt = receipt_input(); receipt['note_readback'] = note_readback(receipt)
+        for name, kind, result in [('outcome', 'outcome', OUTCOME.verify_projection(saved_outcome())),
+                                   ('receipt', 'crm-receipt', RECEIPT.verify(receipt))]:
+            spec = {'kind': kind, 'entity_id': TASK}
+            data['registry']['required_checks'][name] = spec
+            data['completion']['required_checks'][name] = spec
+            data['completion']['checks'].append({'name': name, 'invocation_id': 'run-1',
+                'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'WithinOwnerScope')
+        data['completion']['checks'][-1]['result']['message_id'] = 'different-send'
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
 
     def test_cli_no_contract_has_nonzero_exit_and_no_side_effect(self):
         data = completion_for("eightdegrees-initialization"); del data["completion"]

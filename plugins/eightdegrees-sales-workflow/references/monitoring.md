@@ -39,3 +39,14 @@ Check the saved Notion summary itself for fake `http://<filename>` links, even i
 Apply the page-wide [evidence check](evidence-checks.md) to the actual fetched report/task/action page, not just repaired project-file cells. Include script/Skill paths, all table columns, prose, examples and retained history in declared link coverage. Format every local path/file name and invalid URL example as code BEFORE writing; local evidence links usable in Codex become literal paths in Notion. Use explicit native mentions or verified Markdown links rather than bare URLs touching punctuation.
 
 Record the checked page IDs, observation times, pattern scope, approved URL exceptions, truncation and remaining issue groups. Re-fetch after targeted presentation repair when needed to establish the result. A successful tool write, a local Markdown pass, or zero problems in a subset cannot close a page-wide link-quality issue. Remaining suspicious/unverified targets keep a quality issue open and appear in scoped FailureCount/QualityIssueCount. Keep original failures and later correction evidence; do not overwrite a prior report's tested-version or pretend that checking one page validates the whole workspace.
+
+## Canonical outcome projections
+
+Use [outcome state](outcome-state.md) after known provider effects. Derive
+current counters from deduplicated immutable outcomes, not handwritten zero
+copies in RunSettings.internal_audit. Show historical approval-time unknowns
+as historical, distinct from current operator receipt/sender observations.
+Preserve provider status exactly. Send owners verify current task/index/action
+readbacks before final completion. Reports disclose conflicts and stale views
+without fixing business state. End-of-owner Health updates use actual service
+observations and can be coalesced; do not probe every unaffected service.

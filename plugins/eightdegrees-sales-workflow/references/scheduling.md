@@ -1,129 +1,108 @@
-# Native scan schedule lifecycle
+# Native approved-work schedule lifecycle
 
-`start` creates/reuses ONE native task every 15 minutes for this Aimore root.
-`stop` deletes it. Both use scheduling-only: no immediate scan, customer send,
-CRM update, business-task continuation, Calendar write or extra daily-report job.
-The periodic prompt is [scan-schedule.md](../assets/scan-schedule.md); each tick
-invokes the existing run-auto procedure once with its no-customer-send policy.
+start creates/reuses ONE native 15-minute task for this Aimore root; stop deletes
+it. Both are scheduling-only: no immediate business execution or extra daily
+task. The [prompt](../assets/scan-schedule.md) calls email-scanning directly under
+[scheduled work](scheduled-work.md), not public manual run-auto. Valid Automatic
+approvals can execute on ticks; Manual work and every normal approval gate stay.
 
-## Capability and ownership
+## Runtime and ownership
 
-Read the actual native create/list/read/update/delete schema. Codex first looks
-for automation_update; use its supported scheduling interface, not raw directives
-or guessed fields. Cowork uses its native Scheduled tasks flow. A UI-only
-confirmation/deletion remains pending until the real host confirms it. Verify
-the exact 15-minute cadence and installed skill/connector access in that account.
-Do not substitute hourly execution, Chat reminders, /loop, crontab, a daemon,
-another cloud service or an Agents API deployment. No scheduler is installed by
-this package. Host availability does not follow from a manifest or documentation.
+GPT uses a cloud ChatGPT Work GPT task; Claude uses a Cowork native cron task.
+These are host-owned tasks, not operating-system crontab or an external daemon.
+Discover actual native list/read/create/update/delete tools, automation_update
+first when exposed. Use the live schema and required native confirmation; do
+not invent an endpoint or replace the selected runtime with a local Codex worker,
+a reminder without connector access, a Page controller or another cloud service.
 
-Build owner_key as `eightdegrees-scan:<normalized Notion root UUID>`. Identity
-comes from this exact marker in the native task prompt, the saved actual task ID
-and provider/account/host, never a matching title alone. List paused tasks too.
-Another executor already registered for this root must be reconciled/stopped on
-that executor before a new owner starts; GPT and Claude cannot independently
-schedule the same work. Do not discard stale IDs to create a second scanner.
+Verify actual plugin/Skill and authorized cloud connector access, exact 15-minute
+cadence and timezone. Prefer a quarter-hour anchor where supported; otherwise
+record actual due/check times and morning catch-up limitations. Recurrence
+representations (RRULE/cron/native interval) follow the actual tool. A normalized
+interval_minutes=15 is evidence derived from readback, not a guessed API field.
+Cloud Work setup can be completed in Work when this Codex chat lacks its tools;
+do not call that absence a failure of Work itself. Claude runtime acceptance
+remains untested until observed in the customer's actual Cowork account.
 
-## State in RunSettings
+Identity uses eightdegrees-scan:<normalized Notion root UUID> in the full native
+prompt, the actual task ID and provider/account/executor/runtime. List paused
+tasks too. Titles alone cannot establish ownership. A different executor must
+be reconciled on its owner before starting another. Do not discard stale IDs.
 
-Preserve existing settings and IDs. The additive scheduling record contains:
-enabled, desired_state, state, generation, owner_key, provider, account_id,
-owner_host, schedule_ids, actual_scan_minutes, prompt_sha256, pending_attempt and
-last_verified_at. Existing target_scan_minutes remains 15. Fresh installations
-are disabled/Stopped with empty IDs and no actual cadence. An explicit init
-upgrade adds absent fields only; upgrading the plugin never schedules work.
-Legacy enabled records without trustworthy native ownership need reconciliation.
+## State and upgrade
 
-Lifecycle: Stopped -> Starting -> Running; Running/Starting -> StopRequested ->
-Stopped. Unknown native results use NeedsReconciliation and keep the AttemptId
-and known native IDs. These are scheduling-body states, not new PendingTasks
-select values. A native success followed by Notion failure is a partial projection;
-recover its settings/log without creating/deleting again. A host-only deletion
-failure is not Stopped merely because enabled was cleared locally.
+Additive scheduling fields: enabled, desired_state, state, generation, owner_key,
+provider, account_id, owner_host, runtime, schedule_ids, actual_scan_minutes,
+prompt_sha256, approved_work_enabled, pending_attempt and last_verified_at.
+Fresh defaults are Stopped/disabled, runtime unset and approved_work_enabled=false.
+Installation and init create no tasks. Legacy jobs/approvals/Pause/attempts remain;
+package upgrade never broadens an old no-send lifecycle. Explicit start establishes
+the approved-work lifecycle after native readback. Unbound legacy state defers.
+
+States: Stopped -> Starting -> Running; Running/Starting -> StopRequested ->
+Stopped. Unknown native outcomes keep one pending AttemptId and NeedsReconciliation.
+Known native success followed by Notion failure repairs its projection, not the
+native mutation. Notion is not an atomic execution lock.
 
 ## Start
 
-1. Read actual setup and saved lifecycle, native task list including inactive
-   records, and current task details. Resolve unknown earlier attempts first.
-   A matching active task with exact prompt/cadence is reused; a paused or
-   changed owned task can be updated through the supported native API. Multiple
-   owned matches block start; don't create another. Never edit unrelated tasks.
-2. Retain the generation for an unchanged running task. Increment it for a new
-   lifecycle/replacement and save Starting intent plus one AttemptId before the
-   native change. Bind the prompt to the actual root, operator, mailbox and
-   generation; it includes no credentials or copied approval. Leave model and
-   reasoning settings at the user's existing defaults.
-3. Create/update through the real host. Save returned task ID/result promptly,
-   read it back and list again to establish one owned task. Verify enabled state,
-   exact 15 minutes, timezone and full prompt. Only then save enabled=true,
-   desired_state/state=Running, actual_scan_minutes=15, IDs/digest and observed
-   time. Persist operator/mailbox binding in the prompt and keep setup current.
-   Return the native schedule link and first-run readiness, not delivery claims. RunningVerified establishes native configuration only; actual tick execution and source access remain unverified until a real scheduled run.
+1. Read actual setup, saved state, complete native list including inactive
+   tasks and owned task details. Resolve previous unknown/pending attempts first.
+   More than one owned match or uncertain other-host ownership blocks creation.
+2. Reuse an unchanged verified approved-work task/generation. For a new or
+   changed lifecycle, advance generation and persist Starting intent/AttemptId
+   before native mutation. Bind root/operator/mailbox/runtime in the full prompt;
+   preserve the user's model/settings. A legacy no-send prompt needs explicit
+   current start, not an automatic upgrade.
+3. Create/update through the selected native runtime. Save the actual returned
+   ID/result, read prompt/cadence/timezone/enabled state, and list again to prove
+   one owned task. Only verified success sets Running, enabled=true,
+   approved_work_enabled=true and actual_scan_minutes=15. This verifies native
+   configuration, not successful future ticks or channel delivery.
 
 ## Stop
 
-1. Read ownership/list/current IDs. Save desired_state=Stopped and StopRequested
-   before deletion so an observing scheduled run exits between steps.
-2. Delete all proven duplicates for this SAME owner marker if present, using
-   their exact IDs. Do not act on a title-only candidate or another host's
-   unverified records. If deletion is unavailable, report the actual task link
-   for native deletion and keep StopRequested; don't call a pause a delete.
-3. Verify complete native absence including inactive tasks, then save
-   enabled=false/state=Stopped, clear live IDs and record deletion evidence.
-   Advance the generation once on the stop transition; repeat stop with verified
-   absence is a no-op. Keep historical IDs/results in logs. A timeout/unknown
-   result needs reconciliation. Do not delete business tasks or revoke approvals.
+1. Persist desired_state=Stopped, approved_work_enabled=false and StopRequested
+   before native deletion so observing ticks defer between steps.
+2. Delete only exact proven owned IDs, including owned duplicates; preserve
+   unrelated tasks and all business records. Missing delete API/confirmation or
+   unknown result stays pending with the native link, not a fake Stopped state.
+3. Verify complete absence including inactive tasks, then clear live IDs and
+   save Stopped/disabled with original results in history. Advance generation
+   once on transition; repeated stop with verified absence is a no-op. An empty
+   list alone cannot settle an unresolved earlier create.
 
-Stop prevents future scheduling and asks running scans to exit at their next
-checked boundary. It cannot undo an already accepted provider operation or
-guarantee mid-call cancellation. If native stop cannot interrupt a running task,
-report it. Manual run-auto remains available as a separate one-cycle command.
+Stop prevents future ticks and requests exit at a checked boundary; it cannot
+undo a provider operation already accepted. Record that limit. Public manual
+run-auto remains a separate no-customer-send cycle while scheduling is stopped.
 
-## Every scheduled invocation
+## Each tick and offline helper
 
-Read fresh RunSettings before business work and between dependent steps. Check
-enabled, Running/desired Running, generation, actual native task ID, configured
-operator/mailbox/root and executor. Stale queued ticks exit without business
-mutations. A busy or uncertain scan owner defers the tick; no parallel catch-up,
-sleep loop, takeover from a stale timestamp or nested scanner. Reconcile an
-interrupted original run before unfinished work; external uncertainty never
-triggers another send. Notion evidence is not an atomic lock. Keep native host
-serialization where available and test concurrency separately.
+Read fresh lifecycle/setup and actual native invocation metadata before work
+and between dependent steps. Validate actual task ID, current generation,
+runtime/executor, root/operator/mailbox and approved_work_enabled. A busy, stale,
+stopped or uncertain run exits without takeover, parallel catch-up or resend.
+Only a successful guard selects scheduled-approved-work. It authorizes checking
+Automatic steps, not their approval; sending still needs exact current approval,
+window/stop/count/channel/attempt checks. Due daily summaries, reminders and
+confirmed appointments use the same cycle, original IDs and phase deduplication.
 
-Each eligible tick calls run-auto once. Manual tasks stay Manual; content and
-send approvals are not created by the schedule. CustomerSendAllowed=false stays
-in force. Existing configured internal reminders retain their own permissions.
-Keep unchanged/non-actionable results quiet; surface new input/review tasks,
-meaningful failures, completion and recovery with original links. Record actual
-run/log progress and incomplete coverage rather than a fabricated successful scan.
+schedule_checks.py plan|verify|guard consumes normalized original native evidence.
+context includes runtime=work-gpt-task|cowork-cron-task plus actual root/account/
+provider/host/operator/mailbox/timezone/generation. Each task read includes runtime,
+id/full prompt/read_verified/enabled/interval_minutes/timezone and provider binding.
+Supply complete-list flags and actual capabilities, never guessed booleans.
+A plan is not Running/Stopped, and the local helper is not native enforcement.
 
-## Offline helper and evidence
+Stay quiet while nothing actionable changes; notify meaningful failures,
+completion or required operator action with original links. Save partial coverage
+and actual times. A 15-minute tick alone cannot prove a 19-minute reminder deadline.
 
-`schedule_checks.py plan|verify|guard --input <json>` has no scheduler/network
-capability. Use normalized observations derived from actual native responses,
-retaining the originals and field mapping. Input contains context (root_id,
-root_url, operator_id, mailbox, provider, account_id, host_id, timezone,
-generation), tasks, list_complete and list_includes_inactive. Each owned task
-has actual id, full prompt, provider/account/host, read_verified, enabled,
-interval_minutes and timezone. Supply real capabilities, saved scheduling and
-pending_attempt, not guessed booleans. plan emits a proposed action/prompt;
-verify requires fresh actual post-action reads. A plan is not Running/Stopped.
-For guard, supply actual trigger, current scheduling and setup from RunSettings,
-invocation (schedule_id, invocation_id), and any active_run. A stale-context or
-busy result cannot satisfy completion. The helper is local evidence, not a host
-enforcement layer or approval authority.
+## Platform references
 
-## Maintainer source notes
-
-The [official OpenAI scheduling guide](https://developers.openai.com/codex/app/automations/)
-describes minute-based existing-chat schedules and skill/plugin use; project-local
-execution has desktop/machine availability requirements. The [official Cowork guide](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork)
-describes native task management and built-in recurrence choices. Neither proves
-that this particular account exposes a 15-minute create/delete tool. These
-sources justify native discovery; actual readback remains acceptance evidence.
-
-Pending native UI confirmation or a previously accepted result awaiting projection
-recovery must be reconciled before another create/delete. Verification cannot
-turn an unresolved in-flight create into Stopped from an early empty listing.
-Generation zero is valid only for a fresh stopped lifecycle; starting/running
-uses a positive generation.
+[OpenAI scheduled tasks](https://learn.chatgpt.com/docs/automations) documents
+Work tasks, plugins, connected tools and minute-based existing-chat schedules.
+[Work cloud](https://learn.chatgpt.com/docs/get-started-with-work) distinguishes
+cloud execution from connected local resources.
+[Cowork scheduled tasks](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork)
+is the Claude target. Documentation is not this account's native readback.

@@ -10,7 +10,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROUTES_PATH = Path(__file__).resolve().parents[1] / "references/task-routes.json"
-POLICIES = ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "report-only", "owner-workflow")
+POLICIES = ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "report-only", "scheduled-approved-work", "owner-workflow")
 
 
 def inspect_result(result):
@@ -178,7 +178,7 @@ def check_links(text, allowed=()):
             "scope": "All supplied visible Markdown; static patterns only, no network/visual or permission verification"}
 
 
-def check_resume(task, policy, explicit_continue=False, phase="execute"):
+def check_resume(task, policy, explicit_continue=False, phase="execute", schedule_guard=None):
     required = ("TaskId", "RunId", "StepId", "SourceKey", "ContentVersion", "Mode", "State", "Category", "OwnerSkill", "ResumeStep", "ResumeContractVersion")
     if not isinstance(task, dict) or policy not in POLICIES or phase not in ("register", "observe", "execute"):
         raise ValueError("resume-task: expected canonical fields and a supported invocation policy")
@@ -195,11 +195,22 @@ def check_resume(task, policy, explicit_continue=False, phase="execute"):
         return {"status": "NeedsCorrection", "reason": "Owner, step, category, mode or contract mismatch; no fallback to communication"}
     reason = None
     effect = route["effect"]
+    if policy == "scheduled-approved-work":
+        guard = schedule_guard or {}
+        if (guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
+                or guard.get("customer_send_allowed") is not True or not guard.get("schedule_id")
+                or not guard.get("invocation_id") or not task.get("OperatorId")
+                or guard.get("operator_id") != task["OperatorId"]):
+            return {"status": "Deferred", "reason": "Current native schedule guard/operator binding missing; a policy name is not authorization"}
+        if task["Mode"] != "Automatic":
+            return {"status": "Deferred", "reason": "Scheduled work never adopts Manual tasks"}
+        if effect == "setup":
+            return {"status": "Deferred", "reason": "Installation setup requires explicit initialization, not a scheduled task"}
     if phase == "register":
         entity = task.get("PageId", task.get("url", task.get("id")))
         if not entity:
             return {"status": "NeedsCorrection", "reason": "Register the canonical task first; check its actual PageId before enabling a form"}
-        permitted = (policy == "owner-workflow" or policy == "one-cycle-no-customer-send" and task["Mode"] == "Automatic"
+        permitted = (policy == "owner-workflow" or policy in {"one-cycle-no-customer-send", "scheduled-approved-work"} and task["Mode"] == "Automatic"
                      or policy == "manual-review" and task["Mode"] == "Manual" and task["OwnerSkill"] in ("eightdegrees-communication-context-process", "eightdegrees-client-persona-update")
                      or policy == "setup-only" and effect == "setup"
                      or policy == "draft-only" and task["OwnerSkill"] == "eightdegrees-sales-reply")
@@ -246,6 +257,7 @@ def main(argv=None):
     resume = sub.add_parser("resume-task")
     resume.add_argument("--input", required=True)
     resume.add_argument("--policy", choices=POLICIES, required=True)
+    resume.add_argument("--schedule-guard", help="Current actual schedule_checks guard result; required for scheduled-approved-work")
     resume.add_argument("--explicit-continue", action="store_true")
     resume.add_argument("--phase", choices=("register", "observe", "execute"), default="execute")
     args = parser.parse_args(argv)
@@ -261,7 +273,8 @@ def main(argv=None):
                 raise ValueError("tool-result: expected original MCP object")
             outcome = inspect_result(data)
         else:
-            outcome = check_resume(json.loads(source), args.policy, args.explicit_continue, args.phase)
+            schedule_guard = json.loads(Path(args.schedule_guard).read_text(encoding="utf-8")) if args.schedule_guard else None
+            outcome = check_resume(json.loads(source), args.policy, args.explicit_continue, args.phase, schedule_guard)
         print(json.dumps(outcome, ensure_ascii=False))
         return 2 if outcome["status"] in ("Error", "NeedsCorrection") else 0
     except (OSError, ValueError, TypeError) as exc:

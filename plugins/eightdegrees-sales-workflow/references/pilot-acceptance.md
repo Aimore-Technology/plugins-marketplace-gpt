@@ -123,7 +123,7 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
   Missing native support, unknown create result, duplicate ownership and another
   host's owner block creation; they must not produce a second scanner.
 - Trigger a real scheduled tick, verifying original scope and Automatic-only,
-  CustomerSendAllowed=false behavior. Repeat no-change ticks stay quiet. A busy
+  manual no-send behavior and native guarded approved-work execution separately. Repeat no-change ticks stay quiet. A busy
   run must not launch a parallel catch-up. Measure actual wall time/call count.
 - stop must delete the exact owned native task, verify absence including paused
   records and preserve unrelated schedules/business records. Repeat stop is a
@@ -132,3 +132,26 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
 - Native schedule support, UI confirmation/deletion, live concurrency and actual
   runtime speed remain untested until observed in that host. Source/package
   checks and mocked normalized scheduler fixtures are not live acceptance.
+
+## 0.1.17 alignment acceptance
+
+- In a real Work GPT task, verify native 15-minute creation/readback, same-ID
+  reuse, current lifecycle/connector access and deletion. Claude targets native
+  Cowork cron but remains explicitly untested until its environment is available.
+  Do not substitute a Codex project-local task for the requested Work runtime.
+- Manual run-auto still defers customer sends. A real current native tick may
+  reach only valid approved Automatic owner steps. Test no guard, stale/stop,
+  wrong operator/runtime, competing run, Manual input and legacy no-send job
+  upgrade: none may dispatch customer work. A policy name alone is insufficient.
+- Verify an actual sent email's deterministic GHL receipt and current task/index/
+  action projections. Interrupt after send and after receipt append: reconcile
+  existing IDs, backfill only unfinished result work, never send/append again.
+  Changed actual message/customer/payload or unknown receipt append blocks reuse.
+- Force candidate/original state conflict and quota failure in a controlled
+  rehearsal. Do not reopen Completed, infer no pending work or silently publish
+  complete counts. Test permitted view/original-page fallback and its coverage.
+- Observe daily 08:30 or labeled catch-up, exactly one configured summary notice,
+  reminder receipt/escalation/overdue phases, confirmed event-ID reuse and busy
+  tick behavior. These are live tests still required, not passed by packaging.
+- Recheck real image/attachment EDM, edit invalidation, two-message SMS timing/
+  inbound stop and actual operator usage in a later authorized acceptance round.

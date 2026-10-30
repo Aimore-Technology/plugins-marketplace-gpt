@@ -79,4 +79,19 @@ Direct Notion edits are logged when actually observed and validated; polling doe
 
 ## Explicit periodic control
 
-Only start/stop may create/delete the installation-owned native scan task. Follow [scheduling](scheduling.md); each tick remains run-auto with no customer sends. A schedule never approves content, takes over Manual tasks or creates another schedule. Initialization and installation remain disabled by default.
+Only start/stop may create/delete the installation-owned native task. Follow [scheduling](scheduling.md): native ticks invoke the scanning skill under a current scheduled-approved-work guard and may execute valid independently approved Automatic work. Public manual run-auto stays no-customer-send. A schedule never approves content, takes over Manual tasks or creates another schedule. Initialization and installation remain disabled by default.
+
+## Approved periodic work and result consistency
+
+Public manual run-auto remains no-customer-send. A real installation-owned
+native cycle uses [scheduled work](scheduled-work.md), current lifecycle guard
+and scheduled-approved-work instead; only valid Automatic approvals may execute.
+Manual P0-A stays manual. Upgrade/install/init enables no existing job or new
+send scope. Explicit start and native readback are required for the new lifecycle.
+
+Before dependent actions reconcile conflicting task observations under
+[outcome state](outcome-state.md). After a send, retain one immutable provider
+result, synchronize current task/index/action projections and service observations,
+and verify the required [email-result CRM receipt](send-receipts.md). The receipt
+is deterministic operational metadata within the final send package, not an
+unreviewed customer-persona change. Logging/projection failures never replay a send.

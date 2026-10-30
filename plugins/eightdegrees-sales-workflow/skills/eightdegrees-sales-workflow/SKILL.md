@@ -21,5 +21,5 @@ Accept `@eightdegrees-sales-workflow <command> [context]`, or a bare command whe
 | `report` | [daily brief](../eightdegrees-daily-brief-and-handover/SKILL.md) | Show/update report; no notifications, Calendar changes or task execution. |
 | `reply-draft` | [sales reply](../eightdegrees-sales-reply/SKILL.md) | Prepare copy and preview; stop before sending. |
 
-| `start` | [automation control](../eightdegrees-automation-control/SKILL.md) | Create/reuse one native 15-minute run-auto task; no immediate scan or sends. |
+| `start` | [automation control](../eightdegrees-automation-control/SKILL.md) | Create/reuse one native 15-minute approved-work task; no immediate scan or sends. |
 | `stop` | [automation control](../eightdegrees-automation-control/SKILL.md) | Delete only the installation-owned native task; preserve business records. |

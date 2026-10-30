@@ -76,3 +76,11 @@ not a complete semantic writing review. [Customer fact semantics](customer-facts
 apply before source/proposal writes; unknown finance stays null. Previously
 approved legacy text that fails a new check requires a fresh reviewed version,
 never silent editing or a repeated CRM append.
+
+## Email send-result receipts
+
+An actual approved email also needs the separate deterministic operational
+receipt in [send receipts](send-receipts.md). It reuses this complete plain-text
+template but has an immutable sender/message receipt key and the approval's
+receipt scope. Earlier communication/persona Notes do not substitute for a
+record of a later actual send. No new persona facts are inferred.

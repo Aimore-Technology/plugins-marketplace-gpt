@@ -48,7 +48,20 @@ For new/migrated DataCompletion, open the registered ordinary action page, fill 
 
 After setup, `start` creates or reuses one native 15-minute task; `stop` deletes
 that task. `run-auto` still runs once. Start/stop manage schedules only: they do
-not immediately process mail, approve work or send customer messages. The task
-calls run-auto with CustomerSendAllowed=false. Actual host support and task
+not immediately process mail, approve work or send customer messages. The native task calls email-scanning directly under the guarded scheduled-approved-work policy; it does not call the public no-send shortcut. Actual host support and task
 readback are required; unsupported exact timing/deletion remains explicit, not
 an hourly fallback or a fake local-state success. See [schedule lifecycle](scheduling.md).
+
+## Approved native work versus a manual scan
+
+The public run-auto command still scans/prepares once without customer sends.
+start now installs the distinct approved-work prompt, invoking email-scanning
+directly with real native context. After Notion submission, valid Automatic
+work can execute on its next eligible tick; Manual P0-A still needs explicit
+continue. Each customer send keeps its independent exact-version/window approval.
+Installation/init does not schedule or enable it; old no-send jobs do not gain
+send scope just because the package was upgraded. Use explicit start/readback.
+GPT targets a cloud Work GPT task; Claude targets Cowork's native cron task.
+The same cycle handles due daily summaries/reminders/confirmed appointments;
+report itself remains report-only. Runtime availability is validated in that
+account, without an external scheduler or a Codex project-worker substitute.

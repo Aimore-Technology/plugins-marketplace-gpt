@@ -1,13 +1,13 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.16. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.17. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
 | Skill | Use |
 | --- | --- |
 | eightdegrees-sales-workflow | Route the seven short commands to existing workflows. |
-| eightdegrees-automation-control | Start/reuse or delete one native 15-minute scan schedule. |
+| eightdegrees-automation-control | Start/reuse or delete one native 15-minute approved-work task. |
 | eightdegrees-initialization | Set up customer Notion, actual connections, defaults and readiness. |
 | eightdegrees-email-scanning | One scoped scan and automatic-task validation cycle. |
 | eightdegrees-communication-context-process | Manual P0-A; reviewed communication to CRM Notes. |
@@ -70,4 +70,4 @@ Communication DataCompletion uses CompleteCommunicationData and cannot append No
 
 ## Periodic scan controls
 
-`@eightdegrees-sales-workflow start` creates/reuses one native 15-minute run-auto task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Every tick preserves no-customer-send and Manual-task boundaries. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).
+`@eightdegrees-sales-workflow start` creates/reuses one native 15-minute approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public manual run-auto stays no-customer-send and Manual work stays manual. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).

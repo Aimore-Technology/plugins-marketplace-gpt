@@ -30,3 +30,14 @@ JSON-shaped string, then accepted a plain text index; full evidence stayed in
 owned page history. Preserve actual API refusal and recover only the projection.
 One bounded retry recovered explicit Internal errors on read-only discovery;
 that finding does not permit blind write/send retries.
+
+## Trusted AndroidSync route observed in 0.1.16
+
+A controlled message succeeded using request_sms under actual Trusted policy;
+the user confirmed receipt and the displayed sending number. The earlier
+android_create_sms_draft path forced an unnecessary native approval and left
+an abandoned PendingApproval candidate. Discover current schemas/policy: use
+the real request route for an approved send, not the forced-draft route by
+default. Do not fabricate native approval or cancellation when that API is absent.
+One message's phone observation is not proof of stable inbound automation.
+No personal test phone numbers or customer payloads belong in this package.

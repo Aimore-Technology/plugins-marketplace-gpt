@@ -53,3 +53,17 @@ consume a submission or satisfy a final completion route. Use execute/observe
 with the actual continuation context later. Never change to setup-only or set
 --explicit-continue merely to obtain a pre-form pass. scheduling-only cannot
 resume PendingTasks, and start/stop do not need business-task routes.
+
+## Native scheduled policy and send-result recovery
+
+scheduled-approved-work requires the current actual schedule guard, supplied
+to resume-task as --schedule-guard and bound to the configured operator. It
+excludes Manual tasks in register, observe and execute phases. Route eligibility
+still grants no approval. Customer sends need the named owner's full fresh checks.
+
+RecordSendReceipt belongs to sales-reply; RecordGeneralSendReceipt belongs to
+email-scanning. They reconcile an already-sent email's deterministic GHL result
+and current projections under [send receipts](send-receipts.md), not another
+send or Notes/persona intake. A report cannot dispatch them. Use the original
+provider ID and frozen send package; expired send windows do not block an
+authorized internal result backfill, and do not permit another customer send.

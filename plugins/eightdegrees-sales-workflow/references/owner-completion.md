@@ -44,3 +44,20 @@ check to reduce latency. Record actual duration/calls; no unmeasured speed claim
 Automation control owns only its schedule/settings/run/log projections, with no
 business task dispatch. Verify native schedule results separately under
 [scheduling](scheduling.md); local completion checks are not native task evidence.
+
+## Scheduled scope and actual send-result completion
+
+For scheduled-approved-work, bind registry.operator_id and the current actual
+registry.schedule_guard. Pass that same guard to route checks. A textual policy
+name cannot supply native lifecycle evidence. Every dependent mutation still
+needs the fresh owner/approval/stop/attempt checks.
+
+SendApprovedReply/SendGeneralReply require an outcome check from outcome_checks.py
+verify and a crm-receipt check from send_receipt.py verify, bound to the original
+task and content version, in addition to pre-send draft and actual Sent MIME.
+SendApprovedSms requires the outcome check. RecordSendReceipt/RecordGeneralSendReceipt
+require receipt and current outcome readback but never reruns sending. Freeze
+these kinds in the original required_checks mapping. Missing result projections
+or CRM receipt keeps overall publication partial while provider Sent remains
+durable. Repair that scope only. These helpers are offline checks, not a server
+interceptor, native scheduler or permission source.

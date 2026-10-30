@@ -54,3 +54,14 @@ candidates that need a current per-item check. Re-read the original task/action
 immediately before acceptance/provider action and after writes as required.
 Static form-result prose should say 'awaiting workflow validation; last checked
 at ...', rather than asserting 'not submitted' after an unobserved native edit.
+
+## Candidate conflicts and low-cost normal reads
+
+Use the actual registered saved views for ordinary recurring candidate reads;
+do not begin every cycle with full SQL scans. If SQL/rows quota is exhausted,
+try only supported unblocked view/original-page reads and record their coverage.
+If complete discovery is unavailable, pause absence-dependent creations and
+aggregate claims. Exact known-task execution still needs its original approval
+and state; conflicting snapshots follow [outcome state](outcome-state.md).
+Reuse one unchanged capture for local checks and coalesce final owner projections;
+record only affected task/action/hub sections rather than rewriting history.

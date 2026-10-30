@@ -72,3 +72,17 @@ Store message status separately: AwaitingApproval, ApprovedPending, Sending, Pro
 DailyBriefs has one dated page per operator/business timezone. Upsert it; link original tasks/runs/logs. Show coverage, generated time, actual vs planned time, pending actions, important-reminder state and failures. Do not duplicate log bodies or build business KPI charts.
 
 Register GeneratedAt, DataCutoff, CurrentVersion, Coverage and PendingCount. Separate FailureCount (unresolved real workflow failures, including quality failures), UnknownCount and QualityIssueCount; RecoveredFailureCount and SyntheticFailureCount are separate historical/test metrics. Counts may overlap only when explicitly stated, for example quality as a subset of unresolved failures. Migrate absent fields on an explicit upgrade without resetting history; before migration show the labeled counts in the body and mark schema incomplete. Apply [monitoring](monitoring.md) to timestamps, scoped counts and existing legacy FailureCount meanings.
+
+## Current send state and native runtime
+
+scheduling.runtime records the verified work-gpt-task or cowork-cron-task
+adapter; approved_work_enabled defaults false. Native field mappings and actual
+task IDs remain saved as evidence. Explicit start establishes a new verified
+approved-work lifecycle; init/upgrade never enables it silently.
+
+Current send result fields are derived under [outcome state](outcome-state.md).
+Keep the original immutable provider attempt and one lightweight current index,
+not nested full payload copies and contradictory mutable counters. Approval
+snapshots stay historical. Each actual email has a deduplicated GHL receipt
+under [send receipts](send-receipts.md); receipt/projection failures preserve
+the successful send and resume only unfinished internal recording.

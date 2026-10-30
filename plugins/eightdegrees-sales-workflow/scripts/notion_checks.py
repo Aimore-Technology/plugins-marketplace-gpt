@@ -238,7 +238,8 @@ def completion_gate(data):
     passed_status = {"page-links": "ClearForCheckedPatterns", "task-display": "DisplayConsistentForCheckedPatterns",
                      "preview": "SavedEmbedAndBytesMatch", "schema-values": "ValidSelectValues",
                      "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
-                     "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified"}
+                     "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
+                     "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -279,7 +280,7 @@ def owner_write(data):
     registry, call = data["registry"], data["call"]
     owner, policy = registry.get("owner_skill"), registry.get("policy")
     profiles = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
-    if owner not in profiles or policy not in {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "owner-workflow"}:
+    if owner not in profiles or policy not in {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "owner-workflow", "scheduled-approved-work"}:
         return {"status": "Deferred", "reason": "Unknown owner/policy; report-only uses report-write"}
     if (policy == "scheduling-only" and owner != "eightdegrees-automation-control"
             or owner == "eightdegrees-automation-control" and policy != "scheduling-only"
@@ -287,6 +288,15 @@ def owner_write(data):
             or policy == "manual-review" and owner not in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"}
             or policy == "draft-only" and owner != "eightdegrees-sales-reply"):
         return {"status": "Deferred", "reason": "Owner conflicts with invocation restriction"}
+    if policy == "scheduled-approved-work" and owner == "eightdegrees-initialization":
+        return {"status": "Deferred", "reason": "Scheduled execution cannot become initialization"}
+    if policy == "scheduled-approved-work":
+        guard = registry.get("schedule_guard") or {}
+        if (guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
+                or guard.get("customer_send_allowed") is not True or not guard.get("schedule_id")
+                or not guard.get("invocation_id") or guard.get("operator_id") != registry.get("operator_id")
+                or not registry.get("operator_id")):
+            return {"status": "Deferred", "reason": "Current native schedule guard/operator binding missing"}
     groups = {k: {page_id(x) for x in registry.get(k, [])} for k in
               ("run_page_ids", "task_page_ids", "action_page_ids", "publication_page_ids", "operation_log_source_ids")}
     allowed_pages = set().union(*(v for k, v in groups.items() if k != "operation_log_source_ids"))
@@ -324,7 +334,9 @@ def owner_write(data):
     bindings = {page_id(k): page_id(v) for k, v in registry.get("action_bindings", {}).items()}
     if not groups["task_page_ids"] <= versions.keys() or not groups["action_page_ids"] <= bindings.keys():
         return {"status": "Deferred", "reason": "Current task versions or action-to-task bindings missing"}
-    mail_targets, mail_verified, sent_verified = set(), set(), set()
+    mail_targets, mail_verified, sent_verified, send_targets, receipt_targets = set(), set(), set(), set(), set()
+    outcomes_verified, receipts_verified = set(), set()
+    sent_bindings, outcome_bindings, receipt_bindings = {}, {}, {}
     for item in evidence["checks"]:
         spec, result = evidence["required_checks"][item["name"]], item["result"]
         identity = page_id(spec["entity_id"])
@@ -333,6 +345,13 @@ def owner_write(data):
                 return {"status": "Deferred", "reason": "Route evidence belongs to a different owner/policy/task version"}
             if result.get("resume_step") in {"SendApprovedReply", "SendGeneralReply"}:
                 mail_targets.add(identity)
+                send_targets.add(identity)
+                receipt_targets.add(identity)
+            if result.get("resume_step") == "SendApprovedSms":
+                send_targets.add(identity)
+            if result.get("resume_step") in {"RecordSendReceipt", "RecordGeneralSendReceipt"}:
+                receipt_targets.add(identity)
+                send_targets.add(identity)
         if spec["kind"] == "task-display" and identity in bindings:
             task_id = bindings[identity]
             if (result.get("task_page_id") is None or page_id(result["task_page_id"]) != task_id
@@ -342,8 +361,26 @@ def owner_write(data):
             mail_verified.add(identity)
         if spec["kind"] == "reply-sent" and result.get("content_version") == versions.get(identity):
             sent_verified.add(identity)
+            sent_bindings[identity] = (result.get("message_id"), result.get("html_sha256"))
+        if spec["kind"] == "outcome" and result.get("content_version") == versions.get(identity):
+            outcomes_verified.add(identity)
+            outcome_bindings[identity] = result.get("expected", {}).get("message_id")
+        if (spec["kind"] == "crm-receipt" and result.get("content_version") == versions.get(identity)
+                and result.get("crm_note_id") and result.get("receipt_key")):
+            receipts_verified.add(identity)
+            receipt_bindings[identity] = (result.get("message_id"), result.get("payload_sha256"))
     if not mail_targets <= mail_verified or not mail_targets <= sent_verified:
         return {"status": "Deferred", "reason": "Email completion requires current pre-send draft AND actual sent-MIME verification; preserve partial provider success"}
+    if not send_targets <= outcomes_verified or not receipt_targets <= receipts_verified:
+        return {"status": "Deferred", "reason": "Current send projections and required CRM receipt readback incomplete; preserve provider success without replay"}
+    for identity in receipt_targets:
+        if (not all(receipt_bindings[identity])
+                or outcome_bindings.get(identity) != receipt_bindings[identity][0]):
+            return {"status": "Deferred", "reason": "Receipt recovery and current projections identify different provider messages"}
+    for identity in mail_targets:
+        if (not all(sent_bindings[identity]) or receipt_bindings.get(identity) != sent_bindings[identity]
+                or outcome_bindings.get(identity) != sent_bindings[identity][0]):
+            return {"status": "Deferred", "reason": "Sent MIME, current projections and CRM receipt identify different provider messages/payloads"}
     return {"status": "WithinOwnerScope", "invocation_id": evidence["invocation_id"],
             "publication_version": evidence["publication_version"],
             "scope": "Offline Notion completion gate; not host enforcement or permission to call a provider"}

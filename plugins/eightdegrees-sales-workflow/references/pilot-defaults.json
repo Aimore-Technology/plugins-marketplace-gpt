@@ -28,7 +28,8 @@
   "daily_brief": {
     "time": "08:30",
     "include_weekends": true,
-    "missed_run_policy": "one_catch_up_with_actual_time"
+    "missed_run_policy": "one_catch_up_with_actual_time",
+    "runner": "scheduled-cycle"
   },
   "important_reminders": {
     "priority": [
@@ -97,7 +98,9 @@
     "account_id": null,
     "prompt_sha256": null,
     "pending_attempt": null,
-    "last_verified_at": null
+    "last_verified_at": null,
+    "runtime": null,
+    "approved_work_enabled": false
   },
   "customer_setup": {
     "operator_id": null,

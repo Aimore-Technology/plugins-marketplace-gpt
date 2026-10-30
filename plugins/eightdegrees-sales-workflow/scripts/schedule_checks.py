@@ -16,6 +16,8 @@ TEMPLATE = Path(__file__).resolve().parents[1] / "assets/scan-schedule.md"
 
 def context(data):
     ctx = data["context"]
+    if ctx.get("runtime") not in {"work-gpt-task", "cowork-cron-task"}:
+        raise ValueError("Select the verified Work GPT task or Cowork native cron runtime")
     for key in ("root_id", "root_url", "operator_id", "mailbox", "provider", "account_id", "host_id", "timezone"):
         if not isinstance(ctx.get(key), str) or not ctx[key].strip() or re.search(r"[\r\n]", ctx[key]):
             raise ValueError("Missing or invalid context: " + key)
@@ -54,7 +56,7 @@ def owned_tasks(data, ctx):
             if task["id"] in registered:
                 raise ValueError("Registered native task still exists but its ownership marker changed; reconcile")
             continue
-        if any(task.get(k) != ctx[k] for k in ("provider", "account_id", "host_id")):
+        if any(task.get(k) != ctx[k] for k in ("provider", "account_id", "host_id", "runtime")):
             raise ValueError("Matching installation has a different executor; reconcile on its owner host")
         if task.get("read_verified") is not True:
             raise ValueError("Read the owned native task; a title/list summary is insufficient")
@@ -63,7 +65,7 @@ def owned_tasks(data, ctx):
 
 
 def exact_task(task, ctx):
-    return (task.get("enabled") is True and type(task.get("interval_minutes")) is int
+    return (task.get("enabled") is True and task.get("runtime") == ctx["runtime"] and type(task.get("interval_minutes")) is int
             and task["interval_minutes"] == 15 and task.get("timezone") == ctx["timezone"]
             and task.get("prompt") == prompt_for(ctx))
 
@@ -78,7 +80,7 @@ def plan(data):
         return {"status": "NativeSchedulingUnavailable", "reason": "Native listing capability is required"}
     saved = data.get("scheduling") or {}
     if (saved.get("enabled") is True or saved.get("schedule_ids")) and any(
-            saved.get(k) != ctx[c] for k, c in (("owner_host", "host_id"), ("provider", "provider"), ("account_id", "account_id"))):
+            saved.get(k) != ctx[c] for k, c in (("owner_host", "host_id"), ("provider", "provider"), ("account_id", "account_id"), ("runtime", "runtime"))):
         return {"status": "NeedsReconciliation", "reason": "Saved schedule belongs to another executor; access its native scheduler before changing ownership"}
     pending = data.get("pending_attempt") or saved.get("pending_attempt") or {}
     if pending and pending.get("status") not in ("Resolved", "RejectedBeforeDispatch", "NoEffectVerified"):
@@ -129,11 +131,13 @@ def guard(data):
     ctx, saved, invocation = context(data), data["scheduling"], data["invocation"]
     setup = data["setup"]
     if (ctx["generation"] < 1 or saved.get("enabled") is not True or saved.get("state") != "Running"
+            or saved.get("approved_work_enabled") is not True
             or saved.get("desired_state") != "Running" or type(saved.get("generation")) is not int
             or saved.get("generation") != ctx["generation"]
             or saved.get("owner_key") != ctx["owner_key"]
             or saved.get("owner_host") != ctx["host_id"] or saved.get("provider") != ctx["provider"]
             or saved.get("account_id") != ctx["account_id"]
+            or saved.get("runtime") != ctx["runtime"]
             or setup.get("operator_id") != ctx["operator_id"] or setup.get("gmail_account") != ctx["mailbox"]
             or str(setup.get("notion_root_id", "")).replace("-", "").lower() != ctx["root_id"].replace("-", "").lower()
             or not isinstance(invocation.get("invocation_id"), str) or not invocation["invocation_id"].strip()
@@ -142,7 +146,10 @@ def guard(data):
     active = data.get("active_run") or {}
     if active.get("status") == "InProgress" and active.get("invocation_id") != invocation.get("invocation_id"):
         return {"status": "Deferred", "reason": "Another scan is in progress; reconcile uncertain ownership, never overlap"}
-    return {"status": "EligibleForScheduledCycle", "customer_send_allowed": False,
+    return {"status": "EligibleForScheduledCycle", "customer_send_allowed": True,
+            "policy": "scheduled-approved-work", "operator_id": ctx["operator_id"],
+            "schedule_id": invocation["schedule_id"], "invocation_id": invocation["invocation_id"],
+            "owner_key": ctx["owner_key"], "generation": ctx["generation"], "runtime": ctx["runtime"],
             "scope": "Observed state only; Notion is not an atomic lock or native execution interceptor"}
 
 

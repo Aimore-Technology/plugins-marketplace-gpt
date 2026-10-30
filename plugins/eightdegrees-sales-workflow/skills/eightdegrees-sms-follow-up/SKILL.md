@@ -21,3 +21,17 @@ An explicitly authorized one-message channel acceptance/timing exception follows
 6. On an observed reply/rejection/complaint, stop unsent cycle messages first, then hand the communication to its processing workflow or the operator. Do-not-contact remains stopped. Unconnected WeChat/WhatsApp/Telegram/phone replies require the operator's Notion pause/cancel; do not claim cross-channel real-time coverage.
 7. Stop after two related follow-ups TOTAL from the operator and AI. Unknown manual count pauses the cycle; one manual send leaves one slot, two leave none. Handover at cycle end; a new cycle requires the operator's explicit manual start with new context and approvals, never an automatic reset for a third old-cycle message.
 8. Return actual counts, result IDs, next eligible time or stop reason and original task/run links. Do not mark unverified gateway, paused or unknown results as completed delivery. Verify the own-number and original-inbox reply experience before enabling automated SMS.
+
+## Tool selection and current outcome
+
+Discover the actual SMS request tool and stored device policy before approval.
+For AndroidSync, request_sms follows that policy; android_create_sms_draft is a
+draft/forced-native-approval route, not the default Trusted send path. Do not
+introduce a second approval gate by picking it. Respect a genuine current
+Manual/Web approval requirement. A missing inbound reader keeps automated SMS
+disabled; one observed send does not establish two-way readiness. Apply
+[outcome state](../../references/outcome-state.md) to separate current result,
+operator receipt/sender observations and immutable approval-time snapshots.
+Use the outcome verification in send completion; never release an abandoned
+native candidate or invent a provider cancellation. Missing native cleanup API
+is a capability limit, not a request to approve that old draft.

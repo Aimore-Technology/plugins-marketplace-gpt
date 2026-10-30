@@ -15,7 +15,7 @@ def request(operation="start"):
     return {"operation": operation, "context": {"root_id": "a" * 32,
         "root_url": "https://app.notion.com/p/" + "a" * 32, "operator_id": "operator-local-demo",
         "mailbox": "operator@example.com", "provider": "native-demo", "account_id": "native-account",
-        "host_id": "native-host", "timezone": "Australia/Adelaide", "generation": 1},
+        "host_id": "native-host", "runtime": "work-gpt-task", "timezone": "Australia/Adelaide", "generation": 1},
         "capabilities": {k: True for k in ("list", "read", "create", "update", "delete", "runner_ready", "exact_15_minutes")},
         "tasks": [], "list_complete": True, "list_includes_inactive": True}
 
@@ -24,7 +24,7 @@ def actual_task(data, identity="native-task-1"):
     ctx = SCHEDULE.context(data)
     return {"id": identity, "prompt": SCHEDULE.prompt_for(ctx), "enabled": True,
             "interval_minutes": 15, "timezone": ctx["timezone"], "read_verified": True,
-            **{k: ctx[k] for k in ("provider", "account_id", "host_id")}}
+            **{k: ctx[k] for k in ("provider", "account_id", "host_id", "runtime")}}
 
 
 def scheduled_guard():
@@ -33,7 +33,8 @@ def scheduled_guard():
                 setup={"operator_id": ctx["operator_id"], "gmail_account": ctx["mailbox"], "notion_root_id": ctx["root_id"]},
                 scheduling={"enabled": True, "state": "Running", "desired_state": "Running", "generation": 1,
                             "owner_key": ctx["owner_key"], "provider": ctx["provider"], "account_id": ctx["account_id"],
-                            "owner_host": ctx["host_id"], "schedule_ids": ["native-task-1"]})
+                            "owner_host": ctx["host_id"], "runtime": ctx["runtime"], "approved_work_enabled": True,
+                            "schedule_ids": ["native-task-1"]})
     return data
 
 
@@ -58,7 +59,8 @@ class ScheduleTests(unittest.TestCase):
     def test_plan_is_not_running_and_contains_one_cycle_prompt(self):
         data = request(); result = SCHEDULE.plan(data)
         self.assertEqual(result["status"], "EligibleForNativeCreate")
-        self.assertTrue(result["prompt"].startswith("@eightdegrees-sales-workflow run-auto\n"))
+        self.assertNotIn("@eightdegrees-sales-workflow run-auto", result["prompt"])
+        self.assertIn("scheduled-approved-work", result["prompt"])
         self.assertEqual(result["interval_minutes"], 15)
         self.assertEqual(data["tasks"], [])
 
@@ -147,3 +149,15 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(SCHEDULE.guard(data)["status"], "Deferred")
         data["trigger"] = "manual"; data["scheduling"]["enabled"] = False
         self.assertEqual(SCHEDULE.guard(data), {"status": "EligibleForManualCycle", "customer_send_allowed": False})
+
+    def test_work_and_cowork_guards_never_enable_legacy_no_send_jobs(self):
+        for runtime in ('work-gpt-task', 'cowork-cron-task'):
+            data = scheduled_guard(); data['context']['runtime'] = data['scheduling']['runtime'] = runtime
+            result = SCHEDULE.guard(data)
+            self.assertEqual(result['policy'], 'scheduled-approved-work'); self.assertTrue(result['customer_send_allowed'])
+            del data['scheduling']['approved_work_enabled']
+            self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
+
+    def test_wrong_runtime_does_not_take_over_a_different_executor(self):
+        data = scheduled_guard(); data['scheduling']['runtime'] = 'cowork-cron-task'
+        self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')

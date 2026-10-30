@@ -35,3 +35,18 @@ ValidResumeRoute result is metadata-only; it cannot satisfy completion-gate's
 executing route evidence. For start/stop use schedule_checks.py plan, then fresh
 native results with verify; scheduled ticks use guard. See [scheduling](scheduling.md).
 All helpers are offline: no job creation/deletion or automatic host enforcement.
+
+## Native execution and actual result checks
+
+A real native tick supplies schedule_checks guard evidence before resume-task
+with --policy scheduled-approved-work --schedule-guard <current-guard.json>.
+Public manual run-auto still uses one-cycle-no-customer-send. A manually pasted
+marker cannot create native context or authorize a send.
+
+Use [outcome checks](../scripts/outcome_checks.py) task/project/verify/counts for
+actual state conflicts, current result projections and deduplicated known totals.
+Use [send receipt checks](../scripts/send_receipt.py) render/reconcile/verify
+for the final send package's deterministic CRM receipt. Required field mappings
+and current readbacks are in [outcome state](outcome-state.md) and
+[send receipts](send-receipts.md). Bind successful outcome/crm-receipt results to
+the original task/version in owner completion; these scripts call no provider.
