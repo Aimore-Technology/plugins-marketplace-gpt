@@ -25,6 +25,10 @@ def manifest(data):
     m = data["manifest"]
     required = ("task_page_id", "content_version", "draft_id", "message_id", "thread_id",
                 "reply_message_id", "parent_rfc_message_id", "from_address", "to", "subject", "html_base64url", "html_sha256")
+    if isinstance(m, dict):
+        for key in ("from_address", "to", "cc", "bcc", "reply_to", "subject", "parent_rfc_message_id"):
+            if key in m and not isinstance(m[key], str):
+                raise ValueError(key + " must be a header string, not a list or null; use the current connector contract")
     if not isinstance(m, dict) or any(not isinstance(m.get(k), str) or not m[k] for k in required):
         raise ValueError("Missing original draft/message/thread/version/target/HTML binding")
     if m.get("assets") or m.get("attachments"):

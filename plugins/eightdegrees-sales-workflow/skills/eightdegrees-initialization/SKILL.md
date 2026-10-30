@@ -5,7 +5,7 @@ description: "Initialize or inspect the EightDegrees sales workflow in the custo
 
 # Initialize EightDegrees
 
-Before the first owner mutation, establish the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
+Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
 
 Before making tasks/action pages executable, create and validate OwnerSkill/ResumeStep/ResumeContractVersion using [task routing](../../references/task-routing.md). Explicit upgrade recovers eligible legacy owners from original payload/run/operation evidence while preserving parent Workflow, record IDs, approvals and completed steps. Sales source/draft/send and mailbox checkpoint tasks must not default to communication. Ambiguous routes stay pending; init does not execute repaired tasks. Distinguish GHL Workflow-API capability absence from working contact/Notes access under [connector I/O](../../references/connector-io.md).
 

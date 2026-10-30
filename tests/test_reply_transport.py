@@ -36,6 +36,14 @@ def fixture(html=HTML):
 
 
 class ReplyTransportTests(unittest.TestCase):
+    def test_header_lists_null_and_nonstring_values_are_refused_before_payload(self):
+        for key in ("from_address", "to", "cc", "bcc", "reply_to", "subject", "parent_rfc_message_id"):
+            for value in (["receiver@example.invalid"], None, 42):
+                with self.subTest(key=key, value=value):
+                    data = fixture(); data["manifest"][key] = value
+                    with self.assertRaisesRegex(ValueError, "header string"):
+                        ADAPTER.prepare(data)
+
     def test_prepare_replaces_mime_without_resetting_reply_context(self):
         planned = ADAPTER.prepare(fixture())
         args = planned["args"]

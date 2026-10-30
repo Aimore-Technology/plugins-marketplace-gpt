@@ -16,7 +16,9 @@ operation itself scans/sends nothing and supplies no business approval.
    exposed, then use actual native schemas; keep required host UI confirmation.
    If this chat cannot manage that runtime, return the exact setup limitation and
    Work/Cowork next action. Never substitute a Codex project worker or daemon.
-2. Establish the owner completion contract for scheduling-only. Read complete
+2. Use [execution preflight](../../references/execution-preflight.md) to generate,
+   persist and read back the scheduling-only owner plan before dependent writes.
+   Establish the [owner completion contract](../../references/owner-completion.md). Read complete
    native listing including paused tasks and actual owned task prompts. Resolve
    previous unknown native attempts and competing executor ownership first.
 3. Start reuses/updates one exact owned task or creates after proven absence.

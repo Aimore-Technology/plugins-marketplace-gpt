@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.18. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.19. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -75,3 +75,13 @@ Communication DataCompletion uses CompleteCommunicationData and cannot append No
 ## Native image previews
 
 Reply drafts can use a native Notion PNG rendered from the exact frozen HTML. See [image preview](references/image-preview.md) for the optional existing-Playwright renderer, saved-asset download checks and version-bound completion evidence, and [preview experience](Experience/preview-evidence.md) for correct nested reference handling. Original HTML, copy inspection and independent approval remain required. No browser or service is installed automatically.
+
+## Owner preflight and recurring read cost
+
+Use the packaged [execution preflight](references/execution-preflight.md) to
+validate actual inputs, generate required checks, persist the plan and read back
+its original run before dependent work. Refusals produce no usable plan.
+Canonical fact labels preserve null; stored-reply headers keep the current
+scalar contract. Recurring scans reuse per-phase captures and known view
+fallbacks while still checking eligible human inputs and fresh send guards.
+This is local model-assisted validation, not a new server or MCP interceptor.

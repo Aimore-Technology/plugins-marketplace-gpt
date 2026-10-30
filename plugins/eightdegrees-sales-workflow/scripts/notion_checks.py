@@ -306,7 +306,8 @@ def completion_gate(data):
                      "preview": "SavedEmbedAndBytesMatch", "preview-image": "SavedImageAndBytesMatch", "schema-values": "ValidSelectValues",
                      "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
-                     "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified"}
+                     "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified",
+                     "execution-plan": "ExecutionPlanReady"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -331,6 +332,11 @@ def completion_gate(data):
             issues.append(name + ": page coverage or link check incomplete")
         if result.get("issues"):
             issues.append(name + ": unresolved findings")
+        if spec["kind"] == "execution-plan" and (not isinstance(spec.get("plan_sha256"), str)
+                or not re.fullmatch(r"[a-f0-9]{64}", spec["plan_sha256"])
+                or result.get("execution_plan_sha256") != spec["plan_sha256"]
+                or result.get("invocation_id") != invocation or result.get("publication_version") != version):
+            issues.append(name + ": saved execution plan belongs to another contract/invocation/version")
         if spec["kind"] == "preview-image" and (not spec.get("content_version") or not spec.get("html_sha256")
                 or result.get("content_version") != spec["content_version"]
                 or result.get("html_sha256") != spec["html_sha256"]):

@@ -11,6 +11,17 @@ SPEC.loader.exec_module(FACTS)
 
 
 class FactChecksTests(unittest.TestCase):
+    def test_canonical_labels_preserve_three_state_meaning_without_mutating_source(self):
+        for raw, value, label in [(" unconfirmed ", None, "Not confirmed"),
+                                  ("confirmedyes", True, "Approved"), ("declined", False, "Rejected")]:
+            data = {"finance_status": raw, "finance_approved": value}
+            result = FACTS.canonical_facts(data)
+            self.assertEqual(result["facts"], {"finance_status": label, "finance_approved": value})
+            self.assertEqual(data["finance_status"], raw)
+        result = FACTS.canonical_facts({"finance_status": "Undecided", "finance_approved": None})
+        self.assertEqual(result["status"], "NeedsCorrection")
+        self.assertNotIn("facts", result)
+
     def test_observed_unknown_finance_false_projection_is_rejected(self):
         result = FACTS.check_facts({"finance_approved": False, "finance_status": "Not confirmed"})
         self.assertEqual(result["status"], "NeedsCorrection")

@@ -44,3 +44,8 @@ assertion. Check available tools again after a host update; a deprecated dynamic
 tool may require the codex_app MCP server. Do not replace an unavailable bridge
 with session-file edits, hidden endpoints or CLI resume. Save the current task,
 actual input/approval and undelivered command for the operator to resume.
+
+For recurring Notion reads, preserve the capability-specific quota observation
+and use [Notion I/O](notion-io.md) saved-view discovery; the ordinary bounded
+transient retry rule is not a reason to reprobe a known exhausted SQL/rows quota
+every invocation. A successful view read does not clear the SQL degradation.

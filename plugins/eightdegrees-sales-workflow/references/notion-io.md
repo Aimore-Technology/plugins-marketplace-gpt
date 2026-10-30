@@ -65,3 +65,29 @@ aggregate claims. Exact known-task execution still needs its original approval
 and state; conflicting snapshots follow [outcome state](outcome-state.md).
 Reuse one unchanged capture for local checks and coalesce final owner projections;
 record only affected task/action/hub sections rather than rewriting history.
+
+
+## Recurring-cycle read budget
+
+Read setup/checkpoints once, collect one paginated candidate snapshot, and run
+local checks on the same capture. Use registered saved views normally. After an
+actual SQL/rows usage-limit refusal, preserve its capability-specific degradation
+and select supported complete view/original-page reads on subsequent cycles;
+do not reprobe the blocked route without provider reset timing or an explicit
+capability check. Preserve coverage/pagination evidence. No complete discovery
+means no absence-dependent creation or aggregate completeness claim.
+
+Filter out Manual inputs before fetching action bodies. Automatic waiting tasks
+still need their active action input checked: editing that ordinary page may not
+change the canonical PendingTasks row. Use genuinely supported action edit
+metadata if available; otherwise fetch eligible action bodies. A changed input,
+version, stop or provider result invalidates dependent captures. Re-read exact
+approval/stop/attempt evidence before external action, and affected saved results
+after writes. No cross-invocation evidence cache or skipped fresh send checks.
+
+When no business input/source/step changed, do not regenerate copy/HTML/PNG or
+rewrite unchanged task/action prose. The scan still records its actual cutoff,
+coverage/checkpoint and capability observation; complete only its own run.
+Combine compatible final projections, preserving input/history and existing
+report-only boundaries. Record actual tool-call counts and elapsed time;
+latency targets are measurement goals, not scheduling guarantees.

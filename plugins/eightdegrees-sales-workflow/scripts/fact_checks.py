@@ -2,6 +2,7 @@
 """Check customer fact semantics offline, before saving proposals or snapshots."""
 
 import argparse
+import copy
 import json
 from pathlib import Path
 import sys
@@ -50,13 +51,27 @@ def check_facts(data):
             "scope": "Representation check only; source accuracy, approval and execution remain separate"}
 
 
+def canonical_facts(data):
+    """Normalize only already-valid labels; never infer truth from a boolean."""
+    result = check_facts(data)
+    if result["status"] != "ValidFactSemantics":
+        return result
+    normalized = copy.deepcopy(data)
+    if "finance_status" in data:
+        state = FINANCE_STATES[data["finance_status"].strip().casefold()]
+        normalized["finance_status"] = {"ConfirmedYes": "Approved", "ConfirmedNo": "Rejected",
+                                        "Unknown": "Not confirmed"}[state]
+    return {**result, "facts": normalized}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True)
+    parser.add_argument("--canonical", action="store_true", help="Return canonical labels only after semantic validation")
     args = parser.parse_args()
     try:
         text = sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8")
-        result = check_facts(json.loads(text))
+        result = (canonical_facts if args.canonical else check_facts)(json.loads(text))
     except (ValueError, OSError, TypeError) as exc:
         result = {"status": "NeedsCorrection", "issues": [str(exc)]}
     print(json.dumps(result, ensure_ascii=False))

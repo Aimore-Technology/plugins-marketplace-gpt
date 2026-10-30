@@ -25,3 +25,11 @@ Read actual sent raw MIME before final send completion. If unsupported/unavailab
 ## Assets and limitations
 
 The packaged helper verifies a single text/html part with no assets/attachments, covering the observed acceptance reply. It refuses a nonempty asset manifest or unexpected MIME tree instead of dropping files. For image/CID/attachment EDM, use the SAME create/update/readback/send-stored-draft mechanism with a separately verified complete frozen MIME tree and asset mapping under html-approval. If that verification is unavailable, disclose the narrower supported capability and keep the affected package pending. Never silently downgrade or mark all EDM transport accepted from an HTML-only fixture. Connector-contract review and offline fixtures do not establish a live received-message pass.
+
+## Deterministic parameter preparation
+
+Use [execution preflight](execution-preflight.md) with operation reply-patch and
+the actual reply manifest. From/To/Cc/Bcc/Reply-To/Subject are header strings
+under this adapter, never lists or null. An invalid type returns no patch plan;
+do not guess a conversion or change approved recipients. Use the returned
+reply_args with the current tool schema, then retain raw stored-draft verification.

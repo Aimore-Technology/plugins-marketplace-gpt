@@ -50,3 +50,11 @@ for the final send package's deterministic CRM receipt. Required field mappings
 and current readbacks are in [outcome state](outcome-state.md) and
 [send receipts](send-receipts.md). Bind successful outcome/crm-receipt results to
 the original task/version in owner completion; these scripts call no provider.
+
+## Owner preparation
+
+Use [execution preflight](execution-preflight.md) prepare/ready before dependent
+owner work. It combines actual fact/schema/transport prechecks, derives role
+coverage and verifies an exact persisted plan. Exit 0 alone is insufficient:
+require PreflightPrepared or ExecutionPlanReady at the corresponding phase.
+These checks neither execute providers nor prove historical call order.

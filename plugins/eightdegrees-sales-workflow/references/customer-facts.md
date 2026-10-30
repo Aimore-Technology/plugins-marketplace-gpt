@@ -11,6 +11,8 @@ yes; only explicit rejection supports no. Pending, not mentioned and not confirm
 stay unknown. Do not use `bool(value)`, a missing checkbox or a default false to
 derive a customer fact. Control flags such as crm_written are separate.
 
+Use the shared [execution preflight](execution-preflight.md) for owner preparation. It calls canonical_facts: validation first, then stable Approved/Rejected/Not confirmed labels without inferring a boolean or accepting ambiguous labels. The standalone helper also supports --canonical. Preserve raw source wording separately.
+
 Before the first source/proposal/settings write, and again before applying an
 approved persona, run `python3 <plugin>/scripts/fact_checks.py --input <json>` on
 the actual proposed facts. The flat observed finance representation is supported:
