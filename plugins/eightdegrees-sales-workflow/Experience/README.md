@@ -8,6 +8,7 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 | Edit a current queue/report/status or publish file names | [Notion edits](notion-edits.md) | Native-reference match failures, duplicate anchors, filename auto-links |
 | Create a task/form, consume input or mark any owner complete | [Workflow integrity](workflow-integrity.md) | Missing route contracts, retrospective checks, skipped completion gates |
 | Read garbled mail, freeze HTML or approve/send a reply | [Mail delivery](mail-delivery.md) | Charset confusion, newline digest errors, connector-added quotes |
+| Resolve a saved HTML/image preview or diagnose missing evidence | [Preview evidence](preview-evidence.md) | Missing nested mappings, guessed URLs, confusing incomplete evidence with connector failure |
 | Plan or assess acceptance | [Testing and evidence](testing-and-evidence.md) | Comparing unlike totals, treating recovered/simulated checks as acceptance |
 
 Maintainers add a lesson only with a concrete trigger, observed behavior, scoped action, verification and evidence. Keep observations separate from open product defects. Recheck connector-version-dependent limits against current capabilities; a historical tip does not widen permissions or make an unavailable tool exist. Promote a resolved lesson only after its affected workflow is verified, retaining previous failures and the confirming evidence. Keep entries short instead of copying whole test reports here.

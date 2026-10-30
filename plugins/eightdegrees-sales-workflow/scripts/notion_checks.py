@@ -77,11 +77,52 @@ def section_patch(data):
             "scope": "Exact fetched workflow-owned section only; caller must preserve inputs/children and current invocation limits"}
 
 
-def check_preview(data):
-    """Verify a saved native embed and the exact downloaded HTML bytes."""
+def preview_reference(data):
+    """Resolve one actual saved media source; never guess a download URL."""
+    source = data["source"]
+    body = visible_markdown(page_body(data["page"]))
+    sources = re.findall(r'<(?:embed|image)\b[^>]*\bsource="([^"]+)"', body)
+    if not isinstance(source, str) or source not in sources or not source.startswith("notion-file-block://"):
+        return {"status": "NeedsCorrection", "reason": "Expected the exact saved native media source"}
+    payload = object_result(data["page"])
+    urls = []
+    for container in (payload, payload.get("metadata", {})):
+        refs = container.get("references", {})
+        if not isinstance(refs, dict):
+            raise ValueError("Expected the original fetched references map")
+        if source in refs:
+            urls.append(refs[source])
+    if not urls or any(not isinstance(url, str) or url != urls[0] for url in urls):
+        return {"status": "NeedsCorrection", "reason": "Saved source mapping missing or conflicting; inspect both references locations"}
+    url = urlsplit(urls[0])
+    if url.scheme != "https" or not url.hostname or url.username or url.password:
+        raise ValueError("Expected actual authorized HTTPS download mapping")
+    return {"status": "DownloadRequired", "source": source, "resolved_url": urls[0],
+            "scope": "Capture-only expiring URL; download exact bytes next, no preview verification or approval"}
+
+
+def html_download(data):
+    """Check the original UTF-8 HTML upload; do not decode its content twice."""
     file_id, digest = data["html_file_id"], data["html_sha256"]
     if not re.fullmatch(r"[0-9a-fA-F-]{32,36}", file_id) or not re.fullmatch(r"[0-9a-f]{64}", digest):
         raise ValueError("Expected original HTML upload ID and SHA-256")
+    downloaded = object_result(data["download"])
+    content = downloaded.get("content")
+    if (downloaded.get("file_upload_id") != file_id or not isinstance(content, str)
+            or downloaded.get("content_type", "").split(";")[0].strip().lower() != "text/html"):
+        return {"status": "NeedsCorrection", "reason": "Original HTML download identity/type/UTF-8 content missing or mismatched"}
+    actual = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    if actual != digest:
+        return {"status": "NeedsCorrection", "reason": "Downloaded HTML differs from frozen version", "actual_sha256": actual}
+    return {"status": "HTMLBytesMatch", "sha256": actual}
+
+
+def check_preview(data):
+    """Verify a saved native embed and the exact downloaded HTML bytes."""
+    file_id, digest = data["html_file_id"], data["html_sha256"]
+    original = html_download(data)
+    if original["status"] != "HTMLBytesMatch":
+        return original
     text = visible_markdown(page_body(data["page"]))
     sources = re.findall(r'<embed\b[^>]*\bsource="([^"]+)"', text)
     expected = "file-upload://" + file_id
@@ -89,10 +130,10 @@ def check_preview(data):
     if expected not in sources:
         asset = data.get("embedded_asset", {})
         saved_source = asset.get("source", "")
-        payload = object_result(data["page"])
-        refs = payload.get("references") or payload.get("metadata", {}).get("references", {})
+        mapping = preview_reference({"page": data["page"], "source": saved_source})
         if (not saved_source.startswith("notion-file-block://") or saved_source not in sources
-                or not asset.get("resolved_url") or refs.get(saved_source) != asset["resolved_url"]):
+                or mapping["status"] != "DownloadRequired"
+                or not asset.get("resolved_url") or mapping["resolved_url"] != asset["resolved_url"]):
             return {"status": "NeedsCorrection", "reason": "No matching saved native HTML embed or actual stable-reference download mapping",
                     "sources": sources, "scope": "Raw URI/file/code is not a preview; stable references require original fetched mapping and downloaded bytes"}
         if urlsplit(asset["resolved_url"]).scheme != "https":
@@ -103,17 +144,43 @@ def check_preview(data):
             raise ValueError("Expected exact base64 bytes downloaded from the resolved saved embed") from exc
         if hashlib.sha256(embedded_bytes).hexdigest() != digest:
             return {"status": "NeedsCorrection", "reason": "Saved embedded asset differs from frozen HTML"}
-    downloaded = object_result(data["download"])
-    content = downloaded.get("content")
-    if (downloaded.get("file_upload_id") != file_id or not isinstance(content, str)
-            or downloaded.get("content_type", "").split(";")[0].strip().lower() != "text/html"):
-        return {"status": "NeedsCorrection", "reason": "Original HTML download identity/type/UTF-8 content missing or mismatched"}
-    actual = hashlib.sha256(content.encode("utf-8")).hexdigest()
-    if actual != digest:
-        return {"status": "NeedsCorrection", "reason": "Downloaded HTML differs from frozen version", "actual_sha256": actual}
-    return {"status": "SavedEmbedAndBytesMatch", "source": saved_source, "sha256": actual,
+    return {"status": "SavedEmbedAndBytesMatch", "source": saved_source, "sha256": digest,
             "entity_id": object_result(data["page"]).get("id"),
             "scope": "Saved block and exact HTML bytes only; editable-copy agreement, review, host visual and send checks remain separate"}
+
+
+def check_image_preview(data):
+    """Check a renderer manifest against original HTML and the saved PNG bytes."""
+    original = html_download(data)
+    if original["status"] != "HTMLBytesMatch":
+        return original
+    manifest, asset = data["render_manifest"], data["embedded_asset"]
+    version = data["content_version"]
+    if (not isinstance(version, str) or not version or manifest.get("content_version") != version
+            or manifest.get("source_html_sha256") != data["html_sha256"]
+            or manifest.get("renderer") != "playwright-chromium" or not manifest.get("browser_version")
+            or manifest.get("completed") is not True or manifest.get("blocked_resources") != []
+            or manifest.get("javascript_enabled") is not False):
+        return {"status": "NeedsCorrection", "reason": "Missing or mismatched completed render-source/version evidence"}
+    source = asset.get("source", "")
+    image_sources = re.findall(r'<image\b[^>]*\bsource="([^"]+)"', visible_markdown(page_body(data["page"])))
+    mapping = preview_reference({"page": data["page"], "source": source})
+    if (source not in image_sources or mapping["status"] != "DownloadRequired"
+            or mapping["resolved_url"] != asset.get("resolved_url")):
+        return {"status": "NeedsCorrection", "reason": "Saved native image and actual resolved download mapping required"}
+    png = base64.b64decode(asset.get("content_base64", ""), validate=True)
+    if len(png) < 33 or png[:8] != b"\x89PNG\r\n\x1a\n" or png[8:16] != b"\x00\x00\x00\rIHDR":
+        return {"status": "NeedsCorrection", "reason": "Downloaded saved asset is not a PNG"}
+    width, height = int.from_bytes(png[16:20], "big"), int.from_bytes(png[20:24], "big")
+    digest = hashlib.sha256(png).hexdigest()
+    if (not width or not height or width != manifest.get("width") or height != manifest.get("height")
+            or len(png) != manifest.get("preview_bytes") or digest != manifest.get("preview_png_sha256")
+            or manifest.get("source_bytes") != len(object_result(data["download"])["content"].encode("utf-8"))):
+        return {"status": "NeedsCorrection", "reason": "Saved PNG differs from frozen renderer output or dimensions"}
+    return {"status": "SavedImageAndBytesMatch", "entity_id": object_result(data["page"]).get("id"),
+            "source": source, "html_sha256": data["html_sha256"], "png_sha256": digest,
+            "content_version": version, "width": width, "height": height,
+            "scope": "Captured render provenance and saved PNG identity only; inspect actual pixels/copy/assets separately; no approval, delivery or cross-client visual guarantee"}
 
 
 def page_id(value):
@@ -236,7 +303,7 @@ def completion_gate(data):
     if not invocation or not version or not isinstance(required, dict) or not required or not isinstance(checks, list):
         raise ValueError("Expected frozen invocation/version, nonempty required checks and their actual results")
     passed_status = {"page-links": "ClearForCheckedPatterns", "task-display": "DisplayConsistentForCheckedPatterns",
-                     "preview": "SavedEmbedAndBytesMatch", "schema-values": "ValidSelectValues",
+                     "preview": "SavedEmbedAndBytesMatch", "preview-image": "SavedImageAndBytesMatch", "schema-values": "ValidSelectValues",
                      "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
                      "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified"}
@@ -264,6 +331,10 @@ def completion_gate(data):
             issues.append(name + ": page coverage or link check incomplete")
         if result.get("issues"):
             issues.append(name + ": unresolved findings")
+        if spec["kind"] == "preview-image" and (not spec.get("content_version") or not spec.get("html_sha256")
+                or result.get("content_version") != spec["content_version"]
+                or result.get("html_sha256") != spec["html_sha256"]):
+            issues.append(name + ": image preview belongs to another frozen HTML/version")
         if spec["kind"] == "reply-draft" and result.get("phase") != "draft":
             issues.append(name + ": sent evidence cannot replace pre-send draft verification")
         if spec["kind"] == "reply-sent" and result.get("phase") != "sent":
@@ -459,7 +530,8 @@ def report_write(data):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    operations = {"section-patch": section_patch, "preview": check_preview, "report-write": report_write,
+    operations = {"section-patch": section_patch, "preview": check_preview, "preview-reference": preview_reference,
+                  "preview-image": check_image_preview, "report-write": report_write,
                   "page-links": page_links, "schema-values": schema_values, "task-display": task_display,
                   "completion-gate": completion_gate, "owner-write": owner_write}
     parser.add_argument("command", choices=tuple(operations))

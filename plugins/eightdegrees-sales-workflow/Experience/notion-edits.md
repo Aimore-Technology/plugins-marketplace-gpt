@@ -1,5 +1,9 @@
 # Notion edits
 
+## Command-specific payloads and actual outcomes
+
+The 2026-10-30 current connector accepted `insert_content` with `content`, required `replace_content` with `new_str`, and used `content_updates` containing exact old_str/new_str pairs for `update_content`. Do not generalize one command's key to another. Recheck current schema/documentation and actual error envelopes. A successful wrapper can still contain an APIResponseError/status/error_code; inspect the real outcome, then fetch the original affected record. A refused projection update never repeats a CRM Note or customer send. These are observed adapter details, not a promise that future connector contracts stay identical.
+
 Scope: saved Notion text versus connector match behavior. Evidence: B113 hub-native-legacy-small-edit, report-summary-anchor, report-filename-link; the native-section refusal was also observed in 0.1.12.
 
 ## Small is not the same as safe

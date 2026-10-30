@@ -15,6 +15,8 @@ Before freezing or dispatching a reply, read [mail transport experience](../../E
 
 Read [operating-contract](../../references/operating-contract.md) and [HTML approval](../../references/html-approval.md). Use [notion-model](../../references/notion-model.md) for tasks/drafts.
 
+For step 5 preview creation/repair, read [preview evidence](../../Experience/preview-evidence.md); use [image-preview](../../references/image-preview.md) for the frozen-HTML native PNG path. Inspect both fetched reference maps and download the actual saved asset before judging preview support. Preserve existing customer stop/Pause and review-version boundaries.
+
 1. Reuse the inquiry, message ID, verified customer mapping and upstream communication summary; do not recreate notes or rerun the scan. Use [task presentation](../../references/task-presentation.md) to show current source/version, unresolved differences and verified vs missing setup dependencies. Identity issues go to ClientMatching, missing project/question facts to DataCompletion, contradictory material facts to ContentReview. Unrelated optional persona fields need not block preparing a supported reply.
 2. Read the approved customer persona and operator email style/templates. Use only supported preferences and facts, not inferred budget, eligibility or promises.
 3. Retrieve authorized Dropbox project sources: current price list, master/release plan and Engineer paying plan as relevant. Resolve explicit version/effective date; modification time is supporting evidence only. Preserve all old files. Missing source/version goes to DataCompletion; conflicting known sources go to ContentReview. Do not guess the current price or availability.

@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.17. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
+Version 0.1.18. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory.
 
 ## Skills
 
@@ -71,3 +71,7 @@ Communication DataCompletion uses CompleteCommunicationData and cannot append No
 ## Periodic scan controls
 
 `@eightdegrees-sales-workflow start` creates/reuses one native 15-minute approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public manual run-auto stays no-customer-send and Manual work stays manual. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).
+
+## Native image previews
+
+Reply drafts can use a native Notion PNG rendered from the exact frozen HTML. See [image preview](references/image-preview.md) for the optional existing-Playwright renderer, saved-asset download checks and version-bound completion evidence, and [preview experience](Experience/preview-evidence.md) for correct nested reference handling. Original HTML, copy inspection and independent approval remain required. No browser or service is installed automatically.

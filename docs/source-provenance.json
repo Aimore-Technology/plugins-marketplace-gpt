@@ -209,6 +209,11 @@
       "release": "0.1.15",
       "change": "Implement the three priority fixes: explicit CompleteCommunicationData route, stored Gmail draft payload replacement/readback/send transport without automatic quote reconstruction, and seven-owner completion profiles with executable version/binding-aware final-write guards and pre-send/sent MIME proof.",
       "evidence_url": "https://app.notion.com/p/408f4985b01c81c0a6ddc8c136ae94f8"
+    },
+    {
+      "date": "2026-10-30",
+      "release": "0.1.18",
+      "change": "Distribute the corrected saved-reference evidence lesson and exact frozen-HTML native PNG preview workflow in both editions. Add optional existing-Playwright rendering and separate version/hash-bound saved-image verification; preserve approvals and Pause. The original missing-mapping diagnosis was a test-driver evidence omission, not a new Notion capability defect."
     }
   ]
 }
