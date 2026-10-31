@@ -28,6 +28,24 @@ def update():
 
 
 class NotionMutationTests(unittest.TestCase):
+    def test_same_parent_schema_appendix_is_not_a_second_parent(self):
+        data=update()
+        data['target']['text']+='\n<parent-data-source-schema url="collection://'+PARENT+'">\nCREATE TABLE source;\n</parent-data-source-schema>'
+        result=MUTATION.prepare(data)
+        self.assertEqual(result['status'],'NotionMutationPrepared')
+        self.assertEqual(result['call'],data['call'])
+
+    def test_schema_documentation_cannot_supply_or_redirect_the_parent(self):
+        data=update()
+        data['target']['text']+='\n<parent-data-source-schema url="collection://'+'f'*32+'">Docs</parent-data-source-schema>'
+        self.assertEqual(MUTATION.prepare(data)['status'],'NotionMutationPrepared')
+        data['target']['text']=data['target']['text'].replace('<parent-data-source url="collection://'+PARENT+'"/>\n','')
+        with self.assertRaises(ValueError):MUTATION.prepare(data)
+
+    def test_two_real_parent_tags_still_refuse_instead_of_choosing_one(self):
+        data=update();data['target']['text']+='\n<parent-data-source url="collection://'+'f'*32+'"/>'
+        with self.assertRaisesRegex(ValueError,'Ambiguous original parent'):MUTATION.prepare(data)
+
     def test_large_call_file_output_preserves_exact_args_without_echoing_body(self):
         data=create();data['call']['args']['pages'][0]['content']='Private capture text. '*1000
         with tempfile.TemporaryDirectory() as folder:

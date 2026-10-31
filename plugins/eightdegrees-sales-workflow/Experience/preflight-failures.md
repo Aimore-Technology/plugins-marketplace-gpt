@@ -19,3 +19,11 @@ check. Use [notion-mutation](../references/notion-mutation.md) BEFORE every page
 call, including initial and nonfinal writes. It combines the two checks and
 returns exact args only on success. Reuse captured schemas, not old approvals
 of different argument objects. Failed metadata publication never repeats a send.
+
+## Exact Notion parent tags
+
+A fresh 0.1.21 init refused HealthStatus updates because a regex treated the
+parent-data-source-schema appendix as a second parent. Keep that original error
+and capture. Version 0.1.22 matches only the real ancestor tag; appendices never
+establish a parent, and two real parents still refuse. Replay the unchanged
+original input after upgrade; do not strip metadata or bypass the failed check.

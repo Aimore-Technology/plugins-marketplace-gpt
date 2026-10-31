@@ -46,7 +46,9 @@ def prepare(data):
         command = args["command"]
         if command == "update_properties":
             properties.append(args.get("properties", {}))
-            parents = re.findall(r'<parent-data-source\b[^>]*\burl="([^"\n]+)"', target.get("text", ""))
+            # A schema appendix is documentation, not another parent. A word
+            # boundary also matches the hyphen in parent-data-source-schema.
+            parents = re.findall(r'<parent-data-source(?=\s|>)[^>]*\burl="([^"\n]+)"', target.get("text", ""))
             if len(parents) > 1:
                 raise ValueError("Ambiguous original parent data source")
             source = parents[0] if parents else None
