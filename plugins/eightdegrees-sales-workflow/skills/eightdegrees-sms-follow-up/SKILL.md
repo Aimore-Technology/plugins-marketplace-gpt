@@ -39,3 +39,7 @@ is a capability limit, not a request to approve that old draft.
 ## Current outcome copy
 
 Use [channel-local outcome text](../../references/outcome-state.md) for completed records. Keep other channels in their original linked records, and date receipt observations. Outcome verify requires the actual registered action-page fetch, not just normalized JSON; display repair never sends or writes another CRM Note. Preserve approved/history sections and current stop controls.
+
+## Operator path and local checks
+
+Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.

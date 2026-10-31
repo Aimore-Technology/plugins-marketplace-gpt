@@ -101,10 +101,19 @@ def _page(capture, expected):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True)
+    parser.add_argument("--output", help="Save the exact checked call locally and print a small summary")
     args = parser.parse_args()
     try:
         raw = sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8")
         result = prepare(json.loads(raw))
+        if args.output:
+            output = Path(args.output)
+            if args.input != "-" and output.resolve() == Path(args.input).resolve():
+                raise ValueError("Do not overwrite the original input capture")
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(json.dumps(result, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+            result = {k: v for k, v in result.items() if k != "call"}
+            result["output_file"] = str(output)
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         result = {"status": "NeedsCorrection", "issues": [str(exc)], "scope": SCOPE}
     print(json.dumps(result, ensure_ascii=False, allow_nan=False))

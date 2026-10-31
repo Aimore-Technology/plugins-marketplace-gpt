@@ -6,6 +6,7 @@ Create or select `Aimore/` in the authorized customer workspace. Register actual
 
 ```text
 Aimore/
+  Today
   Inbox
   Clients/{ClientDisplayName}/Communications
   Clients/{ClientDisplayName}/ClientPersona
@@ -25,6 +26,13 @@ Inbox can be a database with customer, unmatched and internal views; internal st
 ClientDisplayName is a human-readable customer page title, normally the verified CRM name; it is not ClientId. Follow [customer pages](client-pages.md) for same-name disambiguation, identity metadata, page-ID registration and in-place legacy-title migration. Full CRM IDs belong in metadata, not the primary navigation title. These are logical Notion paths; resolve actual pages by registered IDs rather than title/path text.
 
 Register saved-view IDs and dated brief IDs as they are created, alongside the actual source/page references. Reuse them under [Notion I/O](notion-io.md) when SQL is limited; identity or full-coverage checks that cannot be verified remain incomplete.
+
+Today is the primary operator entry under [operator experience](operator-experience.md).
+It contains linked display views over the existing databases, not copied tasks.
+Actions remains storage for registered ordinary action pages/history. Save the
+verified Today/view IDs under RunSettings.operator_experience; preserve existing
+actions and execution-discovery view IDs. Successful linked-view setup removes
+the need to rewrite a duplicate Actions queue after each task transition.
 
 RunSettings contains settings_schema_version 2, the pilot defaults, configured operator_id/operator_name/operator_email/operator_sms_number and actual authorized account references, allowed Gmail label IDs/exclusions/time range, reminder-email scope, Dropbox work folders, CRM entry/LocationId/Notes capability, root/database IDs, sender/signature, customer_setup.workspace_language (zh-CN or en), own SMS number, verified tool capabilities, no-send dates, schedule IDs/actual cadence, configuration version and check results. Keep credentials in connector authentication, never in settings.
 

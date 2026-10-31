@@ -22,7 +22,7 @@ After reviewing a Manual communication task, explicitly continue it:
 
 The recorded content approval must still be valid; this phrase is not approval. Unknown command or the plugin mention alone shows command help without changing business records. Automatic scanning never takes over Manual tasks.
 
-For new/migrated tasks, use the ordinary page linked from `Aimore/Actions` to fill missing information or submit a specific content/send decision. Technical task properties are workflow detail. A Manual continuation may take that registered action-page URL instead of the original task URL; the workflow verifies its backlink and active binding before processing it. A bare action URL is not a continuation request.
+For new/migrated tasks, open `Aimore/Today` and follow the original action-page link to fill missing information or submit a specific content/send decision. Legacy installations retain their Actions queue until explicit upgrade verifies Today. Technical task properties are workflow detail. A Manual continuation may take that registered action-page URL instead of the original task URL; the workflow verifies its backlink and active binding before processing it. A bare action URL is not a continuation request.
 
 ## Claude native command equivalents
 

@@ -4,11 +4,11 @@
 
 The operator needs to find this task's answers and decision without scrolling past technical database properties. Keep ONE PendingTasks database as the canonical execution record, and create ordinary pages under `Aimore/Actions` for human input. These are not another tracker or new Form response rows. Ordinary pages have only the title property; IDs, actors, versions and execution fields stay in PendingTasks and its workflow-owned history.
 
-Use the packaged [action page layout](../assets/task-action.md), rendered in the saved workspace language. The Actions hub groups links to active pages by the five existing categories. Show customer/topic, a short business status and the requested action. Use it as the primary human entry from root navigation, reports and notifications; retain a secondary link to the canonical task for troubleshooting.
+Use the packaged [action page layout](../assets/task-action.md), rendered in the saved workspace language. [Today](operator-experience.md) is the primary entry after verified setup: its native linked views group original records into review, information, attention and waiting. Actions stores ordinary action pages/history; an unupgraded installation retains its verified legacy queue. Direct notifications still open the registered action page, with task details secondary.
 
 Keep active links ahead of historical child-page listings; do not turn a long list of superseded pages into the new primary queue. Preserve history and native child-page tags when updating the hub. If page creation/registration is uncertain, retain any returned page ID and reconcile the original parent/task before retrying; a failed URL projection must not create another action page.
 
-Apply [publication transitions](notion-publishing.md) in the same owner invocation after every state/version/action-binding change: refresh canonical task summary, action status/result and the one current hub entry before returning links. Do not defer synchronization to init/report. Historical queues and their old Current operation headings must be explicitly historical, preferably within a supported native toggle; preserve children and input. A failed projection is quality repair, never another external action.
+Apply [publication transitions](notion-publishing.md) in the same owner invocation after every state/version/action-binding change: refresh canonical task summary and action status/result. Verified Today linked views follow canonical changes and need no duplicate queue write; legacy queue mode still refreshes its one entry. Do not defer canonical synchronization to init/report. Historical queues and old Current operation headings become historical; preserve children and input. A failed projection is quality repair, never another external action.
 
 PendingTasks views may show Name, State, Category, Mode and ActionPageURL, hiding technical IDs when supported. A native database card/title may still open the database record: do not claim that its click target was changed. The visible action link and ordinary-page hub provide the direct route. Views/hiding are presentation, not access control. If tools cannot create/register an ordinary page, report action-page setup incomplete and offer the original task or an explicit chat reply; do not claim the clutter is fixed or invent widgets.
 
@@ -21,6 +21,11 @@ Include verified OwnerSkill, ResumeStep and ResumeContractVersion from [task rou
 Reuse the registered page while task/step/content is unchanged. For new review content or a new approval step, create and register a new action page, preserve old input/decisions, mark the old page superseded and remove its active link from the hub. Never transfer checked choices to the new page. A copied/unregistered page or a superseded page cannot approve the active task. Customer-readable titles may include topic/short date to distinguish multiple tasks; matching still uses the registered IDs.
 
 ## Only relevant inputs
+
+Apply [operator experience](operator-experience.md): three business-summary lines,
+version differences, full same-version review material before controls, verified
+applicable prefill and explicit request/accepted/processing feedback. Use the
+packaged operator_experience.py helpers without treating UI guidance as approval.
 
 At the top show the customer/topic, what is needed, current business status and the effect of submitting. Put a brief business summary and direct exact source/preview links above the input controls; long review material may follow the controls or remain at that exact linked destination. Do not put an ID table, empty technical properties, full execution history or a long raw Notes audit header before the controls.
 

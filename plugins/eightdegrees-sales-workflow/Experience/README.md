@@ -7,6 +7,7 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 | First dependent write or a refused precheck | [Preflight failures](preflight-failures.md) | Continuing after a nonzero/unsuccessful precheck |
 | Freeze owner checks or revise returned content | [Check plan](check-plan.md) | Missing dependencies and late backfilled plans |
 | Discover Notion candidates after a quota error | [Notion quota](notion-quota.md) | Repeating blocked SQL and claiming full coverage |
+| Upgrade human navigation or explain submitted/waiting work | [Operator entry](operator-entry.md) | Duplicate queue snapshots, hidden action links, false acceptance/scheduling claims |
 | Reuse current captures during a scan/continuation | [Read reuse](read-reuse.md) | Repeated reads, stale input assumptions and skipped fresh send checks |
 | Save a completed send result or repair current text | [Outcome copy](outcome-copy.md) | Stale other-channel state and undated receipt negatives on closed pages |
 | Discover/call a connector, prepare SMS parameters or recover a read | [Connector contracts](connector-contracts.md) | Remembered argument names, hidden request limits, ambiguous retries |

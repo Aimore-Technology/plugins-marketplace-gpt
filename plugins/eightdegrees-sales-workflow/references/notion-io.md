@@ -91,3 +91,7 @@ coverage/checkpoint and capability observation; complete only its own run.
 Combine compatible final projections, preserving input/history and existing
 report-only boundaries. Record actual tool-call counts and elapsed time;
 latency targets are measurement goals, not scheduling guarantees.
+
+## Local batching and the Today entry
+
+Use [local-check-batch](local-check-batch.md) to read one original capture bundle and run multiple local checks. Reuse snapshots in the same unchanged phase; required fresh pre-action and post-write reads remain. With verified Today linked views, a canonical task/binding update needs no duplicate Actions queue rewrite or full history read. Preserve legacy fallback until explicit setup succeeds. Measure actual calls/elapsed time; local batching alone is not a measured latency improvement.

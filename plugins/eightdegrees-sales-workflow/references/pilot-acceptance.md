@@ -94,7 +94,7 @@ For changed version, expired approval, customer stop, incomplete latest-reply co
 
 ## 0.1.12 publication regressions
 
-Test owners through intake, accepted/rejected input, Return/new version, Pause and completion. In the same invocation verify canonical task, action status and the one current hub link agree, without another init/report doing repairs. Data-only forms contain no irrelevant choose-one prompt. Keep old children/answers but clearly label historical links/headings; no second current queue. Simulate a display-write refusal only in a controlled fixture or captured-result replay; a recovered projection must not repeat CRM or sending.
+Test owners through intake, accepted/rejected input, Return/new version, Pause and completion. In the same invocation verify canonical task, action status and the one current entry agree (native Today links in verified linked-view mode, otherwise the legacy hub link), without another init/report doing repairs. Data-only forms contain no irrelevant choose-one prompt. Keep old children/answers but clearly label historical links/headings; no second current queue. Simulate a display-write refusal only in a controlled fixture or captured-result replay; a recovered projection must not repeat CRM or sending.
 
 Before any actionable HTML review, verify an actual saved native preview block/source, exact downloaded file bytes and copy agreement. Raw upload URI/file/code/external screenshot alone fails the prerequisite. Repair by an explicit draft-owner invocation and fresh review version; old invalid approvals remain history and stop/Pause remains. Distinguish saved-block proof from authenticated Notion host visual and real customer receipt.
 

@@ -8,13 +8,19 @@ For actual enum preflight, typed saved-page checks, whole-current-form consisten
 
 ## Finish a transition, including its display
 
-Every owner transition uses the same completion sequence: persist the accepted input/attempt and actual result; save canonical task state/version/action binding; refresh the task's single current summary and the registered action page's workflow-owned status/result; refresh the Actions current queue; then verify the changed projections from actual saved records before returning their links. This applies to submission accepted/rejected, Return, Pause/Postpone, Cancel, completion, supersession and new action registration. Do not wait for init or report to fix owner-created stale navigation.
+Verified operator_experience.today_mode=linked-views uses [Today](operator-experience.md)
+over canonical task rows. Update/read back changed task/action binding and state;
+do not rewrite/read old Actions history or copy another queue snapshot. Today
+stays outside unchanged owner publication targets. Queue-copy instructions below
+apply only to installations still using the legacy manual-link queue.
+
+Every owner transition persists accepted input/attempt and actual result, saves canonical task state/version/action binding, refreshes the task's single current summary and registered action status/result, and verifies changed saved records before returning links. Refresh the Actions current queue only in legacy queue mode. This applies to submission accepted/rejected, Return, Pause/Postpone, Cancel, completion, supersession and new action registration. Do not wait for init or report to fix stale canonical navigation.
 
 Summaries show current business state, version, next action and actual result. A Completed data task says information registered, not waiting for input. A recorded decision awaiting execution says that; it does not claim provider success. Pause is a Decision, not a new State option. Derive paused/postponed display from the actual State plus Decision and binding. Keep answers and historical decisions unchanged. A display failure leaves a presentation repair outstanding, never reverses a successful external result and never causes another CRM append/send. On recovery, reuse the accepted snapshot and actual provider ID and repair only missing projections. Record quality failure if consistency cannot be saved; do not claim completion of publication.
 
 Use a short, uniquely named H2 current-status section, separate from input controls/history. The packaged action layout supplies this section. For existing pages, fetch the original first, identify the real workflow-owned block, and make one supported targeted edit; do not invent a marker or replace user input. `section-patch` accepts `page` (actual fetch), `heading` (actual localized H2 title) and `replacement` (the complete replacement section, starting with that same H2). It returns exact `old_str`/`new_str`, NoChange, or NeedsCorrection. Reuse the returned strings without model paraphrasing; plan again from a fresh fetch after a mismatch. The helper refuses changed sections containing native references (including mentions/dates/media), repeated headings or controls/native children; an exact occurrence in fetched Markdown does not make a native-reference section a safe connector anchor. Use independent plain-text status/result sections or an actually supported smaller block edit. It does not apply the patch or check factual prose. A missing/unsafe legacy section needs a supported smaller edit or explicit setup repair, not append-another-current-section.
 
-## One Actions queue, history below it
+## Legacy mode: one Actions queue, history below it
 
 Keep ONE current queue, grouped by category, containing each eligible open task's registered current ActionPageURL once. Include Pause/Postpone with an honest business label; exclude completed/cancelled/superseded pages from this queue. Build from canonical saved bindings, not a growing list of created page links. With partial candidate coverage, update only verified entries, retain unexamined entries as unverified and disclose incomplete coverage; do not erase them or claim an empty queue.
 

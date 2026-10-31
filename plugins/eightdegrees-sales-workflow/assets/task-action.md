@@ -4,19 +4,33 @@
 
 ## Current status
 
-Status: {current_business_status}. Version: {current_review_version}.
+{customer_and_topic}. Version: {current_review_version}.
+
+{observed_stage_and_last_checked_time_from_operator_feedback}
 
 Next action: {only_the_current_step_or_no_action_required}
 
-{customer_and_topic}. {one_sentence_request_and_submission_effect}
-
 ## Review summary
 
-{brief_business_summary_and_direct_exact_source_preview_links}
+Customer request: {one_sentence_customer_request}
+
+Proposed response: {one_sentence_response_or_data_application}
+
+Your decision: {specific_scope_and_consequence}
+
+{changed_fields_before_and_after_only_for_a_new_revision}
+
+## Review material
+
+{direct_same_version_preview_and_full_exact_material_before_decision_controls}
+
+{optional_source_links_and_prior_version_as_secondary_history}
 
 ## Your input
 
-{only_this_steps_required_fields_or_applicable_unchecked_choices}
+{brief_verified_reused_values_with_provenance_not_repeated_editors}
+
+{only_missing_or_invalid_fields_with_examples_and_applicable_unchecked_choices}
 
 ### Additional information or requested changes
 
@@ -24,14 +38,12 @@ Next action: {only_the_current_step_or_no_action_required}
 
 - [ ] {specific_submit_label}
 
-{autosave_explanation_and_automatic_or_manual_next_step}
+{saving_is_not_submission_and_request_is_not_acceptance}
+
+{actual_schedule_wait_or_copyable_bound_continuation_without_a_second_approval_request}
 
 ## Processing result
 
 {workflow_owned_current_result_or_field_errors_with_recovery_action}
-
-## Review material
-
-{full_current_material_if_needed_otherwise_omit_this_section}
 
 {secondary_canonical_task_details_link}

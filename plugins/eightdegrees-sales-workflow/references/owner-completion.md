@@ -65,3 +65,5 @@ these kinds in the original required_checks mapping. Missing result projections
 or CRM receipt keeps overall publication partial while provider Sent remains
 durable. Repair that scope only. These helpers are offline checks, not a server
 interceptor, native scheduler or permission source.
+
+With [Today linked views](operator-experience.md) verified, only changed task/action/source projections belong in this owner plan; unchanged Today/Actions pages and view discovery are not repeated publication targets. Use [local check batches](local-check-batch.md) over original captures, keeping each named result/exit in the same frozen completion evidence.

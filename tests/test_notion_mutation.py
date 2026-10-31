@@ -4,6 +4,8 @@ import copy
 import json
 import subprocess
 import sys
+import tempfile
+from pathlib import Path
 import unittest
 
 from test_notion_checks import source_schema, page, PARENT, REPORT, SCRIPTS
@@ -26,6 +28,22 @@ def update():
 
 
 class NotionMutationTests(unittest.TestCase):
+    def test_large_call_file_output_preserves_exact_args_without_echoing_body(self):
+        data=create();data['call']['args']['pages'][0]['content']='Private capture text. '*1000
+        with tempfile.TemporaryDirectory() as folder:
+            original=Path(folder)/'input.json';saved=Path(folder)/'checked.json';original.write_text(json.dumps(data))
+            result=subprocess.run([sys.executable,'-B',str(SCRIPTS/'notion_mutation.py'),'--input',str(original),'--output',str(saved)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,0)
+            summary=json.loads(result.stdout);full=json.loads(saved.read_text())
+            self.assertNotIn('call',summary);self.assertNotIn('Private capture text',result.stdout)
+            self.assertEqual(full['call'],data['call']);self.assertEqual(full['call_sha256'],summary['call_sha256'])
+
+    def test_checked_call_output_cannot_overwrite_its_original_input(self):
+        with tempfile.TemporaryDirectory() as folder:
+            p=Path(folder)/'input.json';original=json.dumps(create());p.write_text(original)
+            result=subprocess.run([sys.executable,'-B',str(SCRIPTS/'notion_mutation.py'),'--input',str(p),'--output',str(p)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,2);self.assertEqual(p.read_text(),original)
+
     def test_initial_page_cannot_publish_a_bad_link_even_with_valid_properties(self):
         data = create(); data['call']['args']['pages'][0]['content'] = '[local](/tmp/reply.html)'
         result = MUTATION.prepare(data)

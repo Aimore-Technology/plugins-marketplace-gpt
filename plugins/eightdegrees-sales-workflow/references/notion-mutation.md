@@ -7,6 +7,12 @@ This combines visible-text link checks and exact proposed property/schema checks
 in one local command. It calls no service and does not replace owner/report scope
 checks, the real tool schema, saved-page verification or operator approval.
 
+For a large call, add --output <checked-call.json>. It saves the exact result/call
+locally and prints only checks/digest/path, avoiding a second whole-page echo.
+Load that saved call unchanged for execution; the summary alone is not a call.
+Do not overwrite the input/capture file. Without --output the original CLI output
+is unchanged. Failed checks still return no executable call in either form.
+
 Input contains `call={tool,args}` with the actual discovered tool and exact args.
 For an update, `target` is the original successful complete page fetch. For a
 child-page creation it is the original parent-page fetch. Database creation uses

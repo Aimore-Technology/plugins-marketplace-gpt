@@ -17,3 +17,5 @@ if metadata is unavailable, read the body. Manual inputs stay excluded.
 Fresh approval, recipient/stop/latest-reply and attempt checks immediately before
 external actions remain mandatory. Measure calls/time and disclose coverage;
 do not trade safety or reuse evidence across invocations for a faster result.
+
+Before repeat local checks, use [one capture bundle](../references/local-check-batch.md) rather than serializing full original responses into many shell calls. Verified Today linked views follow canonical task updates, so no duplicate queue history is needed per transition. This implementation reduces local process/serialization operations; no new live elapsed-time gain is claimed without measurement.

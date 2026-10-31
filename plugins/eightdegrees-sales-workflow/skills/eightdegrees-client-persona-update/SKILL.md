@@ -17,3 +17,7 @@ Read [operating-contract](../../references/operating-contract.md) and the CRM se
 4. Return individual completion states to the communication owner; do not mark its parent run complete from this child. A persona exception closes only its own registered task through owner-write. Return individual completion states: Notes synced; structured fields synced or not enabled; Notion snapshot synced or pending. A disabled structured mapping is not a failure or a claim that fields were updated. An enabled mapping error, wrong target, permission failure or unknown write becomes ExecutionExceptions; preserve successful steps.
 
 Finish when approved changes are reflected through the configured CRM write mode, verified by readback, and the Notion snapshot/status agrees. No customer sends or new contacts.
+
+## Operator path and local checks
+
+Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.

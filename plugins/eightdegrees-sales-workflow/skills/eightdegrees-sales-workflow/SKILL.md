@@ -23,3 +23,5 @@ Accept `@eightdegrees-sales-workflow <command> [context]`, or a bare command whe
 
 | `start` | [automation control](../eightdegrees-automation-control/SKILL.md) | Create/reuse one native 15-minute approved-work task; no immediate scan or sends. |
 | `stop` | [automation control](../eightdegrees-automation-control/SKILL.md) | Delete only the installation-owned native task; preserve business records. |
+
+Lead the final response with the actual business result, the one next action or no action required, and direct current links. Use [operator experience](../../references/operator-experience.md) for short review/request feedback and the Today entry. Keep internal IDs, detailed logs and test counts behind details; no extra chat approval for the same already approved version/window.

@@ -6,7 +6,12 @@ For new/migrated tasks, [operator actions](operator-actions.md) defines the prim
 
 ## One current summary
 
-Use the shared [publication transition](notion-publishing.md) for every owner state/version change, including accepted input, terminal results, Pause and new-page registration. It refreshes the task, action status and Actions queue together and verifies changed projections. Return a partial publication result when a display is stale; repair only that projection from durable canonical/provider evidence. A report can describe the stale display but cannot repair those business pages.
+Use [operator experience](operator-experience.md) for short review/field changes
+and saving/request/accepted/executing distinctions. When Today linked views are
+verified, canonical row links replace manual queue copies; unchanged Today or
+Actions pages are not extra per-owner publication/read targets.
+
+Use the shared [publication transition](notion-publishing.md) for every owner state/version change, including accepted input, terminal results, Pause and new-page registration. It refreshes the task and action status, verifies changed projections and updates a manual queue only in legacy mode. Return a partial publication result when a display is stale; repair only that projection from durable canonical/provider evidence. A report can describe the stale display but cannot repair those business pages.
 
 At the top of each task, maintain a workflow-owned **Current status** section:
 

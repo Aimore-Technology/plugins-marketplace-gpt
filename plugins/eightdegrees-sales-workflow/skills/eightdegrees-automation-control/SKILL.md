@@ -34,3 +34,7 @@ operation itself scans/sends nothing and supplies no business approval. Before E
 5. Verify final owner result/log scope and return actual native links. Reconcile
    uncertainty without another create/delete. Installation, init and public
    run-auto create no jobs; Claude live runtime remains untested until observed.
+
+## Operator path and local checks
+
+Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
