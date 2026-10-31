@@ -10,6 +10,7 @@ import sys
 
 from notion_checks import object_result, page_body, page_id, schema_values
 from outcome_checks import counts, projection
+from workflow_checks import submitted_manual_route
 
 ROOT = Path(__file__).resolve().parents[1]
 COPY = json.loads((ROOT / "assets/operator-copy.json").read_text())
@@ -132,6 +133,8 @@ def feedback(data):
         stage = "completed" if state == "Completed" else "cancelled"
     elif decision in {"Pause", "Postpone"}:
         stage = "paused" if decision == "Pause" else "postponed"
+    elif state == "InProgress" and task.get("ResumeStep") == "SendNotificationSms":
+        stage = "queued"
     elif state == "InProgress":
         stage = "processing" if bound else "checking"
     else:
@@ -145,17 +148,16 @@ def feedback(data):
         action = task["ActionPageURL"]
         page_id(action)
         schedule = data.get("schedule") or {}
-        native = (mode == "Automatic" and route["effect"] != "setup" and schedule.get("enabled") is True
+        queue_eligible = mode == "Automatic" or submitted_manual_route(task) or task.get("ResumeStep") == "SendNotificationSms"
+        native = (queue_eligible and route["effect"] != "setup" and schedule.get("enabled") is True
                   and schedule.get("state") == "Running" and schedule.get("approved_work_enabled") is True
                   and schedule.get("read_verified") is True
                   and bool(schedule.get("schedule_id")))
         if native:
             stage = "scheduled" if phase != "not_observed" or bound else "input"
         else:
-            if mode == "Automatic":
+            if queue_eligible:
                 command = "@eightdegrees-sales-workflow run-auto" if route["effect"] != "setup" else "@eightdegrees-sales-workflow init"
-            elif route["owner"] in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"}:
-                command = "@eightdegrees-sales-workflow add-communication continue " + action
             # Legacy Manual sends remain Manual. Do not fabricate a private
             # command or suggest a public scanner that cannot adopt this work.
     window = data.get("approved_window") or {}

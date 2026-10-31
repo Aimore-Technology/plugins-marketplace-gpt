@@ -11,12 +11,13 @@
   "ReviewReplyDraft": {"owner": "eightdegrees-sales-reply", "categories": ["ContentReview"], "effect": "draft"},
   "SendApprovedReply": {"owner": "eightdegrees-sales-reply", "categories": ["SendApproval", "ExecutionExceptions"], "effect": "customer-send"},
   "ValidateSetupInput": {"owner": "eightdegrees-initialization", "categories": ["DataCompletion", "ExecutionExceptions"], "effect": "setup"},
-  "PrepareSmsFollowUp": {"owner": "eightdegrees-sms-follow-up", "categories": ["DataCompletion", "ContentReview"], "effect": "draft"},
+  "PrepareSmsFollowUp": {"owner": "eightdegrees-sms-follow-up", "categories": ["DataCompletion", "ContentReview", "ScheduledWork"], "effect": "draft"},
   "SendApprovedSms": {"owner": "eightdegrees-sms-follow-up", "categories": ["SendApproval", "ExecutionExceptions"], "effect": "customer-send"},
   "BuildDailyBrief": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["ExecutionExceptions"], "effect": "report"},
   "CreateConfirmedAppointment": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["DataCompletion", "ContentReview", "ExecutionExceptions"], "effect": "calendar"},
   "NotifyImportantReminder": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["ExecutionExceptions"], "effect": "internal-notification"},
   "RecordSendReceipt": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
   "RecordGeneralSendReceipt": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
-  "RecordMaterialHandoff": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions"], "effect": "draft"}
+  "RecordMaterialHandoff": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions"], "effect": "draft"},
+  "SendNotificationSms": {"owner": "eightdegrees-sms-follow-up", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "customer-send"}
 }

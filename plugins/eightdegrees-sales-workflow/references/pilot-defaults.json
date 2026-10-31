@@ -23,7 +23,7 @@
     "max_messages_per_cycle_including_manual": 2,
     "max_active_cycles_per_client": 1,
     "new_cycle_requires_explicit_manual_start": true,
-    "automatic_sending_enabled": false
+    "automatic_sending_enabled": true
   },
   "daily_brief": {
     "time": "08:30",
@@ -123,5 +123,24 @@
     "operator_sms_number": null,
     "workspace_language": null
   },
-  "settings_schema_version": 2
+  "settings_schema_version": 2,
+  "sms_notifications": {
+    "policy": "notification-sms-v1",
+    "enabled": true,
+    "per_message_review_required": false,
+    "allowed_intents": [
+      "material_receipt",
+      "follow_up_notice",
+      "appointment_reminder",
+      "operator_alert"
+    ],
+    "revoked_at": null,
+    "holiday_handling": "configured_weekdays_and_no_send_dates"
+  },
+  "queue_execution": {
+    "contract": "queue-v2",
+    "resume_submitted_manual_communications": true,
+    "bounded_work_items": 100,
+    "continue_commands_required": false
+  }
 }

@@ -53,13 +53,12 @@ business task dispatch. Verify native schedule results separately under
 
 For scheduled-approved-work, bind registry.operator_id and the current actual
 registry.schedule_guard. Pass that same guard to route checks. A textual policy
-name cannot supply native lifecycle evidence. Every dependent mutation still
-needs the fresh owner/approval/stop/attempt checks.
+name cannot supply native lifecycle evidence. Every dependent mutation still needs fresh owner/stop/attempt checks and the relevant email approval or standing SMS authority.
 
 SendApprovedReply/SendGeneralReply require an outcome check from outcome_checks.py
 verify and a crm-receipt check from send_receipt.py verify, bound to the original
 task and content version, in addition to pre-send draft and actual Sent MIME.
-SendApprovedSms requires the outcome check. RecordSendReceipt/RecordGeneralSendReceipt
+Legacy SendApprovedSms requires the outcome check; new SendNotificationSms requires standing sms-authority plus the matching actual request outcome, without per-message review. RecordSendReceipt/RecordGeneralSendReceipt
 require receipt and current outcome readback but never reruns sending. Freeze
 these kinds in the original required_checks mapping. Missing result projections
 or CRM receipt keeps overall publication partial while provider Sent remains
@@ -71,3 +70,7 @@ With [Today linked views](operator-experience.md) verified, only changed task/ac
 ## Material send downstream evidence
 
 A sales-reply actual material send plan must include evidence=material-handoff on its original email task, in addition to reply-draft/reply-sent/outcome/CRM receipt evidence. Verify the persisted original email and cycle through [material handoff](material-handoff.md); freeze MaterialHandoffVerified before final send-owner completion. Notion registration may be Blocked/Stopped without SMS dispatch; that is an honest handoff result. A verified nonmaterial reply records NotApplicable on its email task without creating a cycle. Missing registration leaves the email Sent but downstream handoff pending, recovered through RecordMaterialHandoff without another send. The owner-write guard rejects a sales send completion with reply-sent evidence but no material-handoff check.
+
+## Standing-authorized notification completion
+
+SendNotificationSms requires kind=sms-authority (SMSNotificationVerified) on the original task/version, plus the current channel-local outcome with the SHA-256 of the actual provider request body. They must match. It does not require per-message ContentReview/SendApproval. Preserve provider IDs and unknown reservations on failure. Use a read-only result page for the existing action-result projection, without any decision controls. See [SMS notifications](sms-notifications.md).

@@ -52,7 +52,7 @@ class MaterialHandoffTests(unittest.TestCase):
     def test_actual_send_plans_one_registration_and_never_a_dispatch_or_cron(self):
         data = inputs(); before = copy.deepcopy(data)
         r = HANDOFF.plan(data)["record"]
-        self.assertEqual(r["state"], "AwaitingSmsApproval")
+        self.assertEqual(r["state"], "ReadyForNotification")
         self.assertEqual(r["first_due_not_before"], "2026-11-02T00:30:00+00:00")
         self.assertFalse(r["create_native_task"]); self.assertFalse(r["customer_send_allowed"])
         self.assertEqual(data, before)
@@ -105,7 +105,7 @@ class MaterialHandoffTests(unittest.TestCase):
         for field in ("saved_email_task", "saved_cycle"):
             changed = copy.deepcopy(payload); changed[field]["truncated"] = True
             with self.assertRaises(ValueError): HANDOFF.verify(changed)
-            changed = copy.deepcopy(payload); changed[field]["text"] = changed[field]["text"].replace('AwaitingSmsApproval', 'Sent')
+            changed = copy.deepcopy(payload); changed[field]["text"] = changed[field]["text"].replace('ReadyForNotification', 'Sent')
             with self.assertRaises(ValueError): HANDOFF.verify(changed)
         payload["saved_cycle"]["id"] = REPORT
         with self.assertRaises(ValueError): HANDOFF.verify(payload)

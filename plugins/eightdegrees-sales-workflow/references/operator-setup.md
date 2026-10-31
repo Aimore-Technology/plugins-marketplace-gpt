@@ -2,7 +2,7 @@
 
 ## Fresh installation
 
-P0 has one configured operator per customer installation. Use `customer_setup.operator_id` and `operator_name` from Dashboard RunSettings; neither has a packaged default. The operator performs manual review, approves customer sends, receives internal reminders and explicitly continues Manual tasks. This is a configurable role, not a named person or a new multi-user identity system.
+P0 has one configured operator per customer installation. Use `customer_setup.operator_id` and `operator_name` from Dashboard RunSettings; neither has a packaged default. The operator reviews CRM facts/email content and email sends, receives internal reminders and submits communication decisions in Notion. The shared queue resumes them; factual SMS notifications use standing authority without individual review. This is a configurable role, not a named person or a new multi-user identity system.
 
 Initialization uses available authenticated profile information to propose the operator's display name. If it is unavailable or ambiguous, ask the user to identify the operator. Create and persist a stable installation-local operator ID if no suitable existing ID is available; do not represent that local ID as a provider account identity. Register actual authorized Gmail, Notion, Dropbox and optional CRM/Calendar/SMS account references separately; do not assume matching names prove account ownership.
 

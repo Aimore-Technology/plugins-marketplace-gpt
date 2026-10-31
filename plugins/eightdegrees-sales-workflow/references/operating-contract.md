@@ -12,7 +12,7 @@ Read the [Experience index](../Experience/README.md) once and select only the ca
 - CRM is authoritative. Verify whether the interview's "JHL" is the expected GHL/LeadConnector system, and record its LocationId before writing. Notion stores working records, approved snapshots, approvals and logs.
 - No Portal, independent backend, daemon, queue service or new identity system. Use the packaged [platform rules](platform-runtime.md) for scheduling. Installation alone enables no jobs, accounts or sends.
 - Create only the clean `Aimore/` customer structure in [notion-model.md](notion-model.md). Reuse registered IDs; never copy developer page IDs, Projects, 8Degrees, P0, Skill Pack or Description into the customer tree.
-- P0-A starts and resumes only on the operator's explicit request. A scanner may reuse its processing procedure for a new automatic task with a separate source and mode; it never takes over an existing manual task.
+- P0-A starts on the operator's explicit request. The shared queue observes its current Notion submissions and resumes only reviewed steps without an extra continue command. Mode remains provenance; no invented intake or unrelated Manual sends.
 - No automatic contact creation, quotation dispatch, delivery commitments, signing or payment. The operator handles those actions personally. General send approval does not authorize them.
 
 ## Invocation scope
@@ -41,17 +41,17 @@ Every owner uses the [owner completion contract](owner-completion.md), not only 
 4. Suspend only the affected item. Upsert a PendingTasks item keyed by source + paused step + issue, with reason, inputs, original run and validated OwnerSkill/ResumeStep/ResumeContractVersion from task-routing. Never use a helper's generic owner for sales-reply or checkpoint work. Create/reuse its registered ordinary action page; DataCompletion follows [pending input](pending-input.md). Preserve legacy routes until migrated. Do not duplicate tasks/pages. Report-only cannot create tasks/action pages or repair route metadata; show the issue and next owner-upgrade action instead.
 5. Refresh the original task and primary action-page result using [current task presentation](task-presentation.md), preserving operator answers/history. Return status, result links, primary action link/reason, secondary task detail link, next step and execution mode. Waiting is not completion. Never claim a Notion record was saved if its write failed.
 
-Automatic tasks resume after validated submitted input (using the pending-input contract for DataCompletion) or a relevant explicit decision; page modification time alone is insufficient. Manual tasks additionally require the operator's explicit continue request. Retain the same RunId, completed steps and attempt evidence on recovery.
+Automatic tasks resume after validated submitted input (using the pending-input contract for DataCompletion) or a relevant explicit decision; page modification time alone is insufficient. Manually initiated communication tasks resume from a validated current Notion submission through the shared queue. Retain the same RunId, completed steps and attempt evidence on recovery.
 
 ## Approval and sending
 
-ContentReview confirms facts or a draft. SendApproval separately approves the exact sender, recipients, subject/body, HTML and asset/attachment versions, and earliest/latest send times. Saving prose, receiving a reminder, or approving a note/email does not approve an SMS or any other action.
+ContentReview confirms facts or a draft. For email, SendApproval separately approves the exact sender, recipients, subject/body, HTML and asset/attachment versions, and earliest/latest send times. Saving prose, receiving a reminder or approving a note/email does not grant unrelated action authority. Factual SMS notifications use the separate standing policy in sms-notifications.md, without per-message review.
 
 Store the decision, configured ApproverId/display name, observed time and content/version evidence. Do not consume approval from a different operator or transfer an unbound legacy approval to the current operator. Use existing authenticated access; do not build extra identity verification. A current-chat decision must be persisted against its exact version. Changes or withdrawal invalidate approval. Record a reliable decision time only if available; distinguish it from observation time.
 
 For action-page decisions, validate the submitted single choice and bound input/version, persist the exact observed snapshot on the original task, and derive canonical approval fields from it. Re-read the active action page as well as the task before a dependent external action. Superseded-page checks or an edited legacy Decision property cannot supply new approval. A consumed checkbox is not revocation by itself; changed input, a new submitted Pause/Cancel or explicit withdrawal must be handled before execution.
 
-Immediately before sending, reread approval and approved files, check the time window, latest accessible reply/stop state, target, asset versions and prior attempts. New replies or version mismatches suspend sending. Never regenerate approved content at send time.
+Immediately before email sending, reread approval and approved files; for notification SMS reread the current standing authority and frozen payload; check the time window, latest accessible reply/stop state, target, asset versions and prior attempts. New replies or version mismatches suspend sending. Never regenerate approved content at send time.
 
 Persist source, approval and a stable `AttemptId` BEFORE CRM writes or sending. Reuse provider idempotency support when actually available. Notion is not an atomic execution lock: if another run/host may own the item and single ownership cannot be established, stop that item for reconciliation. Do not claim exactly-once delivery from instructions alone.
 
@@ -79,14 +79,14 @@ Direct Notion edits are logged when actually observed and validated; polling doe
 
 ## Explicit periodic control
 
-Only start/stop may create/delete the installation-owned native task. Follow [scheduling](scheduling.md): native ticks invoke the scanning skill under a current scheduled-approved-work guard and may execute valid independently approved Automatic work. Public run-auto executes one cycle of independently approved Automatic work; explicitly no-send invocations remain restricted. A schedule never approves content, takes over Manual tasks or creates another schedule. Initialization and installation remain disabled by default.
+Only start/stop may create/delete the installation-owned native task. Follow [scheduling](scheduling.md): native ticks invoke the scanning skill under a current scheduled-approved-work guard and may execute valid independently approved Automatic work. Public run-auto executes one cycle of independently approved Automatic work; explicitly no-send invocations remain restricted. A schedule never approves content, invents a manually initiated communication or creates another schedule. Initialization and installation remain disabled by default.
 
 ## Approved periodic work and result consistency
 
-A deliberate public run-auto selects one-cycle-approved-work without creating a schedule. It may execute only independently approved Automatic steps; an explicit no-send request retains the narrower policy. A real installation-owned
+A deliberate public run-auto selects one-cycle-approved-work without creating a schedule. It may execute only eligible reviewed steps or standing-authorized SMS notifications; an explicit no-send request retains the narrower policy. A real installation-owned
 native cycle uses [scheduled work](scheduled-work.md), current lifecycle guard
-and scheduled-approved-work instead; only valid Automatic approvals may execute.
-Manual P0-A stays manual. Upgrade/install/init enables no existing job or new
+and scheduled-approved-work instead; eligible current Notion decisions may execute, including manually initiated communication review; factual SMS uses standing authority.
+Manual P0-A keeps its intake provenance; validated submissions resume through the shared queue. Upgrade/install/init enables no existing job or new
 send scope. Explicit start and native readback are required for the new lifecycle.
 
 Before dependent actions reconcile conflicting task observations under
@@ -95,3 +95,7 @@ result, synchronize current task/index/action projections and service observatio
 and verify the required [email-result CRM receipt](send-receipts.md). The receipt
 is deterministic operational metadata within the final send package, not an
 unreviewed customer-persona change. Logging/projection failures never replay a send.
+
+## Queue and notification policy
+
+[Queue execution](queue-execution.md) is the current resumption contract. Manually initiated communication data/reviews resume after their current Notion submission is validated and persisted, without another continue command. [Standing SMS notification authority](sms-notifications.md) is enabled by default for factual notifications; it replaces individual SMS content/send approval. Actual connector capabilities and stop/window/count/attempt guards remain. Existing user disable/revocation and unknown/stopped attempts are preserved.

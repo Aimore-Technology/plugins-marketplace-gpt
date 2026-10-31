@@ -3,8 +3,7 @@
 start creates/reuses ONE native 15-minute task for this Aimore root; stop deletes
 it. Both are scheduling-only: no immediate business execution or extra daily
 task. The [prompt](../assets/scan-schedule.md) calls email-scanning directly under
-[scheduled work](scheduled-work.md), not public manual run-auto. Valid Automatic
-approvals can execute on ticks; Manual work and every normal approval gate stay.
+[scheduled work](scheduled-work.md), not public manual run-auto. Eligible reviewed work and standing-authorized notification SMS can execute on ticks; manually initiated communication submissions join the same queue. Email/CRM review gates stay.
 
 ## Runtime and ownership
 
@@ -83,8 +82,7 @@ and between dependent steps. Validate actual task ID, current generation,
 runtime/executor, root/operator/mailbox and approved_work_enabled. A busy, stale,
 stopped or uncertain run exits without takeover, parallel catch-up or resend.
 Only a successful guard selects scheduled-approved-work. It authorizes checking
-Automatic steps, not their approval; sending still needs exact current approval,
-window/stop/count/channel/attempt checks. Due daily summaries, reminders and
+Automatic steps, not their approval; email sending still needs exact current approval; notification SMS uses standing authority. Window/stop/count/channel/attempt checks remain for both. Due daily summaries, reminders and
 confirmed appointments use the same cycle, original IDs and phase deduplication.
 
 schedule_checks.py plan|verify|guard consumes normalized original native evidence.
@@ -106,3 +104,5 @@ Work tasks, plugins, connected tools and minute-based existing-chat schedules.
 cloud execution from connected local resources.
 [Cowork scheduled tasks](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork)
 is the Claude target. Documentation is not this account's native readback.
+
+Current ticks use [queue execution](queue-execution.md) and [SMS notification authority](sms-notifications.md). Preserve Manual intake provenance while validating submitted communication reviews; do not require a continue command. Factual notification SMS does not need individual review. Explicit start/readback updates the owned task prompt; installation creates no task.

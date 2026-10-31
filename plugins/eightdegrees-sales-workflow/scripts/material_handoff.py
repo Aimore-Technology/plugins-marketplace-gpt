@@ -92,7 +92,7 @@ def plan(data):
               "first_due_not_before": (sent_at + timedelta(minutes=30)).isoformat(),
               "cycle_key": existing["cycle_key"] if existing else "sms-cycle:" + key(event_key),
               "operation": "reuse" if existing else "create",
-              "state": "Stopped" if stopped else "Blocked" if reasons else "AwaitingSmsApproval",
+              "state": "Stopped" if stopped else "Blocked" if reasons else "ReadyForNotification",
               "total_count": existing["total_count"] if existing else 0,
               "reasons": reasons, "recipient": data.get("recipient"),
               "executor": "shared-approved-work", "create_native_task": False,

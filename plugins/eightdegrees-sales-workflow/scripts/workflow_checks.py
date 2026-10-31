@@ -11,6 +11,25 @@ from urllib.parse import unquote, urlsplit
 
 ROUTES_PATH = Path(__file__).resolve().parents[1] / "references/task-routes.json"
 POLICIES = ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "one-cycle-approved-work", "draft-only", "report-only", "scheduled-approved-work", "owner-workflow")
+SUBMITTED_MANUAL_STEPS = {"VerifyCustomer", "CompleteCommunicationData", "ReviewCommunication", "SyncApprovedPersona"}
+
+
+def submitted_manual_route(task):
+    return (task.get("Mode") == "Manual" and task.get("ResumeStep") in SUBMITTED_MANUAL_STEPS
+            and task.get("OwnerSkill") in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"})
+
+
+def current_submission(task):
+    """Normalized persisted snapshot binding, not a substitute for original form checks."""
+    snapshot = task.get("AcceptedSubmission") or {}
+    normalize = lambda x: str(x or "").replace("-", "").lower().rsplit("/", 1)[-1]
+    return (snapshot.get("read_verified") is True and bool(task.get("OperatorId"))
+            and bool(task.get("PageId")) and bool(task.get("ActionPageURL"))
+            and normalize(snapshot.get("task_id")) == normalize(task["PageId"])
+            and normalize(snapshot.get("action_page_id")) == normalize(task["ActionPageURL"])
+            and snapshot.get("operator_id") == task["OperatorId"]
+            and snapshot.get("content_version") == task["ContentVersion"]
+            and bool(re.fullmatch(r"[a-f0-9]{64}", snapshot.get("input_sha256", ""))))
 
 
 def inspect_result(result):
@@ -195,8 +214,11 @@ def check_resume(task, policy, explicit_continue=False, phase="execute", schedul
         return {"status": "NeedsCorrection", "reason": "Owner, step, category, mode or contract mismatch; no fallback to communication"}
     reason = None
     effect = route["effect"]
-    if policy == "one-cycle-approved-work" and (task["Mode"] != "Automatic" or effect == "setup"):
-        return {"status": "Deferred", "reason": "One-cycle approved work excludes Manual tasks and installation setup"}
+    queue_manual = submitted_manual_route(task) and policy in {"one-cycle-approved-work", "scheduled-approved-work"}
+    notification_manual = (task["Mode"] == "Manual" and task["ResumeStep"] == "SendNotificationSms"
+                           and policy in {"one-cycle-approved-work", "scheduled-approved-work"})
+    if policy == "one-cycle-approved-work" and (task["Mode"] != "Automatic" and not queue_manual and not notification_manual or effect == "setup"):
+        return {"status": "Deferred", "reason": "Queue work excludes unrelated Manual tasks and installation setup"}
     if policy == "scheduled-approved-work":
         guard = schedule_guard or {}
         if (guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
@@ -204,15 +226,15 @@ def check_resume(task, policy, explicit_continue=False, phase="execute", schedul
                 or not guard.get("invocation_id") or not task.get("OperatorId")
                 or guard.get("operator_id") != task["OperatorId"]):
             return {"status": "Deferred", "reason": "Current native schedule guard/operator binding missing; a policy name is not authorization"}
-        if task["Mode"] != "Automatic":
-            return {"status": "Deferred", "reason": "Scheduled work never adopts Manual tasks"}
+        if task["Mode"] != "Automatic" and not queue_manual and not notification_manual:
+            return {"status": "Deferred", "reason": "Scheduled work excludes unrelated Manual tasks"}
         if effect == "setup":
             return {"status": "Deferred", "reason": "Installation setup requires explicit initialization, not a scheduled task"}
     if phase == "register":
         entity = task.get("PageId", task.get("url", task.get("id")))
         if not entity:
             return {"status": "NeedsCorrection", "reason": "Register the canonical task first; check its actual PageId before enabling a form"}
-        permitted = (policy == "owner-workflow" or policy in {"one-cycle-no-customer-send", "one-cycle-approved-work", "scheduled-approved-work"} and task["Mode"] == "Automatic"
+        permitted = (policy == "owner-workflow" or queue_manual or notification_manual or policy in {"one-cycle-no-customer-send", "one-cycle-approved-work", "scheduled-approved-work"} and task["Mode"] == "Automatic"
                      or policy == "manual-review" and task["Mode"] == "Manual" and task["OwnerSkill"] in ("eightdegrees-communication-context-process", "eightdegrees-client-persona-update")
                      or policy == "setup-only" and effect == "setup"
                      or policy == "draft-only" and task["OwnerSkill"] == "eightdegrees-sales-reply")
@@ -227,7 +249,9 @@ def check_resume(task, policy, explicit_continue=False, phase="execute", schedul
         reason = "Report-only cannot resume tasks"
     elif policy == "scheduling-only":
         reason = "Scheduling-only cannot resume business tasks"
-    elif task["Mode"] == "Manual" and (policy == "one-cycle-no-customer-send" or not explicit_continue):
+    elif queue_manual and phase == "execute" and not current_submission(task):
+        reason = "Observe and persist the actual current Manual submission before automatic continuation"
+    elif task["Mode"] == "Manual" and not queue_manual and not notification_manual and (policy == "one-cycle-no-customer-send" or not explicit_continue):
         reason = "Manual task requires an explicit owner continuation; scanner cannot take over"
     elif policy == "manual-review" and task["Mode"] != "Manual":
         reason = "Manual communication command cannot adopt an Automatic task"

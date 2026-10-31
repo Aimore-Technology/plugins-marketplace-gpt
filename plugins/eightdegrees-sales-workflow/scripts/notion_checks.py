@@ -307,7 +307,8 @@ def completion_gate(data):
                      "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
                      "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified",
-                     "execution-plan": "ExecutionPlanReady", "material-handoff": "MaterialHandoffVerified"}
+                     "execution-plan": "ExecutionPlanReady", "material-handoff": "MaterialHandoffVerified",
+                     "sms-authority": "SMSNotificationVerified"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -416,6 +417,7 @@ def owner_write(data):
     mail_targets, mail_verified, sent_verified, send_targets, receipt_targets = set(), set(), set(), set(), set()
     outcomes_verified, receipts_verified = set(), set()
     handoff_targets, handoff_bindings = set(), {}
+    notification_targets, notification_bindings, sms_outcome_digests = set(), {}, {}
     sent_bindings, outcome_bindings, receipt_bindings = {}, {}, {}
     for item in evidence["checks"]:
         spec, result = evidence["required_checks"][item["name"]], item["result"]
@@ -429,6 +431,9 @@ def owner_write(data):
                 receipt_targets.add(identity)
             if result.get("resume_step") == "SendApprovedSms":
                 send_targets.add(identity)
+            if result.get("resume_step") == "SendNotificationSms":
+                send_targets.add(identity)
+                notification_targets.add(identity)
             if result.get("resume_step") in {"RecordSendReceipt", "RecordGeneralSendReceipt"}:
                 receipt_targets.add(identity)
                 send_targets.add(identity)
@@ -448,11 +453,16 @@ def owner_write(data):
                 and (result.get("cycle_page_id") or result.get("state") == "NotApplicable")
                 and result.get("event_key") and result.get("message_id")):
             handoff_bindings[identity] = result["message_id"]
+        if (spec["kind"] == "sms-authority" and result.get("content_version") == versions.get(identity)
+                and result.get("authority_policy") == "notification-sms-v1"
+                and re.fullmatch(r"[a-f0-9]{64}", result.get("body_sha256", ""))):
+            notification_bindings[identity] = result["body_sha256"]
         if spec["kind"] == "outcome" and result.get("content_version") == versions.get(identity):
             if not result.get("action_page_id") or bindings.get(page_id(result["action_page_id"])) != identity:
                 return {"status": "Deferred", "reason": "Current outcome display was checked on another action page"}
             outcomes_verified.add(identity)
             outcome_bindings[identity] = result.get("expected", {}).get("message_id")
+            sms_outcome_digests[identity] = result.get("expected", {}).get("payload_sha256")
         if (spec["kind"] == "crm-receipt" and result.get("content_version") == versions.get(identity)
                 and result.get("crm_note_id") and result.get("receipt_key")):
             receipts_verified.add(identity)
@@ -461,6 +471,9 @@ def owner_write(data):
         return {"status": "Deferred", "reason": "Email completion requires current pre-send draft AND actual sent-MIME verification; preserve partial provider success"}
     if not handoff_targets <= handoff_bindings.keys():
         return {"status": "Deferred", "reason": "Material send/handoff recovery requires persisted handoff on each original task/version"}
+    if not notification_targets <= notification_bindings.keys() or any(
+            notification_bindings[x] != sms_outcome_digests.get(x) for x in notification_targets):
+        return {"status": "Deferred", "reason": "Notification completion requires standing authority, exact frozen text and matching actual SMS request digest"}
     if not send_targets <= outcomes_verified or not receipt_targets <= receipts_verified:
         return {"status": "Deferred", "reason": "Current send projections and required CRM receipt readback incomplete; preserve provider success without replay"}
     for identity in receipt_targets:

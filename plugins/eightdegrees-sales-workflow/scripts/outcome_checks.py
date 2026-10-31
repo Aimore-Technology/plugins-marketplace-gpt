@@ -52,6 +52,10 @@ def projection(data):
                 "reserved": result["status"] in {"Unknown", "AwaitingPhone", "ProviderAccepted", "PendingApproval"},
                 "provider_delivered": result["status"] == "Delivered", "human_received": received,
                 "sender_display": receipt.get("sender_display") if received else None}
+    if operation == "sms" and result.get("payload_sha256") is not None:
+        if not re.fullmatch(r"[a-f0-9]{64}", result["payload_sha256"]):
+            raise ValueError("Actual SMS request payload digest is malformed")
+        expected["payload_sha256"] = result["payload_sha256"]
     return {"status": "OutcomeDerived", "entity_id": identity, "content_version": version, "expected": expected,
             "scope": "Current result projection only; preserve approved payloads and historical pre-send snapshots"}
 

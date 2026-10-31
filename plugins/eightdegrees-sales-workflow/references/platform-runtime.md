@@ -25,7 +25,7 @@ Each native tick invokes email-scanning directly with a fresh schedule guard
 and scheduled-approved-work policy. It may execute only valid approved Automatic
 steps. Public run-auto uses one-cycle-approved-work; explicit no-send restrictions remain narrower. Stop/Pause, versions,
 windows, latest visible replies, counts, ownership and original attempts remain
-mandatory; Manual P0-A requires explicit continuation. Keep one executor for a
+mandatory; Manual P0-A keeps manual initiation; its valid Notion submissions resume through the shared queue. Keep one executor for a
 customer root across GPT and Claude.
 
 Due morning briefs/reminders and confirmed Calendar work run within that cycle;
@@ -34,3 +34,5 @@ No actual schedule is installed or authenticated by this package. Work runtime
 support/cadence/access and real tick behavior are separate acceptance evidence.
 See [official scheduled tasks](https://learn.chatgpt.com/docs/automations) and
 [Work cloud context](https://learn.chatgpt.com/docs/get-started-with-work).
+
+The current procedure is queue-execution: source scans, submitted communication forms and ready successors share one bounded worklist. Factual SMS notifications use default enabled standing authority under sms-notifications, with no individual review. Channel/stop/time/count/attempt checks and email/CRM review remain.

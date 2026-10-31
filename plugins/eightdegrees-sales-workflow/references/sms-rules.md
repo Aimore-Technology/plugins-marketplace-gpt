@@ -1,20 +1,52 @@
-# SMS cycle rules
+# Notification SMS cycle rules
 
-- First due: actual material send +30 minutes. Second due: first actual follow-up +24 hours, never first planned time.
-- Default customer window: Mon-Fri 10:00-17:00 Australia/Adelaide, respecting DST and configured no-send dates. Outside the window, roll to the next permitted day 10:00; do not send early to fit the window.
-- No verified holiday list: require the operator's confirmation that the specific approved sending date is allowed. Each approval has an explicit earliest/latest datetime and timezone. Expiry/window changes require a new approval.
-- Each SMS needs its own version-bound approval. Manual and AI related follow-ups count together toward TWO per cycle; internal operator reminders do not count.
-- One active cycle/customer. Duplicate material events or resend do not reset it. Unknown send result/count suspends later sends and reserves the attempt until reconciled.
-- Store CycleId, material event/source/version, actual material time, each manual/AI send time/AttemptId/provider result, current count, earliest next due, approved window, last reply check, pause/cancel/stop reason and handover status in the communication/task record.
-- Reply/rejection/complaint stops unsent cycle messages before processing the reply. Do-not-contact blocks future enrollment. Read the operator's manual pause immediately before sending. Unconnected-channel replies are not observed automatically.
-- Gate automatic SMS on actual own-number display, stable send, and replies visible in the operator's ordinary message app/inbox. Unverified: draft + the operator manual send/log only; do not substitute a service sender ID.
+Factual notifications use default enabled standing notification-sms-v1 authority
+under [SMS notifications](sms-notifications.md). No individual SMS content/send
+review or extra continue command is required. Generate/edit the copy, freeze its
+actual text/recipient/device/version and send when due after the fresh checks.
+Email approval and CRM fact review remain separate.
 
-## Explicit one-message channel acceptance
+- First follow-up >= actual material Sent+30 minutes. Second >= first actual
+  follow-up+24 hours, not its planned time. Internal reminders use their own
+  configured deduplicated phases.
+- Customer SMS window defaults Mon-Fri 10:00-17:00 Australia/Adelaide with DST
+  and configured no-send dates. Roll outside-window due work to the next allowed
+  time; never send early just to fit. The standing SMS policy includes that
+  calendar fallback; an unverified holiday list is disclosed without asking for
+  approval per SMS. Email holiday/date confirmation remains unchanged.
+- Manual and AI related follow-ups count together toward TWO per cycle. One
+  active cycle/customer. Repeated material events/resends never reset counts or
+  existing due times. Unknown results reserve a slot and block later attempts.
+- Store CycleId, actual material event/source/version/time, each send's actual
+  time/AttemptId/result, manual+AI count, next due/window, latest reply/stop/Pause
+  and handover. A closed/stopped/capped cycle is not automatically reopened.
+- Reply/rejection/complaint/opt-out or operator Pause stops affected unsent work
+  before ordinary processing. Authority revocation blocks future dispatch.
+  Unconnected channel replies are not observed automatically.
+- Verify actual own-number display, stable gateway and ordinary-inbox reply
+  visibility, device ownership and latest accessible reply coverage. Permission
+  is enabled by default; unverified capability still blocks actual dispatch.
+  Do not substitute a service sender ID or force another app approval route
+  when the actual device is already Trusted.
+- A changed unsent notification needs a new frozen version/check, not a human
+  decision. An already pending/unknown attempt must be reconciled first. Never
+  mutate its text and resend or repair a log by another SMS.
 
-When the operator explicitly requests an actual controlled SMS test, a separately invoked SMS owner may submit ONE approved controlled message through an authenticated available AndroidSync/SMS connector even while automatic enrollment remains disabled. Bind the actual device, exact test recipient/body, cycle/material event when this is a follow-up, one AttemptId and the scope of this test approval. Verify the device belongs to the configured account; metadata alone does not prove the sending number or delivery. Respect any actual phone/Web approval requirement. This is not a scan/report send or permission to enable recurring SMS. Missing connectors/unknown outcomes remain pending; do not fall back to undocumented endpoints or blind resends.
+## Explicit controlled channel test
 
-For a user-authorized immediate test, record a one-message timing exception in the approval: the exact current earliest/latest window and an explicit waiver of the normal customer-hours and first-message delay. Keep defaults and previous stop/Pause records unchanged. A new scoped controlled cycle must not reopen a stopped old batch. The first real material-send prerequisite still applies to a follow-up; a stand-alone channel probe is labeled as such and cannot claim P0-B material-follow-up acceptance. Keep the cycle cap and count this controlled send. A request/phone acceptance is not carrier delivery. Read actual status when supported; real inbound reply evidence, or a clearly labeled operator phone-app observation, is required to claim receipt/two-way behavior. If inbox access is absent, say so rather than synthesize a reply as evidence. Revalidate production readiness separately before enabling automatic follow-ups.
+A deliberate controlled-channel test may use a documented one-message exception
+with exact configured recipient/device/body and actual result evidence. Record
+any requested timing waiver and the genuine current device policy; do not ask
+for a second human approval after the operator has authorized the controlled
+notification. Existing stop/Pause/unknown attempts remain unchanged. A stand-alone
+probe is not material-follow-up acceptance; a real follow-up still needs actual
+material Sent. Network acceptance is not handset delivery, and old receipt
+observations do not verify this new request. Never release abandoned old drafts.
 
-## Automatic material handoff
+## Automatic handoff
 
-After verified actual material email Sent, the email owner immediately calls the SMS registration phase under [material handoff](material-handoff.md). Registration is mandatory and observable even while the channel is disabled: save a cycle/draft/due or blocked/stopped record and its original task link. It sends nothing and creates no native schedule. Only the shared start executor or a deliberate public run-auto may later process independently approved Automatic sends. Never require the operator to type an internal SMS skill command.
+The email owner must register/reuse the downstream cycle/due/notification or
+blocked/stopped result immediately after verified material Sent under
+[material handoff](material-handoff.md). No per-email native task. The shared
+queue handles due notification sending in the same eligible cycle or a later
+run-auto/native tick without private owner or continue commands.

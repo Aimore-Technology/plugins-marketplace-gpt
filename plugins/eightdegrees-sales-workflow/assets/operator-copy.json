@@ -34,7 +34,8 @@
     "Failed": "Failed; check the original result",
     "Unknown": "Result unknown; reconcile the original attempt",
     "receipt_yes": "Receipt confirmed by recorded evidence",
-    "receipt_no": "No recipient receipt confirmation in this observation"
+    "receipt_no": "No recipient receipt confirmation in this observation",
+    "queued": "Notification queued; no review is required. It will be sent when due and current conditions pass."
   },
   "zh-CN": {
     "review": "\u9700\u8981\u6211\u5ba1\u6838",
@@ -71,6 +72,7 @@
     "Failed": "\u6267\u884c\u5931\u8d25\uff0c\u8bf7\u67e5\u770b\u539f\u7ed3\u679c",
     "Unknown": "\u7ed3\u679c\u672a\u77e5\uff0c\u8bf7\u6838\u5bf9\u539f\u6267\u884c\u8bb0\u5f55",
     "receipt_yes": "\u5df2\u6709\u6536\u4ef6\u786e\u8ba4\u8bc1\u636e",
-    "receipt_no": "\u672c\u6b21\u89c2\u5bdf\u672a\u63d0\u4f9b\u6536\u4ef6\u786e\u8ba4"
+    "receipt_no": "\u672c\u6b21\u89c2\u5bdf\u672a\u63d0\u4f9b\u6536\u4ef6\u786e\u8ba4",
+    "queued": "\u901a\u77e5\u5df2\u6392\u961f\uff0c\u65e0\u9700\u5ba1\u6838\u3002\u5230\u671f\u4e14\u5f53\u524d\u53d1\u9001\u6761\u4ef6\u6ee1\u8db3\u540e\u81ea\u52a8\u53d1\u9001\u3002"
   }
 }

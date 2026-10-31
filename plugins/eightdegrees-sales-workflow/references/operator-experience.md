@@ -73,9 +73,9 @@ continuation. Read canonical fields plus the current version-bound accepted
 snapshot when claiming acceptance. A checked submit to-do only requests processing;
 an unobserved edit never means accepted or sent. The helper does not execute.
 
-- Manual P0-A requires the documented public add-communication continuation after submission.
-- Automatic data/content/send work uses the next verified native tick, or the single public `@eightdegrees-sales-workflow run-auto` command. It may consume an independently approved exact-version/window send without another chat permission question. Missing approval or changed scope stays pending. Never print an internal owner invocation or an invented continue subcommand.
-- Manual P0-A uses only `@eightdegrees-sales-workflow add-communication continue <action URL>`. Legacy Manual sales/SMS tasks remain Manual and receive an explicit capability/migration limitation; a scanner cannot silently take them over.
+- Manually initiated communication tasks submit in Notion and resume through the shared queue; no extra continue command.
+- Eligible data/content/email-send work uses the next verified native tick, or the single public `@eightdegrees-sales-workflow run-auto` command. It may consume an independently approved exact-version/window email send without another chat permission question. Missing approval or changed scope stays pending. Never print an internal owner invocation or an invented continue subcommand.
+- Notification SMS has a read-only queued/result page and no per-message review. The default standing policy supplies its authority; current channel/stop/time/count/attempt checks remain. Legacy unrelated Manual sends are not silently adopted.
 - Promise scheduled checking only from enabled, verified native task evidence;
   do not invent a countdown or infer a next run from the target 15-minute cadence.
 - Paused/cancelled/completed tasks do not offer an old submission as a new action.

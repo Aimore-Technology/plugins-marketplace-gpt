@@ -53,6 +53,43 @@ def completion_for(owner, step=None):
 
 
 class OwnerCompletionTests(unittest.TestCase):
+    def test_notification_completion_uses_standing_authority_and_actual_body_digest_without_a_decision(self):
+        from test_sms_authority import inputs, saved
+        import sms_authority
+        from test_scheduled_outcomes import saved_outcome, outcome
+        import outcome_checks
+        data = completion_for('eightdegrees-sms-follow-up', 'SendNotificationSms')
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+        source = inputs(); source['payload']['task_id'] = TASK; source['payload']['content_version'] = 'test-v1'
+        source['saved_task'] = saved(source) | {'id': TASK}
+        authority = sms_authority.verify(source)
+        event = outcome('sms','SentToNetwork'); event['provider']['payload_sha256'] = authority['body_sha256']
+        for name, kind, result in [('authority','sms-authority',authority),
+                                   ('outcome','outcome',outcome_checks.verify_projection(saved_outcome(event)))]:
+            spec = {'kind':kind,'entity_id':TASK}
+            data['registry']['required_checks'][name] = spec
+            data['completion']['required_checks'][name] = spec
+            data['completion']['checks'].append({'name':name,'invocation_id':'run-1',
+                'publication_version':'publication-v1','exit_code':0,'result':result})
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'WithinOwnerScope')
+        for digest in (None, 'a'*64):
+            bad = copy.deepcopy(data)
+            next(x for x in bad['completion']['checks'] if x['name']=='outcome')['result']['expected']['payload_sha256'] = digest
+            self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
+
+    def test_manual_review_queue_completion_requires_current_accepted_submission_without_continue(self):
+        import workflow_checks
+        data = completion_for('eightdegrees-communication-context-process', 'ReviewCommunication')
+        data['registry']['policy'] = 'one-cycle-approved-work'
+        item = task('ReviewCommunication','Manual'); item.update(PageId=TASK, ActionPageURL='https://app.notion.com/p/'+ACTION, OperatorId='operator-1')
+        route = next(x for x in data['completion']['checks'] if x['name']=='route')
+        route['result'] = workflow_checks.check_resume(item,'one-cycle-approved-work')
+        self.assertEqual(CHECKS.owner_write(data)['status'],'Deferred')
+        item['AcceptedSubmission'] = {'read_verified':True,'task_id':TASK,'action_page_id':ACTION,
+            'operator_id':'operator-1','content_version':'test-v1','input_sha256':'f'*64}
+        route['result'] = workflow_checks.check_resume(item,'one-cycle-approved-work')
+        self.assertEqual(CHECKS.owner_write(data)['status'],'WithinOwnerScope')
+
     def test_public_approved_cycle_completion_keeps_automatic_route_policy_binding(self):
         import workflow_checks
         data = completion_for('eightdegrees-sales-reply')

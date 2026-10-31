@@ -14,6 +14,7 @@ import notion_checks
 import operator_experience
 import outcome_checks
 import material_handoff
+import sms_authority
 
 OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
@@ -32,12 +33,14 @@ OPERATIONS = {
     "operator.results": operator_experience.result_summary,
     "material.plan": material_handoff.plan,
     "material.verify": material_handoff.verify,
+    "sms.prepare": sms_authority.prepare,
+    "sms.verify": sms_authority.verify,
 }
 PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",
-          "MaterialHandoffPlanned", "MaterialHandoffVerified"}
+          "MaterialHandoffPlanned", "MaterialHandoffVerified", "SMSNotificationPrepared", "SMSNotificationVerified"}
 
 
 def run(plan, captures):

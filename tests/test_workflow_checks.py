@@ -256,8 +256,38 @@ class ResumeRouteTests(unittest.TestCase):
                 item["Mode"] = "Automatic"
         self.assertEqual(CHECKS.check_resume(task("ValidateSetupInput"), "one-cycle-approved-work")["status"], "Deferred")
 
+    def test_manual_communication_is_observed_but_not_executed_before_saved_submission(self):
+        item = task('ReviewCommunication', 'Manual'); item.update(PageId='a'*32, ActionPageURL='https://app.notion.com/p/'+'b'*32, OperatorId='operator-1')
+        self.assertEqual(CHECKS.check_resume(item, 'one-cycle-approved-work', phase='observe')['status'], 'EligibleForInputCheck')
+        self.assertEqual(CHECKS.check_resume(item, 'one-cycle-approved-work')['status'], 'Deferred')
+        item['AcceptedSubmission'] = {'read_verified': True, 'task_id': item['PageId'], 'action_page_id': item['ActionPageURL'],
+            'operator_id': item['OperatorId'], 'content_version': item['ContentVersion'], 'input_sha256': 'f'*64}
+        self.assertEqual(CHECKS.check_resume(item, 'one-cycle-approved-work')['status'], 'EligibleForOwnerCheck')
+        self.assertEqual(item['Mode'], 'Manual')
+        for key, value in [('task_id','e'*32), ('action_page_id','d'*32), ('operator_id','other'), ('content_version','old'), ('input_sha256','')]:
+            original = item['AcceptedSubmission'][key]; item['AcceptedSubmission'][key] = value
+            self.assertEqual(CHECKS.check_resume(item, 'one-cycle-approved-work')['status'], 'Deferred')
+            item['AcceptedSubmission'][key] = original
+
+    def test_native_queue_resumes_submitted_manual_communication_under_current_guard(self):
+        from test_schedule_checks import SCHEDULE, scheduled_guard
+        guard = SCHEDULE.guard(scheduled_guard())
+        item = task('CompleteCommunicationData', 'Manual')
+        item.update(PageId='a'*32, ActionPageURL='https://app.notion.com/p/'+'b'*32, OperatorId=guard['operator_id'])
+        self.assertEqual(CHECKS.check_resume(item, 'scheduled-approved-work', phase='observe', schedule_guard=guard)['status'], 'EligibleForInputCheck')
+        item['AcceptedSubmission'] = {'read_verified': True, 'task_id': item['PageId'], 'action_page_id': item['ActionPageURL'],
+            'operator_id': item['OperatorId'], 'content_version': item['ContentVersion'], 'input_sha256': 'f'*64}
+        self.assertEqual(CHECKS.check_resume(item, 'scheduled-approved-work', schedule_guard=guard)['status'], 'EligibleForOwnerCheck')
+        self.assertEqual(CHECKS.check_resume(item, 'scheduled-approved-work')['status'], 'Deferred')
+
     def test_closed_legacy_task_does_not_need_a_route_migration(self):
         self.assertEqual(CHECKS.check_resume({"State": "Completed"}, "owner-workflow")["status"], "Deferred")
+
+    def test_notification_route_preserves_legacy_manual_provenance_without_a_human_submission(self):
+        item = task('SendNotificationSms','Manual'); item['PageId'] = 'a'*32
+        self.assertEqual(CHECKS.check_resume(item,'one-cycle-approved-work')['status'],'EligibleForOwnerCheck')
+        self.assertEqual(CHECKS.check_resume(item,'one-cycle-no-customer-send')['status'],'Deferred')
+        self.assertEqual(item['Mode'],'Manual')
 
     def test_scan_can_record_auto_send_choice_without_executing_it(self):
         result = CHECKS.check_resume(task(), "one-cycle-no-customer-send", phase="observe")

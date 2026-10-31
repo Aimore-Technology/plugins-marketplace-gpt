@@ -2,7 +2,7 @@
 
 The email owner must register follow-up after an actual material Sent result.
 It is a required downstream transition, not a suggestion to the operator to
-invoke another skill. Email approval does not approve SMS. No per-email native
+invoke another skill. Email approval remains separate; factual SMS uses standing notification authority. No per-email native
 task is created: one executor installed by start handles all due Automatic work.
 Without a running schedule, public run-auto processes the same queue once.
 
@@ -26,20 +26,19 @@ Without a running schedule, public run-auto processes the same queue once.
    active, total_count and unknown_attempt=false. Supply real observations,
    not fabricated verification flags. Preserve the input for same-phase readback.
 4. Under the SMS owner's separate affected-role plan, create/reuse its cycle
-   record in the customer's existing Communications area and one Automatic
+   record in the customer's existing Communications area and one Automatic ScheduledWork
    PendingTasks item. Persist the returned compact material-handoff-v1 JSON
    audit block both on the original email task and the distinct original cycle
    page, with native links between them. Use exact-call preflight and saved-page
    checks. Registration cannot send, create native tasks or enable automatic SMS.
    Keep exactly one current block per event; preserve older snapshots in original history/logs or a history wrapper, not another top-level material-handoff-v1 JSON record for the same event.
-5. Ready channel: prepare the first SMS copy/review now, with due lower bound
+5. Ready channel: prepare and freeze the first notification now, with due lower bound
    actual email Sent+30 minutes. The SMS owner applies the configured business
    window/date/holiday rules to calculate the eligible time; the helper's UTC
-   lower bound is not permission to send. Each SMS still has its own content and
-   send approval. Missing number -> DataCompletion/PrepareSmsFollowUp; unverified
+   lower bound is not permission to send. No per-message SMS review is required; use the current standing policy and fresh dispatch checks. Missing number -> DataCompletion/PrepareSmsFollowUp; unverified
    or disabled channel -> one actionable readiness task with original settings
    link and clear reason; no guessed number or automatic enable. A stop/closed
-   or capped cycle -> explicit Stopped/no-new-follow-up result, no new review.
+   or capped cycle -> explicit Stopped/no-new-follow-up result, no new notification.
 6. For reuse, append this material event association without changing existing
    count/due/approved payload or reopening a closed cycle. The planned first_due
    is this event's audit lower bound, not a replacement cycle timer. A different

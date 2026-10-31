@@ -14,20 +14,18 @@ email or a manually pasted schedule marker cannot select this policy.
 
 The guard requires Running, current native ID, generation, executor, runtime,
 operator/mailbox/root, approved_work_enabled=true and no competing active run.
-Manual tasks remain excluded even when submitted. Valid Automatic submissions
-may advance only their recorded owner/step. Immediately before each send,
-recheck the active original action, approval/version, exact stored payload,
+Current submitted Manual communication tasks join the queue under queue-execution; unrelated Manual sends remain excluded. Eligible current submissions may advance only their recorded owner/step; notification SMS uses standing authority. Immediately before each send,
+recheck the original email action approval/version or current SMS standing authority and saved notification, exact stored payload,
 window, latest visible stop/reply, manual/AI counts and existing attempt. Keep
-unapproved, changed, expired, stopped, unknown or unverified-channel work pending.
+unapproved email/CRM work, unauthorized notification purposes, changed, expired, stopped, unknown or unverified-channel work pending.
 The guard permits owner checks; it is not sending authorization or a server lock.
 
 ## One cycle handles due work
 
-1. Check stop/reply state first, then new scoped mail and eligible Automatic
-   inputs/reviews. Isolate waiting or conflicting items; keep other clients moving.
+1. Check stop/reply state first, then new scoped mail and all eligible current queue inputs/reviews, including manually initiated communications. Isolate waiting or conflicting items; keep other clients moving.
 2. Dispatch approved general-email, sales-email and SMS steps through their
    explicit owners. Do not send a sales-owned reply through the general route.
-   After verified material Sent, register its SMS handoff immediately even if that channel is disabled. Automatic SMS dispatch additionally needs its separately verified/enabled channel and independent approval.
+   After verified material Sent, register its SMS handoff immediately even if that channel is disabled. Notification SMS dispatch needs current standing notification authority and its separately verified channel, without per-message review.
 3. Run the existing daily-brief owner for due reminders and confirmed work
    appointments. At 08:30 or the first eligible later tick, upsert one business-day
    brief and send one configured internal summary. Persist date/notification IDs;
@@ -51,3 +49,5 @@ owned native task, advances its lifecycle and enables approved work only after
 native prompt/cadence readback. Existing stop/Pause, Manual modes, external
 attempts and payload approvals remain unchanged. An old running lifecycle
 without this verified new binding defers instead of gaining send scope.
+
+The current source/continuation contract is [queue execution](queue-execution.md): current submitted Manual communication forms can resume without another command; factual SMS notifications use standing authority and read-only queued/result pages. A ready successor is enqueued in the same bounded cycle, without scanner recursion or waiting for a future due time.

@@ -129,7 +129,7 @@ def check():
         for step, route in task_routes.items():
             require(re.fullmatch(r'[A-Za-z][A-Za-z0-9]+', step), f'Invalid resume step: {step}')
             require(route.get('owner') in EXPECTED - {'eightdegrees-sales-workflow'}, f'Unknown task owner: {step}')
-            require(bool(route.get('categories')) and set(route['categories']) <= {'ClientMatching', 'DataCompletion', 'ContentReview', 'SendApproval', 'ExecutionExceptions'}, f'Invalid task category: {step}')
+            require(bool(route.get('categories')) and set(route['categories']) <= {'ClientMatching', 'DataCompletion', 'ContentReview', 'SendApproval', 'ExecutionExceptions', 'ScheduledWork'}, f'Invalid task category: {step}')
             require(route.get('effect') in {'read', 'crm', 'checkpoint', 'draft', 'customer-send', 'setup', 'report', 'calendar', 'internal-notification'}, f'Unknown task effect: {step}')
         owner_profiles = read_json(plugin / 'references/owner-completion-profiles.json')
         require(set(owner_profiles) == EXPECTED - {'eightdegrees-sales-workflow'}, 'Owner completion profile inventory mismatch')
@@ -150,7 +150,9 @@ def check():
         require(defaults['customer_setup']['allowed_label_ids'] == [], 'Do not ship a customer mail scope')
         require(defaults['customer_setup']['notion_root_id'] is None, 'Do not ship a developer Notion root')
         require(defaults['sms_follow_up']['max_messages_per_cycle_including_manual'] == 2, 'SMS cap drift')
-        require(defaults['sms_follow_up']['automatic_sending_enabled'] is False, 'Unverified SMS must stay disabled')
+        require(defaults['sms_follow_up']['automatic_sending_enabled'] is True, 'Notification SMS permission defaults enabled; capability gates stay separate')
+        require(defaults['sms_notifications']['enabled'] is True and defaults['sms_notifications']['per_message_review_required'] is False, 'Standing notification authority drift')
+        require(defaults['queue_execution']['continue_commands_required'] is False, 'Queue must not require extra continuation commands')
         require(defaults['data']['deliberate_redaction'] is False, 'Pilot data policy drift')
         print(f'PASS {platform}: {name} {manifest["version"]}; nine English skills (eight workflows + command entry); command routes, references, defaults and payload checked')
     return platform
