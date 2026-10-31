@@ -11,10 +11,13 @@ Explicit init/upgrade reuses registered Today/views, or performs complete scoped
 discovery before creating them. Preserve the existing Actions ID and every task,
 action, answer, approval and child page. Do not rename or rebuild their records.
 Create one ordinary Today page under Aimore using [the layout](../assets/today.md).
-Keep its introduction short and task groups ahead of detailed help. Native
-create_view may append blocks: after fetching actual saved tags, arrange the
-workflow-owned new page in the template order using a supported content edit,
-preserving every exact native child tag. No placeholder text or copied rows.
+Publish only the short introduction before creating native views, then append
+help using insert_content at end. Let each native view name label its group;
+do not duplicate outer headings that can drift from the actual view. Never use
+replace_content to rearrange database tags: the observed connector can scramble
+their order even when every ID survives. On upgrades retain actual native order
+and use small text-only edits; unsupported positioning remains a layout limit.
+No placeholder text or copied rows.
 With actual source/page fetches, run `operator_experience.py today-views` to plan
 native linked views: Needs my review, Needs my information, Needs my attention,
 Waiting and paused, and optional original Business results/daily summaries.

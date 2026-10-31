@@ -23,3 +23,10 @@ Evidence: the 0.1.21 UX maintenance on 2026-10-31 verified native linked lists,
 hidden technical detail properties and one unchanged-content review layout.
 Offline regressions cover mode-specific continuation, correction, pause,
 expiry, unknown results, verified prefill and result/receipt separation.
+
+Native-layout lesson: a 0.1.21 whole-page replacement preserved all six database
+IDs but scrambled view and heading order. Recovery removed only the newly added
+outer headings/help with exact text edits, then appended help separately. Keep
+native view names authoritative and verify actual order; retained IDs alone do
+not establish correct layout. Future setup creates intro, views, then help,
+without a whole-page native-block rearrangement.
