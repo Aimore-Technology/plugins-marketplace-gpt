@@ -190,6 +190,9 @@ class OwnerCompletionTests(unittest.TestCase):
                 'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
         self.assertEqual(CHECKS.owner_write(data)["status"], "WithinOwnerScope")
         bad = copy.deepcopy(data)
+        next(r for r in bad['completion']['checks'] if r['name'] == 'outcome')['result']['action_page_id'] = 'f' * 32
+        self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
+        bad = copy.deepcopy(data)
         bad['completion']['checks'][-1]['result']['message_id'] = 'another-send'
         self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
         bad = copy.deepcopy(data)

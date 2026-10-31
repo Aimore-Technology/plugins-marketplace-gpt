@@ -440,6 +440,8 @@ def owner_write(data):
             sent_verified.add(identity)
             sent_bindings[identity] = (result.get("message_id"), result.get("html_sha256"))
         if spec["kind"] == "outcome" and result.get("content_version") == versions.get(identity):
+            if not result.get("action_page_id") or bindings.get(page_id(result["action_page_id"])) != identity:
+                return {"status": "Deferred", "reason": "Current outcome display was checked on another action page"}
             outcomes_verified.add(identity)
             outcome_bindings[identity] = result.get("expected", {}).get("message_id")
         if (spec["kind"] == "crm-receipt" and result.get("content_version") == versions.get(identity)

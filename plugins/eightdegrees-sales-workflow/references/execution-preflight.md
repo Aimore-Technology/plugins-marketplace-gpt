@@ -6,6 +6,11 @@ Notion property and stored-reply parameter checks. It derives the completion
 check list from the affected resources instead of asking the model to assemble
 that list from memory. It calls no connector and cannot intercept direct MCP calls.
 
+For every actual Notion page write, including provisioning before ready, apply
+[exact-call Notion preflight](notion-mutation.md). Its combined links/properties
+check runs BEFORE that call and returns the exact permitted arguments; an earlier
+prepare/schema pass does not validate a later modified body or property object.
+
 ## Input and generated plan
 
 Supply owner_skill, actual policy, invocation_id, publication_version, operation,

@@ -4,8 +4,10 @@
 import argparse
 import json
 from pathlib import Path
+import re
 import sys
 
+from notion_checks import object_result, page_body, page_id
 
 STATES = {"WaitingForOperator", "NeedsCorrection", "ReadyToValidate", "InProgress", "Completed", "Cancelled"}
 PROVIDER_STATES = {"Sent", "SentToNetwork", "Delivered", "ProviderAccepted", "AwaitingPhone", "PendingApproval", "Failed", "Unknown"}
@@ -60,7 +62,8 @@ def verify_projection(data):
     surfaces = data.get("saved")
     if not isinstance(surfaces, dict) or not {"task", "index", "action_result"} <= surfaces.keys():
         raise ValueError("Read back current task, lightweight index and active action result")
-    issues = []
+    display = current_display(data)
+    issues = list(display["issues"])
     for name, observed in surfaces.items():
         if not isinstance(observed, dict) or observed.get("read_verified") is not True:
             issues.append(name + ": current saved readback missing")
@@ -71,8 +74,46 @@ def verify_projection(data):
             if observed.get(field) != value:
                 issues.append(name + ": " + field + " differs from verified outcome")
     return {"status": "NeedsCorrection" if issues else "OutcomeProjectionsVerified",
-            "entity_id": derived["entity_id"], "content_version": derived["content_version"], "expected": expected, "issues": issues,
+            "entity_id": derived["entity_id"], "content_version": derived["content_version"],
+            "action_page_id": display["action_page_id"], "expected": expected, "issues": issues,
             "scope": "Offline readback comparison; repair projections only, never repeat the provider operation"}
+
+
+def current_display(data):
+    """Check the actual action copy, not only caller-normalized result fields."""
+    derived = projection(data)
+    page = object_result(data["action_page"])
+    action_id = data["action_page_id"]
+    if page.get("metadata", {}).get("type") != "page" or page_id(page["id"]) != page_id(action_id):
+        raise ValueError("Read the registered original action page")
+    body = page_body(data["action_page"])
+    sections = re.split(r"(?m)^##[ \t]+([^\n]+)\n", body)
+    groups = {"status": [], "result": []}
+    for heading, text in zip(sections[1::2], sections[2::2]):
+        name = heading.strip().lower()
+        if name in {"current status", "\u5f53\u524d\u72b6\u6001"}:
+            groups["status"].append(text)
+        elif name in {"processing result", "\u5904\u7406\u7ed3\u679c"}:
+            groups["result"].append(text)
+    issues = []
+    if any(len(v) != 1 for v in groups.values()):
+        issues.append("Missing/duplicate current status or processing result section")
+    current = "\n".join(text for values in groups.values() for text in values)
+    other = (r"\u77ed\u4fe1(?:\u5c1a?\u672a\u53d1\u9001|\u987b\u72ec\u7acb\u5ba1\u6279)|SMS\s+(?:not sent|pending approval)"
+             if data["provider"]["operation"] == "email" else r"\u90ae\u4ef6(?:\u5c1a?\u672a\u53d1\u9001|\u987b\u72ec\u7acb\u5ba1\u6279)|email\s+not sent")
+    if re.search(other, current, re.I):
+        issues.append("Current copy must stay channel-local; other-channel claims become stale")
+    unknown = r"(?:\u5b9e\u9645\u6536\u4ef6\u5c1a\u672a\u6838\u9a8c|\u6536\u4ef6\u4eba\u5c1a\u672a\u6536\u5230|recipient (?:receipt|delivery) (?:is )?(?:unverified|not verified))"
+    for paragraph in re.split(r"\n\s*\n", current):
+        if re.search(unknown, paragraph, re.I):
+            if derived["expected"]["human_received"] or not re.search(
+                    r"(?:as of|observed|\u622a\u81f3|\u8bb0\u5f55\u4e8e|\u53d1\u9001\u65f6).*?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", paragraph, re.I | re.S):
+                issues.append("Undated or contradicted current non-receipt claim; use an evidence-time snapshot or source link")
+    if derived["expected"]["message_id"] not in current or derived["expected"]["provider_status"] not in current:
+        issues.append("Current result must identify this verified provider message and status")
+    return {"status": "NeedsCorrection" if issues else "CurrentOutcomeDisplayVerified",
+            "entity_id": derived["entity_id"], "action_page_id": action_id, "issues": issues,
+            "scope": "Current owned sections only; historical snapshots/approved content unchanged; limited text patterns"}
 
 
 def counts(data):
@@ -97,16 +138,18 @@ def counts(data):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("task", "project", "verify", "counts"))
+    parser.add_argument("command", choices=("task", "project", "verify", "display", "counts"))
     parser.add_argument("--input", required=True)
     args = parser.parse_args()
     try:
         source = sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8")
-        result = {"task": task_state, "project": projection, "verify": verify_projection, "counts": counts}[args.command](json.loads(source))
+        result = {"task": task_state, "project": projection, "verify": verify_projection,
+                  "display": current_display, "counts": counts}[args.command](json.loads(source))
     except (ValueError, KeyError, TypeError, OSError) as exc:
         result = {"status": "NeedsCorrection", "reason": str(exc)}
     print(json.dumps(result, ensure_ascii=False))
-    return 0 if result["status"] in {"CurrentStateVerified", "OutcomeDerived", "OutcomeProjectionsVerified", "OutcomeCountsDerived"} else 2
+    return 0 if result["status"] in {"CurrentStateVerified", "OutcomeDerived", "OutcomeProjectionsVerified",
+                                    "CurrentOutcomeDisplayVerified", "OutcomeCountsDerived"} else 2
 
 
 if __name__ == "__main__":

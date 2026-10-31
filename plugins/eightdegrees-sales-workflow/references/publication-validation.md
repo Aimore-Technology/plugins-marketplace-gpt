@@ -1,5 +1,9 @@
 # Validate publication before recording completion
 
+The BEFORE-call half is [notion-mutation](notion-mutation.md), mandatory for
+initial creations as well as later text/property writes. Saved-page checks are
+the AFTER-call half; neither can retrospectively stand in for the other.
+
 Use the existing offline [notion_checks.py](../scripts/notion_checks.py) with `--input <capture.json>` or JSON on stdin via `--input -`. It performs no connector calls or writes. These checks improve model execution; they are not a host-enforced runtime. Preserve failed observations and original logs even after a later check passes.
 
 All owners additionally follow [owner completion](owner-completion.md) and owner-write; report retains report-write. completion-gate also accepts route (EligibleForOwnerCheck), route-observe (EligibleForInputCheck) reply-draft (StoredReplyVerified, phase=draft) and reply-sent (StoredReplyVerified, phase=sent) evidence, bound to the actual Notion task page. Sent-message evidence cannot stand in for pre-send draft proof.

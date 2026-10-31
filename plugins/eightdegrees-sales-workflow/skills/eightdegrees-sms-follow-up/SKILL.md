@@ -5,7 +5,7 @@ description: "Prepare and execute approved, bounded SMS follow-ups after verifie
 
 # Follow up after materials
 
-Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action.
+Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
 
 Before approval/dispatch, read [connector experience](../../Experience/connector-contracts.md) for the observed AndroidSync body/key constraints and distinguish network state from delivery. Revalidate actual current limits; do not shorten approved text silently.
 
@@ -35,3 +35,7 @@ operator receipt/sender observations and immutable approval-time snapshots.
 Use the outcome verification in send completion; never release an abandoned
 native candidate or invent a provider cancellation. Missing native cleanup API
 is a capability limit, not a request to approve that old draft.
+
+## Current outcome copy
+
+Use [channel-local outcome text](../../references/outcome-state.md) for completed records. Keep other channels in their original linked records, and date receipt observations. Outcome verify requires the actual registered action-page fetch, not just normalized JSON; display repair never sends or writes another CRM Note. Preserve approved/history sections and current stop controls.

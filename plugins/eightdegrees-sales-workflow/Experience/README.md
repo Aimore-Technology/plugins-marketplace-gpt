@@ -8,6 +8,7 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 | Freeze owner checks or revise returned content | [Check plan](check-plan.md) | Missing dependencies and late backfilled plans |
 | Discover Notion candidates after a quota error | [Notion quota](notion-quota.md) | Repeating blocked SQL and claiming full coverage |
 | Reuse current captures during a scan/continuation | [Read reuse](read-reuse.md) | Repeated reads, stale input assumptions and skipped fresh send checks |
+| Save a completed send result or repair current text | [Outcome copy](outcome-copy.md) | Stale other-channel state and undated receipt negatives on closed pages |
 | Discover/call a connector, prepare SMS parameters or recover a read | [Connector contracts](connector-contracts.md) | Remembered argument names, hidden request limits, ambiguous retries |
 | Edit a current queue/report/status or publish file names | [Notion edits](notion-edits.md) | Native-reference match failures, duplicate anchors, filename auto-links |
 | Create a task/form, consume input or mark any owner complete | [Workflow integrity](workflow-integrity.md) | Missing route contracts, retrospective checks, skipped completion gates |

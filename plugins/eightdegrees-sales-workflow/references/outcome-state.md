@@ -1,7 +1,7 @@
 # Current state and send-result projections
 
 Use after a known external result or when candidate queries disagree with an
-original task. `outcome_checks.py task|project|verify|counts` is an offline check over
+original task. `outcome_checks.py task|project|verify|display|counts` is an offline check over
 normalized actual observations; retain the original tool responses and mapping.
 It never reads tools, repairs pages, grants approval or repeats an operation.
 
@@ -41,12 +41,36 @@ result; normalize saved index.reply_sent to sent explicitly, retaining the mappi
 with task_id/content_version bound to the original and these current fields matching. Bind its successful
 outcome result to the owner's completion contract.
 
+verify also requires action_page_id from the original registered binding and
+action_page, the original complete action fetch. It checks actual Current
+status/Processing result text as well as normalized JSON. Include the verified
+provider message ID and status in those current sections. Duplicate/missing
+sections, stale cross-channel negatives or a contradicted receipt claim block
+success; a normalized result object alone cannot hide stale visible copy.
+
 For the action page, keep approved configuration as a labeled immutable
 "At approval" snapshot, and put current result/count/receipt/next action in a
 separate current-result section. A pre-send unknown value may remain historical;
 it must not appear as the current sender/receipt status after new evidence.
 Do not change approved bytes, add active controls to a closed task, or fabricate
 provider delivery from an operator's phone observation.
+
+Keep each completed channel page local to its own outcome. An email page must
+not freeze "SMS not sent"/"SMS pending approval" as current state; link to the
+original SMS cycle for that channel. SMS pages likewise do not maintain email
+state. Put receipt unknowns in an explicitly dated observation/snapshot, never
+an undated permanent claim that the recipient has not received it. Current copy
+can direct the user to the latest Communications evidence instead. This removes
+the need to rewrite every closed page after another channel changes. A received
+email/stop request updates the source/cycle before review, preserving completed
+provider results, approvals and Manual mode; it never supplies SMS delivery proof.
+
+For a legacy stale page, repair only the owned current status/result and label
+old result JSON as the observation-time snapshot. Preserve exact approved copy,
+operator answers, IDs and original logs. Do not reopen a completed send, consume
+old controls or append CRM Notes to repair presentation. Repairing the related
+owner's pages needs that owner's separate scoped phase, not an expanded scanner
+or report registry. Report only records the discrepancy.
 
 Summaries derive from these current canonical results; avoid a second manually
 maintained zero-filled counter in RunSettings.internal_audit. Preserve old

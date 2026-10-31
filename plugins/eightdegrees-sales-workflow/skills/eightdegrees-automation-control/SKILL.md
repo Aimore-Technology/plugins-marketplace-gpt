@@ -8,7 +8,7 @@ description: "Create, reuse or delete one native 15-minute approved-work task: W
 start establishes one native 15-minute cycle using [scheduled work](../../references/scheduled-work.md);
 stop deletes it. Apply [schedule lifecycle](../../references/scheduling.md) and
 the edition's [runtime](../../references/platform-runtime.md). The scheduler
-operation itself scans/sends nothing and supplies no business approval.
+operation itself scans/sends nothing and supplies no business approval. Before EVERY Notion page write, including setup/status/log fields, run [exact-call preflight](../../references/notion-mutation.md); require exit 0 and NotionMutationPrepared and use the returned unchanged arguments.
 
 1. Read current RunSettings and actual selected native runtime tools. Require
    real root/operator/mailbox/scope/connector setup. GPT targets a cloud Work GPT

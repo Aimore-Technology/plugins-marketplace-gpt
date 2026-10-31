@@ -12,3 +12,10 @@ stays null; canonical labels are returned only for already-valid semantics.
 Verify actual call order using a deliberate invalid-value fixture. Local helper
 tests do not prove the host/model cannot bypass the helper. Failure logging may
 continue; task/draft/customer progress may not.
+
+Evidence: controlled 0.1.19, Q19-01/Q19-02. Initial page-link checking happened
+after publication; a later send-result property call omitted its exact schema
+check. Use [notion-mutation](../references/notion-mutation.md) BEFORE every page
+call, including initial and nonfinal writes. It combines the two checks and
+returns exact args only on success. Reuse captured schemas, not old approvals
+of different argument objects. Failed metadata publication never repeats a send.

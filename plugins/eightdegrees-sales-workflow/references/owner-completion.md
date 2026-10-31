@@ -2,6 +2,10 @@
 
 Apply to all eight workflow owners, including initialization, communication, persona, scanning, sales reply, SMS, daily brief and automation control. This is a local evidence/preflight contract, not an independent backend or host-enforced interceptor. The command policy and ordinary approval/attempt rules remain in force.
 
+Every proposed Notion page call also passes [exact-call preflight](notion-mutation.md)
+before execution, including initial creation and nonfinal metadata. Completion
+evidence and a correct target do not replace current body/property checks.
+
 ## Begin, bind, check, then finish
 
 At owner entry, use [execution preflight](execution-preflight.md) prepare/ready instead of hand-building the required checks. Persist an invocation-specific completion plan in its own WorkflowRuns body/log BEFORE dependent business work. Use [owner-completion-profiles.json](owner-completion-profiles.json) for minimum check kinds. Record intended resource roles and known IDs, immutable task/content versions, invocation policy and required checks. Bind newly returned page IDs by an appended creation/result event before input consumption; do not drop required roles or fabricate a previously frozen plan after completion. The contract is workflow-owned evidence, not new operator form properties.

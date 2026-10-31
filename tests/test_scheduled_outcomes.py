@@ -23,6 +23,10 @@ def saved_outcome(data=None):
     data = copy.deepcopy(data or outcome())
     expected = OUTCOME.projection(data)['expected']
     data['saved'] = {name: {**expected, 'task_id': data['task_id'], 'content_version': data['content_version'], 'read_verified': True} for name in ('task', 'index', 'action_result')}
+    data['action_page_id'] = 'c' * 32
+    data['action_page'] = {'id': data['action_page_id'], 'metadata': {'type': 'page'},
+                           'text': '<content>\n## Current status\n\nNo action required.\n\n## Processing result\n\n'
+                           + expected['message_id'] + ': ' + expected['provider_status'] + '.\n</content>'}
     return data
 
 
@@ -44,6 +48,40 @@ def note_readback(data):
 
 
 class ScheduledOutcomeTests(unittest.TestCase):
+    def test_current_email_copy_cannot_freeze_a_cross_channel_negative(self):
+        for text in ('\u77ed\u4fe1\u672a\u53d1\u9001。', 'SMS not sent.', '\u77ed\u4fe1\u987b\u72ec\u7acb\u5ba1\u6279。'):
+            data = saved_outcome()
+            data['action_page']['text'] = data['action_page']['text'].replace('No action required.', text)
+            self.assertEqual(OUTCOME.verify_projection(data)['status'], 'NeedsCorrection')
+
+    def test_current_unknown_receipt_needs_a_time_and_cannot_contradict_receipt(self):
+        data = saved_outcome()
+        data['action_page']['text'] = data['action_page']['text'].replace('No action required.', '\u6536\u4ef6\u4eba\u5b9e\u9645\u6536\u4ef6\u5c1a\u672a\u6838\u9a8c。')
+        self.assertEqual(OUTCOME.verify_projection(data)['status'], 'NeedsCorrection')
+        data['action_page']['text'] = data['action_page']['text'].replace('\u6536\u4ef6\u4eba\u5b9e\u9645', '\u622a\u81f32026-10-31T04:36:19Z，\u6536\u4ef6\u4eba\u5b9e\u9645')
+        self.assertEqual(OUTCOME.verify_projection(data)['status'], 'OutcomeProjectionsVerified')
+        data['human_receipt'] = {'message_id': 'sent-1', 'received': True, 'source': 'verified customer reply'}
+        self.assertEqual(OUTCOME.verify_projection(data)['status'], 'NeedsCorrection')
+
+    def test_history_stays_immutable_and_other_channel_results_are_linked(self):
+        data = saved_outcome()
+        data['action_page']['text'] = data['action_page']['text'].replace('No action required.', '\u90ae\u4ef6\u5df2\u53d1\u9001。\u6700\u65b0\u6536\u4ef6\u53ca\u77ed\u4fe1\u60c5\u51b5\u89c1\u539f\u901a\u4fe1\u548c\u77ed\u4fe1\u5468\u671f。')
+        data['action_page']['text'] = data['action_page']['text'].replace('\n</content>', '\n## At approval (history)\n\n\u77ed\u4fe1\u672a\u53d1\u9001。\u6536\u4ef6\u4eba\u5b9e\u9645\u6536\u4ef6\u5c1a\u672a\u6838\u9a8c。\n</content>')
+        self.assertEqual(OUTCOME.verify_projection(data)['status'], 'OutcomeProjectionsVerified')
+
+    def test_normalized_json_cannot_hide_stale_or_wrong_original_action(self):
+        data = saved_outcome(); del data['action_page']
+        with self.assertRaises(KeyError): OUTCOME.verify_projection(data)
+        for change in ({'id': 'f' * 32}, {'truncated': True}, {'metadata': {'type': 'database'}}):
+            data = saved_outcome(); data['action_page'].update(change)
+            with self.assertRaises(ValueError): OUTCOME.verify_projection(data)
+
+    def test_changed_message_or_duplicate_current_sections_are_not_verified(self):
+        for edit in (lambda t: t.replace('sent-1', 'another-message'),
+                     lambda t: t.replace('\n</content>', '\n## \u5f53\u524d\u72b6\u6001\n\nNo action.\n</content>')):
+            data = saved_outcome(); data['action_page']['text'] = edit(data['action_page']['text'])
+            self.assertEqual(OUTCOME.verify_projection(data)['status'], 'NeedsCorrection')
+
     def test_native_cycle_can_reach_automatic_send_owner_but_public_scan_cannot(self):
         guard = SCHEDULE.guard(scheduled_guard())
         item = task(); item['OperatorId'] = guard['operator_id']
