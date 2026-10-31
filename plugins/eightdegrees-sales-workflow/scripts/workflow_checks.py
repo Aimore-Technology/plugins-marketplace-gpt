@@ -10,7 +10,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROUTES_PATH = Path(__file__).resolve().parents[1] / "references/task-routes.json"
-POLICIES = ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "report-only", "scheduled-approved-work", "owner-workflow")
+POLICIES = ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "one-cycle-approved-work", "draft-only", "report-only", "scheduled-approved-work", "owner-workflow")
 
 
 def inspect_result(result):
@@ -195,6 +195,8 @@ def check_resume(task, policy, explicit_continue=False, phase="execute", schedul
         return {"status": "NeedsCorrection", "reason": "Owner, step, category, mode or contract mismatch; no fallback to communication"}
     reason = None
     effect = route["effect"]
+    if policy == "one-cycle-approved-work" and (task["Mode"] != "Automatic" or effect == "setup"):
+        return {"status": "Deferred", "reason": "One-cycle approved work excludes Manual tasks and installation setup"}
     if policy == "scheduled-approved-work":
         guard = schedule_guard or {}
         if (guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
@@ -210,7 +212,7 @@ def check_resume(task, policy, explicit_continue=False, phase="execute", schedul
         entity = task.get("PageId", task.get("url", task.get("id")))
         if not entity:
             return {"status": "NeedsCorrection", "reason": "Register the canonical task first; check its actual PageId before enabling a form"}
-        permitted = (policy == "owner-workflow" or policy in {"one-cycle-no-customer-send", "scheduled-approved-work"} and task["Mode"] == "Automatic"
+        permitted = (policy == "owner-workflow" or policy in {"one-cycle-no-customer-send", "one-cycle-approved-work", "scheduled-approved-work"} and task["Mode"] == "Automatic"
                      or policy == "manual-review" and task["Mode"] == "Manual" and task["OwnerSkill"] in ("eightdegrees-communication-context-process", "eightdegrees-client-persona-update")
                      or policy == "setup-only" and effect == "setup"
                      or policy == "draft-only" and task["OwnerSkill"] == "eightdegrees-sales-reply")

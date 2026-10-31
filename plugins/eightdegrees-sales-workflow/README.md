@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.22. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.23. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
 ## Skills
 
@@ -70,7 +70,7 @@ Communication DataCompletion uses CompleteCommunicationData and cannot append No
 
 ## Periodic scan controls
 
-`@eightdegrees-sales-workflow start` creates/reuses one native 15-minute approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public manual run-auto stays no-customer-send and Manual work stays manual. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).
+`@eightdegrees-sales-workflow start` creates/reuses one native 15-minute approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto executes one cycle of independently approved Automatic work and Manual work stays manual. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).
 
 ## Native image previews
 
@@ -85,3 +85,9 @@ Canonical fact labels preserve null; stored-reply headers keep the current
 scalar contract. Recurring scans reuse per-phase captures and known view
 fallbacks while still checking eligible human inputs and fresh send guards.
 This is local model-assisted validation, not a new server or MCP interceptor.
+
+## Public approved work and material handoff
+
+Submit Automatic tasks in Notion, then wait for the verified native tick or invoke public run-auto once. This command now executes independently approved Automatic sends after the normal fresh checks; an explicit no-send request remains narrow. Manual P0-A retains documented add-communication continue. No private owner command or reply-draft continue subcommand is needed. New reply-draft tasks are Automatic, while draft creation itself never sends.
+
+Verified material email Sent automatically registers/reuses the SMS cycle, due and draft or blocked/stopped task under [material handoff](references/material-handoff.md). A disabled channel blocks SMS dispatch, not registration. No per-email native task is created. Handoff recovery preserves the original email result and never sends it again. Both editions have offline regressions; the new public handoff path still requires live acceptance.

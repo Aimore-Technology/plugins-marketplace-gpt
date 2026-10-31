@@ -17,7 +17,7 @@ do not duplicate outer headings that can drift from the actual view. Never use
 replace_content to rearrange database tags: the observed connector can scramble
 their order even when every ID survives. On upgrades retain actual native order
 and use small text-only edits; unsupported positioning remains a layout limit.
-No placeholder text or copied rows.
+No placeholder text or copied rows. Today contains timeless navigation/help only: do not add static current-readiness or waiting-for-approval claims that can outlive the actual task. Current business state comes from verified linked views and dated original outcomes. Explicit init upgrade removes only stale owned help text using exact text edits, preserving all native blocks and history.
 With actual source/page fetches, run `operator_experience.py today-views` to plan
 native linked views: Needs my review, Needs my information, Needs my attention,
 Waiting and paused, and optional original Business results/daily summaries.
@@ -73,17 +73,9 @@ continuation. Read canonical fields plus the current version-bound accepted
 snapshot when claiming acceptance. A checked submit to-do only requests processing;
 an unobserved edit never means accepted or sent. The helper does not execute.
 
-- Manual work requires explicit original owner continuation after submission.
-- Automatic non-send work without a verified native schedule offers one run-auto.
-- Customer-send work offers its exact owner continuation; public run-auto does
-  not send. Existing exact-version/window approval is used without another chat
-  permission question, while any actual missing approval or changed scope is
-  handled by the original rules.
-- The helper's direct $owner selection is Codex syntax. In another host, select
-  the same installed owner skill through its supported interface and submit
-  continue plus the registered action URL. Do not invent a native command or
-  replace that owner with a broader public shortcut. Verify host registration
-  in the installed client; source checks do not establish its autocomplete UI.
+- Manual P0-A requires the documented public add-communication continuation after submission.
+- Automatic data/content/send work uses the next verified native tick, or the single public `@eightdegrees-sales-workflow run-auto` command. It may consume an independently approved exact-version/window send without another chat permission question. Missing approval or changed scope stays pending. Never print an internal owner invocation or an invented continue subcommand.
+- Manual P0-A uses only `@eightdegrees-sales-workflow add-communication continue <action URL>`. Legacy Manual sales/SMS tasks remain Manual and receive an explicit capability/migration limitation; a scanner cannot silently take them over.
 - Promise scheduled checking only from enabled, verified native task evidence;
   do not invent a countdown or infer a next run from the target 15-minute cadence.
 - Paused/cancelled/completed tasks do not offer an old submission as a new action.
@@ -113,3 +105,7 @@ source/version resolved, draft ready, or result awaiting reconciliation. Save
 only real required checkpoints/outcomes. Reuse captures and [local batches](local-check-batch.md)
 to reduce repeated reads, serialization and shell calls; measure new live latency
 before claiming a speed improvement.
+
+## Timeless scaffolding and current facts
+
+Create Today help and report-run body as timeless procedure/history scaffolding. Do not seed phrases such as currently waiting, generating, not yet verified or ready now that require later unauthorized body repairs. Run State/Summary and dated linked task outcomes carry the current status. Initial plan headings are explicitly historical. Report updates only its permitted properties/report/log targets; it does not repair Today or business actions. An owner or explicit init upgrade may remove stale owned Today help with exact text edits while preserving native blocks.

@@ -85,7 +85,7 @@ Before verifying a release fix, record the actual loaded manifest/skill version 
 - Write a report containing code-formatted script/Skill names, project files, invalid-URL examples and explicit verified links; inspect the whole actual fetched page. Include a controlled suspicious-link fixture outside approved business payloads and verify the helper flags it. Repair only exact presentation, then re-read all declared pages/sections before closing the quality issue. Neither three repaired cells nor local Markdown validation establishes page-wide zero issues. Static checks are not network/host visual acceptance.
 - Create Notes, sales-source, reply-review/send and checkpoint tasks with explicit owner/step/contract. Reject wrong owner, blank step and category mismatch before input consumption or business dispatch. A parent Workflow=communication with OwnerSkill=sales-reply is valid provenance, not a fallback executor.
 - Resume from original persisted task/action records: source completion returns to sales-reply/ResolveProjectSources, reply approval to sales-reply/SendApprovedReply, Notes to communication/ReviewCommunication and checkpoint to scanner/SaveMailCheckpoint. Keep original IDs, completed attempts and invocation restrictions. An add-communication continuation of a send task must defer, without Notes or Mode changes. A checkpoint recovery executes inline, not another scanner recursion.
-- Combine 0.1.10 action-page input with route checks. run-auto observe phase may validate/record an Automatic send choice while execute stays deferred; report-only/draft-only cannot consume that send choice. Manual forms remain excluded in both phases. Old/copied action pages, changed binding and incomplete routes cannot approve current work. Owner eligibility is not approval/window/stop validation or sending acceptance.
+- Combine 0.1.10 action-page input with route checks. an explicitly no-send run-auto observe phase may validate/record an Automatic send choice while execute stays deferred; report-only/draft-only cannot consume that send choice. Manual forms remain excluded in both phases. Old/copied action pages, changed binding and incomplete routes cannot approve current work. Owner eligibility is not approval/window/stop validation or sending acceptance.
 - Explicit upgrade repairs only unambiguous eligible legacy metadata using source/run/payload evidence, preserving historical Workflow, input, approvals, Pause and record IDs. Ambiguity remains a setup/route issue; no guesses or new customer sends. A failed checkpoint cannot prematurely complete its scan; later recovery preserves original Error history.
 
 ## Independent send-gate coverage
@@ -104,7 +104,7 @@ During report, compare every actual mutation against frozen report/run/log targe
 
 Replay the actual invalid source enum and native-mention whole-section plan offline: both must refuse before mutation. Exclude database/view schema descriptions from typed page coverage, and block completion on failed/nonzero/missing/duplicate/stale/wrong-target results. Before final report Completed/Success, all registered report pages need current successful checks. A top Pause with Not submitted or a choose-one prompt in another current section fails task-display. Retain original answers/history and provider IDs on repair.
 
-Only on the operator's explicit real-channel test request, use separate owner-workflow invocations for an exact approved HTML reply and one AndroidSync SMS. Record actual recipients/device, immutable payload, AttemptId and one-message timing exception; waive only the requested hours/delay. Verify actual received mail/thread/MIME and SMS state/inbound evidence when available. An unobserved phone reply stays Waiting/Untested; simulation is not receipt. Shortcuts retain no-send policies, old stopped batches remain stopped and automatic enrollment stays disabled. A standalone channel probe does not establish material-follow-up acceptance.
+Only on the operator's explicit real-channel test request, use separate owner-workflow invocations for an exact approved HTML reply and one AndroidSync SMS. Record actual recipients/device, immutable payload, AttemptId and one-message timing exception; waive only the requested hours/delay. Verify actual received mail/thread/MIME and SMS state/inbound evidence when available. An unobserved phone reply stays Waiting/Untested; simulation is not receipt. Draft-only/report/setup and explicitly restricted scans retain their no-send policies, old stopped batches remain stopped and automatic enrollment stays disabled. A standalone channel probe does not establish material-follow-up acceptance.
 
 ## 0.1.16 scheduling and realistic-business regression
 
@@ -123,7 +123,7 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
   Missing native support, unknown create result, duplicate ownership and another
   host's owner block creation; they must not produce a second scanner.
 - Trigger a real scheduled tick, verifying original scope and Automatic-only,
-  manual no-send behavior and native guarded approved-work execution separately. Repeat no-change ticks stay quiet. A busy
+  public approved-work behavior, explicit no-send restrictions and native guarded execution separately. Repeat no-change ticks stay quiet. A busy
   run must not launch a parallel catch-up. Measure actual wall time/call count.
 - stop must delete the exact owned native task, verify absence including paused
   records and preserve unrelated schedules/business records. Repeat stop is a
@@ -139,7 +139,7 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
   reuse, current lifecycle/connector access and deletion. Claude targets native
   Cowork cron but remains explicitly untested until its environment is available.
   Do not substitute a Codex project-local task for the requested Work runtime.
-- Manual run-auto still defers customer sends. A real current native tick may
+- Explicitly no-send run-auto still defers customer sends; ordinary public run-auto may execute separately approved Automatic sends. A real current native tick may
   reach only valid approved Automatic owner steps. Test no guard, stale/stop,
   wrong operator/runtime, competing run, Manual input and legacy no-send job
   upgrade: none may dispatch customer work. A policy name alone is insufficient.
@@ -155,3 +155,9 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
   tick behavior. These are live tests still required, not passed by packaging.
 - Recheck real image/attachment EDM, edit invalidation, two-message SMS timing/
   inbound stop and actual operator usage in a later authorized acceptance round.
+
+## Public-entry acceptance after 0.1.22 review
+
+Use only the seven published commands plus ordinary business inputs and simulated Notion human actions. No private owner invocations or invented reply-draft continue arguments may make an end-to-end pass. A public run-auto now processes separately approved Automatic sends, while an explicitly requested no-send scan and legacy restricted jobs stay narrow. Verify the same current action through a real guarded tick separately; no runtime claim follows from offline checks.
+
+Require actual material Sent -> automatically persisted SMS cycle/draft/due or blocking task -> separate SMS approval -> eligible shared-executor dispatch. Repeat the same provider event and resend materials to check original cycle/count preservation. Cover channel disabled, missing number, stop/closed/capped cycle, unknown send, partial handoff save and RecordMaterialHandoff recovery without another email. Extra-guided business/channel success and public self-service are separate results. Test the new automatic path live before accepting P0-B or independent Beta.

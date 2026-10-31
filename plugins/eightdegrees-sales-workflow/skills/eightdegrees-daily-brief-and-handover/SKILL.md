@@ -41,3 +41,7 @@ with scoped counts; do not repair business tasks from reporting.
 ## Operator path and local checks
 
 Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
+
+## Report-run body authoring
+
+Use timeless initial procedure/plan prose, labeled as history. Current State/Summary and the dated actual daily brief provide status. Do not put generating/not-yet-verified/waiting claims in a run body that report cannot later edit. Retain the frozen report write scope; identifying stale Today/business text does not authorize repair inside report.

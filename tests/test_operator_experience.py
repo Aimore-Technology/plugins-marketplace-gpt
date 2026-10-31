@@ -28,6 +28,24 @@ def item(mode="Manual", step="ReviewCommunication"):
 
 
 class OperatorExperienceTests(unittest.TestCase):
+    def test_all_automatic_owners_use_public_commands_not_private_continuations(self):
+        for step in ('PrepareSmsFollowUp', 'SendApprovedSms', 'SendGeneralReply', 'RecordMaterialHandoff', 'ResolveProjectSources', 'ReviewReplyDraft'):
+            result = UX.feedback({'task': item('Automatic', step), 'submission': 'requested'})
+            self.assertEqual(result['continue_command'], '@eightdegrees-sales-workflow run-auto')
+
+    def test_legacy_manual_send_is_not_adopted_or_given_an_invented_command(self):
+        for step in ('SendApprovedReply', 'SendApprovedSms'):
+            result = UX.feedback({'task': item('Manual', step), 'submission': 'requested'})
+            self.assertIsNone(result['continue_command'])
+
+    def test_legacy_active_or_unenabled_lifecycle_cannot_promise_approved_work(self):
+        for state, enabled in [('Active', True), ('Running', False)]:
+            result = UX.feedback({'task': item('Automatic'), 'submission': 'requested',
+                'schedule': {'enabled': True, 'state': state, 'read_verified': True,
+                             'schedule_id': 'native-job', 'approved_work_enabled': enabled}})
+            self.assertEqual(result['stage'], 'requested')
+            self.assertEqual(result['continue_command'], '@eightdegrees-sales-workflow run-auto')
+
     def test_results_deduplicate_events_without_counting_unknown_as_sent(self):
         from test_scheduled_outcomes import outcome
         event={**outcome(),'account':'operator@example.com'}
@@ -89,15 +107,15 @@ class OperatorExperienceTests(unittest.TestCase):
     def test_manual_request_explains_explicit_continue_without_promising_a_job(self):
         result = UX.feedback({"task": item(), "submission": "requested"})
         self.assertEqual(result["stage"], "requested")
-        self.assertTrue(result["continue_command"].startswith("$eightdegrees-communication-context-process continue "))
+        self.assertTrue(result["continue_command"].startswith("@eightdegrees-sales-workflow add-communication continue "))
 
     def test_unscheduled_automatic_content_request_has_one_scan_command(self):
         result=UX.feedback({"task":item("Automatic"),"submission":"requested","schedule":{"enabled":False}})
         self.assertEqual(result["continue_command"],"@eightdegrees-sales-workflow run-auto")
 
-    def test_send_approval_does_not_offer_a_public_scan_as_a_send(self):
+    def test_automatic_send_submission_offers_public_run_auto_without_claiming_acceptance(self):
         result=UX.feedback({"task":item("Automatic","SendApprovedReply"),"submission":"requested"})
-        self.assertTrue(result['continue_command'].startswith('$eightdegrees-sales-reply continue '))
+        self.assertEqual(result['continue_command'],'@eightdegrees-sales-workflow run-auto')
         self.assertNotIn('accepted',result['stage'])
 
     def test_corrected_answers_keep_a_real_continuation_without_false_acceptance(self):
@@ -109,14 +127,14 @@ class OperatorExperienceTests(unittest.TestCase):
         self.assertEqual(result['stage'],'requested')
         self.assertEqual(result['continue_command'],'@eightdegrees-sales-workflow run-auto')
         t['Mode']='Manual'
-        self.assertTrue(UX.feedback({'task':t,'submission':'requested'})['continue_command'].startswith('$eightdegrees-communication-context-process continue '))
+        self.assertTrue(UX.feedback({'task':t,'submission':'requested'})['continue_command'].startswith('@eightdegrees-sales-workflow add-communication continue '))
 
     def test_config_flag_without_native_evidence_does_not_promise_scheduled_work(self):
         data={"task":item("Automatic"),"submission":"requested","schedule":{"enabled":True}}
         self.assertEqual(UX.feedback(data)['stage'],'requested')
         data['schedule'].update(read_verified=True,schedule_id='actual-native-id',state='Stopped')
         self.assertEqual(UX.feedback(data)['stage'],'requested')
-        data['schedule']['state']='Active'
+        data['schedule'].update(state='Running',approved_work_enabled=True)
         self.assertEqual(UX.feedback(data)['stage'],'scheduled')
         data['task']['Mode']='Manual'
         self.assertEqual(UX.feedback(data)['stage'],'requested')

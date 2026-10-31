@@ -25,3 +25,5 @@ Email Sent, customer receipt and SMS network/delivery evidence remain distinct.
 Read observation times and original links; a closed review is not delivery.
 
 {current_daily_brief_and_dashboard_native_links}
+
+<!-- Maintainer rule: help is timeless. Do not add static current-readiness/waiting claims. Current status comes from native views and dated original outcomes. -->

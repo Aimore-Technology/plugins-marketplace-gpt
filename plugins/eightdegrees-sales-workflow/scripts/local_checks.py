@@ -13,6 +13,7 @@ import fact_checks
 import notion_checks
 import operator_experience
 import outcome_checks
+import material_handoff
 
 OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
@@ -29,11 +30,14 @@ OPERATIONS = {
     "operator.feedback": operator_experience.feedback,
     "operator.review": operator_experience.review_brief,
     "operator.results": operator_experience.result_summary,
+    "material.plan": material_handoff.plan,
+    "material.verify": material_handoff.verify,
 }
 PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
-          "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady"}
+          "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",
+          "MaterialHandoffPlanned", "MaterialHandoffVerified"}
 
 
 def run(plan, captures):

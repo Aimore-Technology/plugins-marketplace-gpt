@@ -240,10 +240,21 @@ class ResumeRouteTests(unittest.TestCase):
         item["Mode"] = "Automatic"
         self.assertEqual(CHECKS.check_resume(item, "manual-review", True)["status"], "Deferred")
 
-    def test_all_five_shortcut_policies_defer_customer_sends(self):
-        for policy in CHECKS.POLICIES[:-1]:
+    def test_restricted_shortcut_policies_still_defer_customer_sends(self):
+        for policy in ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "report-only", "scheduled-approved-work"):
             with self.subTest(policy=policy):
                 self.assertEqual(CHECKS.check_resume(task(), policy, True)["status"], "Deferred")
+
+    def test_public_approved_cycle_routes_automatic_sends_without_adopting_manual_or_setup(self):
+        for step in ("SendApprovedReply", "SendApprovedSms", "SendGeneralReply", "RecordMaterialHandoff"):
+            item = task(step)
+            for phase in ("register", "observe", "execute"):
+                item["PageId"] = "a" * 32
+                self.assertNotEqual(CHECKS.check_resume(item, "one-cycle-approved-work", phase=phase)["status"], "Deferred")
+                item["Mode"] = "Manual"
+                self.assertEqual(CHECKS.check_resume(item, "one-cycle-approved-work", True, phase)["status"], "Deferred")
+                item["Mode"] = "Automatic"
+        self.assertEqual(CHECKS.check_resume(task("ValidateSetupInput"), "one-cycle-approved-work")["status"], "Deferred")
 
     def test_closed_legacy_task_does_not_need_a_route_migration(self):
         self.assertEqual(CHECKS.check_resume({"State": "Completed"}, "owner-workflow")["status"], "Deferred")

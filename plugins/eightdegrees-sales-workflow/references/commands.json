@@ -13,9 +13,9 @@
   },
   "run-auto": {
     "skill": "eightdegrees-email-scanning",
-    "description": "Run one configured mailbox and automatic-pending-task scan without customer sends.",
-    "policy": "one-cycle-no-customer-send",
-    "instructions": "Run ONE scan cycle using saved mailbox scope and execution ownership. Validate eligible Automatic tasks, prioritize stop/reply conditions and prepare drafts/review tasks. Do not resume Manual tasks or create/enable any schedule. Set CustomerSendAllowed=false for this entire invocation and all downstream helpers: preserve existing approvals, mark eligible sends deferred for this invocation, and never mark them cancelled or sent. Checkpoints and automatic tasks may still be validated; no email/SMS send to a customer is allowed. Due internal reminders follow only already configured/authorized channels; do not add a new notification destination. Return scope/completeness, handled/waiting/error counts and task links."
+    "description": "Run one mailbox cycle and continue independently approved automatic work.",
+    "policy": "one-cycle-approved-work",
+    "instructions": "Run ONE scoped cycle using saved mailbox scope and execution ownership. Observe stop/reply conditions first; validate eligible Automatic inputs and dispatch only each recorded owner step. This public invocation may execute independently approved Automatic email/SMS work after all fresh approval, exact-version/payload, window, reply/stop, count, channel and attempt checks. It never supplies approval, enables automatic SMS, takes over Manual work or creates/enables schedules. Preserve any explicit user no-send restriction as one-cycle-no-customer-send throughout downstream helpers; legacy restricted jobs do not gain send scope on upgrade. After verified material Sent, automatically create/reuse and verify the SMS handoff under material-handoff.md, or expose its blocking reason, without asking the user to call an internal skill. Return scope/completeness, actual outcomes, waiting/error counts and original action links. Due internal reminders use only existing configured/authorized channels."
   },
   "report": {
     "skill": "eightdegrees-daily-brief-and-handover",
@@ -27,7 +27,7 @@
     "skill": "eightdegrees-sales-reply",
     "description": "Prepare a source-backed sales reply and matching Notion preview for approval.",
     "policy": "draft-only",
-    "instructions": "Use the supplied authorized inquiry/message/task context and configured Dropbox sources. Prepare editable copy, source/version evidence and matching HTML preview; stop at SendApproval with draft/preview/task links. Do not send, start SMS follow-ups or consume an existing send approval from this command. Missing identity/facts or unavailable preview capability go to the appropriate pending category; do not invent an inquiry, project fact or working preview."
+    "instructions": "Use supplied authorized inquiry/message/task or registered action-page context and configured Dropbox sources. New inquiry-reply tasks use Mode=Automatic; this command remains draft-only. Prepare/edit copy, source/version evidence, stored draft and matching preview; validate content decisions only and create the separate SendApproval, then stop without sending. A registered current action URL is sufficient context; no continue subcommand is required. Preserve legacy Manual tasks as Manual rather than enrolling them. After content/send submission, point Automatic work to the next verified native tick or the public run-auto command; never print a private owner command. Do not consume send approval, send, or start SMS from draft-only. Missing facts/identity/preview remain pending."
   },
   "start": {
     "skill": "eightdegrees-automation-control",

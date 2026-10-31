@@ -39,3 +39,5 @@ The 0.1.16 run also exposed stale reply_sent/counters and conflicting candidate
 query/original states. Follow outcome-state for per-item reconciliation and
 verified projections; never rerun a provider action to make a summary green.
 Current result text and historical approval-time unknowns need distinct labels.
+
+After verified material Sent, enforce [persisted handoff](../references/material-handoff.md) before final email-owner completion. Readiness may block SMS dispatch but must not suppress cycle/draft/task registration. Reconcile a missing handoff with original provider/cycle IDs; do not resend the email or start a new per-email schedule. The 0.1.22 test used manual glue and did not verify this automatic transition.

@@ -15,12 +15,12 @@ from reply_transport import prepare as prepare_reply
 
 
 PROFILES = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
-POLICIES = {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send",
+POLICIES = {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "one-cycle-approved-work",
             "draft-only", "owner-workflow", "scheduled-approved-work", "report-only"}
 TYPES = {"run": ("page-links",), "task": ("page-links", "route"),
          "action": ("page-links", "task-display"), "publication": ("page-links",),
          "html-preview": ("page-links", "preview"), "image-preview": ("page-links", "preview-image")}
-TASK_EVIDENCE = {"reply-draft", "reply-sent", "outcome", "crm-receipt"}
+TASK_EVIDENCE = {"reply-draft", "reply-sent", "outcome", "crm-receipt", "material-handoff"}
 OPERATIONS = {"content", "review", "scan", "setup", "schedule", "report", "recovery", "reply-patch"}
 SCOPE = "Offline preparation/readback only; no host interception, approval, lock or proof of past tool order"
 
@@ -78,6 +78,7 @@ def prepare(data):
             or owner == "eightdegrees-automation-control" and policy != "scheduling-only"
             or policy == "scheduling-only" and owner != "eightdegrees-automation-control"
             or policy == "setup-only" and owner != "eightdegrees-initialization"
+            or policy in {"one-cycle-approved-work", "scheduled-approved-work"} and owner == "eightdegrees-initialization"
             or policy == "draft-only" and owner != "eightdegrees-sales-reply"
             or policy == "manual-review" and owner not in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"}):
         raise ValueError("Owner conflicts with invocation policy")

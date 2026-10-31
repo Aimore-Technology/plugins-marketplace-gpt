@@ -28,6 +28,25 @@ def update():
 
 
 class NotionMutationTests(unittest.TestCase):
+    def test_first_create_and_update_refuse_display_markup_in_machine_identity(self):
+        for factory in (create, update):
+            for value in ('[task](https://app.notion.com/p/' + REPORT + ')', '**task-id**', '<mention url="x"/>', '`task-id`'):
+                data = factory()
+                props = data['call']['args'].get('properties', data['call']['args'].get('pages', [{}])[0].get('properties'))
+                props['TaskId'] = value
+                with self.assertRaisesRegex(ValueError, 'Canonical TaskId'):
+                    MUTATION.prepare(data)
+
+    def test_exact_identity_is_preserved_without_rewriting_a_title_or_business_prose(self):
+        data = create()
+        state = json.loads(data['data_source']['text'].split('<data-source-state>')[1].split('</data-source-state>')[0])
+        state['schema']['TaskId'] = {'type': 'text'}
+        data['data_source']['text'] = '<data-source-state>' + json.dumps(state) + '</data-source-state>'
+        data['call']['args']['pages'][0]['properties']['TaskId'] = 'location:contact:step-1'
+        result = MUTATION.prepare(data)
+        self.assertEqual(result['status'], 'NotionMutationPrepared')
+        self.assertEqual(result['call'], data['call'])
+
     def test_same_parent_schema_appendix_is_not_a_second_parent(self):
         data=update()
         data['target']['text']+='\n<parent-data-source-schema url="collection://'+PARENT+'">\nCREATE TABLE source;\n</parent-data-source-schema>'

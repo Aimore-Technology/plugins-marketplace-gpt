@@ -53,6 +53,34 @@ def completion_for(owner, step=None):
 
 
 class OwnerCompletionTests(unittest.TestCase):
+    def test_public_approved_cycle_completion_keeps_automatic_route_policy_binding(self):
+        import workflow_checks
+        data = completion_for('eightdegrees-sales-reply')
+        data['registry']['policy'] = 'one-cycle-approved-work'
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+        item = task('ReviewReplyDraft', 'Automatic'); item['PageId'] = TASK
+        route = next(x for x in data['completion']['checks'] if x['name'] == 'route')
+        route['result'] = workflow_checks.check_resume(item, 'one-cycle-approved-work')
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'WithinOwnerScope')
+        item['Mode'] = 'Manual'
+        route['result'] = workflow_checks.check_resume(item, 'one-cycle-approved-work', True)
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+
+    def test_handoff_recovery_cannot_complete_without_persisted_original_task_evidence(self):
+        data = completion_for('eightdegrees-sales-reply', 'RecordMaterialHandoff')
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+        from test_material_handoff import inputs as handoff_input, saved
+        import material_handoff
+        handoff = handoff_input(); handoff['email_task_id'] = TASK
+        result = material_handoff.verify({'input': handoff,
+            'saved_email_task': saved(handoff, 'email') | {'id': TASK}, 'saved_cycle': saved(handoff)})
+        spec = {'kind': 'material-handoff', 'entity_id': TASK}
+        data['registry']['required_checks']['handoff'] = spec
+        data['completion']['required_checks']['handoff'] = spec
+        data['completion']['checks'].append({'name': 'handoff', 'invocation_id': 'run-1',
+            'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'WithinOwnerScope')
+
     def test_automation_owner_requires_schedule_only_policy_and_cannot_impersonate_business_owner(self):
         data = completion_for("eightdegrees-automation-control")
         self.assertEqual(CHECKS.owner_write(data)["status"], "WithinOwnerScope")
@@ -188,15 +216,31 @@ class OwnerCompletionTests(unittest.TestCase):
             data['completion']['required_checks'][name] = spec
             data['completion']['checks'].append({'name': name, 'invocation_id': 'run-1',
                 'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
+        self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
+        from test_material_handoff import inputs as handoff_input, saved
+        import material_handoff
+        handoff = handoff_input(); handoff['email_task_id'] = TASK
+        handoff['event']['message_id'] = 'sent-1'
+        result = material_handoff.verify({'input': handoff,
+            'saved_email_task': saved(handoff, 'email') | {'id': TASK}, 'saved_cycle': saved(handoff)})
+        spec = {'kind': 'material-handoff', 'entity_id': TASK}
+        data['registry']['required_checks']['handoff'] = spec
+        data['completion']['required_checks']['handoff'] = spec
+        data['completion']['checks'].append({'name': 'handoff', 'invocation_id': 'run-1',
+            'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
         self.assertEqual(CHECKS.owner_write(data)["status"], "WithinOwnerScope")
+        for field, value in [('message_id', 'another-message'), ('content_version', 'old-version')]:
+            bad = copy.deepcopy(data)
+            next(r for r in bad['completion']['checks'] if r['name'] == 'handoff')['result'][field] = value
+            self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
         bad = copy.deepcopy(data)
         next(r for r in bad['completion']['checks'] if r['name'] == 'outcome')['result']['action_page_id'] = 'f' * 32
         self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
         bad = copy.deepcopy(data)
-        bad['completion']['checks'][-1]['result']['message_id'] = 'another-send'
+        next(r for r in bad['completion']['checks'] if r['name'] == 'receipt')['result']['message_id'] = 'another-send'
         self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
         bad = copy.deepcopy(data)
-        bad['completion']['checks'][-1]['result']['content_version'] = 'old-version'
+        next(r for r in bad['completion']['checks'] if r['name'] == 'receipt')['result']['content_version'] = 'old-version'
         self.assertEqual(CHECKS.owner_write(bad)['status'], 'Deferred')
         next(r for r in data['completion']['checks'] if r['name'] == 'mail')['result']['phase'] = 'sent'
         self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")

@@ -67,3 +67,7 @@ durable. Repair that scope only. These helpers are offline checks, not a server
 interceptor, native scheduler or permission source.
 
 With [Today linked views](operator-experience.md) verified, only changed task/action/source projections belong in this owner plan; unchanged Today/Actions pages and view discovery are not repeated publication targets. Use [local check batches](local-check-batch.md) over original captures, keeping each named result/exit in the same frozen completion evidence.
+
+## Material send downstream evidence
+
+A sales-reply actual material send plan must include evidence=material-handoff on its original email task, in addition to reply-draft/reply-sent/outcome/CRM receipt evidence. Verify the persisted original email and cycle through [material handoff](material-handoff.md); freeze MaterialHandoffVerified before final send-owner completion. Notion registration may be Blocked/Stopped without SMS dispatch; that is an honest handoff result. A verified nonmaterial reply records NotApplicable on its email task without creating a cycle. Missing registration leaves the email Sent but downstream handoff pending, recovered through RecordMaterialHandoff without another send. The owner-write guard rejects a sales send completion with reply-sent evidence but no material-handoff check.

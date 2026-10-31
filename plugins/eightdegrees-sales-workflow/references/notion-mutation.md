@@ -42,3 +42,5 @@ checks; never invent a tool alias to obtain this helper's pass. Root/teamspace
 operations unavailable to the current connector remain setup limitations.
 The host still controls actual MCP execution: this is a mandatory Skill step,
 not an interceptor or proof of historical call order.
+
+Before emitting either initial-create or property-update arguments, the helper rejects display Markdown/mention markup in canonical identity/version/route properties. Recover their exact source values; never silently strip display text and proceed. Human-readable titles and ordinary business prose retain their normal formatting. This guard prevents a first-create identity defect; a later correction does not retroactively pass the original write.

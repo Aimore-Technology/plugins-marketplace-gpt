@@ -1,6 +1,6 @@
 # Approved work in a native scheduled cycle
 
-Public `run-auto` remains one-cycle-no-customer-send. The native task calls the
+Public `run-auto` uses one-cycle-approved-work: one deliberate cycle with the same per-task approval gates, without scheduling. Explicit no-send requests and legacy restricted invocations retain one-cycle-no-customer-send. The native task calls the
 email-scanning skill directly with the packaged scan-schedule prompt, not that
 public command. This avoids contradictory nested policies. A native task never
 supplies a factual, content or sending approval.
@@ -27,7 +27,7 @@ The guard permits owner checks; it is not sending authorization or a server lock
    inputs/reviews. Isolate waiting or conflicting items; keep other clients moving.
 2. Dispatch approved general-email, sales-email and SMS steps through their
    explicit owners. Do not send a sales-owned reply through the general route.
-   Automatic SMS additionally needs its separately verified/enabled channel.
+   After verified material Sent, register its SMS handoff immediately even if that channel is disabled. Automatic SMS dispatch additionally needs its separately verified/enabled channel and independent approval.
 3. Run the existing daily-brief owner for due reminders and confirmed work
    appointments. At 08:30 or the first eligible later tick, upsert one business-day
    brief and send one configured internal summary. Persist date/notification IDs;

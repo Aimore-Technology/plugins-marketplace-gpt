@@ -145,14 +145,19 @@ def feedback(data):
         action = task["ActionPageURL"]
         page_id(action)
         schedule = data.get("schedule") or {}
-        native = (mode == "Automatic" and schedule.get("enabled") is True
-                  and schedule.get("state") == "Active" and schedule.get("read_verified") is True
+        native = (mode == "Automatic" and route["effect"] != "setup" and schedule.get("enabled") is True
+                  and schedule.get("state") == "Running" and schedule.get("approved_work_enabled") is True
+                  and schedule.get("read_verified") is True
                   and bool(schedule.get("schedule_id")))
         if native:
             stage = "scheduled" if phase != "not_observed" or bound else "input"
         else:
-            command = ("@eightdegrees-sales-workflow run-auto" if mode == "Automatic" and route["effect"] != "customer-send"
-                       else "$" + route["owner"] + " continue " + action)
+            if mode == "Automatic":
+                command = "@eightdegrees-sales-workflow run-auto" if route["effect"] != "setup" else "@eightdegrees-sales-workflow init"
+            elif route["owner"] in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"}:
+                command = "@eightdegrees-sales-workflow add-communication continue " + action
+            # Legacy Manual sends remain Manual. Do not fabricate a private
+            # command or suggest a public scanner that cannot adopt this work.
     window = data.get("approved_window") or {}
     if window and stage not in {"completed", "cancelled", "paused", "postponed", "unknown"}:
         if (window.get("read_verified") is not True or window.get("content_version") != task.get("ContentVersion")

@@ -12,17 +12,26 @@ Enable/select EightDegrees Sales Workflow in the host first. The unified entry s
 @eightdegrees-sales-workflow reply-draft <inquiry URL>
 ```
 
-On first init, choose Chinese or English for workspace pages, input forms, guidance and reports. The saved choice is reused; it does not select the language of customer replies. Initialize actual operator/account/scope values first. Missing values are requested rather than guessed. `run-auto` runs once and prepares/validates automatic work without sending customer messages or enabling a schedule. Existing approved messages remain pending for a separately requested execution. `report` updates Notion and shows links without sending notifications or changing appointments. `reply-draft` never sends. `add-communication` defaults to manual review before CRM writes.
+On first init, choose Chinese or English for workspace pages, forms and reports. Supply actual authorized accounts/scope. Automatic inquiry tasks use Mode=Automatic; P0-A remains Manual. The seven public command names do not change.
 
-After reviewing a Manual communication task, explicitly continue it:
+## Daily operator journey
+
+1. Open Aimore/Today and the current action-page link. Fill requested data, or review full same-version material and submit a decision. Content confirmation and sending approval are separate.
+2. With a verified running native task, wait for its next eligible tick. Otherwise use `@eightdegrees-sales-workflow run-auto`. This one cycle checks new mail and continues independently approved Automatic work, including eligible email/SMS sends. No extra owner command or chat send confirmation is needed for an unchanged approved package.
+3. After a verified material email Sent event, the workflow automatically registers/reuses the SMS cycle, first due time and draft/review or blocking reason. SMS still needs its own exact-message approval and a verified enabled channel. Follow-up registration creates no per-email Cron job. The one shared executor checks due work.
+4. `report` shows current results/waits without execution or notifications. `reply-draft <inquiry or current action URL>` only prepares/revises content and separate send approval. There is no `reply-draft continue` subcommand; use run-auto after an Automatic submission.
+
+`run-auto` runs once; `start` enables repetition. Neither supplies content/send approval or turns on an unverified SMS channel. An explicit no-send request stays restricted for that entire invocation. Old cached/no-send native jobs do not gain send scope on package upgrade: explicit start plus actual native readback is still required. The 0.1.23 public run-auto behavior deliberately replaces the old preparation-only shortcut.
+
+For Manual communication only, after submitting the original review:
 
 ```text
-@eightdegrees-sales-workflow add-communication continue <PendingTasks URL>
+@eightdegrees-sales-workflow add-communication continue <registered action URL>
 ```
 
-The recorded content approval must still be valid; this phrase is not approval. Unknown command or the plugin mention alone shows command help without changing business records. Automatic scanning never takes over Manual tasks.
+That phrase is not approval. The owner checks the active binding/version and resumes only approved unfinished Notes/persona steps. Automatic scans never adopt Manual tasks. New reply-draft tasks use Automatic mode; legacy Manual sales/SMS records keep their mode and cannot be silently migrated into sending.
 
-For new/migrated tasks, open `Aimore/Today` and follow the original action-page link to fill missing information or submit a specific content/send decision. Legacy installations retain their Actions queue until explicit upgrade verifies Today. Technical task properties are workflow detail. A Manual continuation may take that registered action-page URL instead of the original task URL; the workflow verifies its backlink and active binding before processing it. A bare action URL is not a continuation request.
+Unknown command or the plugin mention alone shows help without business writes. A bare link is not execution authorization. Native selection/autocomplete remains a host capability.
 
 ## Claude native command equivalents
 
@@ -48,20 +57,12 @@ For new/migrated DataCompletion, open the registered ordinary action page, fill 
 
 After setup, `start` creates or reuses one native 15-minute task; `stop` deletes
 that task. `run-auto` still runs once. Start/stop manage schedules only: they do
-not immediately process mail, approve work or send customer messages. The native task calls email-scanning directly under the guarded scheduled-approved-work policy; it does not call the public no-send shortcut. Actual host support and task
+not immediately process mail, approve work or send customer messages. The native task calls email-scanning directly under the guarded scheduled-approved-work policy; it retains its native guard instead of masquerading as a deliberate public invocation. Actual host support and task
 readback are required; unsupported exact timing/deletion remains explicit, not
 an hourly fallback or a fake local-state success. See [schedule lifecycle](scheduling.md).
 
-## Approved native work versus a manual scan
+## Same business gates, different repetition
 
-The public run-auto command still scans/prepares once without customer sends.
-start now installs the distinct approved-work prompt, invoking email-scanning
-directly with real native context. After Notion submission, valid Automatic
-work can execute on its next eligible tick; Manual P0-A still needs explicit
-continue. Each customer send keeps its independent exact-version/window approval.
-Installation/init does not schedule or enable it; old no-send jobs do not gain
-send scope just because the package was upgraded. Use explicit start/readback.
-GPT targets a cloud Work GPT task; Claude targets Cowork's native cron task.
-The same cycle handles due daily summaries/reminders/confirmed appointments;
-report itself remains report-only. Runtime availability is validated in that
-account, without an external scheduler or a Codex project-worker substitute.
+Public run-auto selects one-cycle-approved-work. A real native invocation selects scheduled-approved-work only after its lifecycle/operator guard passes. Both check Automatic inputs and each owner's exact approval/version/window/stop/count/channel/attempt evidence. Neither takes over Manual P0-A. Explicit no-send contexts remain one-cycle-no-customer-send through all helpers. No per-email schedule, independent daemon or private owner command is required.
+
+GPT targets a cloud Work GPT task; Claude targets Cowork native cron. Account scheduling and future ticks remain unverified until observed. See [schedule lifecycle](scheduling.md) and [material handoff](material-handoff.md).

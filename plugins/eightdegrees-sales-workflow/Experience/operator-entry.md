@@ -30,3 +30,5 @@ outer headings/help with exact text edits, then appended help separately. Keep
 native view names authoritative and verify actual order; retained IDs alone do
 not establish correct layout. Future setup creates intro, views, then help,
 without a whole-page native-block rearrangement.
+
+Public-entry lesson from the 0.1.22 review: a test used free-text reply-draft continuation hints and private email/SMS owner invocations. Actual sends were verified, but public self-service and automatic email-to-SMS handoff were not accepted. Use public run-auto after Automatic Notion submissions, or a verified native tick. Manual P0-A uses documented add-communication continue. Never claim end-to-end acceptance when private commands supplied the missing transitions. The feedback helper now emits those public entries; live model compliance remains to be retested.

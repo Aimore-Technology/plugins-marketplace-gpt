@@ -6,7 +6,7 @@ Use [workflow_checks.py](../scripts/workflow_checks.py) on actual tool captures/
 python3 <plugin>/scripts/workflow_checks.py tool-result --input <original-mcp-result.json>
 python3 <plugin>/scripts/workflow_checks.py notion-links --input <actual-notion-fetch.json>
 python3 <plugin>/scripts/workflow_checks.py notion-links --input <saved-page.md> --input-format markdown
-python3 <plugin>/scripts/workflow_checks.py resume-task --input <canonical-task.json> --policy one-cycle-no-customer-send
+python3 <plugin>/scripts/workflow_checks.py resume-task --input <canonical-task.json> --policy one-cycle-approved-work
 ```
 
 Store authorized captures outside the source repository. Inputs must be the actual original result/saved page/canonical task, not a reconstructed successful response. Preserve both text and structuredContent layers in tool-result captures.
@@ -40,7 +40,7 @@ All helpers are offline: no job creation/deletion or automatic host enforcement.
 
 A real native tick supplies schedule_checks guard evidence before resume-task
 with --policy scheduled-approved-work --schedule-guard <current-guard.json>.
-Public manual run-auto still uses one-cycle-no-customer-send. A manually pasted
+Public run-auto uses one-cycle-approved-work for independently approved Automatic steps. Explicit no-send invocations retain one-cycle-no-customer-send. A manually pasted
 marker cannot create native context or authorize a send.
 
 Use [outcome checks](../scripts/outcome_checks.py) task/project/verify/counts for

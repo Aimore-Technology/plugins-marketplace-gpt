@@ -307,7 +307,7 @@ def completion_gate(data):
                      "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
                      "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified",
-                     "execution-plan": "ExecutionPlanReady"}
+                     "execution-plan": "ExecutionPlanReady", "material-handoff": "MaterialHandoffVerified"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -357,7 +357,7 @@ def owner_write(data):
     registry, call = data["registry"], data["call"]
     owner, policy = registry.get("owner_skill"), registry.get("policy")
     profiles = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
-    if owner not in profiles or policy not in {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "draft-only", "owner-workflow", "scheduled-approved-work"}:
+    if owner not in profiles or policy not in {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "one-cycle-approved-work", "draft-only", "owner-workflow", "scheduled-approved-work"}:
         return {"status": "Deferred", "reason": "Unknown owner/policy; report-only uses report-write"}
     if (policy == "scheduling-only" and owner != "eightdegrees-automation-control"
             or owner == "eightdegrees-automation-control" and policy != "scheduling-only"
@@ -365,8 +365,8 @@ def owner_write(data):
             or policy == "manual-review" and owner not in {"eightdegrees-communication-context-process", "eightdegrees-client-persona-update"}
             or policy == "draft-only" and owner != "eightdegrees-sales-reply"):
         return {"status": "Deferred", "reason": "Owner conflicts with invocation restriction"}
-    if policy == "scheduled-approved-work" and owner == "eightdegrees-initialization":
-        return {"status": "Deferred", "reason": "Scheduled execution cannot become initialization"}
+    if policy in {"scheduled-approved-work", "one-cycle-approved-work"} and owner == "eightdegrees-initialization":
+        return {"status": "Deferred", "reason": "Automatic execution cannot become initialization"}
     if policy == "scheduled-approved-work":
         guard = registry.get("schedule_guard") or {}
         if (guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
@@ -400,6 +400,8 @@ def owner_write(data):
         return {"status": "Deferred", "reason": "Failed/stale owner checks; final Completed/Success remains blocked"}
     specs = list(evidence["required_checks"].values())
     kinds = {s["kind"] for s in specs}
+    if owner == "eightdegrees-sales-reply" and "reply-sent" in kinds and "material-handoff" not in kinds:
+        return {"status": "Deferred", "reason": "Verified material reply send needs persisted email-to-SMS handoff evidence before final completion"}
     if not set(profiles[owner]) <= kinds or not groups["run_page_ids"]:
         return {"status": "Deferred", "reason": "Owner profile checks or original run binding missing"}
     for kind, ids in (("page-links", groups["run_page_ids"] | groups["task_page_ids"] | groups["publication_page_ids"]),
@@ -413,6 +415,7 @@ def owner_write(data):
         return {"status": "Deferred", "reason": "Current task versions or action-to-task bindings missing"}
     mail_targets, mail_verified, sent_verified, send_targets, receipt_targets = set(), set(), set(), set(), set()
     outcomes_verified, receipts_verified = set(), set()
+    handoff_targets, handoff_bindings = set(), {}
     sent_bindings, outcome_bindings, receipt_bindings = {}, {}, {}
     for item in evidence["checks"]:
         spec, result = evidence["required_checks"][item["name"]], item["result"]
@@ -429,6 +432,8 @@ def owner_write(data):
             if result.get("resume_step") in {"RecordSendReceipt", "RecordGeneralSendReceipt"}:
                 receipt_targets.add(identity)
                 send_targets.add(identity)
+            if result.get("resume_step") in {"SendApprovedReply", "RecordMaterialHandoff"}:
+                handoff_targets.add(identity)
         if spec["kind"] == "task-display" and identity in bindings:
             task_id = bindings[identity]
             if (result.get("task_page_id") is None or page_id(result["task_page_id"]) != task_id
@@ -439,6 +444,10 @@ def owner_write(data):
         if spec["kind"] == "reply-sent" and result.get("content_version") == versions.get(identity):
             sent_verified.add(identity)
             sent_bindings[identity] = (result.get("message_id"), result.get("html_sha256"))
+        if (spec["kind"] == "material-handoff" and result.get("content_version") == versions.get(identity)
+                and (result.get("cycle_page_id") or result.get("state") == "NotApplicable")
+                and result.get("event_key") and result.get("message_id")):
+            handoff_bindings[identity] = result["message_id"]
         if spec["kind"] == "outcome" and result.get("content_version") == versions.get(identity):
             if not result.get("action_page_id") or bindings.get(page_id(result["action_page_id"])) != identity:
                 return {"status": "Deferred", "reason": "Current outcome display was checked on another action page"}
@@ -450,6 +459,8 @@ def owner_write(data):
             receipt_bindings[identity] = (result.get("message_id"), result.get("payload_sha256"))
     if not mail_targets <= mail_verified or not mail_targets <= sent_verified:
         return {"status": "Deferred", "reason": "Email completion requires current pre-send draft AND actual sent-MIME verification; preserve partial provider success"}
+    if not handoff_targets <= handoff_bindings.keys():
+        return {"status": "Deferred", "reason": "Material send/handoff recovery requires persisted handoff on each original task/version"}
     if not send_targets <= outcomes_verified or not receipt_targets <= receipts_verified:
         return {"status": "Deferred", "reason": "Current send projections and required CRM receipt readback incomplete; preserve provider success without replay"}
     for identity in receipt_targets:
@@ -460,6 +471,8 @@ def owner_write(data):
         if (not all(sent_bindings[identity]) or receipt_bindings.get(identity) != sent_bindings[identity]
                 or outcome_bindings.get(identity) != sent_bindings[identity][0]):
             return {"status": "Deferred", "reason": "Sent MIME, current projections and CRM receipt identify different provider messages/payloads"}
+        if identity in handoff_targets and handoff_bindings[identity] != sent_bindings[identity][0]:
+            return {"status": "Deferred", "reason": "Material handoff identifies another email provider message"}
     return {"status": "WithinOwnerScope", "invocation_id": evidence["invocation_id"],
             "publication_version": evidence["publication_version"],
             "scope": "Offline Notion completion gate; not host enforcement or permission to call a provider"}

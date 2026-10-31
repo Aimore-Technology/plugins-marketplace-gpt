@@ -39,7 +39,7 @@ null for an explicitly planned creation). Types generate these checks:
 | html-preview | page-links + preview |
 | image-preview | page-links + preview-image; frozen content_version and html_sha256 |
 
-A task may declare evidence: reply-draft, reply-sent, outcome and crm-receipt,
+A task may declare evidence: reply-draft, reply-sent, outcome, crm-receipt and material-handoff,
 as required by its actual route. These are obligations, not fabricated successes.
 Include every affected task/action/publication role and required send evidence.
 The owner profile supplies minimum coverage, not discovery of omitted resources.
@@ -105,3 +105,5 @@ host scripting is needed, use Python 3 and standard serializable JSON objects;
 do not assume JavaScript structuredClone or catch a failed assertion and then
 continue to a mutation. Missing Python support leaves this path unverified;
 do not pretend checks ran. The host still controls connector execution.
+
+For a sales material-send plan include `material-handoff` in the original task's evidence array before execution. This binds downstream registration to the same completion contract; run [material handoff](material-handoff.md) verify on actual saved pages before final completion. Plan the downstream SMS owner separately; a blocked channel still gets an observable registration/task, never another email.

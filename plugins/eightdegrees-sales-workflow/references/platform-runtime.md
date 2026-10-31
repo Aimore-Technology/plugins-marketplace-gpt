@@ -23,7 +23,7 @@ requirements and must be checked separately.
 
 Each native tick invokes email-scanning directly with a fresh schedule guard
 and scheduled-approved-work policy. It may execute only valid approved Automatic
-steps. Public manual run-auto retains no-customer-send. Stop/Pause, versions,
+steps. Public run-auto uses one-cycle-approved-work; explicit no-send restrictions remain narrower. Stop/Pause, versions,
 windows, latest visible replies, counts, ownership and original attempts remain
 mandatory; Manual P0-A requires explicit continuation. Keep one executor for a
 customer root across GPT and Claude.

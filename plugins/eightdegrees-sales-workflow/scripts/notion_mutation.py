@@ -13,6 +13,7 @@ from notion_checks import object_result, page_body, page_id, schema_values
 from workflow_checks import check_links
 
 SCOPE = "Exact proposed call only; no host interception, scope permission or retrospective order proof"
+IDENTITY_FIELDS = {"TaskId", "RunId", "ParentRunId", "StepId", "SourceKey", "ClientId", "ContactId", "LocationId", "OperatorId", "ApproverId", "ContentVersion", "DecisionVersion", "OwnerSkill", "ResumeStep", "ResumeContractVersion", "CycleId", "AttemptId"}
 
 
 def prepare(data):
@@ -77,6 +78,10 @@ def prepare(data):
     for index, props in enumerate(properties):
         if not isinstance(props, dict):
             raise ValueError("Properties must be the exact proposed object")
+        for field in IDENTITY_FIELDS & props.keys():
+            value = props[field]
+            if isinstance(value, str) and re.search(r'\[[^\]]*\]\(|<\/?(?:mention|page|a)\b|[`*\n\r]', value):
+                raise ValueError("Canonical " + field + " contains display markup; recover exact source identity before the first write")
         if source:
             result = schema_values({"data_source": data["data_source"],
                                     "data_source_id": source, "properties": props})

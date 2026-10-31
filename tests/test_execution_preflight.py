@@ -36,6 +36,11 @@ def capture(prepared, identity=RUN):
 
 
 class ExecutionPreflightTests(unittest.TestCase):
+    def test_automatic_execution_cannot_prepare_an_initialization_owner(self):
+        for policy in ('one-cycle-approved-work', 'scheduled-approved-work'):
+            with self.assertRaisesRegex(ValueError, 'Owner conflicts'):
+                PREFLIGHT.prepare({'owner_skill': 'eightdegrees-initialization', 'policy': policy, 'operation': 'setup'})
+
     def test_original_fact_refusal_stops_before_schema_and_returns_no_plan(self):
         data = request(); data["facts"]["finance_status"] = "Undecided"
         with patch.object(PREFLIGHT, "schema_values") as schema:

@@ -79,11 +79,11 @@ Direct Notion edits are logged when actually observed and validated; polling doe
 
 ## Explicit periodic control
 
-Only start/stop may create/delete the installation-owned native task. Follow [scheduling](scheduling.md): native ticks invoke the scanning skill under a current scheduled-approved-work guard and may execute valid independently approved Automatic work. Public manual run-auto stays no-customer-send. A schedule never approves content, takes over Manual tasks or creates another schedule. Initialization and installation remain disabled by default.
+Only start/stop may create/delete the installation-owned native task. Follow [scheduling](scheduling.md): native ticks invoke the scanning skill under a current scheduled-approved-work guard and may execute valid independently approved Automatic work. Public run-auto executes one cycle of independently approved Automatic work; explicitly no-send invocations remain restricted. A schedule never approves content, takes over Manual tasks or creates another schedule. Initialization and installation remain disabled by default.
 
 ## Approved periodic work and result consistency
 
-Public manual run-auto remains no-customer-send. A real installation-owned
+A deliberate public run-auto selects one-cycle-approved-work without creating a schedule. It may execute only independently approved Automatic steps; an explicit no-send request retains the narrower policy. A real installation-owned
 native cycle uses [scheduled work](scheduled-work.md), current lifecycle guard
 and scheduled-approved-work instead; only valid Automatic approvals may execute.
 Manual P0-A stays manual. Upgrade/install/init enables no existing job or new

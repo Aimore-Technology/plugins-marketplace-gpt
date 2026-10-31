@@ -17,5 +17,6 @@
   "CreateConfirmedAppointment": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["DataCompletion", "ContentReview", "ExecutionExceptions"], "effect": "calendar"},
   "NotifyImportantReminder": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["ExecutionExceptions"], "effect": "internal-notification"},
   "RecordSendReceipt": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
-  "RecordGeneralSendReceipt": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"}
+  "RecordGeneralSendReceipt": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
+  "RecordMaterialHandoff": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions"], "effect": "draft"}
 }

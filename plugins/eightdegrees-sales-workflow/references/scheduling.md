@@ -74,7 +74,7 @@ native mutation. Notion is not an atomic execution lock.
 
 Stop prevents future ticks and requests exit at a checked boundary; it cannot
 undo a provider operation already accepted. Record that limit. Public manual
-run-auto remains a separate no-customer-send cycle while scheduling is stopped.
+run-auto remains an explicit one-cycle approved-work invocation while scheduling is stopped. It does not restart the native task or override a customer/task Pause. Stop deletes recurring execution; it does not forbid a later deliberate manual cycle.
 
 ## Each tick and offline helper
 
