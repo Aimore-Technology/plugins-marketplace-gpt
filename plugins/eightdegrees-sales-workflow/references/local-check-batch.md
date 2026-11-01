@@ -52,3 +52,7 @@ RunSettings indexes. New lightweight indexes contain IDs, versions, outcome IDs
 and pointers; packages stay on originals. Preserve legacy evidence, migrating
 only through explicit upgrade and verified original archive. Coalesce noncritical
 Health/counter/log writes at owner boundaries; never recursively monitor logging.
+
+Unattended operations add scan.cycle, sms.presentation-plan/verify, contact.restriction-plan/verify and contact.dispatch-gate. Plans select work or propose patches; only verified saved readback can supply completion evidence. ScanDeferred and ContactDispatchChecked do not authorize an external effect. See [unattended operation](unattended-operation.md).
+
+When the host exposes programmatic tool orchestration, persist each original response once directly from that returned object, and print only path/status/digest. Do not retype the response through many model-generated shell chunks or repeatedly include it in helper arguments. Use the available native file/capture facility with correct argument quoting, outside the plugin repository; do not add another service or send customer captures elsewhere. Compact output does not remove original error/completeness evidence.

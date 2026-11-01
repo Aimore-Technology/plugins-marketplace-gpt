@@ -31,6 +31,10 @@ EXECUTION_TERMS = re.compile(
     r"OperationLogs|OwnerSkill|ResumeStep|TaskId|AttemptId|InputSubmitted|MCP|TestHarness)(?![A-Za-z0-9_])|"
     r"add-communication|one-cycle-no-customer-send|\[TEST\]|\u6d4b\u8bd5\u8054\u7cfb\u4eba", re.I
 )
+REVIEW_LABELS = re.compile(
+    r'(?:proposed|pending) persona (?:update|changes)|persona (?:update|changes) (?:pending|awaiting) (?:review|approval)|'
+    r'\u62df\u66f4\u65b0\u753b\u50cf|\u753b\u50cf.{0,10}(?:\u5f85\u5ba1\u6838|\u5f85\u786e\u8ba4)', re.I
+)
 
 
 def plain(value, label, allow_unknown=True, check_markup=True):
@@ -76,6 +80,8 @@ def render(payload):
         items = sections[key]
         if not isinstance(items, list) or not items:
             raise ValueError(f"{key}: at least one plain-text bullet is required")
+        if any(isinstance(item, str) and REVIEW_LABELS.search(item) for item in items):
+            raise ValueError(f'{key}: describe customer facts directly; persona review labels belong in Notion')
         if key != "context_background" and any(isinstance(item, str) and EXECUTION_TERMS.search(item) for item in items):
             raise ValueError(f"{key}: use business actions and next steps; execution details belong in Notion logs")
         values[key] = "\n".join("- " + plain(item, key) for item in items)

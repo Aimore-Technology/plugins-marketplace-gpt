@@ -25,3 +25,7 @@ Read [operating-contract](../../references/operating-contract.md), [notion-model
 ## Operator path and local checks
 
 Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
+
+## Unattended configuration
+
+Add missing queue_execution cycle_budget_seconds=480, publication_reserve_seconds=60, bounded_work_items=12 and checkpoint_contract=scan-checkpoint-v1 on explicit init upgrade. Preserve saved user limits, native lifecycle, review decisions and disabled authority. Confirm actual single-owner serialization/activity capability before reporting unattended readiness under [unattended operation](../../references/unattended-operation.md); do not create schedules during init.

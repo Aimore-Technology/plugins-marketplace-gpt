@@ -75,3 +75,5 @@ or ExecutionExceptions. It reconciles already verified project-email result page
 under [email presentation](email-presentation.md). It cannot send, write CRM or
 reopen a terminal original. report-only/draft-only/setup invocations do not dispatch
 it; an authorized run-auto/native cycle handles its separate maintenance task.
+
+RefreshSmsOutcome belongs to sms-follow-up; RefreshContactRestrictions belongs to email-scanning. Both use ScheduledWork/ExecutionExceptions and effect=presentation, never send/CRM. Freeze sms-presentation/contact-restriction readback evidence under [unattended operation](unattended-operation.md). Original terminal sends remain terminal; maintenance tasks are distinct.

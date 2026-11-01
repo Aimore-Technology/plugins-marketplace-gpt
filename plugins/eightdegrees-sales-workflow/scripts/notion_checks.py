@@ -308,7 +308,8 @@ def completion_gate(data):
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
                      "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified",
                      "execution-plan": "ExecutionPlanReady", "material-handoff": "MaterialHandoffVerified",
-                     "sms-authority": "SMSNotificationVerified", "email-presentation": "EmailPresentationVerified"}
+                     "sms-authority": "SMSNotificationVerified", "email-presentation": "EmailPresentationVerified",
+                     "sms-presentation": "SMSPresentationVerified", "contact-restriction": "ContactRestrictionVerified"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -419,6 +420,7 @@ def owner_write(data):
     handoff_targets, handoff_bindings = set(), {}
     notification_targets, notification_bindings, sms_outcome_digests = set(), {}, {}
     presentation_targets, presentation_verified, presentation_bindings = set(), set(), {}
+    maintenance_targets, maintenance_verified = {}, {}
     sent_bindings, outcome_bindings, receipt_bindings = {}, {}, {}
     for item in evidence["checks"]:
         spec, result = evidence["required_checks"][item["name"]], item["result"]
@@ -442,6 +444,8 @@ def owner_write(data):
                 handoff_targets.add(identity)
             if result.get("resume_step") in {"SendApprovedReply", "RefreshEmailOutcome"}:
                 presentation_targets.add(identity)
+            if result.get("resume_step") in {"RefreshSmsOutcome", "RefreshContactRestrictions"}:
+                maintenance_targets[identity] = ('sms-presentation' if result['resume_step'] == 'RefreshSmsOutcome' else 'contact-restriction')
         if spec["kind"] == "task-display" and identity in bindings:
             task_id = bindings[identity]
             if (result.get("task_page_id") is None or page_id(result["task_page_id"]) != task_id
@@ -478,6 +482,13 @@ def owner_write(data):
                     and page_id(result["send_task_id"]) in projected and result.get("message_id")):
                 presentation_verified.add(identity)
                 presentation_bindings[identity] = (page_id(result['send_task_id']), result['message_id'])
+        if spec['kind'] in {'sms-presentation', 'contact-restriction'} and result.get('content_version') == versions.get(identity):
+            projected = {page_id(x) for x in result.get('projection_page_ids', [])}
+            expected_count = 7 if spec['kind'] == 'sms-presentation' else 1
+            if len(projected) == expected_count and projected <= allowed_pages:
+                maintenance_verified[identity] = spec['kind']
+    if any(maintenance_verified.get(identity) != kind for identity, kind in maintenance_targets.items()):
+        return {'status': 'Deferred', 'reason': 'Related SMS/contact maintenance needs original saved projection evidence'}
     if not presentation_targets <= presentation_verified:
         return {"status": "Deferred", "reason": "Email send/refresh requires verified linked completed review and current send projections"}
     if not mail_targets <= mail_verified or not mail_targets <= sent_verified:

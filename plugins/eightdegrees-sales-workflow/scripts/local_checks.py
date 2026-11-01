@@ -17,6 +17,9 @@ import material_handoff
 import sms_authority
 import email_presentation
 import notion_mutation
+import sms_presentation
+import contact_preferences
+import scan_cycle
 
 OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
@@ -43,6 +46,12 @@ OPERATIONS = {
     "notion.report-write": notion_checks.report_write,
     "email.presentation-plan": email_presentation.plan,
     "email.presentation-verify": email_presentation.verify,
+    "sms.presentation-plan": sms_presentation.plan,
+    "sms.presentation-verify": sms_presentation.verify,
+    "contact.restriction-plan": contact_preferences.stop_overlay,
+    "contact.restriction-verify": contact_preferences.verify,
+    "contact.dispatch-gate": contact_preferences.dispatch_gate,
+    "scan.cycle": scan_cycle.advance,
 }
 PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
@@ -50,7 +59,9 @@ PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForC
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",
           "MaterialHandoffPlanned", "MaterialHandoffVerified", "SMSNotificationPrepared", "SMSNotificationVerified",
           "NotionMutationPrepared", "WithinOwnerScope", "WithinReportScope",
-          "EmailPresentationPlanned", "EmailPresentationVerified", "OperatorResponseReady"}
+          "EmailPresentationPlanned", "EmailPresentationVerified", "OperatorResponseReady",
+          "SMSPresentationPlanned", "SMSPresentationVerified", "ContactRestrictionPlanned", "ContactRestrictionVerified", "ContactDispatchChecked",
+          "ScanCyclePlanned", "ScanDeferred"}
 
 
 def run(plan, captures):

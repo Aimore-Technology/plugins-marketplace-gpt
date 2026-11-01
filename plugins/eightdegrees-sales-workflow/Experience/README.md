@@ -21,3 +21,5 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 Maintainers add a lesson only with a concrete trigger, observed behavior, scoped action, verification and evidence. Keep observations separate from open product defects. Recheck connector-version-dependent limits against current capabilities; a historical tip does not widen permissions or make an unavailable tool exist. Promote a resolved lesson only after its affected workflow is verified, retaining previous failures and the confirming evidence. Keep entries short instead of copying whole test reports here.
 
 Evidence key B113 means the 0.1.13 directed batch on 2026-10-29. Its case IDs are named in each card; the development release review holds the report/source references. This library contains no customer destinations, credentials, message bodies or live workspace IDs.
+
+For bounded unattended cycles, read [unattended operation](../references/unattended-operation.md); the related local operations do not prove native task execution or ownership.

@@ -24,7 +24,7 @@ def blocks(capture, kind, required=True):
             value = json.loads(match[1])
         except ValueError:
             continue
-        if isinstance(value, dict) and value.get('record_type') == kind:
+        if isinstance(value, dict) and (value.get('record_type') == kind or value.get('contract') == kind):
             values.append((match.group(), value))
     if not values and not required:
         return None
@@ -218,6 +218,29 @@ def plan(data):
     updates = []
     for role in ROLES:
         edits = []
+        if role == 'send_task':
+            # Labels outside immutable packages are current presentation, not
+            # approved content. Match the complete version-bound heading only.
+            body = page_body(pages[role])
+            replacements = [
+                ('## Current exact send package', '## Historical approved send package'),
+                ('## \u5f53\u524d\u7cbe\u786e\u53d1\u9001\u5305', '## \u5386\u53f2\u6279\u51c6\u65f6\u53d1\u9001\u5305'),
+            ]
+            for old, new in replacements:
+                anchor = old + ' \u00b7 ' + version
+                if re.search(r'(?m)^' + re.escape(anchor) + r'$', visible_markdown(body)):
+                    if body.count(anchor) != 1:
+                        raise ValueError('Ambiguous historical package heading')
+                    edits.append({'old_str': anchor, 'new_str': new + ' \u00b7 ' + version})
+            for old, new in [
+                ('No send decision has been accepted yet.', 'Historical approval snapshot; see the current sent result.'),
+                ('\u5f53\u524d\u5c1a\u672a\u63a5\u53d7\u53d1\u9001\u51b3\u5b9a\u3002',
+                 '\u5386\u53f2\u6279\u51c6\u5feb\u7167\uff1b\u5f53\u524d\u7ed3\u679c\u89c1\u5df2\u53d1\u9001\u8bb0\u5f55\u3002'),
+            ]:
+                if old in visible_markdown(body):
+                    if body.count(old) != 1:
+                        raise ValueError('Ambiguous historical approval label')
+                    edits.append({'old_str': old, 'new_str': new})
         if role == 'send_task' and new_outcome != outcome:
             edits.append({'old_str': old_block, 'new_str': '```json\n' + json.dumps(new_outcome, ensure_ascii=False, indent=2) + '\n```'})
         if role.endswith('action'):

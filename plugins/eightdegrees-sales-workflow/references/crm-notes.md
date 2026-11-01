@@ -84,3 +84,5 @@ receipt in [send receipts](send-receipts.md). It reuses this complete plain-text
 template but has an immutable sender/message receipt key and the approval's
 receipt scope. Earlier communication/persona Notes do not substitute for a
 record of a later actual send. No new persona facts are inferred.
+
+Before review, crm_note.py rejects persona workflow labels such as proposed persona update/pending review in every formal section. State customer facts directly; keep review status in Notion. Genuine finance pre-approval pending remains valid business content.

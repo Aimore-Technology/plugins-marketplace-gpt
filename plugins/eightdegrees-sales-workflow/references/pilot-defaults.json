@@ -140,7 +140,12 @@
   "queue_execution": {
     "contract": "queue-v2",
     "resume_submitted_manual_communications": true,
-    "bounded_work_items": 100,
-    "continue_commands_required": false
+    "bounded_work_items": 12,
+    "continue_commands_required": false,
+    "cycle_budget_seconds": 480,
+    "publication_reserve_seconds": 60,
+    "checkpoint_contract": "scan-checkpoint-v1",
+    "executor_mode": "single_native_owner",
+    "unchanged_result_writes": false
   }
 }

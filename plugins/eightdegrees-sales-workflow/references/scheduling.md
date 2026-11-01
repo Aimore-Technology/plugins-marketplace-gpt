@@ -106,3 +106,7 @@ cloud execution from connected local resources.
 is the Claude target. Documentation is not this account's native readback.
 
 Current ticks use [queue execution](queue-execution.md) and [SMS notification authority](sms-notifications.md). Preserve Manual intake provenance while validating submitted communication reviews; do not require a continue command. Factual notification SMS does not need individual review. Explicit start/readback updates the owned task prompt; installation creates no task.
+
+## Single-owner unattended readiness
+
+Apply [unattended operation](unattended-operation.md). Validate actual host serialization/activity before enabling unattended effects; no Notion lease alone proves ownership. Save pending checkpoints and preserve attempts across native retries. Manual invocation overlapping an active native cycle defers. Missing scheduling tools remain a runtime limitation; package installation/upgrade creates no job.

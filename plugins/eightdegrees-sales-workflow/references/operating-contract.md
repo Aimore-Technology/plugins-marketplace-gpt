@@ -99,3 +99,7 @@ unreviewed customer-persona change. Logging/projection failures never replay a s
 ## Queue and notification policy
 
 [Queue execution](queue-execution.md) is the current resumption contract. Manually initiated communication data/reviews resume after their current Notion submission is validated and persisted, without another continue command. [Standing SMS notification authority](sms-notifications.md) is enabled by default for factual notifications; it replaces individual SMS content/send approval. Actual connector capabilities and stop/window/count/attempt guards remain. Existing user disable/revocation and unknown/stopped attempts are preserved.
+
+## Unattended reliability
+
+Apply [unattended operation](unattended-operation.md): stop-first scoped restrictions override old approved contact preferences, all related SMS status pages converge, and bounded cycles persist progress for restart. No extra human continuation, expiring-lock takeover, unknown resend or unchanged-task alerts. Single-owner native execution and actual channel coverage must still be demonstrated.

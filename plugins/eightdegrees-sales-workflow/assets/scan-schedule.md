@@ -35,3 +35,5 @@ Record actual progress, partial coverage and native errors without fabricated
 success. The native host owns repetition; exit after this one cycle.
 
 Use queue-execution.md to scan authorized sources and enqueue newly ready owner steps within this bounded cycle. No extra continue command and no per-message notification SMS approval. Future due work waits without sleeping or recursively starting another scan.
+
+Apply references/unattended-operation.md: preserve the original scan checkpoint, stop admitting work before its budget minus publication reserve, and resume only unfinished step identities next tick. One actual serialized executor; overlapping manual/native runs defer effects. Unknown requests reconcile the same attempt. Keep unchanged idle ticks quiet.

@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.25. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.26. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
 ## Skills
 
@@ -24,7 +24,7 @@ Australia/Adelaide; customer sends Mon-Fri 10:00-17:00; daily brief 08:30 includ
 
 ## First use
 
-Install the package, run initialization in the customer account, supply actual scope/account references, then follow `references/pilot-acceptance.md`. Missing connectors do not appear by installing skills. Every customer send still requires exact-version/window approval. Package checks do not prove channel readiness or business acceptance.
+Install the package, run initialization in the customer account, supply actual scope/account references, then follow `references/pilot-acceptance.md`. Missing connectors do not appear by installing skills. Customer emails require exact-version/window approval; factual SMS uses the configured standing notification authority. Package checks do not prove channel readiness or business acceptance.
 
 Operator identity is configured at initialization; names, reminder destinations and approval ownership are not fixed. Dropbox remains the project-material source. See [operator setup and upgrade](references/operator-setup.md).
 
@@ -93,3 +93,7 @@ run-auto scans authorized Gmail/reply sources, current Notion submissions, due f
 Factual notification SMS is permitted by default under notification-sms-v1. Generate/edit, freeze and send when due without per-message ContentReview/SendApproval or a second chat question. Keep current device/channel, source, stop/Pause, window/count and unknown-attempt checks. Email and CRM facts still need review. Notification queue tasks use ScheduledWork and read-only result pages rather than human approval forms.
 
 See [queue execution](references/queue-execution.md), [SMS notifications](references/sms-notifications.md) and [material handoff](references/material-handoff.md). Explicit init upgrade adds the machine-queue category/discovery and bound standing policy while preserving existing databases, five human views, answers/history and recorded user disable/revocation. Installation still creates no schedule. Offline checks are not live automatic workflow or channel acceptance.
+
+## Unattended approved work
+
+[Unattended operation](references/unattended-operation.md) adds bounded scan/restart checkpoints, scoped restriction overlays and related SMS result convergence. Defaults admit at most 12 owner steps within an eight-minute soft budget, reserving the final minute for persistence. Unknown requests are reconciled, never blindly resent. Human decisions stay in Notion; unrelated ready work continues. Actual cloud scheduling, serialization and channel readiness require native acceptance.

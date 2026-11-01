@@ -21,3 +21,7 @@ Finish when approved changes are reflected through the configured CRM write mode
 ## Operator path and local checks
 
 Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
+
+## Contact preference freshness
+
+Under [unattended operation](../../references/unattended-operation.md), source-bound restrictive channel events appear above the approved snapshot and override historical contact permission in dispatch. Preserve that overlay through approved persona updates. A scoped stop does not wait for CRM Notes review, change global DND or authorize a future re-enable. Include explicit channel-preference changes in review proposals when applicable; do not silently report an empty preference change when the source changed it.

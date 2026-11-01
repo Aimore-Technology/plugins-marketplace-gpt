@@ -38,6 +38,15 @@ def payload():
 
 
 class CRMNoteTests(unittest.TestCase):
+    def test_persona_workflow_labels_do_not_enter_formal_notes(self):
+        for section in MODULE.SECTIONS:
+            for value in ('Proposed persona update: budget changed.',
+                          '\u62df\u66f4\u65b0\u753b\u50cf\uff08\u5f85\u5ba1\u6838\uff09: three bedrooms.'):
+                data = payload(); data['sections'][section] = [value]
+                with self.subTest(section=section), self.assertRaises(ValueError): MODULE.render(data)
+        data = payload(); data['sections']['context_background'] = ['Finance pre-approval remains pending.']
+        self.assertIn(b'pre-approval remains pending', MODULE.render(data))
+
     def test_execution_terms_in_business_sections_are_rejected_before_review(self):
         for section in ("action", "recommendation", "next_schedule"):
             for value in ("Saved RunSettings after Manual continue.", "Use the Communications archive.",

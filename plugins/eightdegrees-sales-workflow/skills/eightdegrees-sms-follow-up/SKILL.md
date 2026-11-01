@@ -21,3 +21,7 @@ Before dispatch read [connector experience](../../Experience/connector-contracts
 ## Current outcome and operator path
 
 Apply [outcome state](../../references/outcome-state.md), [operator experience](../../references/operator-experience.md) and [local batches](../../references/local-check-batch.md). Read-only notification pages show Queued, due time, actual provider status or blocking reason. Do not show approval buttons or tell the operator to re-authorize each SMS. Manual probe history and old review pages remain historical; never release abandoned native drafts or invent cleanup APIs. Package checks do not prove actual own-number, reply-reader or delivery capability.
+
+## Reconcile original status, not only a new run
+
+Use [unattended operation](../../references/unattended-operation.md), sms.presentation-plan/verify and RefreshSmsOutcome after actual request status changes or a targeted stale finding. Refresh all seven original task/action/run/cycle surfaces; machine waiting is not WaitingForOperator. Preserve exact attempt/payload, receipt history, counts and stopped state. Before dispatch also check the current source-bound contact restriction overlay; historical approved permission cannot override it.

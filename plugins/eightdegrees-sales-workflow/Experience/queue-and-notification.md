@@ -20,3 +20,7 @@ Cron and no fabricated human approval. Keep existing disable/revocation/history.
 Verify actual public command behavior, current accepted snapshot and original
 provider results. Offline guards cover policy/binding/body checks; no real send,
 native scheduler or end-to-end acceptance is proved by changing instructions.
+
+## Observed in 0.1.25
+
+A network SMS result left old data/action/parent-run copy at AwaitingPhone. Stop was enforced in the cycle while the persona retained an older SMS permission. Several scans exceeded the 15-minute target. Use [unattended operation](../references/unattended-operation.md), related seven-page SMS readback and the separate restrictive overlay. Preserve historical payload/approval. Bound work and save a restart checkpoint; never shorten approval/stop checks or retry an unknown request to meet a tick. Offline fixes require separate host acceptance.

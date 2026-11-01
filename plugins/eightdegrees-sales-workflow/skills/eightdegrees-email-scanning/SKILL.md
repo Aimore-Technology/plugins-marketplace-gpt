@@ -32,3 +32,7 @@ all closed history. Completed send/review records stay Completed. This separate
 owner phase only repairs Notion results, never repeats sending or a CRM receipt.
 
 Use [channel-local outcomes](../../references/outcome-state.md): email Sent, customer receipt and SMS network/delivery evidence stay distinct. Apply [operator experience](../../references/operator-experience.md) and [local check batches](../../references/local-check-batch.md). Original task/action and current stop/attempt evidence must still be fresh immediately before external action; saved-result readback remains required. Verified Today linked views replace duplicate queue snapshots. Do not claim complete coverage or faster live timing from offline checks.
+
+## Bounded unattended procedure
+
+Use [unattended operation](../../references/unattended-operation.md) and local scan.cycle before each next owner step. Stop admitting new work at the saved budget minus publication reserve; persist original source cursors/remaining keys and finish current result recording. Do not treat the 15-minute tick as permission to overlap executors or an unknown attempt as ready. Observe scoped customer stops before normal reviews and queue RefreshContactRestrictions to show the current restrictive overlay without editing approved persona history. Read candidate action inputs every cycle, but skip unchanged result publication and completed-history sweeps.

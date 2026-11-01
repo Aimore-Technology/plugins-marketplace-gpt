@@ -85,3 +85,5 @@ supplies a provider/CRM replay, new approval or SMS permission.
 ## Standing-authorized notification completion
 
 SendNotificationSms requires kind=sms-authority (SMSNotificationVerified) on the original task/version, plus the current channel-local outcome with the SHA-256 of the actual provider request body. They must match. It does not require per-message ContentReview/SendApproval. Preserve provider IDs and unknown reservations on failure. Use a read-only result page for the existing action-result projection, without any decision controls. See [SMS notifications](sms-notifications.md).
+
+RefreshSmsOutcome requires kind=sms-presentation with all seven saved related page IDs in the owner scope, matched notification version and original message. RefreshContactRestrictions requires kind=contact-restriction with the saved persona page and stop-<source-message-id> version. Use [unattended operation](unattended-operation.md). Their original SMS run status may be an owned publication projection; only one current maintenance run is the executor. Never substitute a successful plan for saved readback verification.

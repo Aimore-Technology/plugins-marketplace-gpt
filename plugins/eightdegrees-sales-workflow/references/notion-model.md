@@ -97,3 +97,5 @@ under [send receipts](send-receipts.md); receipt/projection failures preserve
 the successful send and resume only unfinished internal recording.
 
 queue_execution records queue-v2 and current resumption/budget behavior. sms_notifications stores notification-sms-v1 standing permission and allowed intents, bound to the actual configured root/operator/sender/device. Notification tasks use ScheduledWork and a read-only result page, with no human decision fields required. Capability checks stay separate from permission. Existing recorded disable/revocation is preserved during explicit upgrade.
+
+For unattended operation retain a lightweight original scan checkpoint pointer and the scan-checkpoint-v1 record on its original run. ClientPersona has a separate current contact-restrictions-v1 overlay above historical approved preferences; restrictive source events do not rewrite approved facts or CRM DND. See [unattended operation](unattended-operation.md).

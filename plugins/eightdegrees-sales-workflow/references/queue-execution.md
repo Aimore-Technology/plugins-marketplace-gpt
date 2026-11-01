@@ -74,3 +74,7 @@ pagination, quota or the time budget left gaps.
 Fresh original approval/policy/stop/attempt checks remain mandatory immediately
 before each external effect. Native invocations also recheck their actual
 schedule lifecycle/generation/operator between dependent operations. A future-due or human-waiting business child is not an active scan executor; derive busy ownership only from the current actual scan/native invocation. Notion is not an atomic lock; uncertain ownership waits for reconciliation.
+
+## Unattended continuation
+
+Apply [bounded restart operation](unattended-operation.md) each cycle. Defaults are 12 owner steps and a 480-second soft budget with 60 seconds for persistence. Actual saved customer limits remain explicit; init upgrade adds missing budget/checkpoint settings without changing approval or enabling a scheduler. Persist remaining source/work identities, unknown attempts and exact partial coverage. Long in-flight calls are recorded, not aborted/replayed. RefreshSmsOutcome and RefreshContactRestrictions repair only implicated originals after stop-first observation; no extra public commands.
