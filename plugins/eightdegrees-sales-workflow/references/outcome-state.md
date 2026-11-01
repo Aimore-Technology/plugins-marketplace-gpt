@@ -1,7 +1,7 @@
 # Current state and send-result projections
 
 Use after a known external result or when candidate queries disagree with an
-original task. `outcome_checks.py task|project|verify|display|counts` is an offline check over
+original task. `outcome_checks.py task|project|verify|display|counts|sms-progress` is an offline check over
 normalized actual observations; retain the original tool responses and mapping.
 It never reads tools, repairs pages, grants approval or repeats an operation.
 
@@ -93,3 +93,20 @@ explicit coverage_complete flag. It deduplicates by operation/account/message,
 rejects conflicting current records, separates reserved/unknown attempts and
 labels partial coverage. Feed those derived known totals to current summaries;
 never count operation-log rows or infer global zero from an unavailable query.
+
+## SMS sending completion
+
+SentToNetwork is a successful, terminal SMS sending result. Count it once, close
+the send task/run after saved-result checks, and display Sent. Delivered is
+optional extra provider metadata; human_received=false is not a missing required
+input, failure, waiting stage or reason to degrade the successful send. Do not
+ask the operator to inspect a handset or acknowledge receipt. Preserve actual
+provider_status and existing optional receipt history without fabricating either.
+
+Before automatic status polling run sms.progress (or outcome_checks.py sms-progress)
+with the original normalized task_id/content_version/provider observation.
+query_original_request=false after SentToNetwork/Delivered: no recurring delivery
+poll or handset task. Pending ProviderAccepted/AwaitingPhone/PendingApproval/Unknown
+queries only the same request. Failed stays failure; Unknown reserves its slot
+and never grants resend. Completion of one send does not cancel a separately
+configured future follow-up or remove stop/window/count/reply checks.

@@ -109,7 +109,9 @@ and observed_at; maintenance_task_id must be a distinct registered task. This
 binds original payload, request receipt, cycle, task/actions and parent run IDs.
 Update current results on all seven pages, not a new reconciliation run alone.
 Pending stays machine InProgress; network-send closes the original dispatch
-operation, not the overall follow-up cycle or delivery. Failed is Error, unknown
+operation without waiting for Delivered or a handset action. Use sms.progress
+before polling: a network-sent result needs no more status queries or human
+receipt task. The overall follow-up cycle remains separate. Failed is Error, unknown
 reserves its slot, and stopped cycles remain stopped. Never reset counts or
 invent actual network-send timestamps from query time.
 

@@ -6,7 +6,7 @@
 
 ## Recent results
 
-{original_email_sent_receipt_sms_network_delivery_and_stop_evidence_with_observation_times}
+{original_email_sent_receipt_sms_sent_and_stop_evidence_with_observation_times}
 
 ## Waiting and paused
 

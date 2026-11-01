@@ -54,7 +54,7 @@ native phone/Web restrictions cannot be bypassed or described as completed.
    and status readback. Supply that actual digest as provider.payload_sha256 to
    outcome_checks. SendNotificationSms completion requires sms-authority plus
    current outcome evidence for that same task/version and matching body digest.
-   Keep SentToNetwork/Delivered/handset receipt distinct. Repair log/projection
+   SentToNetwork is sent and completes this dispatch. Delivered and handset observations are optional metadata, never required confirmation or further polling. Repair log/projection
    failures without resending. The read-only result page can serve the existing
    action-result projection contract; it contains no approval controls.
 

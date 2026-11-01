@@ -50,3 +50,11 @@ blocked/stopped result immediately after verified material Sent under
 [material handoff](material-handoff.md). No per-email native task. The shared
 queue handles due notification sending in the same eligible cycle or a later
 run-auto/native tick without private owner or continue commands.
+
+## Successful sending
+
+SentToNetwork is already sent. Close the sending step after saving its original
+request/result; do not wait for Delivered, require handset actions, ask for a
+receipt or resend. Optional delivery metadata never gates completion. Pending
+states still reconcile the original request, and Unknown continues to reserve
+its slot. Separate future follow-ups keep the existing due/stop/count rules.

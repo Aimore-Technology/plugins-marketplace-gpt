@@ -59,3 +59,11 @@ Declare those affected rows once in this owner's plan and batch local checks.
 Never reuse initialization timestamps as the latest service observation or set
 LastSuccess from report generation. This is observation publication, not a new
 service probe; report itself still cannot write Health/Dashboard.
+
+## Completed SMS sends
+
+Apply sms.progress before queuing a status query: SentToNetwork is already sent,
+so do not enqueue handset confirmation or poll for Delivered. Repair a known
+unsaved result once using the original request; skip unchanged completed results.
+Continue source scans and separately due follow-ups under existing stop/count
+rules. Unavailable handset actions are not an outstanding sending task.

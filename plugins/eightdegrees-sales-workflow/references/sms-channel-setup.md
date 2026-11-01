@@ -30,10 +30,7 @@ guards still apply. Reserve the ONE slot before request; Unknown reserves it
 and never creates a replacement send. Never release an abandoned old request.
 No private Skill/continue, native task or extra approval is required.
 
-Record network acceptance, delivery and actual handset receipt separately.
-Ordinary channel readiness stays unverified until demonstrated; one phone
-observation cannot create an automatic inbound reader or permit a second SMS.
-This is a controlled channel check, not unattended-channel acceptance.
+Record SentToNetwork as sent: this completes the sending check without a handset observation or Delivered. Do not request physical receipt or keep polling delivery. Optional later observations remain metadata. Ordinary channel configuration and actual inbound-reader capability remain separate checks; a successful send cannot invent an inbound tool or permit an extra SMS. This bounded check does not certify native scheduling or full unattended operation.
 
 ## Local check arguments
 

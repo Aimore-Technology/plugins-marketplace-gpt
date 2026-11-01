@@ -34,6 +34,7 @@ OPERATIONS = {
     "facts.canonical": fact_checks.canonical_facts,
     "outcome.verify": outcome_checks.verify_projection,
     "outcome.display": outcome_checks.current_display,
+    "sms.progress": outcome_checks.sms_progress,
     "operator.feedback": operator_experience.feedback,
     "operator.review": operator_experience.review_brief,
     "operator.results": operator_experience.result_summary,
@@ -63,7 +64,7 @@ PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForC
           "NotionMutationPrepared", "WithinOwnerScope", "WithinReportScope",
           "EmailPresentationPlanned", "EmailPresentationVerified", "OperatorResponseReady",
           "SMSPresentationPlanned", "SMSPresentationVerified", "ContactRestrictionPlanned", "ContactRestrictionVerified", "ContactDispatchChecked",
-          "ScanCyclePlanned", "ScanDeferred", "ChannelCheckEligible", "ChannelCheckBlocked"}
+          "ScanCyclePlanned", "ScanDeferred", "ChannelCheckEligible", "ChannelCheckBlocked", "SMSProgressChecked"}
 
 
 def run(plan, captures):

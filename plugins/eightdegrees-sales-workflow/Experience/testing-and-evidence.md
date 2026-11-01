@@ -22,3 +22,8 @@ Offline unit/capture tests establish only the tested helper behavior. Check actu
 Separate business result, publication quality, provider acceptance, recipient receipt, host visual, SMS network state and actual inbound replies. In B113 email receipt passed, full sent-body equality failed, and the SMS reached SentToNetwork with delivery still waiting. A report's publication Success is not a green business acceptance result. No inbound SMS tool means no MCP two-way proof. Prior stop/Pause, unknown-result reconciliation, current command restrictions and actual operator authorization remain in force.
 
 After verification, record the actual actor/simulation label and result time. Preserve old Note objects, contact fields, task IDs, source mapping and earlier error/correction events. Do not clean the workspace or resend a real message to produce an easier passing report.
+
+Current SMS acceptance uses SentToNetwork as sent/completed. Earlier test logs
+mentioning delivery still waiting do not establish a required workflow step.
+Do not repeat physical phone checks or mark sending partial solely because
+Delivered/human receipt is absent. Keep original observations as history.

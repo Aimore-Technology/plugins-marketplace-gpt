@@ -45,3 +45,11 @@ Apply [operator experience](../../references/operator-experience.md) for Today, 
 ## Report-run body authoring
 
 Use timeless initial procedure/plan prose, labeled as history. Current State/Summary and the dated actual daily brief provide status. Do not put generating/not-yet-verified/waiting claims in a run body that report cannot later edit. Retain the frozen report write scope; identifying stale Today/business text does not authorize repair inside report.
+
+## SMS reporting
+
+Display SentToNetwork as Sent, with the raw status available in the original
+result. Missing Delivered or handset confirmation is not a failure, pending item,
+missing operator input or acceptance gap. Do not ask the operator to acknowledge
+receipt. Optional delivery metadata remains distinct; unknown requests, observed
+failures and actual unconnected reply-reader capability keep their own findings.

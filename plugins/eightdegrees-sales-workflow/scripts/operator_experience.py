@@ -9,7 +9,7 @@ import re
 import sys
 
 from notion_checks import object_result, page_body, page_id, schema_values
-from outcome_checks import counts, projection
+from outcome_checks import counts, projection, sms_progress
 from workflow_checks import submitted_manual_route
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -218,10 +218,18 @@ def result_summary(data):
         if key in seen:
             continue
         seen.add(key)
-        rows.append({"channel": copy[operation], "result": copy[expected["provider_status"]],
-            "receipt": copy["receipt_yes"] if expected["human_received"] else copy["receipt_no"],
+        receipt = copy["receipt_yes"] if expected["human_received"] else copy["receipt_no"]
+        if operation == 'sms' and expected['sent'] and not expected['human_received']:
+            receipt = copy['sms_confirmation_not_required']
+        row = {"channel": copy[operation], "result": copy[expected["provider_status"]],
+            "receipt": receipt,
             "observed_at": event.get("observed_at"), "source_url": event.get("source_url"),
-            "task_id": derived["entity_id"], "message_id": expected["message_id"]})
+            "task_id": derived["entity_id"], "message_id": expected["message_id"]}
+        if operation == 'sms':
+            progress = sms_progress(event)
+            row.update({key: progress[key] for key in ('send_complete', 'query_original_request',
+                                                       'requires_handset_confirmation')})
+        rows.append(row)
     return {"status": "OperatorResultsReady", "rows": rows, "counts": totals,
             "scope": "Original outcome observations only; UI IDs support links and are not primary labels; no global absence or delivery inference"}
 

@@ -9,6 +9,7 @@ from datetime import datetime
 
 from email_presentation import blocks, current_patch, properties
 from notion_checks import object_result, page_body, page_id
+from outcome_checks import sms_progress
 
 OWNER = 'eightdegrees-sms-follow-up'
 ROLES = {'notification', 'result', 'data_task', 'data_action', 'data_run', 'send_run', 'cycle'}
@@ -121,13 +122,17 @@ def plan(data):
     language = data.get('language', 'en')
     if language not in {'en', 'zh-CN'}:
         raise ValueError('Use the saved workspace language')
-    text = 'SMS ' + status + ' \u00b7 ' + message + '.'
+    progress = sms_progress({'task_id': ids['notification'], 'content_version': version,
+                             'provider': {'operation': 'sms', 'message_id': message,
+                                          'status': status, 'read_verified': True}})
+    text = ('SMS sent' if progress['send_complete'] else 'SMS') + ' \u00b7 ' + status + ' \u00b7 ' + message + '.'
     if language == 'zh-CN':
+        text = ('\u77ed\u4fe1\u5df2\u53d1\u9001' if progress['send_complete'] else '\u77ed\u4fe1') + ' \u00b7 ' + status + ' \u00b7 ' + message + '\u3002'
         text += ' ' + ('\u672c\u8be2\u76d8\u540e\u7eed\u77ed\u4fe1\u5df2\u505c\u6b62\u3002' if stopped else '\u540e\u7eed\u5b89\u6392\u89c1\u539f\u901a\u77e5\u5468\u671f\u3002')
-        text += ' \u65e0\u9700\u91cd\u590d\u5ba1\u6279\u6216\u63d0\u4ea4\uff1b\u624b\u673a\u5b9e\u9645\u6536\u4ef6\u53e6\u884c\u8bb0\u5f55\u3002'
+        text += ' \u65e0\u9700\u91cd\u590d\u5ba1\u6279\u6216\u63d0\u4ea4\u3002'
     else:
         text += ' ' + ('Future SMS stopped for this enquiry.' if stopped else 'Use the registered cycle for next due work.')
-        text += ' No new approval or resubmission; handset receipt is separate.'
+        text += ' No new approval or resubmission.'
     updates = []
     for role in ('notification', 'data_task'):
         desired = {'Result': text}
@@ -179,6 +184,9 @@ def plan(data):
     return {'status': 'SMSPresentationPlanned', 'entity_id': entity_id, 'notification_task_id': ids['notification'],
             'page_ids': ids, 'content_version': version, 'message_id': message, 'updates': updates,
             'projection_page_ids': list(ids.values()),
+            'send_complete': progress['send_complete'],
+            'query_original_request': progress['query_original_request'],
+            'requires_handset_confirmation': False,
             'scope': 'Original related SMS status only; no request, approval, payload, count reset or stop expansion'}
 
 

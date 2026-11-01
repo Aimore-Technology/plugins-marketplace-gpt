@@ -7,7 +7,7 @@ Package validation proves file/schema/reference integrity, not CRM access, mailb
 3. Without a scheduler, complete manual P0-A: submit, match and review exact note/persona changes in Notion, then run-auto resumes and appends ONE combined CRM note with readback. Unsubmitted Manual work stays waiting; repeated scans fill only unfinished steps without another continue command.
 4. With operator-approved content/window, test a normal Gmail message to a designated test recipient. Verify actual received content, HTML/assets and reply visibility. Edited content/recipient/file or expired window invalidates approval. Note confirmation and reminder acknowledgement must never send a customer message.
 5. Test material -> SMS -> email response with the operator present. Before gateway acceptance, actual automated dispatch is capability-blocked despite standing notification permission; any operator manual send is logged. Verify actual first +30-minute and second +24-hour timing, allowed-window rollover, weekend/no-send date rules, manual+AI two-message cap and non-reset after resending materials.
-6. Verify reply/stop first, do-not-contact, the operator's manual pause for unconnected channels, one active cycle and handover after two. Unknown results/counts block later attempts. Own-number display and replies in the operator's original inbox are mandatory for automatic SMS acceptance.
+6. Verify reply/stop first, do-not-contact, the operator's manual pause for unconnected channels, one active cycle and handover after two. Unknown results/counts block later attempts. Verify the configured own-number device/sender and actually connected reply visibility separately. SentToNetwork passes SMS sending acceptance; Delivered, physical handset actions and recipient acknowledgement are not required and must not become waiting/failure items. Do not certify an unavailable inbound reader from a successful send.
 7. Test reminders on actual connected channels: one initial, 19-minute escalation, 24-hour acknowledgement/overdue. Single-channel or late checks are marked degraded, not passed. Acknowledgement closes only the reminder. Check scan reruns do not duplicate notices.
 8. Create one confirmed work Calendar appointment; store/reuse its event ID. Do not access unrelated family events or duplicate existing Hub/Hux reminders. Test daily 08:30 timezone/DST configuration and one catch-up after a missed run.
 9. Interrupt after an external action but before Notion result saving. Reconcile the actual external ID/result before retry/backfill. Test unknown send, changed approval, duplicate scan, partial pagination, Notion outage and two-host ownership conflict. No blind resend or duplicate CRM note; incomplete coverage remains visible.
@@ -161,3 +161,14 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
 Use only the seven published commands plus ordinary business inputs and simulated Notion human actions. No private owner invocations or invented reply-draft continue arguments may make an end-to-end pass. A public run-auto now processes separately approved Automatic sends, while an explicitly requested no-send scan and legacy restricted jobs stay narrow. Verify the same current action through a real guarded tick separately; no runtime claim follows from offline checks.
 
 Require actual material Sent -> automatically persisted SMS cycle/notification/due or blocking task -> current standing-authority check -> eligible shared-executor dispatch without individual SMS review. Repeat the same provider event and resend materials to check original cycle/count preservation. Cover channel disabled, missing number, stop/closed/capped cycle, unknown send, partial handoff save and RecordMaterialHandoff recovery without another email. Extra-guided business/channel success and public self-service are separate results. Test the new automatic path live before accepting P0-B or independent Beta.
+
+## SMS sending regression
+
+- Observe SentToNetwork with no Delivered or human_receipt: the notification
+  send is complete, counted once, displayed Sent, and needs no operator task.
+- Repeat the scan: no automatic delivery polling, duplicate request or count
+  increment. Later optional Delivered does not increment the sent count again.
+- Pending/Unknown queries only the original ID, retaining reservations; Failed
+  is not success. Missing handset observations never authorize resend.
+- Completed sending does not cancel independent future due follow-ups, bypass
+  reply/stop guards, or certify inbox/scheduler capabilities.

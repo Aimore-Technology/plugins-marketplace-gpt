@@ -92,14 +92,15 @@ class OperatorExperienceTests(unittest.TestCase):
         self.assertEqual(result['counts']['email_sent'],1);self.assertEqual(result['counts']['sms_sent'],0)
         self.assertFalse(result['counts']['coverage_complete'])
 
-    def test_network_status_and_receipt_are_separate_business_copy(self):
+    def test_network_status_is_sent_and_optional_receipt_does_not_block(self):
         from test_scheduled_outcomes import outcome
         event={**outcome('sms','SentToNetwork'),'account':'device-owner'}
         result=UX.result_summary({'events':[event],'coverage_complete':True})
-        self.assertIn('delivery unconfirmed',result['rows'][0]['result'])
+        self.assertEqual('Sent',result['rows'][0]['result'])
+        self.assertFalse(result['rows'][0]['query_original_request'])
         event['human_receipt']={'message_id':'sent-1','received':True,'source':'operator observation'}
         row=UX.result_summary({'events':[event],'coverage_complete':True})['rows'][0]
-        self.assertIn('delivery unconfirmed',row['result']);self.assertIn('confirmed',row['receipt'])
+        self.assertEqual('Sent',row['result']);self.assertIn('confirmed',row['receipt'])
 
     def test_conflicting_original_result_is_not_a_clean_ui_total(self):
         from test_scheduled_outcomes import outcome

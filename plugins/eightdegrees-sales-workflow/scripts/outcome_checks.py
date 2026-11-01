@@ -83,6 +83,23 @@ def verify_projection(data):
             "scope": "Offline readback comparison; repair projections only, never repeat the provider operation"}
 
 
+def sms_progress(data):
+    """End send tracking at the network result; never wait for a handset action."""
+    derived = projection(data)
+    if data['provider']['operation'] != 'sms':
+        raise ValueError('SMS progress requires the original SMS request outcome')
+    fields = derived['expected']
+    status = fields['provider_status']
+    return {'status': 'SMSProgressChecked', 'entity_id': derived['entity_id'],
+            'content_version': derived['content_version'], 'message_id': fields['message_id'],
+            'provider_status': status, 'send_complete': fields['sent'],
+            'query_original_request': fields['reserved'],
+            'requires_handset_confirmation': False, 'retry_send_allowed': False,
+            'needs_reconciliation': status == 'Unknown',
+            'scope': 'SentToNetwork completes sending; optional delivery metadata is not a workflow gate. '
+                     'Pending outcomes query only this original request; no I/O or permission to resend.'}
+
+
 def current_display(data):
     """Check the actual action copy, not only caller-normalized result fields."""
     derived = projection(data)
@@ -142,18 +159,18 @@ def counts(data):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("task", "project", "verify", "display", "counts"))
+    parser.add_argument("command", choices=("task", "project", "verify", "display", "counts", "sms-progress"))
     parser.add_argument("--input", required=True)
     args = parser.parse_args()
     try:
         source = sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8")
         result = {"task": task_state, "project": projection, "verify": verify_projection,
-                  "display": current_display, "counts": counts}[args.command](json.loads(source))
+                  "display": current_display, "counts": counts, "sms-progress": sms_progress}[args.command](json.loads(source))
     except (ValueError, KeyError, TypeError, OSError) as exc:
         result = {"status": "NeedsCorrection", "reason": str(exc)}
     print(json.dumps(result, ensure_ascii=False))
     return 0 if result["status"] in {"CurrentStateVerified", "OutcomeDerived", "OutcomeProjectionsVerified",
-                                    "CurrentOutcomeDisplayVerified", "OutcomeCountsDerived"} else 2
+                                    "CurrentOutcomeDisplayVerified", "OutcomeCountsDerived", "SMSProgressChecked"} else 2
 
 
 if __name__ == "__main__":
