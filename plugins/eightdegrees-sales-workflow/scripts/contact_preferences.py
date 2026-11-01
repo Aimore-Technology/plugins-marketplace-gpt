@@ -15,6 +15,33 @@ from workflow_checks import visible_markdown
 HEADING = '## Current contact restrictions'
 
 
+def persona_identity(data, persona, cycle):
+    """Read a legacy binding without rewriting the approved snapshot."""
+    expected = cycle['location_id'] + ':' + cycle['contact_id']
+    if persona.get('approved') is False:
+        raise ValueError('An unapproved persona cannot supply the contact binding')
+    supplied = persona.get('client_id')
+    if supplied is not None and supplied != expected:
+        raise ValueError('Persona belongs to another CRM customer')
+    if supplied is None or data.get('settings_page') is not None:
+        if data.get('settings_page') is None:
+            raise ValueError('Legacy persona requires the original RunSettings client_pages binding')
+        body = page_body(data['settings_page'])
+        configs = []
+        for raw in re.findall(r'```json\s*\n(.*?)\n```', body, re.S):
+            value = json.loads(raw)
+            if isinstance(value, dict) and 'settings_schema_version' in value:
+                configs.append(value)
+        if len(configs) != 1:
+            raise ValueError('Expected one original RunSettings record')
+        entry = configs[0].get('client_pages', {}).get(expected, {})
+        identity = page_id(object_result(data['persona_page'])['id'])
+        if (entry.get('location_id') != cycle['location_id'] or entry.get('contact_id') != cycle['contact_id']
+                or not entry.get('persona_page_id') or page_id(entry['persona_page_id']) != identity):
+            raise ValueError('Original settings do not bind this persona to the CRM customer')
+    return expected
+
+
 def stop_overlay(data):
     cycle = blocks(data['cycle_page'], 'sms-cycle-current-state')[1]
     package = blocks(data['send_task'], 'sales-send-package')[1]
@@ -29,8 +56,7 @@ def stop_overlay(data):
                         [blocks(data['cycle_page'], 'material-handoff-v1')[1]['email_task_id']]]):
         raise ValueError('Stop source must match the original enquiry email and parties')
     persona = blocks(data['persona_page'], 'approved-persona-snapshot')[1]
-    if persona['client_id'] != cycle['location_id'] + ':' + cycle['contact_id']:
-        raise ValueError('Persona belongs to another CRM customer')
+    client_id = persona_identity(data, persona, cycle)
     text = []
     def visit(part):
         body = (part.get('body') or {}).get('content')
@@ -62,7 +88,7 @@ def stop_overlay(data):
     record = blocks(data['persona_page'], 'contact-restrictions-v1', required=False)
     if record:
         old, overlay = record
-        if overlay['client_id'] != persona['client_id']:
+        if overlay['client_id'] != client_id:
             raise ValueError('Existing overlay belongs to another customer')
         events = list(overlay['events'])
     else:
@@ -73,7 +99,7 @@ def stop_overlay(data):
             raise ValueError('Previously saved stop evidence differs')
         return {'status': 'ContactRestrictionPlanned', 'updates': [], 'event': matching[0]}
     events.append(event)
-    updated = {'record_type': 'contact-restrictions-v1', 'client_id': persona['client_id'],
+    updated = {'record_type': 'contact-restrictions-v1', 'client_id': client_id,
                'rule': 'Restrictions override historical preferences; no automatic re-enable', 'events': events}
     new = '```json\n' + json.dumps(updated, ensure_ascii=False, indent=2) + '\n```'
     if old:
@@ -87,9 +113,15 @@ def stop_overlay(data):
             raise ValueError('Existing unbound restriction section needs reconciliation')
         headings = [h for h in ('## Current approved persona', '## \u5f53\u524d\u5df2\u5ba1\u6838\u753b\u50cf')
                     if re.search(r'(?m)^' + re.escape(h) + r'$', visible_markdown(body))]
-        if len(headings) != 1 or body.count(headings[0]) != 1:
-            raise ValueError('Need one exact approved-persona heading for safe insertion')
-        edit = {'old_str': headings[0], 'new_str': HEADING + '\n\nLatest scoped restrictions override earlier approved contact preferences.\n\n' + new + '\n\n' + headings[0]}
+        if len(headings) == 1 and body.count(headings[0]) == 1:
+            anchor = headings[0]
+        else:
+            # Localized legacy headings are presentation, not identity. The
+            # unique original snapshot is a safe byte-preserving insertion anchor.
+            anchor = blocks(data['persona_page'], 'approved-persona-snapshot')[0]
+            if body.count(anchor) != 1:
+                raise ValueError('Need one original approved snapshot for safe insertion')
+        edit = {'old_str': anchor, 'new_str': HEADING + '\n\nLatest scoped restrictions override earlier approved contact preferences.\n\n' + new + '\n\n' + anchor}
     return {'status': 'ContactRestrictionPlanned', 'updates': [edit], 'event': event,
             'scope': 'Restrictive current display only; no approval, CRM DND change or re-enable'}
 

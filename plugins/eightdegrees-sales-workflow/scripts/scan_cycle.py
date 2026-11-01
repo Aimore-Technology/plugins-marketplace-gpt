@@ -78,6 +78,8 @@ def advance(data):
         # Do not confuse the recorded expired scan with proof of current ownership.
         object_result(data['checkpoint_page'])
     states = dict(previous['items'])
+    candidates = {key(v): v for v in previous.get('work_items', [])}
+    candidates.update({key(v): v for v in data['items']})
     for result in data.get('results', []):
         if result.get('state') not in {'completed', 'unknown', 'waiting', 'retry_read'} or not result.get('receipt_ref'):
             raise ValueError('Persisted step result needs actual evidence and an explicit state')
@@ -87,6 +89,8 @@ def advance(data):
         if states.get(work_key, {}).get('state') == 'completed' and result['state'] != 'completed':
             raise ValueError('Completed steps cannot be rewound by a later checkpoint')
         states[work_key] = {k: result[k] for k in ('state', 'receipt_ref', 'attempt_id') if k in result}
+        if work_key in candidates:
+            states[work_key].update({k: candidates[work_key][k] for k in ('source_key', 'step', 'version')})
     streams = dict(previous['streams'])
     for name, stream in data.get('streams', {}).items():
         if not isinstance(stream.get('complete'), bool) or not isinstance(stream.get('durable'), bool):
@@ -103,15 +107,22 @@ def advance(data):
     pending, seen = [], set()
     # Persist identities so a crash before the next query cannot forget ready
     # work. They are discovery pointers, never cached permission or payloads.
-    candidates = {key(v): v for v in previous.get('work_items', [])}
-    candidates.update({key(v): v for v in data['items']})
+    completed = {(v['source_key'], v['step'], v['version']) for v in states.values()
+                 if v.get('state') == 'completed' and all(k in v for k in ('source_key', 'step', 'version'))}
+    unknown = {(v.get('source_key', candidates.get(k, {}).get('source_key')),
+                v.get('step', candidates.get(k, {}).get('step')))
+               for k, v in states.items() if v.get('state') == 'unknown'}
+    def finished(item):
+        return (item['source_key'], item['step'], item['version']) in completed
     for item in candidates.values():
         identity = key(item)
         if identity in seen:
             continue
         seen.add(identity)
         prior = states.get(identity, {})
-        if prior.get('state') == 'completed':
+        if prior.get('state') == 'completed' or finished(item):
+            continue
+        if (item['source_key'], item['step']) in unknown and prior.get('state') != 'unknown':
             continue
         # The persisted unknown overrides a newly constructed "ready" candidate.
         action = 'reconcile' if prior.get('state') == 'unknown' or item.get('unknown_attempt') else 'owner_step'
@@ -119,22 +130,32 @@ def advance(data):
             continue
         if action == 'owner_step' and item.get('due_at') and timestamp(item['due_at']) > now:
             continue
+        cost = item.get('estimated_seconds', 90)
+        if type(cost) is not int or not 1 <= cost <= 600:
+            raise ValueError('Use a bounded estimated duration from the owner phase')
+        priority = (0 if item['step'] in {'ObserveStop', 'RefreshContactRestrictions'} else
+                    4 if item['step'] in {'RecordMaterialHandoff', 'RefreshEmailOutcome', 'RefreshSmsOutcome'} else
+                    2 if item['step'] == 'ReadMessageBody' else item.get('priority', 3))
         pending.append({'key': identity, 'action': action,
                         **{k: item[k] for k in ('source_key', 'step', 'version', 'input_digest')},
                         'attempt_id': prior.get('attempt_id', item.get('attempt_id')),
-                        'priority': item.get('priority', 3)})
+                        'priority': priority, 'estimated_seconds': cost})
         if action == 'reconcile' and not pending[-1]['attempt_id']:
             raise ValueError('Unknown candidate must retain the original attempt')
     # Stop observations first, then unknown result reconciliation, accepted
     # submissions/due work, intake, and optional presentation/report maintenance.
-    pending.sort(key=lambda x: (0 if x['step'] == 'ObserveStop' else 1 if x['action'] == 'reconcile' else x['priority'], x['key']))
+    pending.sort(key=lambda x: (0 if x['step'] in {'ObserveStop', 'RefreshContactRestrictions'} else 1 if x['action'] == 'reconcile' else x['priority'], x['key']))
     expired = now >= start + timedelta(seconds=budget - reserve)
     attempted = set(data.get('attempted_keys', []))
     ready = [v for v in pending if v['key'] not in attempted]
-    work = [] if expired else ready[:max(0, limit - len(attempted))]
+    remaining = max(0, int((start + timedelta(seconds=budget-reserve) - now).total_seconds()))
+    # Return only one admission. The caller must re-observe time/stop/activity
+    # before choosing another owner, rather than execute a stale whole-cycle list.
+    fitting = ready[:1] if ready and ready[0]['estimated_seconds'] <= remaining else []
+    work = [] if expired or len(attempted) >= limit else fitting[:1]
     work_items = [{k: v[k] for k in ('source_key', 'step', 'version', 'input_digest', 'attempt_id', 'unknown_attempt',
-                                   'due_at', 'waiting', 'stopped', 'priority') if k in v}
-                  for identity, v in candidates.items() if states.get(identity, {}).get('state') != 'completed']
+                                   'due_at', 'waiting', 'stopped', 'priority', 'estimated_seconds') if k in v}
+                  for identity, v in candidates.items() if states.get(identity, {}).get('state') != 'completed' and not finished(v)]
     checkpoint = {'record_type': 'scan-checkpoint-v1', 'root_id': root,
                   'invocation_id': current_id, 'items': states, 'streams': streams,
                   'work_items': work_items,
@@ -147,6 +168,7 @@ def advance(data):
     return {'status': 'ScanCyclePlanned', 'work': work, 'checkpoint': checkpoint,
             'execution_basis': 'BoundOnDemand' if scoped_single and not native_single else 'ObservedSerializedHost',
             'budget_exhausted': expired or len(attempted) >= limit,
+            'admission_required_before_next_owner': True, 'seconds_available_for_work': remaining,
             'deadline': (start + timedelta(seconds=budget)).isoformat(),
             'coverage_complete': complete,
             'requires_next_cycle': bool(work_items) or not complete,

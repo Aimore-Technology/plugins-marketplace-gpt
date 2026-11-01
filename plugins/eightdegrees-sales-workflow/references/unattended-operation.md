@@ -162,3 +162,24 @@ Unbound/mismatched turns, partial installation activity, another active scan,
 a live/unknown scheduler or missing original settings still defer. The existing
 approval/stop/attempt rules remain; no per-message bypass or extra continue
 command is introduced. Host-wide/native serialization flags remain unverified.
+
+## Admission and compact phase checkpoints
+
+Each scan.cycle result admits only ONE owner. It returns
+admission_required_before_next_owner and seconds_available_for_work. Supply an
+estimated_seconds phase cost (default90); no phase is admitted unless it fits
+budget minus reserve. This is admission control, not a hard provider timeout.
+Do not skip a pending stop/reconciliation merely to fit a cheaper send.
+
+ReadMessageBody has source priority2; optional RecordMaterialHandoff,
+RefreshEmailOutcome and RefreshSmsOutcome priority4. Required immediate result
+recording still belongs to the in-flight effect; later independent maintenance
+must not starve source intake. Save compact pointers/check results instead of
+copying HTML/MIME or the whole original plan into every progress update.
+Apply one frozen owner registry per phase; run local checks in one batch over
+unchanged original captures. Keep all required fresh pre-send and saved-result
+reads. Record actual overrun, never raise limits to hide it.
+
+Completion receipts retain source/step/version identities so a rebuilt stale
+digest cannot requeue the same completed version. Unknown source/step attempts
+block changed input/version candidates and remain reconcile-only.

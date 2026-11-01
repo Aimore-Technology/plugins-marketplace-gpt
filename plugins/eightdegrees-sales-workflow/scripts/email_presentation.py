@@ -2,6 +2,8 @@
 """Plan and verify email result-only patches from original captures; no I/O."""
 
 import argparse
+from email import policy
+from email.parser import BytesParser
 import copy
 from datetime import datetime
 from email.utils import parseaddr
@@ -13,6 +15,7 @@ import sys
 
 from notion_checks import object_result, page_body, page_id, task_display
 from workflow_checks import visible_markdown
+from reply_transport import b64url
 
 ROLES = ('send_task', 'send_action', 'review_task', 'review_action')
 
@@ -121,20 +124,41 @@ def index_patch(capture, send_id, version, outcome):
         {'old_str': old, 'new_str': json.dumps(updated, ensure_ascii=False, indent=2)}]}
 
 
+def sent_rfc_id(proof):
+    """Accept documented legacy layouts, rejecting conflicting original proof."""
+    values = [proof.get('rfc_message_id'), (proof.get('details') or {}).get('rfc_message_id')]
+    if proof.get('message') is not None:
+        raw = object_result(proof['message'])
+        parsed = BytesParser(policy=policy.default).parsebytes(b64url(raw['raw']))
+        actual = parsed.get_all('Message-ID', [])
+        if len(actual) != 1 or raw.get('id') != proof['verification']['message_id']:
+            raise ValueError('Original Sent MIME message identity is missing or inconsistent')
+        values.append(str(actual[0]).strip())
+    values = [v for v in values if v is not None]
+    if (not values or any(not isinstance(v, str) or not re.fullmatch(r'<[^<>\s]+@[^<>\s]+>', v) for v in values)
+            or len(set(values)) != 1):
+        raise ValueError('Missing or conflicting original Sent RFC Message-ID')
+    return values[0]
+
+
 def receipt_evidence(receipt, manifest, proof):
     """Bind an owner-selected explicit quote to an actual matching Gmail reply."""
     message = object_result(receipt['message'])
     headers = {h['name'].lower(): h['value'] for h in message['payload']['headers']}
-    details = proof['details']
+    rfc_id = sent_rfc_id(proof)
     if (parseaddr(headers.get('from', ''))[1].lower() != parseaddr(manifest['to'])[1].lower()
             or parseaddr(headers.get('to', ''))[1].lower() != parseaddr(manifest['from_address'])[1].lower()
             or message.get('thread_id') != manifest['thread_id']
-            or details['rfc_message_id'] not in (headers.get('in-reply-to', '') + ' ' + headers.get('references', '')).split()):
+            or rfc_id not in re.findall(r'<[^<>\s]+>', headers.get('in-reply-to', '') + ' ' + headers.get('references', ''))):
         raise ValueError('Receipt reply must match the actual sent message, thread and parties')
     texts = []
     def visit(part):
         content = (part.get('body') or {}).get('content')
         if isinstance(content, str):
+            content = re.sub(r'<blockquote\b[^>]*>.*?</blockquote>', '', content, flags=re.I | re.S)
+            content = re.sub(r'<div\b[^>]*class=["\x27][^"\x27]*(?:gmail_quote|yahoo_quoted)[^"\x27]*["\x27][^>]*>.*', '', content, flags=re.I | re.S)
+            content = re.split(r'(?mi)^(?:On .+wrote:|[- ]*Original Message[- ]*)', content)[0]
+            content = '\n'.join(line for line in content.splitlines() if not line.lstrip().startswith('>'))
             texts.append(unescape(re.sub(r'<[^>]*>', ' ', content)))
         for child in part.get('parts') or []:
             visit(child)
@@ -165,8 +189,20 @@ def plan(data):
     if 'maintenance_task_id' in data and entity_id in ids.values():
         raise ValueError('A maintenance task must not reopen or impersonate the original completed records')
     _, package = blocks(pages['send_task'], 'sales-send-package')
-    manifest, approval = package['transport_manifest'], package['content_approval']
+    manifest, approval = package['transport_manifest'], package.get('content_approval')
     version = package['content_version']
+    if approval is None:
+        accepted = blocks(pages['review_task'], 'accepted-action-submission')[1]
+        if (package.get('content_approved') is not True or accepted.get('read_verified') is not True
+                or accepted.get('decision') != 'Confirm' or accepted.get('content_version') != version
+                or accepted.get('input_sha256') != package.get('content_approval_sha256')
+                or page_id(accepted['task_id']) != ids['review_task']
+                or page_id(accepted['action_page_id']) != ids['review_action']
+                or page_id(package['content_task_page_id']) != ids['review_task']
+                or page_id(package['content_action_page_id']) != ids['review_action']):
+            raise ValueError('Legacy package needs its original accepted content confirmation')
+        approval = {k: accepted[k] for k in ('task_id', 'action_page_id', 'decision', 'content_version')}
+        approval['task_page_id'] = approval.pop('task_id')
     if not isinstance(version, str) or not version or re.search(r'[\n\r`*<>\[\]]', version):
         raise ValueError('Use the exact single-line canonical content version')
     if (page_id(manifest['task_page_id']) != ids['send_task'] or manifest.get('content_version') != version

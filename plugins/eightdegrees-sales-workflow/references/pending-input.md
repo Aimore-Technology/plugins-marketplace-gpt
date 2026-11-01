@@ -34,3 +34,10 @@ Prefill only supplied or already verified applicable values, retaining provenanc
 Explicit init upgrade follows [operator actions](operator-actions.md): preserve existing values, decisions and IDs; never synthesize submission during migration. Keep unresolved in-flight legacy inputs on one original route until reconciled, and report the migration exception honestly. Closed tasks are historical, not new forms.
 
 Use [operator experience](operator-experience.md) to render verified applicable reused values once, missing/invalid fields with examples, and an explicit request/accepted/processing next step. Preserve typed drafts and all existing input-route rules. The presentation helper does not validate or apply supplied facts.
+
+## SMS setup input
+
+Missing gateway evidence uses the dedicated [channel setup](sms-channel-setup.md)
+DataCompletion input. Phone-inbox observations and a one-message diagnostic
+choice are business inputs; capability verification and durable slots remain
+workflow-owned. Keep this separate from the read-only notification result.

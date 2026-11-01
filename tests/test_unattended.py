@@ -222,9 +222,14 @@ class BoundedRecovery(unittest.TestCase):
         data = cycle_fixture(); base = data['items'][0]
         data['items'] += [copy.deepcopy(base), base | {'source_key': 'stop', 'step': 'ObserveStop'}]
         result = scan_cycle.advance(data)
-        self.assertEqual(len(result['work']), 2)
+        self.assertEqual(len(result['work']), 1)
+        self.assertEqual(len(result['checkpoint']['remaining_keys']), 2)
         self.assertEqual(result['work'][0]['step'], 'ObserveStop')
-        result = scan_cycle.advance(data | {'attempted_keys': [v['key'] for v in result['work']]})
+        attempted = [v['key'] for v in result['work']]
+        result = scan_cycle.advance(data | {'attempted_keys': attempted})
+        self.assertEqual(result['work'][0]['step'], 'SendApprovedReply')
+        attempted += [v['key'] for v in result['work']]
+        result = scan_cycle.advance(data | {'attempted_keys': attempted})
         self.assertEqual(result['work'], [])
 
     def test_unchanged_completed_item_is_not_reopened_by_stale_candidate(self):

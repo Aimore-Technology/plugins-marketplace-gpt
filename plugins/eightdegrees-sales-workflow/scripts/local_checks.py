@@ -20,6 +20,7 @@ import notion_mutation
 import sms_presentation
 import contact_preferences
 import scan_cycle
+import sms_channel
 
 OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
@@ -52,6 +53,7 @@ OPERATIONS = {
     "contact.restriction-verify": contact_preferences.verify,
     "contact.dispatch-gate": contact_preferences.dispatch_gate,
     "scan.cycle": scan_cycle.advance,
+    "sms.channel-check": sms_channel.gate,
 }
 PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
@@ -61,7 +63,7 @@ PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForC
           "NotionMutationPrepared", "WithinOwnerScope", "WithinReportScope",
           "EmailPresentationPlanned", "EmailPresentationVerified", "OperatorResponseReady",
           "SMSPresentationPlanned", "SMSPresentationVerified", "ContactRestrictionPlanned", "ContactRestrictionVerified", "ContactDispatchChecked",
-          "ScanCyclePlanned", "ScanDeferred"}
+          "ScanCyclePlanned", "ScanDeferred", "ChannelCheckEligible", "ChannelCheckBlocked"}
 
 
 def run(plan, captures):

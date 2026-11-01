@@ -64,7 +64,7 @@ ContentVersion and accepted-input/attempt digest. Process a ready key at most
 once per cycle. After a verified transition enqueue its newly ready successors;
 do not restart the mailbox scan or recreate prior tasks/Notes/drafts.
 
-Use queue_execution.bounded_work_items (default 100) and the host's actual
+Use queue_execution.bounded_work_items (default 12) and the host's actual
 execution deadline. On exhaustion, persist remaining work/cutoffs and mark
 partial coverage for the next cycle. A future due time is saved, not slept on.
 An unchanged wait, unsubmitted review, unknown external result or stopped item

@@ -40,3 +40,13 @@ Use [channel-local outcome text](../../references/outcome-state.md) for complete
 ## Operator path and local checks
 
 Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
+
+## Persist compatible send records
+
+Use [record contracts](../../references/record-contracts.md) at content acceptance,
+Sent proof saving and RecordMaterialHandoff recovery. Validate the downstream
+record shape before a send; the saved original approval/bytes remain immutable.
+Persist actual Sent and its registration event before optional linked-display
+maintenance. Reuse unchanged captures in one local batch, not repeated plans
+for each progress sentence. If post-send work does not fit, save one original
+recovery pointer; next run-auto repairs it without a provider/CRM replay.

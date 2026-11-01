@@ -25,3 +25,15 @@ Apply [outcome state](../../references/outcome-state.md), [operator experience](
 ## Reconcile original status, not only a new run
 
 Use [unattended operation](../../references/unattended-operation.md), sms.presentation-plan/verify and RefreshSmsOutcome after actual request status changes or a targeted stale finding. Refresh all seven original task/action/run/cycle surfaces; machine waiting is not WaitingForOperator. Preserve exact attempt/payload, receipt history, counts and stopped state. Before dispatch also check the current source-bound contact restriction overlay; historical approved permission cannot override it.
+
+## Actionable capability and bounded diagnostic
+
+Apply [SMS channel setup](../../references/sms-channel-setup.md) rather than
+leaving a blocked notification with only a read-only reason. Reuse one separate
+DataCompletion/PrepareSmsFollowUp input for setup. An already authorized
+one-message diagnostic is processed by run-auto without another SMS approval.
+Use local sms.channel-check with actual policy, guards, payload, context/time
+and saved controlled_sms_test. ChannelCheckBlocked means no dispatch even when
+the local check itself exits cleanly. ChannelCheckEligible never supplies
+standing authority, material/due/window/attempt proof or ordinary readiness.
+Reserve the bounded test slot with the original AttemptId before request.

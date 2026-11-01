@@ -48,6 +48,9 @@ Without a running schedule, public run-auto processes the same queue once.
    original Notion fetches (saved_cycle is omitted only for explicit nonmaterial NotApplicable). It checks exact persisted blocks, original email
    target and same cycle page for reuse. Require exit 0/MaterialHandoffVerified;
    ordinary owner publication checks additionally cover the task/action/binding.
+   A distinct recovery also supplies saved_recovery_task, targeting its own
+   completion as specified in [record contracts](record-contracts.md), without
+   retargeting the original event. Include both saved projection pages.
    Freeze this as kind=material-handoff on the original email task in the sales
    send plan, alongside draft/sent transport and CRM receipt checks. A blocked
    but verified handoff is valid registration, never successful SMS delivery.
@@ -75,8 +78,8 @@ reenter the scanner or widen report/draft-only/no-send restrictions.
 
 Use only published plugin commands, ordinary inquiry inputs and actual Notion
 human submissions. Do not call private owners or add invented continue syntax
-to make a missing transition pass. Verify email Sent -> automatic cycle/draft
-or blocked task -> distinct SMS approval -> due execution -> actual status;
+to make a missing transition pass. Verify email Sent -> automatic notification
+or actionable blocked setup -> standing-authorized due execution -> actual status;
 repeat unchanged cycles to prove no duplicate cycle/task/send. Also verify
 unknown email result, missing number, disabled gateway, stopped/closed cycle,
 same-event retry, resends, partial handoff save and already-sent recovery.

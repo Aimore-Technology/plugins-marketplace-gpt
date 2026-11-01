@@ -125,7 +125,24 @@ def verify(data):
         cycles = [c for c in data["input"]["cycles"] if c["cycle_key"] == expected["cycle_key"]]
         if len(cycles) != 1 or page_id(cycles[0].get("page_id", "")) != cycle_id:
             raise ValueError("Reuse must keep the original cycle page, not a duplicate")
-    return {"status": "MaterialHandoffVerified", "entity_id": email_id, "cycle_page_id": cycle_id,
+    entity_id = email_id
+    if data.get('saved_recovery_task') is not None:
+        from email_presentation import blocks, properties
+        capture = data['saved_recovery_task']
+        props = properties(capture)
+        entity_id = page_id(object_result(capture)['id'])
+        record = blocks(capture, 'material-handoff-recovery-v1')[1]
+        outcome = record['current_outcome']
+        if (entity_id in {email_id, cycle_id} or props.get('OwnerSkill') != 'eightdegrees-sales-reply'
+                or props.get('ResumeStep') != 'RecordMaterialHandoff' or props.get('StepId') != 'RecordMaterialHandoff'
+                or props.get('ContentVersion') != expected['content_version']
+                or page_id(props.get('SourceURL', '')) != email_id
+                or page_id(record['original_send_task_id']) != email_id
+                or outcome.get('message_id') != expected['message_id'] or outcome.get('sent') is not True
+                or outcome.get('content_version') != expected['content_version']):
+            raise ValueError('Recovery must bind the original email task, Sent message and version')
+    return {"status": "MaterialHandoffVerified", "entity_id": entity_id, "email_task_id": email_id,
+            "projection_page_ids": [v for v in (email_id, cycle_id) if v is not None], "cycle_page_id": cycle_id,
             "event_key": expected["event_key"], "state": expected["state"],
             "message_id": expected["message_id"], "content_version": expected["content_version"], "scope": SCOPE}
 

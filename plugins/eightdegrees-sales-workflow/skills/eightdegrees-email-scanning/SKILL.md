@@ -38,3 +38,24 @@ Use [channel-local outcomes](../../references/outcome-state.md): email Sent, cus
 Use [unattended operation](../../references/unattended-operation.md) and local scan.cycle before each next owner step. Stop admitting new work at the saved budget minus publication reserve; persist original source cursors/remaining keys and finish current result recording. Do not treat the 15-minute tick as permission to overlap executors or an unknown attempt as ready. Observe scoped customer stops before normal reviews and queue RefreshContactRestrictions to show the current restrictive overlay without editing approved persona history. Read candidate action inputs every cycle, but skip unchanged result publication and completed-history sweeps.
 
 For explicitly assigned on-demand execution, normalize the actual current thread/turn, saved queue_execution.on_demand_executor_thread_id, stopped/no-attempt scheduler and complete installation Scan activity into executor.on_demand under the bounded procedure. Pass the real invocation policy. This scoped basis permits public manual cycles without claiming native/global host serialization; it never applies to scheduled-approved-work. Preserve pending submissions and original attempts.
+
+## One admission, source progress and service observations
+
+scan.cycle now returns at most one owner admission. Recheck actual clock, current
+stop and installation activity before obtaining the next admission; do not
+execute a cached list. Supply estimated_seconds from the affected phase; keep
+source intake ahead of optional result repair. Persist source facts to a review
+without waiting for unrelated presentation repair. Do not repeatedly retry an
+unchanged known schema defect in the same tick. Save its one linked exception
+and continue unrelated source work while time permits.
+
+Use [record contracts](../../references/record-contracts.md) for contact/receipt
+adapters. Legacy contact repair supplies settings_page, not a guessed client ID.
+Completed same-version steps suppress stale input-digest candidates; unknown
+attempts block changed digests/versions until the original result is reconciled.
+After observed connector results, refresh only their registered Health rows
+from actual operation times, retaining unresolved quality and degraded flags.
+Declare those affected rows once in this owner's plan and batch local checks.
+Never reuse initialization timestamps as the latest service observation or set
+LastSuccess from report generation. This is observation publication, not a new
+service probe; report itself still cannot write Health/Dashboard.

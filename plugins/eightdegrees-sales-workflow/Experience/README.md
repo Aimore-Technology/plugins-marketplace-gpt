@@ -23,3 +23,6 @@ Maintainers add a lesson only with a concrete trigger, observed behavior, scoped
 Evidence key B113 means the 0.1.13 directed batch on 2026-10-29. Its case IDs are named in each card; the development release review holds the report/source references. This library contains no customer destinations, credentials, message bodies or live workspace IDs.
 
 For bounded unattended cycles, read [unattended operation](../references/unattended-operation.md); the related local operations do not prove native task execution or ownership.
+
+For persona snapshots, Sent proof and distinct registration recovery, read
+[record adapters](record-adapters.md) before writing or repairing those records.

@@ -25,3 +25,9 @@ Apply [operator experience](../../references/operator-experience.md) for Today, 
 ## Contact preference freshness
 
 Under [unattended operation](../../references/unattended-operation.md), source-bound restrictive channel events appear above the approved snapshot and override historical contact permission in dispatch. Preserve that overlay through approved persona updates. A scoped stop does not wait for CRM Notes review, change global DND or authorize a future re-enable. Include explicit channel-preference changes in review proposals when applicable; do not silently report an empty preference change when the source changed it.
+
+## Record compatibility
+
+Apply [record contracts](../../references/record-contracts.md) when creating the
+approved snapshot. Include exact client_id on new records. A later restrictive
+overlay must not rewrite approved facts or require another fact approval.

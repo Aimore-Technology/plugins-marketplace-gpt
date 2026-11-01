@@ -31,3 +31,13 @@ Apply [operator experience](../../references/operator-experience.md) for Today, 
 Add missing queue_execution cycle_budget_seconds=480, publication_reserve_seconds=60, bounded_work_items=12 and checkpoint_contract=scan-checkpoint-v1 on explicit init upgrade. Preserve saved user limits, native lifecycle, review decisions and disabled authority. Confirm actual single-owner serialization/activity capability before reporting unattended readiness under [unattended operation](../../references/unattended-operation.md); do not create schedules during init.
 
 When the operator explicitly assigns this conversation as the sole on-demand executor, record queue_execution.on_demand_executor_thread_id from actual runtime thread evidence and explain the binding. On explicit upgrade/rebind, verify the prior executor is not active and retain original submitted actions, decisions, attempts and scheduler disable state. This sets no native serialization/readiness flag and creates no schedule.
+
+## Compatible records and channel setup
+
+Use [record contracts](../../references/record-contracts.md) for new snapshots
+and original result layouts. Read [SMS channel setup](../../references/sms-channel-setup.md)
+when capability is incomplete: create a deduplicated ordinary setup input, not
+only a read-only error. Register any explicit controlled one-message test from
+the original operator setup context, with exact destination/device/sender,
+context, expiry and attempt pointers; never certify unverified ordinary SMS or
+an unavailable inbound reader. Init still performs no customer send.

@@ -74,3 +74,10 @@ An absent new receipt does not downgrade an existing verified receipt.
 After a partial patch failure, retain the original plan and reconcile only missing
 patches/readbacks. Do not resend email or append CRM to repair a view. Closed
 legacy records lacking required proof/bindings remain scoped findings.
+
+## Compatible original layouts
+
+Use [record contracts](record-contracts.md). Legacy top-level RFC IDs and
+pointer-only content approvals are read from matching original evidence without
+rewriting it. Conflicting aliases, wrong raw MIME or missing accepted approval
+remain errors; a compatibility adapter is not permission to invent proof.
