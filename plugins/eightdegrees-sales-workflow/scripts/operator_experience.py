@@ -127,8 +127,16 @@ def feedback(data):
         raise ValueError("Accepted feedback needs the actual saved, version-bound input snapshot")
     decision = task.get("Decision") if task.get("DecisionVersion") == task.get("ContentVersion") else None
     stage, command = "input", None
+    pending = data.get('reserved_outcome')
+    if pending is not None:
+        if pending.get('task_id') != task['PageId'] or pending.get('content_version') != task['ContentVersion']:
+            raise ValueError('Pending feedback must use this original task/version')
+        if projection(pending)['expected']['reserved'] is not True:
+            raise ValueError('Pending feedback needs an actually observed reserved outcome')
     if data.get("result_unknown") is True:
         stage = "unknown"
+    elif pending is not None:
+        stage = 'stopped_pending' if data.get('future_sms_stopped') is True else 'external_pending'
     elif state in {"Completed", "Cancelled"}:
         stage = "completed" if state == "Completed" else "cancelled"
     elif decision in {"Pause", "Postpone"}:
@@ -161,7 +169,7 @@ def feedback(data):
             # Legacy Manual sends remain Manual. Do not fabricate a private
             # command or suggest a public scanner that cannot adopt this work.
     window = data.get("approved_window") or {}
-    if window and stage not in {"completed", "cancelled", "paused", "postponed", "unknown"}:
+    if window and stage not in {"completed", "cancelled", "paused", "postponed", "unknown", "external_pending", "stopped_pending"}:
         if (window.get("read_verified") is not True or window.get("content_version") != task.get("ContentVersion")
                 or window.get("task_id") != task["PageId"]):
             raise ValueError("Display only the actual current approved window")
@@ -218,18 +226,46 @@ def result_summary(data):
             "scope": "Original outcome observations only; UI IDs support links and are not primary labels; no global absence or delivery inference"}
 
 
+def final_response(data):
+    """Produce clickable next-step/result links from existing original captures."""
+    words(data)
+    chinese = data.get('language') == 'zh-CN'
+    links, seen = [], set()
+    for key, label in [('action_page', '\u53bb\u5904\u7406' if chinese else 'Take action'),
+                       ('result_page', '\u67e5\u770b\u7ed3\u679c' if chinese else 'View result'),
+                       ('today_page', '\u4eca\u65e5\u5165\u53e3' if chinese else 'Today')]:
+        if key not in data:
+            continue
+        capture = data[key]
+        original = object_result(capture)
+        page_body(capture)
+        if original.get('metadata', {}).get('type') != 'page':
+            raise ValueError('A response link needs its original page capture')
+        identity = page_id(original['id'])
+        if identity not in seen:
+            seen.add(identity)
+            links.append({'label': label, 'url': 'https://app.notion.com/p/' + identity})
+    if not links:
+        raise ValueError('Return at least one actual result/action link; do not name an unlinked page')
+    markdown = line(data['result']) + '\n\n' + line(data['next_action']) + '\n\n'
+    markdown += ' · '.join('[' + x['label'] + '](' + x['url'] + ')' for x in links)
+    return {'status': 'OperatorResponseReady', 'markdown': markdown, 'links': links,
+            'scope': 'Presentation only; reuse current captures, no additional business action or Notion write'}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("today-views", "feedback", "review", "results"))
+    parser.add_argument("command", choices=("today-views", "feedback", "review", "results", "response"))
     parser.add_argument("--input", required=True)
     args = parser.parse_args()
     try:
         raw = sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8")
-        result = {"today-views": today_views, "feedback": feedback, "review": review_brief, "results": result_summary}[args.command](json.loads(raw))
+        result = {"today-views": today_views, "feedback": feedback, "review": review_brief,
+                  "results": result_summary, "response": final_response}[args.command](json.loads(raw))
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         result = {"status": "NeedsCorrection", "issues": [str(exc)]}
     print(json.dumps(result, ensure_ascii=False))
-    return 0 if result["status"] in {"TodayViewsPlanned", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady"} else 2
+    return 0 if result["status"] in {"TodayViewsPlanned", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady", "OperatorResponseReady"} else 2
 
 
 if __name__ == "__main__":

@@ -15,3 +15,5 @@ action page's two current sections as well as task/index JSON. A stale-copy
 refusal repairs presentation only, preserving provider IDs, exact payloads,
 approvals and stop controls. The offline patterns do not prove arbitrary prose
 correct or intercept a model's tool call; live acceptance remains necessary.
+
+Evidence: the 0.1.24 single-customer controlled run on 2026-11-01 kept a completed content review saying unsent after actual Sent, and the original email outcome missed a later explicit customer receipt. Terminal task filtering prevented those pages from becoming normal queue work. The initial send now requires linked email-presentation evidence; later receipts/stale results use a distinct RefreshEmailOutcome maintenance item. Originals remain terminal, approvals/provider proof stay intact and no CRM/send replay is allowed. Offline plan/patch/readback regressions cover this path; live model behavior still needs acceptance.

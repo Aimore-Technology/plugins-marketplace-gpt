@@ -130,7 +130,7 @@ def check():
             require(re.fullmatch(r'[A-Za-z][A-Za-z0-9]+', step), f'Invalid resume step: {step}')
             require(route.get('owner') in EXPECTED - {'eightdegrees-sales-workflow'}, f'Unknown task owner: {step}')
             require(bool(route.get('categories')) and set(route['categories']) <= {'ClientMatching', 'DataCompletion', 'ContentReview', 'SendApproval', 'ExecutionExceptions', 'ScheduledWork'}, f'Invalid task category: {step}')
-            require(route.get('effect') in {'read', 'crm', 'checkpoint', 'draft', 'customer-send', 'setup', 'report', 'calendar', 'internal-notification'}, f'Unknown task effect: {step}')
+            require(route.get('effect') in {'read', 'crm', 'checkpoint', 'draft', 'customer-send', 'setup', 'report', 'calendar', 'internal-notification', 'presentation'}, f'Unknown task effect: {step}')
         owner_profiles = read_json(plugin / 'references/owner-completion-profiles.json')
         require(set(owner_profiles) == EXPECTED - {'eightdegrees-sales-workflow'}, 'Owner completion profile inventory mismatch')
         for owner, kinds in owner_profiles.items():

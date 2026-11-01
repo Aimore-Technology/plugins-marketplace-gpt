@@ -308,7 +308,7 @@ def completion_gate(data):
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
                      "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified",
                      "execution-plan": "ExecutionPlanReady", "material-handoff": "MaterialHandoffVerified",
-                     "sms-authority": "SMSNotificationVerified"}
+                     "sms-authority": "SMSNotificationVerified", "email-presentation": "EmailPresentationVerified"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -418,6 +418,7 @@ def owner_write(data):
     outcomes_verified, receipts_verified = set(), set()
     handoff_targets, handoff_bindings = set(), {}
     notification_targets, notification_bindings, sms_outcome_digests = set(), {}, {}
+    presentation_targets, presentation_verified, presentation_bindings = set(), set(), {}
     sent_bindings, outcome_bindings, receipt_bindings = {}, {}, {}
     for item in evidence["checks"]:
         spec, result = evidence["required_checks"][item["name"]], item["result"]
@@ -439,6 +440,8 @@ def owner_write(data):
                 send_targets.add(identity)
             if result.get("resume_step") in {"SendApprovedReply", "RecordMaterialHandoff"}:
                 handoff_targets.add(identity)
+            if result.get("resume_step") in {"SendApprovedReply", "RefreshEmailOutcome"}:
+                presentation_targets.add(identity)
         if spec["kind"] == "task-display" and identity in bindings:
             task_id = bindings[identity]
             if (result.get("task_page_id") is None or page_id(result["task_page_id"]) != task_id
@@ -467,6 +470,16 @@ def owner_write(data):
                 and result.get("crm_note_id") and result.get("receipt_key")):
             receipts_verified.add(identity)
             receipt_bindings[identity] = (result.get("message_id"), result.get("payload_sha256"))
+        if spec["kind"] == "email-presentation" and result.get("content_version") == versions.get(identity):
+            projected = {page_id(x) for x in result.get("projection_page_ids", [])}
+            index_id = result.get('index_page_id')
+            index_valid = index_id is None or page_id(index_id) in projected
+            if (len(projected) == (5 if index_id else 4) and index_valid and projected <= allowed_pages and result.get("send_task_id")
+                    and page_id(result["send_task_id"]) in projected and result.get("message_id")):
+                presentation_verified.add(identity)
+                presentation_bindings[identity] = (page_id(result['send_task_id']), result['message_id'])
+    if not presentation_targets <= presentation_verified:
+        return {"status": "Deferred", "reason": "Email send/refresh requires verified linked completed review and current send projections"}
     if not mail_targets <= mail_verified or not mail_targets <= sent_verified:
         return {"status": "Deferred", "reason": "Email completion requires current pre-send draft AND actual sent-MIME verification; preserve partial provider success"}
     if not handoff_targets <= handoff_bindings.keys():
@@ -481,6 +494,8 @@ def owner_write(data):
                 or outcome_bindings.get(identity) != receipt_bindings[identity][0]):
             return {"status": "Deferred", "reason": "Receipt recovery and current projections identify different provider messages"}
     for identity in mail_targets:
+        if identity in presentation_targets and presentation_bindings.get(identity) != (identity, sent_bindings[identity][0]):
+            return {"status": "Deferred", "reason": "Linked review presentation and actual sent proof identify different emails"}
         if (not all(sent_bindings[identity]) or receipt_bindings.get(identity) != sent_bindings[identity]
                 or outcome_bindings.get(identity) != sent_bindings[identity][0]):
             return {"status": "Deferred", "reason": "Sent MIME, current projections and CRM receipt identify different provider messages/payloads"}

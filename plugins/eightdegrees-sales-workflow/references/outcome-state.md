@@ -83,6 +83,11 @@ Projection saving failure leaves a partial-publication exception with the known
 provider ID. The next permitted owner repairs only missing projections. A report
 records the issue without repair. Never resend to make a display consistent.
 
+For project email, [email presentation](email-presentation.md) checks the related
+completed content review as well as the send pages. A later explicit customer
+receipt enqueues RefreshEmailOutcome; it does not reactivate the original send.
+Keep provider proof immutable and update the current human receipt independently.
+
 The counts command takes current normalized outcome events plus account and an
 explicit coverage_complete flag. It deduplicates by operation/account/message,
 rejects conflicting current records, separates reserved/unknown attempts and

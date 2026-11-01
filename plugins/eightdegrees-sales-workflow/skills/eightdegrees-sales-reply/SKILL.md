@@ -28,6 +28,13 @@ For step 5 preview creation/repair, read [preview evidence](../../Experience/pre
 
 ## Current outcome copy
 
+For ResumeStep=RefreshEmailOutcome, perform only the scoped recovery in
+[email presentation](../../references/email-presentation.md), then return. Do not
+enter the inquiry/draft/send/CRM steps above. Before initial SendApprovedReply
+completion, also use that check to synchronize its linked completed content
+review and freeze email-presentation evidence. New explicit customer receipt is
+a later presentation event; it never upgrades provider delivery or reopens sending.
+
 Use [channel-local outcome text](../../references/outcome-state.md) for completed records. Keep other channels in their original linked records, and date receipt observations. Outcome verify requires the actual registered action-page fetch, not just normalized JSON; display repair never sends or writes another CRM Note. Preserve approved/history sections and current stop controls.
 
 ## Operator path and local checks

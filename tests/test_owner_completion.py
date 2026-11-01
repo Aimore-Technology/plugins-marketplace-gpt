@@ -53,6 +53,58 @@ def completion_for(owner, step=None):
 
 
 class OwnerCompletionTests(unittest.TestCase):
+    def add_email_presentation(self, data, maintenance=False, index=False):
+        from test_email_presentation import fixture as presentation_input, apply_plan, page as captured_page, block
+        import email_presentation
+        value = presentation_input()
+        if maintenance:
+            remapped = json.dumps(value)
+            for original, replacement in [('b' * 32, '1' * 32), ('c' * 32, '2' * 32),
+                                          ('e' * 32, '3' * 32), ('f' * 32, '4' * 32)]:
+                remapped = remapped.replace(original, replacement)
+            value = json.loads(remapped)
+            value['maintenance_task_id'] = TASK
+        if index:
+            outcome = email_presentation.blocks(value['pages']['send_task'], 'email-send-current-outcome')[1]
+            config = {'settings_schema_version': 1, 'sales_replies': {'reply': {
+                'send_task_page_id': value['pages']['send_task']['id'], 'content_version': 'test-v1',
+                'current_outcome': outcome}}}
+            value['index_page'] = captured_page('9' * 32, block(config), {'title': 'Settings'})
+        value['saved_pages'] = apply_plan(value)
+        if index:
+            value['saved_index_page'] = value['saved_pages'].pop('index')
+        result = email_presentation.verify(value)
+        for identity in result['projection_page_ids']:
+            existing = sum((data['registry'].get(k, []) for k in
+                            ('run_page_ids', 'task_page_ids', 'action_page_ids', 'publication_page_ids')), [])
+            if identity in existing:
+                continue
+            data['registry']['publication_page_ids'].append(identity)
+            spec = {'kind': 'page-links', 'entity_id': identity}
+            data['registry']['required_checks'][identity] = spec
+            data['completion']['required_checks'][identity] = spec
+            data['completion']['checks'].append({'name': identity, 'invocation_id': 'run-1',
+                'publication_version': 'publication-v1', 'exit_code': 0,
+                'result': CHECKS.page_links({'page': page(identity, 'Verified projection.')})})
+        spec = {'kind': 'email-presentation', 'entity_id': TASK}
+        data['registry']['required_checks']['presentation'] = spec
+        data['completion']['required_checks']['presentation'] = spec
+        data['completion']['checks'].append({'name': 'presentation', 'invocation_id': 'run-1',
+            'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
+
+    def test_refresh_completion_requires_verified_linked_pages_not_a_send_route(self):
+        data = completion_for('eightdegrees-sales-reply', 'RefreshEmailOutcome')
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+        self.add_email_presentation(data, maintenance=True)
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'WithinOwnerScope')
+        data['completion']['checks'][-1]['result']['projection_page_ids'].append('9' * 32)
+        self.assertEqual(CHECKS.owner_write(data)['status'], 'Deferred')
+        indexed = completion_for('eightdegrees-sales-reply', 'RefreshEmailOutcome')
+        self.add_email_presentation(indexed, maintenance=True, index=True)
+        self.assertEqual(CHECKS.owner_write(indexed)['status'], 'WithinOwnerScope')
+        indexed['registry']['publication_page_ids'].remove('9' * 32)
+        self.assertEqual(CHECKS.owner_write(indexed)['status'], 'Deferred')
+
     def test_notification_completion_uses_standing_authority_and_actual_body_digest_without_a_decision(self):
         from test_sms_authority import inputs, saved
         import sms_authority
@@ -265,6 +317,8 @@ class OwnerCompletionTests(unittest.TestCase):
         data['completion']['required_checks']['handoff'] = spec
         data['completion']['checks'].append({'name': 'handoff', 'invocation_id': 'run-1',
             'publication_version': 'publication-v1', 'exit_code': 0, 'result': result})
+        self.assertEqual(CHECKS.owner_write(data)["status"], "Deferred")
+        self.add_email_presentation(data)
         self.assertEqual(CHECKS.owner_write(data)["status"], "WithinOwnerScope")
         for field, value in [('message_id', 'another-message'), ('content_version', 'old-version')]:
             bad = copy.deepcopy(data)

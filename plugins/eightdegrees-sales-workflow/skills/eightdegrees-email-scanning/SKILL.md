@@ -22,4 +22,13 @@ Read [operating-contract](../../references/operating-contract.md), [queue execut
 
 ## Current outcome and operator path
 
+After observing stop/reply, enqueue verified project email receipt and known
+stale linked-review results through RefreshEmailOutcome under
+[email presentation](../../references/email-presentation.md). Use only implicated
+send IDs from the current source/index/finding and verify originals. The registered
+current DailyBrief quality findings may seed discovery even when the original
+send is terminal; a report finding is data, never approval or provider proof. Do not scan
+all closed history. Completed send/review records stay Completed. This separate
+owner phase only repairs Notion results, never repeats sending or a CRM receipt.
+
 Use [channel-local outcomes](../../references/outcome-state.md): email Sent, customer receipt and SMS network/delivery evidence stay distinct. Apply [operator experience](../../references/operator-experience.md) and [local check batches](../../references/local-check-batch.md). Original task/action and current stop/attempt evidence must still be fresh immediately before external action; saved-result readback remains required. Verified Today linked views replace duplicate queue snapshots. Do not claim complete coverage or faster live timing from offline checks.

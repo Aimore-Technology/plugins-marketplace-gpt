@@ -89,6 +89,17 @@ require an extra Notion write for every internal read/check.
 
 ## Results and waiting
 
+Use operator_experience.py response once at exit when pages exist, with result,
+next_action and already captured action_page/result_page/today_page as applicable.
+Return its clickable Markdown rather than just naming Today or a review. Do not
+fetch unrelated pages or write a new status just to generate this footer.
+
+For a reserved actual attempt, feedback accepts reserved_outcome bound to the
+original task/version and verified provider observation. With future_sms_stopped,
+it explicitly separates stopped future work from the still-pending request.
+AwaitingPhone is already submitted work, not an unsent queue or a reason for a
+second approval/replacement request. No cancel/inbound API is invented.
+
 Use [the short daily layout](../assets/daily-brief.md) and original Business-run summaries, with observation
 times and direct original links. Keep email Sent, customer receipt, SMS network
 acceptance/delivery and customer stop distinct under [outcome state](outcome-state.md).

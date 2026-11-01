@@ -71,6 +71,17 @@ With [Today linked views](operator-experience.md) verified, only changed task/ac
 
 A sales-reply actual material send plan must include evidence=material-handoff on its original email task, in addition to reply-draft/reply-sent/outcome/CRM receipt evidence. Verify the persisted original email and cycle through [material handoff](material-handoff.md); freeze MaterialHandoffVerified before final send-owner completion. Notion registration may be Blocked/Stopped without SMS dispatch; that is an honest handoff result. A verified nonmaterial reply records NotApplicable on its email task without creating a cycle. Missing registration leaves the email Sent but downstream handoff pending, recovered through RecordMaterialHandoff without another send. The owner-write guard rejects a sales send completion with reply-sent evidence but no material-handoff check.
 
+## Linked email presentation completion
+
+SendApprovedReply and RefreshEmailOutcome additionally require
+email-presentation=EmailPresentationVerified on their own task/version; all four
+linked projection pages must be registered in the owner scope, plus the settings
+index when it embeds this outcome. Initial sending
+binds the presentation to the same actual sent message. Maintenance uses a distinct
+task and keeps the original completed send/review immutable except current Result
+text/outcome sections. See [email presentation](email-presentation.md). It never
+supplies a provider/CRM replay, new approval or SMS permission.
+
 ## Standing-authorized notification completion
 
 SendNotificationSms requires kind=sms-authority (SMSNotificationVerified) on the original task/version, plus the current channel-local outcome with the SHA-256 of the actual provider request body. They must match. It does not require per-message ContentReview/SendApproval. Preserve provider IDs and unknown reservations on failure. Use a read-only result page for the existing action-result projection, without any decision controls. See [SMS notifications](sms-notifications.md).

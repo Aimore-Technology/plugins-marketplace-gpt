@@ -52,6 +52,13 @@ only; init/start/stop are not business execution shortcuts.
 
 ## Bounded progression, not busy polling
 
+Verified customer receipt or a known stale project-email result can enqueue
+RefreshEmailOutcome as a Notion-only maintenance item. Its key and affected
+originals follow [email presentation](email-presentation.md). Terminal business
+tasks remain terminal; do not change their State to make them executable. New
+receipt observation does not wait for CRM fact review, while CRM updates still do.
+No repeated history sweep, new native job or extra user command is required.
+
 Maintain a worklist and an attempted key of original task/source, ResumeStep,
 ContentVersion and accepted-input/attempt digest. Process a ready key at most
 once per cycle. After a verified transition enqueue its newly ready successors;

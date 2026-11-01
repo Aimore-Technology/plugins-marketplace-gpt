@@ -19,5 +19,6 @@
   "RecordSendReceipt": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
   "RecordGeneralSendReceipt": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
   "RecordMaterialHandoff": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions"], "effect": "draft"},
-  "SendNotificationSms": {"owner": "eightdegrees-sms-follow-up", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "customer-send"}
+  "SendNotificationSms": {"owner": "eightdegrees-sms-follow-up", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "customer-send"},
+  "RefreshEmailOutcome": {"owner": "eightdegrees-sales-reply", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "presentation"}
 }

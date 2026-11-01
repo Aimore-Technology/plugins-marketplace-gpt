@@ -1,0 +1,76 @@
+# Email results and linked completed reviews
+
+After verified project email Sent, synchronize the completed content-review task
+and action as well as the original send task/action. A completed review cannot
+retain current unsent-draft or send-approval instructions after that email sent.
+Keep State, Mode, operator inputs, approval history, frozen HTML/preview and
+immutable provider proof unchanged. Historical evidence is not a current summary.
+
+Use `email_presentation.py plan|verify --input <input.json>` or local batch
+operations `email.presentation-plan` / `email.presentation-verify`. It performs
+no network I/O or business action. Input has `pages={send_task,send_action,
+review_task,review_action}` containing complete original MCP fetches, saved
+language and timezone-aware observed_at. It derives related IDs from the original
+sales-send-package/content_approval and action bindings, and requires a matching
+email-sent-proof. The send may be InProgress after actual Sent, or Completed;
+the linked content review must be Completed with the same version.
+
+If the registered RunSettings source index already embeds current_outcome for
+this send/version, also supply its complete original capture as index_page.
+Register it as an additional publication role. The plan patches only that exact
+nested outcome value, preserving all other settings and stop/policy data byte for
+byte. Pointer-only indexes need no synthesized outcome. Supply saved_index_page
+for verification, even when unchanged; never leave an existing duplicate stale.
+
+The plan supplies only Result properties, plain current-section/navigation
+patches, review-history labels and the original current-outcome JSON on task and
+action. Use `page_ids[role]` as each update's target;
+run exact-call preflight and execute only checked args. Preserve native links,
+operator answers and all other fields/body bytes. Retain the original pages and
+add saved_pages to verify all four readbacks, plus saved_index_page when supplied,
+reusing unchanged captures. Unexpected
+collateral changes fail verification. A repeat yields no edits. Do not rerender
+or download unchanged HTML/PNG for presentation repair.
+
+At initial SendApprovedReply completion, freeze email-presentation evidence on
+that task, with both linked completed review pages as publication roles. Require
+EmailPresentationVerified alongside actual Sent, current outcome, CRM receipt
+and material handoff. It does not replace approval or draft/sent MIME checks.
+
+## Later receipts and legacy display repair
+
+The scanner handles stops first. For a verified explicit receipt or observed
+stale review, enqueue one Automatic RefreshEmailOutcome item owned by sales-reply,
+Category ScheduledWork (ExecutionExceptions on failure). Key it by original send
+task/version plus receipt message ID, or presentation revision for display repair.
+Reuse it on repeated scans. Do not reopen completed send/review records, require
+continue, a new approval/window or another CRM Note. Keep the native schedule as-is.
+
+On upgrade, the registered current DailyBrief's unresolved quality findings can
+discover an implicated completed send. Read that scoped current finding and its
+originals; do not enumerate all historical pages. Version/processed-work markers
+only avoid duplicate discovery, never replace fresh original/provider checks.
+
+Use the normal recovery plan: its own run/task/read-only result and the four
+original pages as publication roles. Freeze email-presentation evidence on the
+maintenance task; supply maintenance_task_id, distinct from all original pages.
+Include the registered settings index when it embeds this result; its fifth
+publication role must be covered by the same verified evidence.
+Final completion needs the matching verified result and registered page coverage.
+This route only updates Notion current results: no email/SMS/CRM/provider writes,
+enrollment, stop reset or approval changes. report only records findings and links
+run-auto; it cannot dispatch or repair this work.
+
+Add receipt={message,received_quote,explicit_confirmation:true} only after the
+owner reads an actual authorized full Gmail reply and selects a positive receipt
+statement. Do not infer it from generic thanks, silence, tracking or quoted history.
+The helper binds parties/thread and References/In-Reply-To to the actual sent RFC
+Message-ID, and checks the selected quote against observed content. Wrong,
+ambiguous or unsupported sources stay pending; never reconstruct source evidence
+to obtain a pass. Operational receipt can update Notion before separate CRM fact
+review; it keeps provider status=Sent and supplies no provider/SMS delivery proof.
+An absent new receipt does not downgrade an existing verified receipt.
+
+After a partial patch failure, retain the original plan and reconcile only missing
+patches/readbacks. Do not resend email or append CRM to repair a view. Closed
+legacy records lacking required proof/bindings remain scoped findings.

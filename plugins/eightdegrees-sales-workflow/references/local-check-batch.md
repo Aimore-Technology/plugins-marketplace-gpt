@@ -30,3 +30,25 @@ Only affected records belong in the plan. Native Today views need no manual queu
 copy after task state/binding updates. Preserve complete paginated candidate
 coverage and capability degradation. This reduces local process/serialization
 work; elapsed-time and provider-call improvements still require live measurement.
+
+## Compact mutation and completion checks
+
+Use `--output <checked.json>` for large batches. The file retains exact results
+and calls; stdout contains statuses, actual exits, digests and its path rather
+than bodies or executable arguments. Load the exact checked call locally for
+MCP execution without printing/retyping the full body. Require whole-batch exit
+0 and LocalChecksPassed. A refused batch removes executable calls, including
+ones prepared before a later failure.
+
+The bundle also supports notion.mutation, notion.owner-write, notion.report-write,
+operator.response and email presentation operations. Store a proposed exact call
+once as a capture; use call={"$capture":"proposed-call"}, target/schema references
+and small scalars. Check owner/report scope before exact mutation. Preserve all
+MCP error/completeness layers. Reuse checks only for the unchanged call/evidence.
+
+Freeze one owner-phase plan and retain result IDs/artifact digests. Do not repeat
+the full plan on every progress/log write or copy base64 HTML/image data into
+RunSettings indexes. New lightweight indexes contain IDs, versions, outcome IDs
+and pointers; packages stay on originals. Preserve legacy evidence, migrating
+only through explicit upgrade and verified original archive. Coalesce noncritical
+Health/counter/log writes at owner boundaries; never recursively monitor logging.

@@ -28,6 +28,36 @@ def item(mode="Manual", step="ReviewCommunication"):
 
 
 class OperatorExperienceTests(unittest.TestCase):
+    def test_phone_pending_is_not_an_unsent_queue_or_another_approval(self):
+        t=item('Automatic','SendNotificationSms');t['State']='InProgress'
+        event={'task_id':t['PageId'],'content_version':t['ContentVersion'],
+               'provider':{'operation':'sms','message_id':'sms-1','status':'AwaitingPhone','read_verified':True}}
+        value=UX.feedback({'task':t,'reserved_outcome':event})
+        self.assertEqual(value['stage'],'external_pending')
+        self.assertIsNone(value['continue_command'])
+        value=UX.feedback({'task':t,'reserved_outcome':event,'future_sms_stopped':True})
+        self.assertEqual(value['stage'],'stopped_pending')
+        self.assertIsNone(value['continue_command'])
+        event['task_id']='other'
+        with self.assertRaises(ValueError):UX.feedback({'task':t,'reserved_outcome':event})
+
+    def test_response_has_actual_clickable_action_and_result_links_without_fetching(self):
+        action=page('Input');action['id']='c'*32
+        result=page('Result');result['id']='b'*32
+        value=UX.final_response({'language':'zh-CN','result':'\u7eaa\u8981\u5df2\u4fdd\u5b58。',
+            'next_action':'\u8bf7\u5ba1\u6838\u5f53\u524d\u7248\u672c。','action_page':action,'result_page':result,'today_page':result})
+        self.assertEqual(value['status'],'OperatorResponseReady')
+        self.assertEqual(len(value['links']),2)
+        self.assertIn('https://app.notion.com/p/'+'c'*32,value['markdown'])
+        self.assertIn('https://app.notion.com/p/'+'b'*32,value['markdown'])
+
+    def test_response_rejects_missing_links_wrong_entities_and_incomplete_capture(self):
+        base={'result':'Result.','next_action':'Read the current record.'}
+        with self.assertRaises(ValueError):UX.final_response(base)
+        for edit in ({'truncated':True},{'metadata':{'type':'database'}},{'id':'invented'}):
+            actual=page('Actual');actual.update(edit)
+            with self.assertRaises(ValueError):UX.final_response({**base,'result_page':actual})
+
     def test_notification_queue_copy_does_not_request_a_review(self):
         t = item('Automatic','SendNotificationSms'); t['State'] = 'InProgress'
         result = UX.feedback({'task':t})

@@ -15,6 +15,8 @@ import operator_experience
 import outcome_checks
 import material_handoff
 import sms_authority
+import email_presentation
+import notion_mutation
 
 OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
@@ -31,16 +33,24 @@ OPERATIONS = {
     "operator.feedback": operator_experience.feedback,
     "operator.review": operator_experience.review_brief,
     "operator.results": operator_experience.result_summary,
+    "operator.response": operator_experience.final_response,
     "material.plan": material_handoff.plan,
     "material.verify": material_handoff.verify,
     "sms.prepare": sms_authority.prepare,
     "sms.verify": sms_authority.verify,
+    "notion.mutation": notion_mutation.prepare,
+    "notion.owner-write": notion_checks.owner_write,
+    "notion.report-write": notion_checks.report_write,
+    "email.presentation-plan": email_presentation.plan,
+    "email.presentation-verify": email_presentation.verify,
 }
 PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",
-          "MaterialHandoffPlanned", "MaterialHandoffVerified", "SMSNotificationPrepared", "SMSNotificationVerified"}
+          "MaterialHandoffPlanned", "MaterialHandoffVerified", "SMSNotificationPrepared", "SMSNotificationVerified",
+          "NotionMutationPrepared", "WithinOwnerScope", "WithinReportScope",
+          "EmailPresentationPlanned", "EmailPresentationVerified", "OperatorResponseReady"}
 
 
 def run(plan, captures):
@@ -84,7 +94,11 @@ def run(plan, captures):
         results[check["name"]] = {"name": check["name"], "operation": check["operation"], "exit_code": code, "result": result}
         if code:
             break
-    return {"status": "LocalChecksPassed" if len(results) == len(checks) and all(c["exit_code"] == 0 for c in results.values()) else "NeedsCorrection",
+    passed = len(results) == len(checks) and all(c["exit_code"] == 0 for c in results.values())
+    if not passed:
+        for checked in results.values():
+            checked['result'].pop('call', None)
+    return {"status": "LocalChecksPassed" if passed else "NeedsCorrection",
             "checks": list(results.values()), "capture_hashes": hashes, "capture_references": references,
             "distinct_captures_used": len(hashes), "checks_requested": len(checks), "checks_run": len(results),
             "scope": "Local selected checks only; no connector I/O, cross-invocation cache, approval, mutation or historical order proof"}
@@ -94,11 +108,26 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True)
     parser.add_argument("--captures", required=True)
+    parser.add_argument("--output", help="Save full check results/exact calls and print only small summaries")
     args = parser.parse_args()
     try:
         plan = json.loads(sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8"))
         captures = json.loads(Path(args.captures).read_text(encoding="utf-8"))
         result = run(plan, captures)
+        if args.output:
+            output = Path(args.output)
+            protected = [Path(args.captures).resolve()]
+            if args.input != "-":
+                protected.append(Path(args.input).resolve())
+            if output.resolve() in protected:
+                raise ValueError("Do not overwrite captures or the check plan")
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(json.dumps(result, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+            result = {**result, "checks": [{"name": c["name"], "operation": c["operation"],
+                       "exit_code": c["exit_code"], "status": c["result"]["status"],
+                       "issues": c["result"].get("issues", []),
+                       "call_sha256": c["result"].get("call_sha256")} for c in result["checks"]],
+                      "output_file": str(output)}
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         result = {"status": "NeedsCorrection", "issues": [str(exc)]}
     print(json.dumps(result, ensure_ascii=False, allow_nan=False))

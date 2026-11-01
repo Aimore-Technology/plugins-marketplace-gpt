@@ -69,3 +69,9 @@ provider ID and frozen send package; expired send windows do not block an
 authorized internal result backfill, and do not permit another customer send.
 
 RecordMaterialHandoff belongs to sales-reply and registers only the missing downstream material-event handoff. It is a draft/registration effect, never an email resend or a new SMS dispatch. Its completion requires persisted material-handoff evidence on the original email task.
+
+RefreshEmailOutcome belongs to sales-reply, effect=presentation, with ScheduledWork
+or ExecutionExceptions. It reconciles already verified project-email result pages
+under [email presentation](email-presentation.md). It cannot send, write CRM or
+reopen a terminal original. report-only/draft-only/setup invocations do not dispatch
+it; an authorized run-auto/native cycle handles its separate maintenance task.

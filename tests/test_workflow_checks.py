@@ -29,6 +29,17 @@ def task(step="SendApprovedReply", mode="Automatic"):
 
 
 class ToolResultTests(unittest.TestCase):
+    def test_email_result_maintenance_is_not_a_send_or_a_report_business_repair(self):
+        item = task('RefreshEmailOutcome')
+        for policy in ('one-cycle-approved-work', 'one-cycle-no-customer-send'):
+            checked = CHECKS.check_resume(item, policy)
+            self.assertEqual(checked['status'], 'EligibleForOwnerCheck')
+            self.assertEqual(checked['effect'], 'presentation')
+        for policy in ('report-only', 'draft-only', 'setup-only', 'scheduling-only', 'manual-review'):
+            self.assertEqual(CHECKS.check_resume(item, policy)['status'], 'Deferred')
+        item['State'] = 'Completed'
+        self.assertEqual(CHECKS.check_resume(item, 'one-cycle-approved-work')['status'], 'Deferred')
+
     def test_manual_registration_checks_original_route_without_fake_continuation(self):
         original = task("CompleteCommunicationData", "Manual"); original["PageId"] = "a" * 32
         registered = CHECKS.check_resume(original, "manual-review", phase="register")
