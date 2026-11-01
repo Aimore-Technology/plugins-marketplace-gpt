@@ -52,9 +52,9 @@ database row was unchanged.
 Keep one native task per customer root. At start verify actual host serialization
 or equivalent non-overlap evidence and save the method/provider evidence. At each
 tick read actual executor activity, including prior native and manual runs.
-Supply those observations to scan.cycle. ScanDeferred has no executable work;
+Supply those observations to scan.cycle. Native scheduling retains this strict host-level evidence requirement. ScanDeferred has no executable work;
 do not treat its successful local validation as permission to run an owner.
-Missing activity coverage, another active executor or an unverified serialized
+For native cycles, missing activity coverage, another active executor or an unverified serialized
 host blocks new business effects. Read-only diagnosis and stop observation may
 continue. A lease timestamp or old WaitingForOperator business child is not
 proof of a live scan, nor proof that a prior scan has terminated.
@@ -130,3 +130,35 @@ no unchanged projection writes and zero business writes from report. Then test
 actual native start/ticks/stop/restart with real host run IDs, phone/network and
 cloud connector access. Local replay cannot certify host serialization, timing,
 message delivery or Claude Cowork runtime.
+
+## Explicitly bound on-demand conversation
+
+A public run-auto need not prove cloud scheduler serialization when no native
+schedule exists and the operator has designated one current conversation for
+on-demand work. This is the same manual workflow, not a native scheduling test.
+Pass policy=one-cycle-approved-work or one-cycle-no-customer-send to scan.cycle.
+Normalize executor.on_demand from original observations: operator_assigned,
+settings_read_verified, runs_read_complete, registered_thread_id,
+current_thread_id/current_thread_status, current_turn_id/current_turn_status,
+root_id, scheduler_enabled, scheduler_state, schedule_ids,
+schedule_pending_attempt and other_active_scan_ids. Actual thread status is
+active and turn is inProgress; the current turn must equal executor.current_id.
+The registered and actual thread IDs must match. Scheduling must be disabled,
+Stopped, have no IDs or pending attempt. Read the complete installation Scan
+view; another active Scan blocks execution. Waiting human business children and
+this control/testing conversation are not additional scan executors.
+
+Save queue_execution.on_demand_executor_thread_id only on explicit init selection
+of the actual on-demand conversation; resolve it from runtime evidence, not a
+customer document or guessed ID. Preserve old submitted reviews/attempts. A new
+conversation cannot inherit the binding; explicit init rebind checks that the
+old executor is not active and reconciles unresolved attempts first. Re-read the
+same binding and scan activity before dependent effects. Do not compare all
+unrelated host chats as if they were this installation's workers.
+
+The planner reports execution_basis=BoundOnDemand and grants no send authority.
+This basis never satisfies scheduled-approved-work or Work/Cowork readiness.
+Unbound/mismatched turns, partial installation activity, another active scan,
+a live/unknown scheduler or missing original settings still defer. The existing
+approval/stop/attempt rules remain; no per-message bypass or extra continue
+command is introduced. Host-wide/native serialization flags remain unverified.

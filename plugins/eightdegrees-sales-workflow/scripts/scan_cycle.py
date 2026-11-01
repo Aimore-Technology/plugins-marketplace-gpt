@@ -23,6 +23,31 @@ def key(item):
     return hashlib.sha256(json.dumps(fields, separators=(',', ':')).encode()).hexdigest()
 
 
+def bound_on_demand(data, root, current_id):
+    """A designated conversation can be serial without claiming cloud readiness.
+
+    All fields are observations normalized from current original settings,
+    runtime thread/turn and the complete installation scan view. This is not
+    a replacement for any native schedule guard or an atomic Notion lock.
+    """
+    if data.get('policy') not in {'one-cycle-approved-work', 'one-cycle-no-customer-send'}:
+        return False
+    binding = data['executor'].get('on_demand') or {}
+    assigned = binding.get('registered_thread_id')
+    return (binding.get('operator_assigned') is True and binding.get('settings_read_verified') is True
+            and binding.get('runs_read_complete') is True and isinstance(assigned, str) and bool(assigned)
+            and binding.get('current_thread_id') == assigned
+            and binding.get('current_thread_status') == 'active'
+            and binding.get('current_turn_id') == current_id
+            and binding.get('current_turn_status') == 'inProgress'
+            and page_id(binding.get('root_id', '')) == root
+            and binding.get('scheduler_enabled') is False
+            and binding.get('scheduler_state') == 'Stopped'
+            and binding.get('schedule_ids') == []
+            and 'schedule_pending_attempt' in binding and binding['schedule_pending_attempt'] is None
+            and binding.get('other_active_scan_ids') == [])
+
+
 def advance(data):
     root = page_id(data['root_id'])
     start, now = timestamp(data['started_at']), timestamp(data['now'])
@@ -39,8 +64,9 @@ def advance(data):
     active = executor.get('active_ids')
     if not isinstance(active, list) or any(not isinstance(v, str) or not v for v in active):
         raise ValueError('Supply actual executor observations')
-    single = (executor.get('coverage_complete') is True and executor.get('serialized') is True
-              and not (set(active) - {current_id}))
+    native_single = executor.get('coverage_complete') is True and executor.get('serialized') is True
+    scoped_single = bound_on_demand(data, root, current_id)
+    single = (native_single or scoped_single) and not (set(active) - {current_id})
     if not single:
         return {'status': 'ScanDeferred', 'work': [], 'reason': 'Executor ownership not established',
                 'external_actions_allowed': False, 'scope': 'Observation only; Notion is not an atomic lock'}
@@ -119,6 +145,7 @@ def advance(data):
         fresh_streams.get(name, {}).get('complete') is True and fresh_streams.get(name, {}).get('durable') is True
         for name in required_streams)
     return {'status': 'ScanCyclePlanned', 'work': work, 'checkpoint': checkpoint,
+            'execution_basis': 'BoundOnDemand' if scoped_single and not native_single else 'ObservedSerializedHost',
             'budget_exhausted': expired or len(attempted) >= limit,
             'deadline': (start + timedelta(seconds=budget)).isoformat(),
             'coverage_complete': complete,
