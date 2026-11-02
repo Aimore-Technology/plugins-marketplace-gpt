@@ -26,6 +26,23 @@ For step 5 preview creation/repair, read [preview evidence](../../Experience/pre
 7. Reread the original task, registered active action-page inputs/accepted decision snapshot, approved files, target/thread, latest accessible reply/stop state, window and prior attempts. Stop for changed inputs, new replies, outdated evidence or mismatch. Verify the same approved stored draft again and submit it with send_draft(draft_id) only when invocation scope permits; never reconstruct it through direct send_email. Include phase=draft StoredReplyVerified in this owner's completion evidence. Preserve thread association; if the approved file cannot be sent, stop for implementation/manual handling, never silently downgrade. Record actual ID/result and read back when supported; acceptance is not delivery.
 8. Save outcome and source/version links in Communications and GHL. Apply [send receipts](../../references/send-receipts.md): after verified Sent, append/reuse one deterministic plain-text result receipt, read it back, and preserve its provider/message/Note IDs. Failed or unknown receipt saving creates RecordSendReceipt recovery on the original owner, never another send. Apply [outcome state](../../references/outcome-state.md) to keep the original task, lightweight source index and current action result consistent before final completion. Finish each source/review/version/decision transition by synchronizing canonical task summary/binding and active action status under Notion publication. Verified Today linked views follow these fields without a duplicate queue write; only legacy queue mode replaces its one queue link in this owner invocation. Preserve old pages/history and repair missing projections without repeating a business write. After EVERY verified actual material Sent event, automatically call the registration-only phase of [SMS follow-up](../eightdegrees-sms-follow-up/SKILL.md) under [material handoff](../../references/material-handoff.md). Persist and verify the original cycle/due/draft or explicit blocked/stopped result before final owner completion. Include material-handoff evidence on the original email task in the predeclared send plan. A receipt failure does not suppress registration; save both independent recovery steps without another email. No user command, second approval question or per-email native schedule is needed. Registration never approves/sends SMS or enables its channel; unknown email results never enroll. This skill owns this reply's send; the scanner must not also send it. Unknown outcomes require reconciliation; partial log failure does not resend.
 
+## Phase order
+
+Before accepting content or registering its successor, apply [phase ordering](../../references/phase-ordering.md).
+ReviewReplyDraft owns only its original review task/action and stored draft checks;
+it must complete and be read back without any Sent, receipt or SMS evidence.
+Then prepare a separate SendApprovedReply phase, reusing any original existing
+send task/action. Verify the completed matching review before external dispatch.
+The review pages become publication dependencies, not executing task roles in
+the send plan. Actual Sent, receipt, handoff and linked presentation remain send
+completion requirements. Registration of a blocked SMS cycle is sufficient for
+the email handoff; later SMS sending never gates email completion.
+
+For a legacy mixed-plan refusal, preserve it and the original accepted decisions;
+use the documented new linked prospective phase-run repair. Do not edit the old
+plan or reopen completed tasks. Synchronize both canonical current copy and its
+active action after each decision; task-summary and task-display must pass.
+
 ## Current outcome copy
 
 For ResumeStep=RefreshEmailOutcome, perform only the scoped recovery in

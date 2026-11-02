@@ -26,6 +26,7 @@ OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
     "notion.schema-values": notion_checks.schema_values,
     "notion.task-display": notion_checks.task_display,
+    "notion.task-summary": notion_checks.task_summary,
     "notion.preview": notion_checks.check_preview,
     "notion.preview-image": notion_checks.check_image_preview,
     "notion.completion-gate": notion_checks.completion_gate,

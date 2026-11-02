@@ -23,7 +23,7 @@ def request():
             "invocation_id": "synthetic-invocation", "publication_version": "reply-v2",
             "facts": {"finance_status": "unconfirmed", "finance_approved": None},
             "resources": [{"role": "run", "type": "run", "entity_id": RUN},
-                          {"role": "review", "type": "task", "entity_id": TASK, "content_version": "reply-v2"},
+                          {"role": "review", "type": "task", "entity_id": TASK, "content_version": "reply-v2", "resume_step": "ReviewReplyDraft"},
                           {"role": "review-input", "type": "action", "entity_id": ACTION, "task_role": "review"}],
             "notion_rows": [{"role": "run", "data_source": source_schema(), "data_source_id": PARENT,
                              "properties": {"Status": "Saved"}}]}
@@ -78,8 +78,8 @@ class ExecutionPreflightTests(unittest.TestCase):
     def test_required_coverage_is_generated_instead_of_caller_handwritten_checks(self):
         result = PREFLIGHT.prepare(request())
         kinds = {s["kind"] for s in result["execution_plan"]["required_checks"].values()}
-        self.assertEqual(kinds, {"page-links", "route", "task-display"})
-        self.assertEqual(len(result["execution_plan"]["required_checks"]), 5)
+        self.assertEqual(kinds, {"page-links", "route", "task-display", "reply-draft", "task-summary"})
+        self.assertEqual(len(result["execution_plan"]["required_checks"]), 7)
 
     def test_missing_action_task_or_multiple_owner_runs_cannot_prepare(self):
         for edit in (lambda rs: rs.pop(), lambda rs: rs[2].update(task_role="absent"),

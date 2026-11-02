@@ -11,6 +11,7 @@ import sys
 from urllib.parse import urlsplit
 
 from workflow_checks import check_links, inspect_result, notion_text, visible_markdown
+from phase_contracts import MINIMUM_EVIDENCE, task_evidence
 
 
 def object_result(value):
@@ -286,6 +287,14 @@ def task_display(data):
             visible = visible_markdown(text)
             if (terminal or recorded) and re.search(not_submitted, visible, re.I):
                 issues.append({"section": role, "reason": "Unsubmitted instruction conflicts with recorded decision/result"})
+            step = task.get("ResumeStep", "")
+            pending_decision = (r"\b(?:awaiting|waiting for) (?:the )?(?:content )?review\b|\u5f85\u5ba1\u6838|\u7b49\u5f85(?:\u5185\u5bb9)?\u5ba1\u6838|\u5185\u5bb9\u5c1a\u672a\u786e\u8ba4"
+                                if step.startswith("Review") else
+                                r"\b(?:awaiting|waiting for) (?:the )?(?:final |independent )?send(?:ing)? (?:approval|decision)\b|\u53d1\u9001\u5c1a\u672a\u6279\u51c6|\u7b49\u5f85(?:\u72ec\u7acb)?\u53d1\u9001(?:\u51b3\u5b9a|\u5ba1\u6279)|\u5f85\u53d1\u9001\u5ba1\u6279"
+                                if step.startswith("Send") else None)
+            if (role in {"status", "result"} and recorded and task["Decision"] in {"Confirm", "Approve"}
+                    and pending_decision and re.search(pending_decision, visible, re.I)):
+                issues.append({"section": role, "reason": "Current text still requests an already recorded approval"})
             if (terminal or paused) and (re.search(request, visible, re.I) or re.search(r"^\s*- \[[ xX]\]|<todo\b", visible, re.M)):
                 issues.append({"section": role, "reason": "Inactive step still requests input or has live controls"})
     payload = object_result(data["page"])
@@ -294,6 +303,23 @@ def task_display(data):
     return {"status": "NeedsCorrection" if issues else "DisplayConsistentForCheckedPatterns", "issues": issues,
             "task_page_id": task.get("PageId", task.get("url", task.get("id"))), "content_version": version,
             "entity_id": payload.get("id"), "scope": "Current owned status/result/input sections only; original answers, review material and labeled history are excluded; prose still needs owner review"}
+
+
+def task_summary(data):
+    """Check the original canonical task's current copy, distinct from its action."""
+    task, capture = dict(data['task']), object_result(data['page'])
+    identity = task.get('PageId', task.get('url', task.get('id')))
+    if not identity or page_id(capture.get('id')) != page_id(identity):
+        raise ValueError('Canonical summary must use the original task page')
+    props = re.findall(r'<properties>\s*(.*?)\s*</properties>', capture.get('text', ''), re.S)
+    if len(props) != 1:
+        raise ValueError('Canonical summary requires the original saved task properties')
+    saved = json.loads(props[0])
+    for key in ('State', 'ContentVersion', 'Decision', 'DecisionVersion', 'ResumeStep'):
+        if saved.get(key, '') != task.get(key, ''):
+            raise ValueError('Canonical task summary uses stale ' + key)
+    task.pop('ActionPageURL', None)
+    return task_display({'page': data['page'], 'task': task})
 
 
 def completion_gate(data):
@@ -309,7 +335,8 @@ def completion_gate(data):
                      "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified",
                      "execution-plan": "ExecutionPlanReady", "material-handoff": "MaterialHandoffVerified",
                      "sms-authority": "SMSNotificationVerified", "email-presentation": "EmailPresentationVerified",
-                     "sms-presentation": "SMSPresentationVerified", "contact-restriction": "ContactRestrictionVerified"}
+                     "sms-presentation": "SMSPresentationVerified", "contact-restriction": "ContactRestrictionVerified",
+                     "task-summary": "DisplayConsistentForCheckedPatterns"}
     by_name, issues = {}, []
     for item in checks:
         if not isinstance(item, dict) or item.get("name") not in required or item.get("name") in by_name:
@@ -347,6 +374,9 @@ def completion_gate(data):
             issues.append(name + ": sent evidence cannot replace pre-send draft verification")
         if spec["kind"] == "reply-sent" and result.get("phase") != "sent":
             issues.append(name + ": draft evidence cannot replace actual sent-MIME verification")
+        if spec["kind"] == "route" and spec.get("resume_step") and (
+                result.get("resume_step") != spec["resume_step"] or result.get("phase") != "execute"):
+            issues.append(name + ": route belongs to another frozen execution phase")
         if spec.get("entity_id") is None or result.get("entity_id") is None or page_id(spec["entity_id"]) != page_id(result["entity_id"]):
             issues.append(name + ": missing or mismatched evidence target")
     return {"status": "NeedsCorrection" if issues else "EligibleForCompletion", "issues": issues,
@@ -415,6 +445,38 @@ def owner_write(data):
     bindings = {page_id(k): page_id(v) for k, v in registry.get("action_bindings", {}).items()}
     if not groups["task_page_ids"] <= versions.keys() or not groups["action_page_ids"] <= bindings.keys():
         return {"status": "Deferred", "reason": "Current task versions or action-to-task bindings missing"}
+    routes = [(page_id(evidence["required_checks"][item["name"]]["entity_id"]), item["result"])
+              for item in evidence["checks"] if evidence["required_checks"][item["name"]]["kind"] == "route"]
+    steps = {route.get("resume_step") for _, route in routes}
+    if len(steps) > 1:
+        return {"status": "Deferred", "reason": "Mixed completion phases; preserve this plan and prepare separate current-step plans before unfinished work"}
+    if registry.get("contract_version") == "execution-v2":
+        task_steps = {page_id(k): v for k, v in registry.get("task_steps", {}).items()}
+        if (set(task_steps) != groups["task_page_ids"] or
+                steps != ({registry.get("stage_step")} if task_steps else set())):
+            return {"status": "Deferred", "reason": "Missing or changed frozen task phase bindings"}
+        summaries = {page_id(s['entity_id']) for s in specs if s['kind'] == 'task-summary'}
+        if not groups['task_page_ids'] <= summaries:
+            return {"status": "Deferred", "reason": "Original canonical task status needs current summary verification"}
+        for item in evidence['checks']:
+            spec = evidence['required_checks'][item['name']]
+            if spec['kind'] == 'task-summary':
+                identity, result = page_id(spec['entity_id']), item['result']
+                if (page_id(result.get('task_page_id')) != identity or
+                        result.get('content_version') != versions.get(identity)):
+                    return {"status": "Deferred", "reason": "Task summary evidence belongs to another task/version"}
+        for identity, route in routes:
+            step = task_steps.get(identity)
+            required_route = [s for s in specs if s["kind"] == "route" and page_id(s["entity_id"]) == identity]
+            checks = {s["kind"] for s in specs if page_id(s["entity_id"]) == identity}
+            extra = checks & {"reply-draft", "reply-sent", "outcome", "crm-receipt", "material-handoff", "sms-authority", "email-presentation", "sms-presentation", "contact-restriction"}
+            try:
+                task_evidence({"resume_step": step, "evidence": sorted(extra)})
+            except ValueError as exc:
+                return {"status": "Deferred", "reason": str(exc)}
+            if (route.get("resume_step") != step or any(s.get("resume_step") != step for s in required_route)
+                    or not set(MINIMUM_EVIDENCE.get(step, ())) <= checks):
+                return {"status": "Deferred", "reason": "Required phase evidence or original task step missing"}
     mail_targets, mail_verified, sent_verified, send_targets, receipt_targets = set(), set(), set(), set(), set()
     outcomes_verified, receipts_verified = set(), set()
     handoff_targets, handoff_bindings = set(), {}
@@ -593,7 +655,7 @@ def main(argv=None):
     operations = {"section-patch": section_patch, "preview": check_preview, "preview-reference": preview_reference,
                   "preview-image": check_image_preview, "report-write": report_write,
                   "page-links": page_links, "schema-values": schema_values, "task-display": task_display,
-                  "completion-gate": completion_gate, "owner-write": owner_write}
+                  "completion-gate": completion_gate, "owner-write": owner_write, "task-summary": task_summary}
     parser.add_argument("command", choices=tuple(operations))
     parser.add_argument("--input", required=True)
     args = parser.parse_args(argv)

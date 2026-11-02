@@ -1,5 +1,12 @@
 # Owner completion contract
 
+Apply [phase ordering](phase-ordering.md) before freezing a plan. New execution-v2
+plans bind one actual ResumeStep per completion unit and automatically generate
+its evidence. Future tasks are not executable roles in this phase; finish/read
+back the current step before preparing its successor. Do not put ReviewReplyDraft
+and SendApprovedReply in the same task set. A completed review is a read/publication
+dependency of the send phase, never a second executing task.
+
 Apply to all eight workflow owners, including initialization, communication, persona, scanning, sales reply, SMS, daily brief and automation control. This is a local evidence/preflight contract, not an independent backend or host-enforced interceptor. The command policy and ordinary approval/attempt rules remain in force.
 
 Every proposed Notion page call also passes [exact-call preflight](notion-mutation.md)
@@ -23,6 +30,12 @@ At owner entry, use [execution preflight](execution-preflight.md) prepare/ready 
 Use `call` with the actual tool name and args. This helper supports final property updates on registered records and final log appends under the registered OperationLogs source. It is not a general provider/Notion action dispatcher. Plain in-progress writes still use actual schema/connector checks; Supported target alone is not approval. The helper never sends or mutates anything.
 
 Required coverage: page-links on original owner runs, tasks and publication pages; task-display on registered actions; route on each named task, matching owner/policy/ContentVersion; the profile's minimum kinds. task-display input includes the canonical task's PageId and ActionPageURL. Email send routes additionally require phase=draft StoredReplyVerified bound to that task/version AND phase=sent raw MIME proof before final send completion. A provider acceptance with missing/mismatched sent proof remains a partial/quality result, never a resend. Existing route observations and sent-message checks cannot replace an executing route or pre-send draft proof. A no-send command's Deferred send route cannot satisfy final send-completion evidence.
+
+New plans also require task-summary on each original canonical task, using its
+actual properties and current body. Run notion_checks.py task-summary or batch
+notion.task-summary with page and task. Decision/DecisionVersion, State and
+ResumeStep must match that saved page. Both canonical and active action copy must
+stop asking for an already accepted review/approval. Preserve labeled history.
 
 For normal downstream persona work, return per-step evidence to the communication owner, which owns the parent completion; do not mark its parent run complete from a child. A persona exception can close only its own registered task with its own evidence. Scanner completion applies to one scan, not waiting child tasks; SMS network acceptance is distinct from delivery/cycle completion. Initialization has only setup/readiness checks and never uses this contract to run business acceptance.
 

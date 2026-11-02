@@ -46,6 +46,10 @@ once as a capture; use call={"$capture":"proposed-call"}, target/schema referenc
 and small scalars. Check owner/report scope before exact mutation. Preserve all
 MCP error/completeness layers. Reuse checks only for the unchanged call/evidence.
 
+New phase contracts include notion.task-summary on each actual original task,
+separately from notion.task-display on its action. Supply the task's real saved
+properties and current page; neither surface alone proves both are current.
+
 Freeze one owner-phase plan and retain result IDs/artifact digests. Do not repeat
 the full plan on every progress/log write or copy base64 HTML/image data into
 RunSettings indexes. New lightweight indexes contain IDs, versions, outcome IDs

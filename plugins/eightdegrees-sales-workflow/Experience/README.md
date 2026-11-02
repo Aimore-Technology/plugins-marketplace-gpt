@@ -7,6 +7,7 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 | Resume a submitted task or dispatch notification SMS | [Queue and notifications](queue-and-notification.md) | Extra continue/per-message SMS approval, duplicate successor execution |
 | First dependent write or a refused precheck | [Preflight failures](preflight-failures.md) | Continuing after a nonzero/unsuccessful precheck |
 | Freeze owner checks or revise returned content | [Check plan](check-plan.md) | Missing dependencies and late backfilled plans |
+| Accept content, prepare sending or recover a completion deadlock | [Phase boundaries](phase-boundaries.md) | Future send evidence blocking current review; repeated approval requests |
 | Discover Notion candidates after a quota error | [Notion quota](notion-quota.md) | Repeating blocked SQL and claiming full coverage |
 | Upgrade human navigation or explain submitted/waiting work | [Operator entry](operator-entry.md) | Duplicate queue snapshots, hidden action links, false acceptance/scheduling claims |
 | Reuse current captures during a scan/continuation | [Read reuse](read-reuse.md) | Repeated reads, stale input assumptions and skipped fresh send checks |

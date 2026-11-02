@@ -1,5 +1,10 @@
 # Prepare, persist, then execute
 
+Apply [phase ordering](phase-ordering.md): new plans are execution-v2, with one
+current ResumeStep per plan. Each task resource includes resume_step. Preparation
+rejects mixed phases and derives their minimum evidence; do not enumerate future
+send tasks in a current content-review completion plan.
+
 Use `python3 <plugin>/scripts/execution_preflight.py prepare --input <capture.json>`
 before the owner's first dependent write. This is the shared entry for fact,
 Notion property and stored-reply parameter checks. It derives the completion
@@ -33,13 +38,13 @@ null for an explicitly planned creation). Types generate these checks:
 | Type | Checks and bindings |
 | --- | --- |
 | run | page-links; exactly one owning run |
-| task | page-links + route; content_version required |
+| task | page-links + route + task-summary; content_version and resume_step required |
 | action | page-links + task-display; task_role points to this owner's task |
 | publication | page-links |
 | html-preview | page-links + preview |
 | image-preview | page-links + preview-image; frozen content_version and html_sha256 |
 
-A task may declare evidence: reply-draft, reply-sent, outcome, crm-receipt and material-handoff,
+Minimum evidence is generated from the current resume_step. A task may additionally declare compatible evidence: reply-draft, reply-sent, outcome, crm-receipt and material-handoff,
 as required by its actual route. These are obligations, not fabricated successes.
 Include every affected task/action/publication role and required send evidence.
 The owner profile supplies minimum coverage, not discovery of omitted resources.
@@ -51,7 +56,7 @@ For example, a no-send reply's resource slots are:
 ```json
 [
   {"role":"run","type":"run","entity_id":null},
-  {"role":"review","type":"task","entity_id":null,"content_version":"reply-v2"},
+  {"role":"review","type":"task","entity_id":null,"content_version":"reply-v2","resume_step":"ReviewReplyDraft"},
   {"role":"review-input","type":"action","entity_id":null,"task_role":"review"},
   {"role":"html","type":"html-preview","entity_id":null}
 ]

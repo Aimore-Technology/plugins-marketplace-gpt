@@ -12,6 +12,7 @@ import sys
 from fact_checks import canonical_facts
 from notion_checks import object_result, page_body, page_id, schema_values
 from reply_transport import prepare as prepare_reply
+from phase_contracts import task_evidence, validate_phase
 
 
 PROFILES = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
@@ -37,7 +38,7 @@ def identity(value):
     return normalized
 
 
-def compile_checks(resources):
+def compile_checks(resources, phased=True):
     """Derive required coverage from affected roles, including uncreated slots."""
     if not isinstance(resources, list) or not resources:
         raise ValueError("Affected resources must be a nonempty list")
@@ -54,8 +55,13 @@ def compile_checks(resources):
         extra = resource.get("evidence", [])
         if not isinstance(extra, list) or len(set(extra)) != len(extra) or not set(extra) <= TASK_EVIDENCE or extra and kind != "task":
             raise ValueError("Extra transport/outcome evidence must belong to a task")
-        for check in (*TYPES[kind], *extra):
+        if kind == "task" and phased:
+            extra = task_evidence(resource)
+        summary = ("task-summary",) if kind == "task" and phased else ()
+        for check in (*TYPES[kind], *summary, *extra):
             spec = {"kind": check, "entity_role": role}
+            if check == "route" and phased:
+                spec["resume_step"] = resource["resume_step"]
             if check == "preview-image":
                 if (not resource.get("content_version") or not isinstance(resource.get("html_sha256"), str)
                         or not re.fullmatch(r"[a-f0-9]{64}", resource["html_sha256"])):
@@ -86,6 +92,7 @@ def prepare(data):
         if not isinstance(data.get(key), str) or not data[key].strip():
             raise ValueError("Missing invocation/publication version")
     resources = copy.deepcopy(data["resources"])
+    stage_step = validate_phase(resources, owner, policy)
     required = compile_checks(resources)
     if not set(PROFILES[owner]) <= {s["kind"] for s in required.values()}:
         raise ValueError("Affected roles omit the owner's minimum check coverage")
@@ -126,7 +133,7 @@ def prepare(data):
             return {"status": "NeedsCorrection", "checks": checks, "scope": SCOPE}
         outputs["reply_args"] = copy.deepcopy(result["args"])
     plan = {k: data[k] for k in ("owner_skill", "policy", "operation", "invocation_id", "publication_version")}
-    plan.update(contract_version="execution-v1", resources=resources, required_checks=required,
+    plan.update(contract_version="execution-v2", stage_step=stage_step, resources=resources, required_checks=required,
                 prechecks=[{k: c[k] for k in ("name", "kind", "input_sha256", "result_sha256", "exit_code")} for c in checks])
     return {"status": "PreflightPrepared", "execution_plan": plan, "plan_sha256": digest(plan),
             "checks": checks, "outputs": outputs, "scope": SCOPE}
@@ -136,10 +143,15 @@ def ready(data):
     """Verify the exact persisted plan and resolve its predeclared entity slots."""
     prepared = data["prepared"]
     plan = prepared["execution_plan"]
+    phased = plan.get("contract_version") == "execution-v2"
     if (prepared.get("status") != "PreflightPrepared" or prepared.get("plan_sha256") != digest(plan)
-            or plan.get("contract_version") != "execution-v1"
-            or plan["required_checks"] != compile_checks(plan["resources"])):
+            or plan.get("contract_version") not in {"execution-v1", "execution-v2"}
+            or plan["required_checks"] != compile_checks(plan["resources"], phased=phased)):
         raise ValueError("Missing or changed original generated plan")
+    if phased and plan.get("stage_step") != validate_phase(plan["resources"], plan["owner_skill"], plan["policy"]):
+        raise ValueError("Changed frozen completion phase")
+    if not phased and sum(r['type'] == 'task' for r in plan['resources']) > 1:
+        raise ValueError("Legacy multi-task plan has no frozen phase boundaries; preserve it and prepare linked current-step repair before work")
     # Recheck results as well as hashes; a zero exit without a successful result is not evidence.
     expected = {"facts": "ValidFactSemantics", "schema-values": "ValidSelectValues", "reply-prepare": "DraftPatchPlanned"}
     observed = prepared.get("checks", [])
@@ -199,6 +211,9 @@ def ready(data):
     registry.update(required_checks=required, task_versions={resolved[r["role"]]: r["content_version"] for r in plan["resources"] if r["type"] == "task"},
                     action_bindings={resolved[r["role"]]: resolved[r["task_role"]] for r in plan["resources"] if r["type"] == "action"},
                     execution_plan_sha256=digest(plan))
+    if phased:
+        registry.update(contract_version="execution-v2", stage_step=plan["stage_step"],
+                        task_steps={resolved[r["role"]]: r["resume_step"] for r in plan["resources"] if r["type"] == "task"})
     return {"status": "ExecutionPlanReady", "registry": registry, "plan_page_id": saved["id"],
             "entity_id": saved["id"], "execution_plan_sha256": digest(plan),
             "invocation_id": plan["invocation_id"], "publication_version": plan["publication_version"], "scope": SCOPE}
