@@ -31,9 +31,9 @@
   },
   "start": {
     "skill": "eightdegrees-automation-control",
-    "description": "Create or reuse one native 15-minute approved-work task.",
+    "description": "Create or reuse one native 30-minute approved-work task; 20 minutes optional.",
     "policy": "scheduling-only",
-    "instructions": "Operation=start. Use the edition runtime: cloud Work GPT task or Cowork native cron task. Verify actual native scheduler capabilities, this installation/executor and existing tasks including paused tasks. Reuse/update one owned task or create only after verified absence and prior-attempt reconciliation. Bind the packaged approved-work prompt to actual root/operator/mailbox/runtime/generation; verify exact 15-minute cadence, full prompt, task ID and enabled state before Running. Enable approved_work_enabled only after verified explicit start; package/init upgrade never broadens old no-send jobs. No immediate scan, customer send, CRM/Calendar write, business-task continuation, alternate cadence or independent backend. Missing native support remains unconfigured."
+    "instructions": "Operation=start. Use the edition runtime: cloud Work GPT task or Cowork native cron task. Verify actual native scheduler capabilities, this installation/executor and existing tasks including paused tasks. Reuse/update one owned task or create only after verified absence and prior-attempt reconciliation. Bind the packaged approved-work prompt to actual root/operator/mailbox/runtime/generation; select context.interval_minutes from the explicit optional interval_minutes=20 or interval_minutes=30 argument or saved scheduling.target_scan_minutes (fresh default 30), restrict choices to 20/30, and verify that exact native cadence, full prompt, task ID and enabled state before Running. Enable approved_work_enabled only after verified explicit start; package/init upgrade never broadens old no-send jobs. No immediate scan, customer send, CRM/Calendar write, business-task continuation, silent cadence fallback or independent backend. Missing native support remains unconfigured."
   },
   "stop": {
     "skill": "eightdegrees-automation-control",

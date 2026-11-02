@@ -1,6 +1,6 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing `eightdegrees-sales-workflow` 0.1.29: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
+Private marketplace containing `eightdegrees-sales-workflow` 0.1.30: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
 
 For a local ChatGPT/Codex marketplace, clone this private repository, open the checkout in the desktop host and use its plugin directory to install the listed plugin. With a compatible Codex CLI:
 
@@ -21,7 +21,7 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.29.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
+`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.30.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
 
 This is a skills-only distribution. It adds no server, secret, customer data, account authorization, actual schedule or automatic send. Readiness must be established in the customer's own environment. Real samples and test logs stay in customer accounts.
 
@@ -41,8 +41,19 @@ Garbled mail suspends fact extraction until the same authorized MIME source is s
 
 ## Periodic scan controls
 
-`@eightdegrees-sales-workflow start` creates/reuses one native 15-minute approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto handles independently approved Automatic work and manually initiated communication submissions also resume through the queue. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](plugins/eightdegrees-sales-workflow/references/scheduling.md).
+`@eightdegrees-sales-workflow start` creates/reuses one native 30-minute (20-minute optional) approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto handles independently approved Automatic work and manually initiated communication submissions also resume through the queue. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](plugins/eightdegrees-sales-workflow/references/scheduling.md).
 
 ## Shared queue and standing notification authority
 
 run-auto chains ready work across authorized sources and current Notion submissions; no extra continue command is required. Factual SMS notifications default to enabled standing authority and do not need individual content/send review. Email/CRM review, current stop/window/count/channel/attempt checks and explicit existing disable/revocation remain. Run explicit init after upgrade to register the additive ScheduledWork category and actual policy bindings; it creates no native task.
+
+## Scan timing defaults
+
+New installs use a 30-minute scan interval; choose the optional faster mode with
+`@eightdegrees-sales-workflow start interval_minutes=20`. An unqualified start
+keeps a supported saved choice. Each cycle has a 15-minute soft budget including
+a 2-minute publication reserve; stop admitting new phases at minute 13 and
+preserve unfinished work for the next tick. Existing explicit customer budgets
+are preserved until deliberate init upgrade; plugin installation never changes
+a live native task. Configure/update the same owned task through explicit start
+and verify its actual cadence.

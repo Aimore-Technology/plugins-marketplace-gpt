@@ -1,14 +1,17 @@
 ---
 name: eightdegrees-automation-control
-description: "Create, reuse or delete one native 15-minute approved-work task: Work GPT task for GPT, Cowork cron task for Claude. Does not immediately scan or send."
+description: "Create, reuse or delete one native 30-minute (20-minute optional) approved-work task: Work GPT task for GPT, Cowork cron task for Claude. Does not immediately scan or send."
 ---
 
 # Start or stop approved periodic work
 
-start establishes one native 15-minute cycle using [scheduled work](../../references/scheduled-work.md);
+start establishes one native 30-minute (20-minute optional) cycle using [scheduled work](../../references/scheduled-work.md);
 stop deletes it. Apply [schedule lifecycle](../../references/scheduling.md) and
 the edition's [runtime](../../references/platform-runtime.md). The scheduler
 operation itself scans/sends nothing and supplies no business approval. Before EVERY Notion page write, including setup/status/log fields, run [exact-call preflight](../../references/notion-mutation.md); require exit 0 and NotionMutationPrepared and use the returned unchanged arguments.
+
+Use optional start interval_minutes=20 for the faster cadence; otherwise keep a
+supported saved choice or default to 30. No extra command is introduced.
 
 1. Read current RunSettings and actual selected native runtime tools. Require
    real root/operator/mailbox/scope/connector setup. GPT targets a cloud Work GPT
@@ -23,7 +26,7 @@ operation itself scans/sends nothing and supplies no business approval. Before E
    previous unknown native attempts and competing executor ownership first.
 3. Start reuses/updates one exact owned task or creates after proven absence.
    Save intent first and verify actual task ID, cloud Skill/connector access,
-   prompt, 15-minute cadence, timezone and enabled state. Then set Running and
+   prompt, selected 20/30-minute cadence, timezone and enabled state. Then set Running and
    approved_work_enabled=true. A package/init upgrade never enables an old no-send
    lifecycle; explicit current start is required. This still grants no content
    or send approval and never enables an unverified automatic SMS channel.

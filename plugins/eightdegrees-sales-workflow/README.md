@@ -1,13 +1,13 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.29. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.30. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
 ## Skills
 
 | Skill | Use |
 | --- | --- |
 | eightdegrees-sales-workflow | Route the seven short commands to existing workflows. |
-| eightdegrees-automation-control | Start/reuse or delete one native 15-minute approved-work task. |
+| eightdegrees-automation-control | Start/reuse or delete one native 30-minute (20-minute optional) approved-work task. |
 | eightdegrees-initialization | Set up customer Notion, actual connections, defaults and readiness. |
 | eightdegrees-email-scanning | One scoped scan and automatic-task validation cycle. |
 | eightdegrees-communication-context-process | Manual P0-A; reviewed communication to CRM Notes. |
@@ -70,7 +70,7 @@ Communication DataCompletion uses CompleteCommunicationData and cannot append No
 
 ## Periodic scan controls
 
-`@eightdegrees-sales-workflow start` creates/reuses one native 15-minute approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto executes one cycle of independently approved Automatic work and Manual intake provenance stays intact while submitted communication decisions resume through the queue. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).
+`@eightdegrees-sales-workflow start` creates/reuses one native 30-minute (20-minute optional) approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto executes one cycle of independently approved Automatic work and Manual intake provenance stays intact while submitted communication decisions resume through the queue. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](references/scheduling.md).
 
 ## Native image previews
 
@@ -97,3 +97,14 @@ See [queue execution](references/queue-execution.md), [SMS notifications](refere
 ## Unattended approved work
 
 [Unattended operation](references/unattended-operation.md) adds bounded scan/restart checkpoints, scoped restriction overlays and related SMS result convergence. Defaults admit at most 12 owner steps within an eight-minute soft budget, reserving the final minute for persistence. Unknown requests are reconciled, never blindly resent. Human decisions stay in Notion; unrelated ready work continues. Actual cloud scheduling, serialization and channel readiness require native acceptance.
+
+## Scan timing defaults
+
+New installs use a 30-minute scan interval; choose the optional faster mode with
+`@eightdegrees-sales-workflow start interval_minutes=20`. An unqualified start
+keeps a supported saved choice. Each cycle has a 15-minute soft budget including
+a 2-minute publication reserve; stop admitting new phases at minute 13 and
+preserve unfinished work for the next tick. Existing explicit customer budgets
+are preserved until deliberate init upgrade; plugin installation never changes
+a live native task. Configure/update the same owned task through explicit start
+and verify its actual cadence.

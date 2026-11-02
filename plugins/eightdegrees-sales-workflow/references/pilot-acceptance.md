@@ -119,7 +119,7 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
   customer follow-up. Execute terms are caught before review, without altering
   approved bytes or suppressing source quotations.
 - On a connected native scheduler: start once, verify one actual active task,
-  exact 15 minutes, real ID, prompt and timezone. Repeat start must reuse it.
+  the exact selected 20/30 minutes, real ID, prompt and timezone. Repeat start must reuse it.
   Missing native support, unknown create result, duplicate ownership and another
   host's owner block creation; they must not produce a second scanner.
 - Trigger a real scheduled tick, verifying original scope and Automatic-only,
@@ -135,7 +135,7 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
 
 ## 0.1.17 alignment acceptance
 
-- In a real Work GPT task, verify native 15-minute creation/readback, same-ID
+- In a real Work GPT task, verify native 30-minute (20-minute optional) creation/readback, same-ID
   reuse, current lifecycle/connector access and deletion. Claude targets native
   Cowork cron but remains explicitly untested until its environment is available.
   Do not substitute a Codex project-local task for the requested Work runtime.

@@ -5,6 +5,7 @@ Enable/select EightDegrees Sales Workflow in the host first. The unified entry s
 ```text
 @eightdegrees-sales-workflow init
 @eightdegrees-sales-workflow start
+@eightdegrees-sales-workflow start interval_minutes=20
 @eightdegrees-sales-workflow stop
 @eightdegrees-sales-workflow add-communication <message URL or pasted content>
 @eightdegrees-sales-workflow run-auto
@@ -32,6 +33,7 @@ The Claude edition also includes seven native command files:
 ```text
 /eightdegrees-sales-workflow:init
 /eightdegrees-sales-workflow:start
+/eightdegrees-sales-workflow:start interval_minutes=20
 /eightdegrees-sales-workflow:stop
 /eightdegrees-sales-workflow:add-communication <message URL or pasted content>
 /eightdegrees-sales-workflow:run-auto
@@ -47,7 +49,13 @@ For new/migrated DataCompletion, open the registered ordinary action page, fill 
 
 ## Periodic scanning
 
-After setup, `start` creates or reuses one native 15-minute task; `stop` deletes
+The optional start argument interval_minutes=20 selects the faster cadence;
+interval_minutes=30 explicitly returns to the default cadence.
+Without an argument preserve a supported saved choice, or use 30 for new setup.
+Keep the selected target separate from native readback; see scheduling for
+legacy-task migration without creating a duplicate.
+
+After setup, `start` creates or reuses one native 30-minute (20-minute optional) task; `stop` deletes
 that task. `run-auto` still runs once. Start/stop manage schedules only: they do
 not immediately process mail, approve work or send customer messages. The native task calls email-scanning directly under the guarded scheduled-approved-work policy; it retains its native guard instead of masquerading as a deliberate public invocation. Actual host support and task
 readback are required; unsupported exact timing/deletion remains explicit, not

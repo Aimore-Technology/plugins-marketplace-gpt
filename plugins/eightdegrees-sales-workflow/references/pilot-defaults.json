@@ -85,7 +85,8 @@
   },
   "scheduling": {
     "enabled": false,
-    "target_scan_minutes": 15,
+    "target_scan_minutes": 30,
+    "allowed_scan_minutes": [20, 30],
     "actual_scan_minutes": null,
     "schedule_ids": [],
     "owner_host": null,
@@ -142,8 +143,8 @@
     "resume_submitted_manual_communications": true,
     "bounded_work_items": 12,
     "continue_commands_required": false,
-    "cycle_budget_seconds": 480,
-    "publication_reserve_seconds": 60,
+    "cycle_budget_seconds": 900,
+    "publication_reserve_seconds": 120,
     "checkpoint_contract": "scan-checkpoint-v1",
     "executor_mode": "single_native_owner",
     "unchanged_result_writes": false

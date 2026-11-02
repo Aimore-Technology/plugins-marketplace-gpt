@@ -16,14 +16,14 @@ def request(operation="start"):
         "root_url": "https://app.notion.com/p/" + "a" * 32, "operator_id": "operator-local-demo",
         "mailbox": "operator@example.com", "provider": "native-demo", "account_id": "native-account",
         "host_id": "native-host", "runtime": "work-gpt-task", "timezone": "Australia/Adelaide", "generation": 1},
-        "capabilities": {k: True for k in ("list", "read", "create", "update", "delete", "runner_ready", "exact_15_minutes")},
+        "capabilities": {"supported_interval_minutes": [20, 30], **{k: True for k in ("list", "read", "create", "update", "delete", "runner_ready")}},
         "tasks": [], "list_complete": True, "list_includes_inactive": True}
 
 
 def actual_task(data, identity="native-task-1"):
     ctx = SCHEDULE.context(data)
     return {"id": identity, "prompt": SCHEDULE.prompt_for(ctx), "enabled": True,
-            "interval_minutes": 15, "timezone": ctx["timezone"], "read_verified": True,
+            "interval_minutes": ctx["interval_minutes"], "timezone": ctx["timezone"], "read_verified": True,
             **{k: ctx[k] for k in ("provider", "account_id", "host_id", "runtime")}}
 
 
@@ -34,11 +34,87 @@ def scheduled_guard():
                 scheduling={"enabled": True, "state": "Running", "desired_state": "Running", "generation": 1,
                             "owner_key": ctx["owner_key"], "provider": ctx["provider"], "account_id": ctx["account_id"],
                             "owner_host": ctx["host_id"], "runtime": ctx["runtime"], "approved_work_enabled": True,
+                            "target_scan_minutes": 30, "actual_scan_minutes": 30,
                             "schedule_ids": ["native-task-1"]})
     return data
 
 
 class ScheduleTests(unittest.TestCase):
+    def test_explicit_twenty_minute_cadence_is_bound_and_read_back(self):
+        for runtime in ('work-gpt-task', 'cowork-cron-task'):
+            data = request(); data['context'].update(runtime=runtime, interval_minutes=20)
+            result = SCHEDULE.plan(data)
+            self.assertEqual(result['interval_minutes'], 20)
+            self.assertIn('ScanIntervalMinutes: 20', result['prompt'])
+            data['tasks'] = [actual_task(data)]
+            self.assertEqual(SCHEDULE.verify(data)['status'], 'RunningVerified')
+            self.assertEqual(SCHEDULE.plan(data)['status'], 'ReuseExisting')
+
+    def test_saved_twenty_choice_is_not_reset_by_unqualified_start(self):
+        data = request(); data['scheduling'] = {'target_scan_minutes': 20}
+        self.assertEqual(SCHEDULE.plan(data)['interval_minutes'], 20)
+        data['tasks'] = [actual_task(data)]
+        self.assertEqual(SCHEDULE.plan(data)['status'], 'ReuseExisting')
+
+    def test_explicit_return_to_thirty_updates_the_same_twenty_minute_task(self):
+        data = request(); data['scheduling'] = {'target_scan_minutes': 20}
+        data['tasks'] = [actual_task(data)]
+        data['context']['interval_minutes'] = 30
+        result = SCHEDULE.plan(data)
+        self.assertEqual((result['status'], result['schedule_id'], result['interval_minutes']),
+                         ('EligibleForNativeUpdate', 'native-task-1', 30))
+        self.assertEqual(SCHEDULE.verify(data)['status'], 'NeedsCorrection')
+        data['tasks'] = [actual_task(data)]
+        self.assertEqual(SCHEDULE.verify(data)['status'], 'RunningVerified')
+
+    def test_twenty_request_never_accepts_thirty_readback_or_falls_back(self):
+        data = request(); item = actual_task(data)
+        data['context']['interval_minutes'] = 20; data['tasks'] = [item]
+        self.assertEqual(SCHEDULE.verify(data)['status'], 'NeedsCorrection')
+        result = SCHEDULE.plan(data)
+        self.assertEqual((result['status'], result['schedule_id'], result['interval_minutes']),
+                         ('EligibleForNativeUpdate', 'native-task-1', 20))
+        data['capabilities']['supported_interval_minutes'] = [30]
+        self.assertEqual(SCHEDULE.plan(data)['status'], 'NativeSchedulingUnavailable')
+
+    def test_legacy_fifteen_is_updated_in_place_or_stopped_without_migration(self):
+        data = request(); item = actual_task(data); item['interval_minutes'] = 15
+        item['prompt'] = item['prompt'].replace('ScanIntervalMinutes: 30\n', '')
+        data['tasks'] = [item]
+        data['scheduling'] = {'target_scan_minutes': 15}
+        result = SCHEDULE.plan(data)
+        self.assertEqual((result['status'], result['schedule_id'], result['interval_minutes']),
+                         ('EligibleForNativeUpdate', 'native-task-1', 30))
+        self.assertEqual(SCHEDULE.verify(data)['status'], 'NeedsCorrection')
+        data.update(operation='stop', scheduling={'target_scan_minutes': 15})
+        self.assertEqual(SCHEDULE.plan(data)['schedule_ids'], ['native-task-1'])
+        self.assertEqual(SCHEDULE.verify(data)['status'], 'NeedsCorrection')
+        data['tasks'] = []
+        self.assertEqual(SCHEDULE.verify(data)['status'], 'StoppedVerified')
+
+    def test_only_typed_supported_choices_and_capability_evidence_are_accepted(self):
+        for value in (15, 60, True, '20', 20.0, None):
+            data = request(); data['context']['interval_minutes'] = value
+            with self.subTest(value=value), self.assertRaises(ValueError): SCHEDULE.plan(data)
+        for value in (None, '30', [True, 30], [15]):
+            data = request(); data['capabilities']['supported_interval_minutes'] = value
+            self.assertEqual(SCHEDULE.plan(data)['status'], 'NativeSchedulingUnavailable')
+        data = request(); del data['capabilities']['supported_interval_minutes']
+        data['capabilities']['exact_15_minutes'] = True
+        self.assertEqual(SCHEDULE.plan(data)['status'], 'NativeSchedulingUnavailable')
+
+    def test_tick_defers_mismatched_or_unverified_cadence_and_keeps_overlap_guard(self):
+        for interval in (20, 30):
+            data = scheduled_guard(); data['context']['interval_minutes'] = interval
+            data['scheduling'].update(target_scan_minutes=interval, actual_scan_minutes=interval)
+            self.assertEqual(SCHEDULE.guard(data)['status'], 'EligibleForScheduledCycle')
+            for field, value in (('actual_scan_minutes', None), ('actual_scan_minutes', 15),
+                                 ('actual_scan_minutes', '20'), ('target_scan_minutes', 15)):
+                bad = copy.deepcopy(data); bad['scheduling'][field] = value
+                self.assertEqual(SCHEDULE.guard(bad)['status'], 'Deferred')
+            data['active_run'] = {'status': 'InProgress', 'invocation_id': 'other'}
+            self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
+
     def test_stop_before_first_start_accepts_verified_absence_at_generation_zero(self):
         data = request("stop"); data["context"]["generation"] = 0
         self.assertEqual(SCHEDULE.plan(data)["status"], "AlreadyAbsent")
@@ -61,7 +137,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(result["status"], "EligibleForNativeCreate")
         self.assertNotIn("@eightdegrees-sales-workflow run-auto", result["prompt"])
         self.assertIn("scheduled-approved-work", result["prompt"])
-        self.assertEqual(result["interval_minutes"], 15)
+        self.assertEqual(result["interval_minutes"], 30)
         self.assertEqual(data["tasks"], [])
 
     def test_start_readback_and_repeat_reuse_real_id(self):
@@ -79,7 +155,7 @@ class ScheduleTests(unittest.TestCase):
             self.assertEqual(SCHEDULE.verify(data)["status"], "NeedsCorrection")
 
     def test_unsupported_cadence_or_runner_does_not_create_fallback(self):
-        for field in ("exact_15_minutes", "runner_ready", "read", "list"):
+        for field in ("supported_interval_minutes", "runner_ready", "read", "list"):
             data = request(); data["capabilities"][field] = False
             self.assertEqual(SCHEDULE.plan(data)["status"], "NativeSchedulingUnavailable")
 

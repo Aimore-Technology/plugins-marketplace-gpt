@@ -147,6 +147,12 @@ def check():
                 require(not re.search(r'john|vivian', resource.read_text(encoding='utf-8'), re.I), f'Fixed pilot person in runtime payload: {resource.relative_to(plugin)}')
         require(defaults['timezone'] == 'Australia/Adelaide', 'Pilot timezone drift')
         require(defaults['scheduling']['enabled'] is False, 'Package must not enable schedules')
+        require(defaults['scheduling']['target_scan_minutes'] == 30
+                and defaults['scheduling']['allowed_scan_minutes'] == [20, 30], 'Scan cadence defaults drift')
+        require(defaults['queue_execution']['cycle_budget_seconds'] == 900
+                and defaults['queue_execution']['publication_reserve_seconds'] == 120, 'Cycle budget defaults drift')
+        require(defaults['queue_execution']['cycle_budget_seconds'] < min(defaults['scheduling']['allowed_scan_minutes']) * 60,
+                'Soft cycle budget must leave room before the shortest supported interval')
         require(defaults['customer_setup']['allowed_label_ids'] == [], 'Do not ship a customer mail scope')
         require(defaults['customer_setup']['notion_root_id'] is None, 'Do not ship a developer Notion root')
         require(defaults['sms_follow_up']['max_messages_per_cycle_including_manual'] == 2, 'SMS cap drift')

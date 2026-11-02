@@ -31,9 +31,9 @@ The guard permits owner checks; it is not sending authorization or a server lock
    brief and send one configured internal summary. Persist date/notification IDs;
    a later tick does not send another morning summary. Existing reminders use
    ReminderKey/phase deduplication and explicit acknowledgement.
-4. Record actual planned/observed times. Prefer a native quarter-hour anchor
+4. Record actual planned/observed times. Use the selected native 20/30-minute cadence
    when supported. A late tick is a labeled catch-up, not an on-time 08:30 push;
-   15-minute polling alone cannot prove 19-minute escalation. No extra daemon or
+   20/30-minute polling alone cannot prove 19-minute escalation. No extra daemon or
    undeclared secondary schedule. Calendar still needs confirmed exact details,
    original event-ID reconciliation and authorized work-calendar access.
 5. Save verified send outcomes, receipt/projection progress and current service
@@ -51,3 +51,8 @@ attempts and payload approvals remain unchanged. An old running lifecycle
 without this verified new binding defers instead of gaining send scope.
 
 The current source/continuation contract is [queue execution](queue-execution.md): current submitted Manual communication forms can resume without another command; factual SMS notifications use standing authority and read-only queued/result pages. A ready successor is enqueued in the same bounded cycle, without scanner recursion or waiting for a future due time.
+
+The native cadence defaults to 30 minutes, with explicit 20-minute selection.
+A due time is a not-before threshold, not a promise to send at that exact minute.
+Keep the 19-minute reminder threshold and actual lateness visible; this cadence
+does not guarantee escalation within 19 minutes.

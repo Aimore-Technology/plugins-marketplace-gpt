@@ -53,10 +53,10 @@ def advance(data):
     start, now = timestamp(data['started_at']), timestamp(data['now'])
     if now < start:
         raise ValueError('Clock regressed')
-    budget, reserve, limit = data.get('budget_seconds', 480), data.get('reserve_seconds', 60), data.get('max_items', 12)
-    if (type(budget) is not int or not 120 <= budget <= 600 or type(reserve) is not int
+    budget, reserve, limit = data.get('budget_seconds', 900), data.get('reserve_seconds', 120), data.get('max_items', 12)
+    if (type(budget) is not int or not 120 <= budget <= 900 or type(reserve) is not int
             or not 30 <= reserve < budget or type(limit) is not int or not 1 <= limit <= 100):
-        raise ValueError('Use a 2-10 minute budget, publication reserve and bounded item count')
+        raise ValueError('Use a 2-15 minute budget, publication reserve and bounded item count')
     executor = data['executor']
     current_id = executor['current_id']
     if not isinstance(current_id, str) or not current_id:
@@ -166,6 +166,10 @@ def advance(data):
         fresh_streams.get(name, {}).get('complete') is True and fresh_streams.get(name, {}).get('durable') is True
         for name in required_streams)
     return {'status': 'ScanCyclePlanned', 'work': work, 'checkpoint': checkpoint,
+            'elapsed_seconds': (now - start).total_seconds(), 'budget_seconds': budget,
+            'publication_reserve_seconds': reserve,
+            'timing_status': 'SoftBudgetOverrun' if (now - start).total_seconds() > budget else 'WithinSoftBudget',
+            'soft_budget_overrun_seconds': max(0, (now - start).total_seconds() - budget),
             'execution_basis': 'BoundOnDemand' if scoped_single and not native_single else 'ObservedSerializedHost',
             'budget_exhausted': expired or len(attempted) >= limit,
             'admission_required_before_next_owner': True, 'seconds_available_for_work': remaining,

@@ -30,7 +30,16 @@ def context(data):
     ZoneInfo(ctx["timezone"])
     if type(ctx.get("generation")) is not int or ctx["generation"] < 0:
         raise ValueError("generation must be a nonnegative integer from saved lifecycle state")
-    return {**ctx, "owner_key": "eightdegrees-scan:" + root}
+    # Stop must still remove a proven owned legacy task at any old cadence.
+    saved = data.get("scheduling") or {}
+    interval = 30 if data.get("operation") == "stop" else ctx.get(
+        "interval_minutes", saved.get("target_scan_minutes", 30))
+    if (data.get("operation") == "start" and "interval_minutes" not in ctx
+            and type(interval) is int and interval == 15):
+        interval = 30  # Explicit start adopts the new default for a legacy job.
+    if type(interval) is not int or interval not in (20, 30):
+        raise ValueError("Choose a 30-minute scan interval or the explicit 20-minute option")
+    return {**ctx, "interval_minutes": interval, "owner_key": "eightdegrees-scan:" + root}
 
 
 def prompt_for(ctx):
@@ -66,7 +75,7 @@ def owned_tasks(data, ctx):
 
 def exact_task(task, ctx):
     return (task.get("enabled") is True and task.get("runtime") == ctx["runtime"] and type(task.get("interval_minutes")) is int
-            and task["interval_minutes"] == 15 and task.get("timezone") == ctx["timezone"]
+            and task["interval_minutes"] == ctx["interval_minutes"] and task.get("timezone") == ctx["timezone"]
             and task.get("prompt") == prompt_for(ctx))
 
 
@@ -92,8 +101,11 @@ def plan(data):
                 "schedule_ids": [t["id"] for t in tasks], "owner_key": ctx["owner_key"]}
     if ctx["generation"] < 1:
         raise ValueError("Start must first register a positive lifecycle generation")
-    if caps.get("read") is not True or caps.get("runner_ready") is not True or caps.get("exact_15_minutes") is not True:
-        return {"status": "NativeSchedulingUnavailable", "reason": "Verify exact 15-minute cadence and skill/connector access; no alternate cadence or backend"}
+    supported = caps.get("supported_interval_minutes")
+    if (caps.get("read") is not True or caps.get("runner_ready") is not True
+            or not isinstance(supported, list) or any(type(v) is not int for v in supported)
+            or ctx["interval_minutes"] not in supported):
+        return {"status": "NativeSchedulingUnavailable", "reason": "Verify the selected 20/30-minute native cadence and skill/connector access; no silent fallback or backend"}
     if len(tasks) > 1:
         return {"status": "NeedsReconciliation", "reason": "Duplicate owned scanners; do not create another", "schedule_ids": [t["id"] for t in tasks]}
     if tasks and exact_task(tasks[0], ctx):
@@ -103,7 +115,7 @@ def plan(data):
         return {"status": "NativeSchedulingUnavailable", "reason": "Required native " + capability + " operation is unavailable"}
     return {"status": "EligibleForNativeUpdate" if tasks else "EligibleForNativeCreate",
             "schedule_id": tasks[0]["id"] if tasks else None, "owner_key": ctx["owner_key"],
-            "interval_minutes": 15, "timezone": ctx["timezone"], "prompt": prompt_for(ctx)}
+            "interval_minutes": ctx["interval_minutes"], "timezone": ctx["timezone"], "prompt": prompt_for(ctx)}
 
 
 def verify(data):
@@ -116,6 +128,7 @@ def verify(data):
         valid = ctx["generation"] > 0 and len(tasks) == 1 and exact_task(tasks[0], ctx)
         return {"status": "RunningVerified" if valid else "NeedsCorrection",
                 "schedule_ids": [t["id"] for t in tasks], "owner_key": ctx["owner_key"],
+                "interval_minutes": ctx["interval_minutes"],
                 "prompt_sha256": hashlib.sha256(prompt_for(ctx).encode()).hexdigest()}
     if data.get("operation") != "stop":
         raise ValueError("operation must be start or stop")
@@ -138,6 +151,10 @@ def guard(data):
             or saved.get("owner_host") != ctx["host_id"] or saved.get("provider") != ctx["provider"]
             or saved.get("account_id") != ctx["account_id"]
             or saved.get("runtime") != ctx["runtime"]
+            or type(saved.get("target_scan_minutes")) is not int
+            or saved.get("target_scan_minutes") != ctx["interval_minutes"]
+            or type(saved.get("actual_scan_minutes")) is not int
+            or saved.get("actual_scan_minutes") != ctx["interval_minutes"]
             or setup.get("operator_id") != ctx["operator_id"] or setup.get("gmail_account") != ctx["mailbox"]
             or str(setup.get("notion_root_id", "")).replace("-", "").lower() != ctx["root_id"].replace("-", "").lower()
             or not isinstance(invocation.get("invocation_id"), str) or not invocation["invocation_id"].strip()

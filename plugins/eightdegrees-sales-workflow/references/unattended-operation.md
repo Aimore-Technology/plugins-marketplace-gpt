@@ -11,20 +11,32 @@ missing capability into a repeated permission question.
 Use local_checks operation scan.cycle with one original capture bundle. Inputs:
 root_id, actual started_at/now, executor={current_id,active_ids,coverage_complete,
 serialized}, current items and streams, optional checkpoint_page, results and
-attempted_keys. Work items have source_key, step, version, input_digest and optional
+attempted_keys; optional budget_seconds/reserve_seconds/max_items come from
+the current saved queue_execution settings, not a host interval. Work items have source_key, step, version, input_digest and optional
 attempt_id, unknown_attempt, waiting, stopped, due_at, priority. Source stream
 observations have cutoff, complete, durable and actual next_cursor. Result
 observations have key, state (completed/unknown/waiting/retry_read), receipt_ref
 and original attempt_id for unknown results. Normalize these only from actual
 owner evidence; the planner cannot prove results or permission.
 
-Defaults: 480 seconds, 60 seconds reserved for persistence, 12 owner steps.
+Defaults: 900 seconds, 120 seconds reserved for persistence, 12 owner steps.
 Recheck actual clock and the plan before every discovery page/body, owner step and external effect. Stop
-admitting work at 7 minutes; save coverage and remaining identities. Never sleep
+admitting work at 13 minutes; save coverage and remaining identities. Never sleep
 for future work or spin on unchanged human input. Do not interrupt an in-flight
 write to fit the budget: finish its result recording, admit no more work and
 let the next tick resume. A single long provider call can overrun this soft
 budget; record that actual overrun rather than inventing a hard timeout.
+The 120-second reserve is inside the 900-second total, not an extra two minutes.
+Supported explicit budgets remain 120-900 seconds; preserve older saved
+480/60 limits until the operator deliberately adopts new defaults.
+Use elapsed_seconds, budget_seconds, publication_reserve_seconds, timing_status
+and soft_budget_overrun_seconds from each current scan.cycle observation.
+An overrun is a performance/quality observation, not proof that a verified
+email/SMS failed; retain independent business outcomes and exact historical
+limits. Do not rewrite earlier 480-second overruns as passed under the new limit.
+Default ticks are 30 minutes, optionally 20; the 15-minute budget leaves headroom
+in both modes, but does not prove native serialization or prevent an in-flight
+provider call from taking longer. Existing overlap/unknown guards still apply.
 
 Persist the returned scan-checkpoint-v1 on the original scan before advancing
 source labels/watermarks. Keep an installation pointer to this actual scan.

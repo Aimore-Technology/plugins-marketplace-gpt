@@ -180,11 +180,63 @@ class ScopedContactStops(unittest.TestCase):
 def cycle_fixture():
     item = {'source_key': 'email1', 'step': 'SendApprovedReply', 'version': 'v1', 'input_digest': 'sha1'}
     return {'root_id': 'a'*32, 'started_at': '2026-11-01T00:00:00Z', 'now': '2026-11-01T00:01:00Z',
+            'budget_seconds': 480, 'reserve_seconds': 60,
             'executor': {'current_id': 'run1', 'active_ids': ['run1'], 'serialized': True, 'coverage_complete': True},
             'items': [item], 'streams': {'gmail': {'cutoff': '2026-11-01T00:00:00Z', 'durable': True, 'complete': True}}}
 
 
 class BoundedRecovery(unittest.TestCase):
+    def test_new_default_admits_a_ten_minute_cycle_and_keeps_two_minute_reserve_inside_total(self):
+        data = cycle_fixture(); data.pop('budget_seconds'); data.pop('reserve_seconds')
+        data['now'] = '2026-11-01T00:10:49Z'
+        result = scan_cycle.advance(data)
+        self.assertEqual(len(result['work']), 1)
+        self.assertEqual(result['seconds_available_for_work'], 131)
+        self.assertEqual(result['deadline'], '2026-11-01T00:15:00+00:00')
+        self.assertEqual((result['budget_seconds'], result['publication_reserve_seconds']), (900, 120))
+        self.assertEqual(result['timing_status'], 'WithinSoftBudget')
+        self.assertFalse(result['external_actions_allowed'])
+
+    def test_new_default_stops_admission_at_thirteen_minutes_with_durable_remaining_work(self):
+        data = cycle_fixture(); data.pop('budget_seconds'); data.pop('reserve_seconds')
+        data['now'] = '2026-11-01T00:13:00Z'
+        result = scan_cycle.advance(data)
+        self.assertEqual(result['work'], [])
+        self.assertTrue(result['budget_exhausted'])
+        self.assertEqual(len(result['checkpoint']['work_items']), 1)
+        self.assertTrue(result['requires_next_cycle'])
+        self.assertEqual(result['timing_status'], 'WithinSoftBudget')
+
+    def test_legacy_customer_budget_remains_explicit_and_history_is_not_reclassified(self):
+        data = cycle_fixture(); data['now'] = '2026-11-01T00:10:49Z'
+        result = scan_cycle.advance(data)
+        self.assertEqual(result['work'], [])
+        self.assertEqual(result['budget_seconds'], 480)
+        self.assertEqual(result['publication_reserve_seconds'], 60)
+        self.assertEqual(result['soft_budget_overrun_seconds'], 169)
+        self.assertEqual(result['timing_status'], 'SoftBudgetOverrun')
+
+    def test_fifteen_minute_overrun_is_timing_evidence_without_rewinding_known_success(self):
+        data = cycle_fixture(); data.pop('budget_seconds'); data.pop('reserve_seconds')
+        identity = scan_cycle.key(data['items'][0])
+        data.update(now='2026-11-01T00:15:01Z', results=[
+            {'key': identity, 'state': 'completed', 'receipt_ref': 'verified-provider-id'}])
+        result = scan_cycle.advance(data)
+        self.assertEqual(result['status'], 'ScanCyclePlanned')
+        self.assertEqual(result['soft_budget_overrun_seconds'], 1)
+        self.assertEqual(result['timing_status'], 'SoftBudgetOverrun')
+        self.assertEqual(result['checkpoint']['items'][identity]['state'], 'completed')
+        self.assertEqual(result['work'], [])
+        self.assertNotIn('retry_send', result)
+
+    def test_budget_limits_refuse_unbounded_or_invalid_configuration(self):
+        for budget in (True, 119, 901, 1800, 900.0):
+            with self.subTest(budget=budget), self.assertRaises(ValueError):
+                scan_cycle.advance(cycle_fixture() | {'budget_seconds': budget})
+        for reserve in (True, 29, 900):
+            with self.subTest(reserve=reserve), self.assertRaises(ValueError):
+                scan_cycle.advance(cycle_fixture() | {'budget_seconds': 900, 'reserve_seconds': reserve})
+
     def on_demand(self):
         data = cycle_fixture(); data['policy'] = 'one-cycle-approved-work'
         data['executor'].update(coverage_complete=False, serialized=False, on_demand={
