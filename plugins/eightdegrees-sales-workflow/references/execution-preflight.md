@@ -120,3 +120,9 @@ continue to a mutation. Missing Python support leaves this path unverified;
 do not pretend checks ran. The host still controls connector execution.
 
 For a sales material-send plan include `material-handoff` in the original task's evidence array before execution. This binds downstream registration to the same completion contract; run [material handoff](material-handoff.md) verify on actual saved pages before final completion. Plan the downstream SMS owner separately; a blocked channel still gets an observable registration/task, never another email.
+
+Notion may display generated identity punctuation with Markdown escapes. The
+readback guard compares one decoded presentation layer against the frozen
+canonical metadata, retaining the actual original capture unchanged. New writes
+still reject escaped identity values. Do not strip links, change page evidence,
+rewrite saved fields, or guess a raw-property tool option to satisfy the guard.

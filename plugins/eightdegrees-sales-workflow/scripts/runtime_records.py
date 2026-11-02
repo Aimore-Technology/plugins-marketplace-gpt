@@ -12,13 +12,28 @@ VERSION = json.loads(MANIFEST.read_text(encoding='utf-8'))['version']
 OWNERS = set(json.loads((PLUGIN / 'references/owner-completion-profiles.json').read_text()))
 
 
+def read_identity(value):
+    """Decode one presentation-escape layer, without editing original evidence.
+
+    Generated IDs use colon/dot/underscore/hyphen. Do not strip links, whitespace,
+    arbitrary backslashes or multiple escape layers to make an identity match.
+    """
+    return re.sub(r'\\([\\:._-])', r'\1', value) if isinstance(value, str) else value
+
+
+def matches_readback(actual, expected):
+    return all(read_identity(actual.get(field)) == value for field, value in expected.items())
+
+
 def validate(properties, creating=False):
     """Run rows are recognizable by RecordType, not a guessed database name."""
     if properties.get('RecordType') not in {'Scan', 'Business', 'Initialization'}:
         return
+    if not creating:
+        properties = {field: read_identity(value) for field, value in properties.items()}
     for field in ('RunId', 'Skill', 'SkillVersion', 'SourceKey'):
         value = properties.get(field)
-        if not isinstance(value, str) or not value.strip() or re.search(r'[\r\n`*<>]|\[[^\]]*\]\(', value):
+        if not isinstance(value, str) or not value.strip() or '\\' in value or re.search(r'[\r\n`*<>]|\[[^\]]*\]\(', value):
             raise ValueError('Run metadata needs a plain nonempty ' + field)
     if properties['Skill'] not in OWNERS:
         raise ValueError('Run metadata has an unknown owner')

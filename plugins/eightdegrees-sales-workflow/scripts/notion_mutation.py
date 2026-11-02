@@ -80,6 +80,9 @@ def prepare(data):
     for index, props in enumerate(properties):
         if not isinstance(props, dict):
             raise ValueError("Properties must be the exact proposed object")
+        if any(isinstance(props.get(field), str) and '\\' in props[field]
+               for field in ('RunId', 'Skill', 'SkillVersion', 'SourceKey')):
+            raise ValueError('Write canonical run/source identity, not a presentation-escaped readback')
         run_props = props
         creating = tool.endswith('__notion_notion_create_pages')
         if not creating and 'target' in data:

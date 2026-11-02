@@ -195,7 +195,7 @@ def ready(data):
     if 'run_properties' in plan:
         from email_presentation import properties
         actual = properties(data['saved_plan'])
-        if any(actual.get(k) != v for k, v in plan['run_properties'].items()):
+        if not runtime_records.matches_readback(actual, plan['run_properties']):
             raise ValueError('Saved run identity/version differs from its frozen current plan')
     matches = []
     for text in re.findall(r"```json\s*\n(.*?)\n```", page_body(data["saved_plan"]), re.S):
