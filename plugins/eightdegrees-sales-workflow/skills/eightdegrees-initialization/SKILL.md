@@ -61,3 +61,18 @@ preserves prior source cursors, accepted submissions, future work and attempts;
 missing/expired coverage needs a targeted baseline before claiming idle.
 This creates no task/schedule and executes no business work. Add missing settings
 without resetting human choices, scheduler state or authority.
+
+When the operator explicitly initiates a different inquiry/context, save its
+source/customer/number binding and any bounded timing/count exception under
+[saved SMS context initiation](../../references/material-handoff.md). Reuse that
+authorization on later scans; do not request it again, copy a prior project's
+stop into global scope, reopen old cycles or extend an expired exception.
+
+On explicit 0.1.33 upgrade, register one recovery wake-up for a registered
+ClosedPriorContextBlocksExplicitNewContext stub that passes the original-page
+and current saved-authorization checks. Bind the existing SMS task/step/version
+and a stable scoped-sms-initiation-v2 repair revision in EventIndex's recovery
+feed under [event discovery](../../references/event-discovery.md). This makes the
+repair visible once to run-auto without repeated human submission or quiet-tick
+history sweeps. Init only registers the wake-up; it does not activate/send work.
+Stopped, used, unknown or expired work remains blocked with its original reason.

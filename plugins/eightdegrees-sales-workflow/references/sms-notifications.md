@@ -77,6 +77,11 @@ are separately deduplicated by ReminderKey+phase and only use the configured
 operator destination. Notification authority does not authorize a customer reply
 to a campaign or substitute a service sender ID.
 
+The saved context initiation in [material handoff](material-handoff.md) may set a
+specific first delay, expiry and one-message cap. Those limits take precedence
+for that context only; check them again before dispatch. An unrelated project's
+stop is retained in its own scope, while global/channel stop and Pause still win.
+
 ## Upgrade
 
 Explicit init adopts the new default standing policy, adds ScheduledWork to the

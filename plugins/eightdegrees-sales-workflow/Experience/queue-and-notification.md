@@ -26,3 +26,16 @@ native scheduler or end-to-end acceptance is proved by changing instructions.
 A network SMS result left old data/action/parent-run copy at AwaitingPhone. Stop was enforced in the cycle while the persona retained an older SMS permission. Several scans exceeded the 15-minute target. Use [unattended operation](../references/unattended-operation.md), related seven-page SMS readback and the separate restrictive overlay. Preserve historical payload/approval. Bound work and save a restart checkpoint; never shorten approval/stop checks or retry an unknown request to meet a tick. Offline fixes require separate host acceptance.
 
 A 0.1.26 simulation exposed an over-broad ownership guard: cloud/global serialization was demanded for the explicitly assigned public on-demand conversation. Use the scoped current thread/turn plus original settings and complete installation Scan observations under unattended-operation.md. Do not mark global host coverage true or weaken native schedule ownership.
+
+## Observed in 0.1.33: old project stop blocked a new authorized inquiry
+
+Trigger: a customer has an old closed/stopped project cycle and a separate,
+explicitly initiated new inquiry. material.plan required new-context authorization
+but had no input path to consume the saved authorization; SMS never reached the
+connector. This is an implementation defect, not a delivery/receipt failure.
+Use [saved initiation and original-stub recovery](../references/material-handoff.md).
+Keep complete old-cycle discovery and scoped stop evidence, validate the saved
+source/customer/number/expiry and preserve one-message limits. Never filter history,
+revive an old stopped cycle, repeat email/CRM effects or request approval again.
+Offline regressions and frozen-incident replay validate the corrected decision;
+live public-command dispatch still needs its own acceptance run.

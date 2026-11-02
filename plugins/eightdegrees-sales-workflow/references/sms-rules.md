@@ -11,6 +11,9 @@ Email approval and CRM fact review remain separate.
 - First follow-up >= actual material Sent+30 minutes. Second >= first actual
   follow-up+24 hours, not its planned time. Internal reminders use their own
   configured deduplicated phases.
+  A saved explicit context exception under [material handoff](material-handoff.md)
+  may specify its own first delay, expiry and a lower message cap. Preserve those
+  limits on its cycle/task; a zero-delay one-message exception is not a global default.
 - Customer SMS window defaults Mon-Fri 10:00-17:00 Australia/Adelaide with DST
   and configured no-send dates. Roll outside-window due work to the next allowed
   time; never send early just to fit. The standing SMS policy includes that
@@ -25,6 +28,9 @@ Email approval and CRM fact review remain separate.
 - Reply/rejection/complaint/opt-out or operator Pause stops affected unsent work
   before ordinary processing. Authority revocation blocks future dispatch.
   Unconnected channel replies are not observed automatically.
+  Keep project stops scoped to that context; global/channel stops still cover all
+  contexts. A separately initiated new inquiry uses its existing saved authorization
+  without another SMS review, and never reopens the prior stopped cycle.
 - Verify actual own-number display, stable gateway and ordinary-inbox reply
   visibility, device ownership and latest accessible reply coverage. Permission
   is enabled by default; unverified capability still blocks actual dispatch.

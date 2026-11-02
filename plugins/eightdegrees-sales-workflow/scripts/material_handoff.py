@@ -10,6 +10,7 @@ import re
 import sys
 
 from notion_checks import object_result, page_body, page_id
+from email_presentation import blocks
 
 SCOPE = "Offline normalized-evidence checks only; not provider verification, approval, a scheduler or an execution lock"
 
@@ -29,6 +30,125 @@ def stamp(value):
 
 def key(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def context_authorization(data, identity, root, sent_at):
+    """Read explicit initiation from the original settings, never a loose flag."""
+    capture = data.get('saved_settings')
+    if capture is None:
+        return None, False
+    payload = object_result(capture)
+    if payload.get('metadata', {}).get('type') != 'page':
+        raise ValueError('Read the original saved settings page for new-context authorization')
+    settings = []
+    for raw in re.findall(r'```json\s*\n(.*?)\n```', page_body(capture), re.S):
+        value = json.loads(raw)
+        if isinstance(value, dict) and 'settings_schema_version' in value:
+            settings.append(value)
+    if len(settings) != 1:
+        raise ValueError('Require one original saved settings record')
+    settings = settings[0]
+    setup = settings['customer_setup']
+    settings_id = page_id(payload['id'])
+    if (page_id(setup['notion_root_id']) != root
+            or page_id(setup['notion_ids']['settings']) != settings_id
+            or setup['crm_location_id'] != identity['location_id']
+            or setup['gmail_account'] != identity['account']):
+        raise ValueError('Settings belong to another installation, account or CRM location')
+    # A context stop is not a customer-global stop; uncertain/global scope stays
+    # restrictive. CRM DND and fresh persona restrictions remain owner guards.
+    restricted = False
+    for scope, stop in settings.get('sms_stops', {}).items():
+        if (stop.get('location_id') == identity['location_id']
+                and stop.get('contact_id') == identity['contact_id']
+                and stop.get('channel', 'sms') in ('sms', '*')
+                and stop.get('stopped') is True):
+            context = stop.get('context_key', scope)
+            if context in ('*', identity['context_key'], None, ''):
+                restricted = True
+    override = settings['sms_follow_up'].get('context_overrides', {}).get(identity['context_key'])
+    if override is None:
+        return None, restricted
+    enquiry = settings.get('enquiries', {}).get(identity['context_key'], {})
+    source = data['event'].get('source_message_id')
+    authority = settings['sms_notifications']
+    if (override.get('explicitly_initiated') is not True
+            or override.get('revoked_at') is not None
+            or override.get('context_key', identity['context_key']) != identity['context_key']
+            or not source or source != override.get('source_message_id')
+            or source != enquiry.get('source_message_id')
+            or enquiry.get('location_id') != identity['location_id']
+            or enquiry.get('contact_id') != identity['contact_id']
+            or override.get('recipient') != data.get('recipient')
+            or enquiry.get('phone') != data.get('recipient')
+            or not re.fullmatch(r'[0-9a-f]{32}', page_id(override.get('authorization_ref', '')) or '')
+            or authority.get('policy') != 'notification-sms-v1'
+            or authority.get('enabled') is not True or authority.get('revoked_at') is not None
+            or authority.get('per_message_review_required') is not False
+            or page_id(authority.get('root_id', '')) != root
+            or authority.get('operator_id') != setup.get('operator_id')
+            or not setup.get('operator_id')
+            or settings['sms_follow_up'].get('automatic_sending_enabled') is not True):
+        raise ValueError('Saved new-context initiation must match the current source, customer, recipient and standing policy')
+    now = stamp(data['observed_at'])
+    if now < sent_at:
+        raise ValueError('Authorization observation cannot precede the Gmail handoff')
+    expires = override.get('expires_at')
+    if expires is not None and now >= stamp(expires):
+        raise ValueError('Saved new-context authorization has expired; preserve it without dispatch')
+    if override.get('starts_at') is not None and now < stamp(override['starts_at']):
+        raise ValueError('New-context authorization is not yet effective')
+    delay = override.get('first_delay_minutes', settings['sms_follow_up']['first_delay_minutes'])
+    cap = override.get('max_messages_per_cycle_including_manual', 2)
+    second = override.get('second_sms_allowed', cap == 2)
+    if (type(delay) is not int or delay < 0 or type(cap) is not int or cap not in (1, 2)
+            or type(second) is not bool or second != (cap == 2)):
+        raise ValueError('Use an exact nonnegative delay and coherent one/two-message authorization limit')
+    return {'settings_page_id': settings_id, 'authorization_ref': override['authorization_ref'],
+            'root_id': root, 'location_id': identity['location_id'], 'contact_id': identity['contact_id'],
+            'context_key': identity['context_key'], 'source_message_id': source,
+            'recipient': data['recipient'], 'first_delay_minutes': delay,
+            'maximum_count': cap, 'second_sms_allowed': second, 'expires_at': expires,
+            'authorization_sha256': key(override)}, restricted
+
+
+def blocked_registration(data, cycle, event_key, identity, root, email, authorization):
+    """Recover only the original zero-attempt implementation-blocked stub."""
+    if cycle.get('state') != 'BlockedImplementation' or authorization is None:
+        return False
+    capture = data.get('recovery_cycle_page')
+    if capture is None:
+        raise ValueError('Recover blocked registration from its original cycle-page readback')
+    payload = object_result(capture)
+    current = blocks(capture, 'sms-cycle-current-state')[1]
+    original = blocks(capture, 'material-handoff-v1')[1]
+    if (payload.get('metadata', {}).get('type') != 'page'
+            or page_id(payload['id']) != page_id(cycle['page_id'])
+            or original.get('event_key') != event_key or original.get('root_id') != root
+            or page_id(original.get('email_task_id', '')) != email
+            or any(original.get(k) != v for k, v in identity.items())
+            or original.get('cycle_key') != cycle['cycle_key']
+            or current.get('cycle_id') != cycle['cycle_key']
+            or current.get('blocked_reason') != 'ClosedPriorContextBlocksExplicitNewContext'
+            or current.get('state') != 'BlockedImplementation'
+            or any(current.get(k) != identity[k] for k in ('location_id', 'contact_id', 'context_key'))
+            or current.get('source_message_id') != authorization['source_message_id']
+            or not isinstance(current.get('authorization'), dict)
+            or key(current['authorization']) != authorization['authorization_sha256']
+            or current.get('maximum_count') != authorization['maximum_count']
+            or current.get('second_sms_allowed') is not authorization['second_sms_allowed']
+            or current.get('active') is not False or current.get('stop') is not False
+            or current.get('manual_pause') is not False
+            or type(current.get('total_count')) is not int or current['total_count'] != 0
+            or type(current.get('reserved_slots')) is not int or current['reserved_slots'] != 0
+            or type(current.get('reserved_count', 0)) is not int or current.get('reserved_count', 0) != 0
+            or cycle['total_count'] != 0 or cycle['active'] is not False
+            or event_key not in cycle['material_events']
+            or any(current.get(k) is not None for k in ('current_outcome', 'last_request_id', 'last_attempt_id'))
+            or current.get('attempts', []) != []
+            or current.get('unknown_attempt', False) is not False):
+        raise ValueError('Only the same unsent zero-reservation implementation block can resume; never reopen stopped/used/unknown work')
+    return True
 
 
 def plan(data):
@@ -51,7 +171,7 @@ def plan(data):
             "create_native_task": False, "customer_send_allowed": False}, "scope": SCOPE}
     if data.get("cycle_query_complete") is not True or not isinstance(data.get("cycles"), list):
         raise ValueError("Complete scoped cycle discovery is required before create/reuse")
-    candidates = []
+    related, active = [], []
     for cycle in data["cycles"]:
         if cycle.get("location_id") != identity["location_id"] or cycle.get("contact_id") != identity["contact_id"]:
             raise ValueError("Cycle discovery must belong to this exact CRM customer")
@@ -60,21 +180,35 @@ def plan(data):
             raise ValueError("Reuse requires the actual original cycle page identity before any write")
         if (type(cycle.get("total_count")) is not int or not 0 <= cycle["total_count"] <= 2
                 or type(cycle.get("active")) is not bool or not isinstance(cycle.get("material_events"), list)
-                or cycle.get("unknown_attempt") is not False):
+                or cycle.get("unknown_attempt") is not False
+                or type(cycle.get('maximum_count', 2)) is not int or cycle.get('maximum_count', 2) not in (1, 2)
+                or any(k in cycle and type(cycle[k]) is not bool for k in ('stop', 'manual_pause'))):
             raise ValueError("Unknown attempt/count or malformed cycle requires reconciliation, never a new cycle")
-        if (event_key in cycle["material_events"] or cycle.get("context_key") == identity["context_key"] or cycle["active"]):
-            candidates.append(cycle)
-    if len(candidates) > 1:
+        if event_key in cycle["material_events"] or cycle.get("context_key") == identity["context_key"]:
+            related.append(cycle)
+        if cycle['active']:
+            active.append(cycle)
+    if (len(related) > 1 or len(active) > 1
+            or related and active and related[0] is not active[0]):
         raise ValueError("Ambiguous related/active cycles; do not reset or create another")
-    existing = candidates[0] if candidates else None
+    existing = (related or active or [None])[0]
     for field in ("stop", "manual_pause", "channel_verified", "automatic_sms_enabled"):
         if type(data.get(field)) is not bool:
             raise ValueError("Use an observed boolean for " + field)
     reasons = []
-    stopped = data["stop"] or data["manual_pause"] or bool(existing and (not existing["active"] or existing["total_count"] >= 2))
+    authorization, scoped_stop = context_authorization(data, identity, root, sent_at)
+    recovering = bool(existing and blocked_registration(data, existing, event_key, identity, root, email, authorization))
+    limit = existing.get('maximum_count', 2) if existing else 2
+    if authorization and (existing is None or existing.get('context_key') == identity['context_key']):
+        limit = min(limit, authorization['maximum_count'])
+    stopped = (data['stop'] or scoped_stop or data['manual_pause']
+               or bool(existing and (existing.get('stop') is True or existing.get('manual_pause') is True
+                                     or not existing['active'] and not recovering
+                                     or existing['total_count'] >= limit)))
     if data["cycles"] and existing is None:
-        stopped = True
-        reasons.append("Previous cycles exist; a different context requires explicit manual new-cycle authorization")
+        if authorization is None:
+            stopped = True
+            reasons.append("Previous cycles exist; a different context requires explicit manual new-cycle authorization")
     if stopped:
         reasons.append("Customer stop, operator pause or closed/capped cycle; never reopen automatically")
     if not data.get("recipient"):
@@ -97,6 +231,16 @@ def plan(data):
               "reasons": reasons, "recipient": data.get("recipient"),
               "executor": "shared-approved-work", "create_native_task": False,
               "customer_send_allowed": False}
+    if authorization is not None and (existing is None or recovering):
+        record.update(first_due_not_before=(sent_at + timedelta(minutes=authorization['first_delay_minutes'])).isoformat(),
+                      maximum_count=authorization['maximum_count'], second_sms_allowed=authorization['second_sms_allowed'],
+                      authorization=authorization)
+        if recovering:
+            record['registration_recovery'] = 'ClosedPriorContextBlocksExplicitNewContext'
+    elif existing is not None:
+        record.update(maximum_count=limit, second_sms_allowed=limit == 2)
+        if existing.get('first_due_not_before') is not None:
+            record['first_due_not_before'] = stamp(existing['first_due_not_before']).isoformat()
     return {"status": "MaterialHandoffPlanned", "record": record, "scope": SCOPE}
 
 
