@@ -46,6 +46,11 @@ Apply [operator experience](../../references/operator-experience.md) for Today, 
 
 ## Report-run body authoring
 
+Create the report run with execution_plan.run_properties (or local run.record)
+from this installed version/current invocation. Saved readback must retain
+SkillVersion and the generated report SourceKey; a successful report body alone
+does not prove complete run metadata. Do not fill old runs from report-only.
+
 Use timeless initial procedure/plan prose, labeled as history. Current State/Summary and the dated actual daily brief provide status. Do not put generating/not-yet-verified/waiting claims in a run body that report cannot later edit. Retain the frozen report write scope; identifying stale Today/business text does not authorize repair inside report.
 
 ## SMS reporting

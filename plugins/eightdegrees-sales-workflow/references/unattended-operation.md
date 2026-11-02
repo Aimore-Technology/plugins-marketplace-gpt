@@ -22,6 +22,10 @@ and original attempt_id for unknown results. Normalize these only from actual
 owner evidence; the planner cannot prove results or permission.
 
 Defaults: 900 seconds, 120 seconds reserved for persistence, 12 owner steps.
+The nominal reserve may absorb at most15s of phase-estimate slack, retaining
+at least30s; no new admission after minute13 or with less than30s work time.
+Use the exact scan.cycle result; dispatch still has all fresh guards. See
+[short handovers](scan-fast-path.md) for priority and fitting-item behavior.
 Recheck actual clock and the plan before every discovery page/body, owner step and external effect. Stop
 admitting work at 13 minutes; save coverage and remaining identities. Never sleep
 for future work or spin on unchanged human input. Do not interrupt an in-flight

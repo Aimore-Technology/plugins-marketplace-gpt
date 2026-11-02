@@ -13,6 +13,7 @@ from fact_checks import canonical_facts
 from notion_checks import object_result, page_body, page_id, schema_values
 from reply_transport import prepare as prepare_reply
 from phase_contracts import task_evidence, validate_phase
+import runtime_records
 
 
 PROFILES = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
@@ -134,6 +135,7 @@ def prepare(data):
         outputs["reply_args"] = copy.deepcopy(result["args"])
     plan = {k: data[k] for k in ("owner_skill", "policy", "operation", "invocation_id", "publication_version")}
     plan.update(contract_version="execution-v2", stage_step=stage_step, resources=resources, required_checks=required,
+                run_properties=runtime_records.prepare(data)['properties'],
                 prechecks=[{k: c[k] for k in ("name", "kind", "input_sha256", "result_sha256", "exit_code")} for c in checks])
     return {"status": "PreflightPrepared", "execution_plan": plan, "plan_sha256": digest(plan),
             "checks": checks, "outputs": outputs, "scope": SCOPE}
@@ -190,6 +192,11 @@ def ready(data):
     run_role = next(r["role"] for r in plan["resources"] if r["type"] == "run")
     if saved.get("metadata", {}).get("type") != "page" or identity(saved.get("id")) != resolved[run_role]:
         raise ValueError("Plan evidence must be the actual owning run page")
+    if 'run_properties' in plan:
+        from email_presentation import properties
+        actual = properties(data['saved_plan'])
+        if any(actual.get(k) != v for k, v in plan['run_properties'].items()):
+            raise ValueError('Saved run identity/version differs from its frozen current plan')
     matches = []
     for text in re.findall(r"```json\s*\n(.*?)\n```", page_body(data["saved_plan"]), re.S):
         try:

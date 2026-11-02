@@ -1,6 +1,6 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing `eightdegrees-sales-workflow` 0.1.34: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
+Private marketplace containing `eightdegrees-sales-workflow` 0.1.35: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
 
 For a local ChatGPT/Codex marketplace, clone this private repository, open the checkout in the desktop host and use its plugin directory to install the listed plugin. With a compatible Codex CLI:
 
@@ -21,7 +21,7 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.34.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
+`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.35.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
 
 This is a skills-only distribution. It adds no server, secret, customer data, account authorization, actual schedule or automatic send. Readiness must be established in the customer's own environment. Real samples and test logs stay in customer accounts.
 
@@ -77,3 +77,10 @@ letting an unrelated closed project cycle suppress it. Old project/global stops,
 Pause, expiry, unknown attempts and per-cycle limits remain. The original unsent
 implementation-blocked stub can recover in place, without another email or CRM
 receipt. See [release 0.1.34](docs/release-0.1.34.md).
+
+## Short scans and successor handover
+
+Version0.1.35 narrows discovery to active dependency/form watches, preserves raw
+read errors and current run metadata, and avoids repeatedly charging a phase
+estimate before dispatch. See [release0.1.35](docs/release-0.1.35.md). Original
+Gmail/AndroidSync acceptance still ends dispatch; fresh send guards remain.

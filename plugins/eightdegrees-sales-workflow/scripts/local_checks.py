@@ -25,8 +25,14 @@ import provider_handoff
 import event_probe
 import dispatch_admission
 import review_release
+import runtime_records
+import connector_capture
+import discovery_watch
 
 OPERATIONS = {
+    "run.record": runtime_records.prepare,
+    "connector.capture": connector_capture.normalize,
+    "scan.watches": discovery_watch.plan,
     "notion.page-links": notion_checks.page_links,
     "notion.schema-values": notion_checks.schema_values,
     "notion.task-display": notion_checks.task_display,
@@ -67,7 +73,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
+PASSED = {"RunRecordPrepared", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",

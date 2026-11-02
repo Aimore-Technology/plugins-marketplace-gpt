@@ -45,6 +45,12 @@ not an interceptor or proof of historical call order.
 
 Before emitting either initial-create or property-update arguments, the helper rejects display Markdown/mention markup in canonical identity/version/route properties. Recover their exact source values; never silently strip display text and proceed. Human-readable titles and ordinary business prose retain their normal formatting. This guard prevents a first-create identity defect; a later correction does not retroactively pass the original write.
 
+WorkflowRun writes also validate RecordType, Skill, RunId, SkillVersion and
+SourceKey. New runs use the installed manifest version. Scan/report source keys
+bind this run's actual invocation, not its checkpoint ancestor. Use generated
+execution_plan.run_properties (or run.record). A legacy incomplete run requiring
+repair is a separate original-owner action; report-only cannot repair old runs.
+
 Use [prospective action gates](pre-action-order.md) before opening new email
 review controls or emitting outgoing call arguments. A post-action check cannot
 repair missing historical order. Run these only on the affected event phase.

@@ -85,6 +85,13 @@ def probe(data):
             raise ValueError('Use fresh actual discovery observations, not a cached empty response')
         if type(observation.get('complete')) is not bool or observation.get('mode') not in {'snapshot', 'delta'}:
             raise ValueError('Discovery coverage and snapshot/delta mode must be explicit')
+        failure = observation.get('failure')
+        if failure is not None:
+            from connector_capture import normalize
+            actual = normalize({'response': failure['original'], 'capture_ref': failure['capture_ref'],
+                                'observed_at': failure['observed_at']})
+            if actual != failure or not actual['failed'] or observation['complete']:
+                raise ValueError('Preserve the exact failed capture; failure cannot establish complete coverage')
         old = index['feeds'].get(name, {'cursor': None, 'revisions': {}})
         if observation['mode'] == 'delta' and (name not in index['feeds'] or 'from_cursor' not in observation
                                               or observation['from_cursor'] != old['cursor']):
@@ -120,6 +127,13 @@ def probe(data):
         # Never advance a pagination cursor across incomplete observations.
         index['feeds'][name] = {'cursor': observation.get('next_cursor') if observation['complete'] else old['cursor'],
                                 'revisions': revisions}
+        if failure:
+            index['feeds'][name]['last_failure'] = {k: failure[k] for k in
+                ('capture_ref', 'capture_sha256', 'observed_at', 'inspection')}
+        elif old.get('last_failure'):
+            index['feeds'][name]['last_failure'] = copy.deepcopy(old['last_failure'])
+            if observation['complete']:
+                index['feeds'][name]['last_failure'].setdefault('recovered_at', observation['observed_at'])
         if not observation['complete']:
             index['feeds'][name]['resume_cursor'] = observation.get('next_cursor', old.get('resume_cursor'))
             if observation['mode'] == 'snapshot':

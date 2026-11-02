@@ -8,7 +8,7 @@ import re
 from email_presentation import blocks
 from notion_checks import object_result, page_body, page_id
 from reply_transport import verify
-from scan_cycle import advance, timestamp
+from scan_cycle import advance, timestamp, key
 import sms_authority
 
 
@@ -45,11 +45,32 @@ def payload(data):
     return page_id(task), version
 
 
+def dispatch_scan(scan, work_key):
+    """Fresh send admission estimates the remaining call, not completed preparation.
+
+    Identity, stop/due/unknown state, other work, policy and actual deadlines are
+    unchanged. The phase's original budget admission still belongs to scan.cycle.
+    """
+    current = copy.deepcopy(scan)
+    candidates = list(current['items'])
+    if current.get('checkpoint_page') is not None:
+        candidates += blocks(current['checkpoint_page'], 'scan-checkpoint-v1')[1].get('work_items', [])
+    target = next((item for item in candidates if key(item) == work_key), None)
+    if target is not None and target['step'] in {'SendApprovedReply', 'SendGeneralReply', 'SendNotificationSms'}:
+        estimate = target.get('estimated_seconds', 90)
+        if type(estimate) is not int or not 1 <= estimate <= 600:
+            raise ValueError('Invalid phase estimate')
+        target = copy.deepcopy(target)
+        target['estimated_seconds'] = min(estimate, 30)
+        current['items'] = [item for item in current['items'] if key(item) != work_key] + [target]
+    return current
+
+
 def prepare(data):
     scan = data['scan']
     if scan.get('policy') not in {'one-cycle-approved-work', 'scheduled-approved-work'}:
         raise ValueError('This scan cannot prepare a customer dispatch')
-    selection = advance(scan)
+    selection = advance(dispatch_scan(scan, data['work_key']))
     if selection['status'] != 'ScanCyclePlanned' or len(selection['work']) != 1:
         raise ValueError('No current queue admission; do not prepare a send')
     work = selection['work'][0]
@@ -63,6 +84,7 @@ def prepare(data):
         'run_page_id': page_id(data['run_page_id']), 'invocation_id': scan['executor']['current_id'],
         'task_page_id': task, 'channel': data['channel'], 'work': work,
         'admitted_at': scan['now'], 'deadline': selection['deadline'],
+        'estimate_scope': 'remaining-provider-call-only',
         'call_sha256': digest(data['call'])}, 'scope': 'Persist/read back before preparing executable arguments; not approval'}
 
 
@@ -81,7 +103,7 @@ def release(data):
             or current['started_at'] != data['scan']['started_at']
             or current['executor']['current_id'] != original['invocation_id'] or current.get('policy') != data['scan'].get('policy')):
         raise ValueError('Current dispatch observations belong to another clock/scan/policy')
-    fresh = advance(current)
+    fresh = advance(dispatch_scan(current, data['work_key']))
     if (fresh['status'] != 'ScanCyclePlanned' or not fresh['work'] or fresh['work'][0] != original['work']):
         raise ValueError('Stop, ownership, budget, work or version changed after admission')
     return {'status': 'DispatchArgumentsPrepared', 'call': copy.deepcopy(data['call']),

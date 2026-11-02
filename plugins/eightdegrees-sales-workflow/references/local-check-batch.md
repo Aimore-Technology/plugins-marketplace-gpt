@@ -66,6 +66,13 @@ ScanIdle / ScanWorkReady / ScanDiscoveryRequired from its actual result, not
 batch success. See [event discovery](event-discovery.md). Durable input
 fingerprints are discovery deduplication, never cross-invocation authority.
 
+scan.watches selects actual active action/source watches; connector.capture
+retains original returned errors or explicit exception messages before feed
+interpretation; run.record generates current installed-version run metadata.
+Their successful statuses prepare local data only. A failed connector capture
+may be recorded successfully: failed=true still means unavailable coverage,
+not a successful read or dispatch permit. See [short scans](scan-fast-path.md).
+
 review.prepare, dispatch.admit and dispatch.prepare support the prospective
 [review/dispatch gates](pre-action-order.md). Only the final operation can emit
 an outgoing call after exact saved-admission readback; batch success grants no

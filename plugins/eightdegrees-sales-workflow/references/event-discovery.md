@@ -4,6 +4,10 @@ run-auto has two stages: lightweight discovery, then affected owner work. A nati
 30-minute tick (20 optional) discovers inputs; it is not itself a business event.
 There is no new service, webhook deployment, public command or busy-wait loop.
 
+Follow [the short scan procedure](scan-fast-path.md) for active dependency/form
+watches, original error capture and bounded handover. No owner procedure loads
+until scan.probe actually returns ScanWorkReady.
+
 ## Discovery first
 
 Read the registered installation/settings binding, compact scan-event-index-v1,
@@ -65,6 +69,14 @@ Timer events require due_at and a business occurrence identity (such as the
 dated brief or original due-notification task), not just a template version. Include waiting forms with events=[] until actually
 submitted, and future clock events with their due time. Revision changes may
 enqueue several affected work keys; owner routing still uses the saved route.
+
+For a failed feed call, normalize its directly persisted original response or
+explicit exception with connector.capture. Supply that exact result in the
+observation's failure field and complete=false. scan.probe rejects a fabricated
+diagnostic or failure declared complete; candidate_index retains last_failure's
+capture reference/digest/inspection. A later complete observation adds one
+recovered_at without erasing the original failure. Pagination without a call
+failure remains distinct; never invent HTTP status, quota cause or retry time.
 
 Results:
 

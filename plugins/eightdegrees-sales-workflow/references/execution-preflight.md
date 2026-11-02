@@ -18,6 +18,14 @@ prepare/schema pass does not validate a later modified body or property object.
 
 ## Input and generated plan
 
+New plans include execution_plan.run_properties generated from the installed
+manifest and actual invocation. Merge those exact fields into the initial
+WorkflowRun; do not copy identity/version from a previous run/checkpoint.
+execution.ready rejects missing/different metadata in its actual saved run.
+Use local run.record when preparing a run outside an owner-plan path. Exact
+Notion mutation checks reject omitted metadata before new run creation, including
+reports. Retain old frozen plans/history; do not blanket-upgrade old versions.
+
 Supply owner_skill, actual policy, invocation_id, publication_version, operation,
 resources and the actual proposed inputs. Operations are content, review, scan,
 setup, schedule, report, recovery and reply-patch. They describe this phase;

@@ -32,7 +32,7 @@ def request():
 def capture(prepared, identity=RUN):
     saved = {k: prepared[k] for k in ("execution_plan", "plan_sha256")}
     return {"id": identity, "metadata": {"type": "page"},
-            "text": '<content>\n## Execution plan\n\n```json\n' + json.dumps(saved) + '\n```\n</content>'}
+            "text": '<properties>'+json.dumps(prepared['execution_plan'].get('run_properties', {}))+'</properties>\n<content>\n## Execution plan\n\n```json\n' + json.dumps(saved) + '\n```\n</content>'}
 
 
 class ExecutionPreflightTests(unittest.TestCase):

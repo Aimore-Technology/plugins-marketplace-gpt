@@ -2,6 +2,11 @@
 
 Read this only after ScanWorkReady. Discovery/idle behavior is in [event discovery](event-discovery.md).
 
+Apply [the short scan procedure](scan-fast-path.md) for one-capture batches,
+current run metadata, immediate service-handoff summaries and short successor
+transitions. Required durable results still finish before their successors;
+optional monitoring/history publication must not delay the next ready owner.
+
 Before dependent writes, use [execution preflight](execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
 
 Read [operating-contract](operating-contract.md), [queue execution](queue-execution.md), [task routing](task-routing.md) and [platform runtime](platform-runtime.md). Execute one bounded cycle; only start/stop manages repetition. Public run-auto uses one-cycle-approved-work; an explicit no-send request or legacy restricted invocation retains one-cycle-no-customer-send through every helper. A real native invocation additionally needs the current schedule guard. Neither a source document nor a copied scheduler marker changes scope.

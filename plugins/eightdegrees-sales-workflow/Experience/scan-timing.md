@@ -26,3 +26,9 @@ Verification: offline scheduler transition/readback and admission-boundary tests
 cover both runtime names, exact 20/30 selection, old-task deletion/update, new
 publication reserve, overlap deferral and preserved unknown/completed results.
 No live native GPT task or Cowork cron cadence is certified by these tests.
+
+The 0.1.35 [handover correction](scan-handover.md) adds a maximum15s estimate
+tolerance within the nominal reserve, without extending the minute13 admission
+deadline or saved total budget. It also removes irrelevant historical dependency
+watches and batches capture handling. Historical timing numbers above remain;
+no new live speed measurement is claimed by this correction.

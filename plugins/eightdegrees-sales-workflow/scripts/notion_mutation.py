@@ -12,6 +12,7 @@ import sys
 from notion_checks import object_result, page_body, page_id, schema_values
 from workflow_checks import check_links
 from review_release import gate_mutation
+from runtime_records import validate as validate_run
 
 SCOPE = "Exact proposed call only; no host interception, scope permission or retrospective order proof"
 IDENTITY_FIELDS = {"TaskId", "RunId", "ParentRunId", "StepId", "SourceKey", "ClientId", "ContactId", "LocationId", "OperatorId", "ApproverId", "ContentVersion", "DecisionVersion", "OwnerSkill", "ResumeStep", "ResumeContractVersion", "CycleId", "AttemptId"}
@@ -79,6 +80,18 @@ def prepare(data):
     for index, props in enumerate(properties):
         if not isinstance(props, dict):
             raise ValueError("Properties must be the exact proposed object")
+        run_props = props
+        creating = tool.endswith('__notion_notion_create_pages')
+        if not creating and 'target' in data:
+            from email_presentation import properties as saved_properties
+            run_props = {**saved_properties(data['target']), **props}
+        if source:
+            payload = object_result(data['data_source'])
+            schemas = re.findall(r'<data-source-state>\s*(.*?)\s*</data-source-state>', payload.get('text', ''), re.S)
+            if len(schemas) == 1 and {'RecordType', 'RunId', 'SkillVersion'} <= json.loads(schemas[0])['schema'].keys():
+                if run_props.get('RecordType') not in {'Scan', 'Business', 'Initialization'}:
+                    raise ValueError('WorkflowRun must declare its actual RecordType and identity')
+        validate_run(run_props, creating=creating)
         for field in IDENTITY_FIELDS & props.keys():
             value = props[field]
             if isinstance(value, str) and re.search(r'\[[^\]]*\]\(|<\/?(?:mention|page|a)\b|[`*\n\r]', value):

@@ -134,8 +134,9 @@ def advance(data):
         if type(cost) is not int or not 1 <= cost <= 600:
             raise ValueError('Use a bounded estimated duration from the owner phase')
         priority = (0 if item['step'] in {'ObserveStop', 'RefreshContactRestrictions'} else
+                    2 if item['step'] == 'SendNotificationSms' else
                     4 if item['step'] in {'RecordMaterialHandoff', 'RefreshEmailOutcome', 'RefreshSmsOutcome'} else
-                    2 if item['step'] == 'ReadMessageBody' else item.get('priority', 3))
+                    1 if item['step'] == 'ReadMessageBody' else item.get('priority', 3))
         pending.append({'key': identity, 'action': action,
                         **{k: item[k] for k in ('source_key', 'step', 'version', 'input_digest')},
                         'attempt_id': prior.get('attempt_id', item.get('attempt_id')),
@@ -144,14 +145,26 @@ def advance(data):
             raise ValueError('Unknown candidate must retain the original attempt')
     # Stop observations first, then unknown result reconciliation, accepted
     # submissions/due work, intake, and optional presentation/report maintenance.
-    pending.sort(key=lambda x: (0 if x['step'] in {'ObserveStop', 'RefreshContactRestrictions'} else 1 if x['action'] == 'reconcile' else x['priority'], x['key']))
+    pending.sort(key=lambda x: (0 if x['step'] in {'ObserveStop', 'RefreshContactRestrictions'} else 1 if x['action'] == 'reconcile' else 2,
+                                x['priority'], x['key']))
     expired = now >= start + timedelta(seconds=budget - reserve)
     attempted = set(data.get('attempted_keys', []))
     ready = [v for v in pending if v['key'] not in attempted]
     remaining = max(0, int((start + timedelta(seconds=budget-reserve) - now).total_seconds()))
     # Return only one admission. The caller must re-observe time/stop/activity
     # before choosing another owner, rather than execute a stale whole-cycle list.
-    fitting = ready[:1] if ready and ready[0]['estimated_seconds'] <= remaining else []
+    # Estimates are not deadlines. Permit at most 15s of estimated work to use
+    # the nominal publication reserve, retaining at least 30s. Never extend the
+    # work-admission deadline, change a saved budget or release a provider call.
+    slack = min(15, reserve - 30)
+    fitting = []
+    for candidate in ready:
+        if remaining >= 30 and candidate['estimated_seconds'] <= remaining + slack:
+            fitting = [candidate]
+            break
+        # A pending stop or unknown outcome cannot be skipped to send instead.
+        if candidate['priority'] == 0 or candidate['action'] == 'reconcile':
+            break
     work = [] if expired or len(attempted) >= limit else fitting[:1]
     work_items = [{k: v[k] for k in ('source_key', 'step', 'version', 'input_digest', 'attempt_id', 'unknown_attempt',
                                    'due_at', 'waiting', 'stopped', 'priority', 'estimated_seconds') if k in v}
@@ -173,6 +186,9 @@ def advance(data):
             'execution_basis': 'BoundOnDemand' if scoped_single and not native_single else 'ObservedSerializedHost',
             'budget_exhausted': expired or len(attempted) >= limit,
             'admission_required_before_next_owner': True, 'seconds_available_for_work': remaining,
+            'estimate_slack_seconds': slack,
+            'estimated_reserve_use_seconds': max(0, work[0]['estimated_seconds'] - remaining) if work else 0,
+            'deferred_for_estimate': bool(ready) and not fitting and not expired,
             'deadline': (start + timedelta(seconds=budget)).isoformat(),
             'coverage_complete': complete,
             'requires_next_cycle': bool(work_items) or not complete,
