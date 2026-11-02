@@ -28,3 +28,6 @@ For bounded unattended cycles, read [unattended operation](../references/unatten
 
 For persona snapshots, Sent proof and distinct registration recovery, read
 [record adapters](record-adapters.md) before writing or repairing those records.
+
+- [Provider handoff boundary](provider-handoff.md): finish on successful external
+  acceptance; verify our records and CRM, not external transport.

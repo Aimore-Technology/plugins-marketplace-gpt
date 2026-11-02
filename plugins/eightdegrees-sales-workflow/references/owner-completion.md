@@ -1,5 +1,7 @@
 # Owner completion contract
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 Apply [phase ordering](phase-ordering.md) before freezing a plan. New execution-v2
 plans bind one actual ResumeStep per completion unit and automatically generate
 its evidence. Future tasks are not executable roles in this phase; finish/read
@@ -29,7 +31,7 @@ At owner entry, use [execution preflight](execution-preflight.md) prepare/ready 
 
 Use `call` with the actual tool name and args. This helper supports final property updates on registered records and final log appends under the registered OperationLogs source. It is not a general provider/Notion action dispatcher. Plain in-progress writes still use actual schema/connector checks; Supported target alone is not approval. The helper never sends or mutates anything.
 
-Required coverage: page-links on original owner runs, tasks and publication pages; task-display on registered actions; route on each named task, matching owner/policy/ContentVersion; the profile's minimum kinds. task-display input includes the canonical task's PageId and ActionPageURL. Email send routes additionally require phase=draft StoredReplyVerified bound to that task/version AND phase=sent raw MIME proof before final send completion. A provider acceptance with missing/mismatched sent proof remains a partial/quality result, never a resend. Existing route observations and sent-message checks cannot replace an executing route or pre-send draft proof. A no-send command's Deferred send route cannot satisfy final send-completion evidence.
+Required coverage: page-links on original owner runs, tasks and publication pages; task-display on registered actions; route on each named task, matching owner/policy/ContentVersion; the profile's minimum kinds. task-display input includes the canonical task's PageId and ActionPageURL. Email send routes require phase=draft StoredReplyVerified before dispatch AND provider-handoff=ProviderHandoffVerified from the original successful response. No sent-MIME fetch or delivery proof is required. Missing internal publication or CRM readback stays scoped recovery without another send. Existing route observations and sent-message checks cannot replace an executing route or pre-send draft proof. A no-send command's Deferred send route cannot satisfy final send-completion evidence.
 
 New plans also require task-summary on each original canonical task, using its
 actual properties and current body. Run notion_checks.py task-summary or batch
@@ -70,7 +72,7 @@ name cannot supply native lifecycle evidence. Every dependent mutation still nee
 
 SendApprovedReply/SendGeneralReply require an outcome check from outcome_checks.py
 verify and a crm-receipt check from send_receipt.py verify, bound to the original
-task and content version, in addition to pre-send draft and actual Sent MIME.
+task and content version, in addition to pre-dispatch draft and successful original provider-handoff evidence.
 Legacy SendApprovedSms requires the outcome check; new SendNotificationSms requires standing sms-authority plus the matching actual request outcome, without per-message review. RecordSendReceipt/RecordGeneralSendReceipt
 require receipt and current outcome readback but never reruns sending. Freeze
 these kinds in the original required_checks mapping. Missing result projections
@@ -82,7 +84,7 @@ With [Today linked views](operator-experience.md) verified, only changed task/ac
 
 ## Material send downstream evidence
 
-A sales-reply actual material send plan must include evidence=material-handoff on its original email task, in addition to reply-draft/reply-sent/outcome/CRM receipt evidence. Verify the persisted original email and cycle through [material handoff](material-handoff.md); freeze MaterialHandoffVerified before final send-owner completion. Notion registration may be Blocked/Stopped without SMS dispatch; that is an honest handoff result. A verified nonmaterial reply records NotApplicable on its email task without creating a cycle. Missing registration leaves the email Sent but downstream handoff pending, recovered through RecordMaterialHandoff without another send. The owner-write guard rejects a sales send completion with reply-sent evidence but no material-handoff check.
+A sales-reply actual material send plan must include evidence=material-handoff on its original email task, in addition to reply-draft/provider-handoff/outcome/CRM receipt evidence. Verify the persisted original email and cycle through [material handoff](material-handoff.md); freeze MaterialHandoffVerified before final send-owner completion. Notion registration may be Blocked/Stopped without SMS dispatch; that is an honest handoff result. A verified nonmaterial reply records NotApplicable on its email task without creating a cycle. Missing registration leaves the email Sent but downstream handoff pending, recovered through RecordMaterialHandoff without another send. The owner-write guard rejects a sales send completion with provider-handoff evidence but no material-handoff check.
 
 ## Linked email presentation completion
 
@@ -90,7 +92,7 @@ SendApprovedReply and RefreshEmailOutcome additionally require
 email-presentation=EmailPresentationVerified on their own task/version; all four
 linked projection pages must be registered in the owner scope, plus the settings
 index when it embeds this outcome. Initial sending
-binds the presentation to the same actual sent message. Maintenance uses a distinct
+binds the presentation to the same acknowledged dispatch request. Maintenance uses a distinct
 task and keeps the original completed send/review immutable except current Result
 text/outcome sections. See [email presentation](email-presentation.md). It never
 supplies a provider/CRM replay, new approval or SMS permission.

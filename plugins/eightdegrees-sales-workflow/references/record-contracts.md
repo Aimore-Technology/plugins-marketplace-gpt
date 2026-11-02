@@ -1,5 +1,7 @@
 # Original record contracts
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 New approved-persona-snapshot records include client_id=location_id:contact_id,
 content_version, facts, approved=true, original source_page_id,
 approved_input_sha256 and actual CRM result fields. Never guess identity from
@@ -17,12 +19,12 @@ and content_approval_sha256 match the original completed review's actual
 accepted-action-submission. This adapter neither invents approval nor rewrites
 the frozen package.
 
-Persist email-sent-proof with verification (actual StoredReplyVerified phase=sent),
-message (original raw Gmail capture), manifest (frozen transport manifest),
-provider_result, actual sent_at and top-level rfc_message_id. Receipt maintenance
-reads top-level or legacy details.rfc_message_id; both must agree when present,
-as must the actual raw MIME's sole Message-ID. Bind the reply thread/parties and
-direct positive quote. Quoted history does not prove current receipt.
+Persist email-handoff-proof with verification (ProviderHandoffVerified phase=handoff),
+request (the exact dispatched arguments), manifest, the pre-dispatch
+StoredReplyVerified result, original provider_result and accepted_at. Use only
+the response's actual ID. No sent raw MIME or sent RFC Message-ID is required.
+Legacy email-sent-proof and RFC/receipt metadata remain immutable historical
+observations; do not fetch new evidence or create recipient-receipt work.
 
 RecordMaterialHandoff recovery has a DISTINCT task. Save
 material-handoff-recovery-v1 with original_send_task_id and original current_outcome;

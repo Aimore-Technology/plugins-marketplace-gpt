@@ -332,6 +332,7 @@ def completion_gate(data):
                      "preview": "SavedEmbedAndBytesMatch", "preview-image": "SavedImageAndBytesMatch", "schema-values": "ValidSelectValues",
                      "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
+                     "provider-handoff": "ProviderHandoffVerified",
                      "outcome": "OutcomeProjectionsVerified", "crm-receipt": "CRMReceiptVerified",
                      "execution-plan": "ExecutionPlanReady", "material-handoff": "MaterialHandoffVerified",
                      "sms-authority": "SMSNotificationVerified", "email-presentation": "EmailPresentationVerified",
@@ -372,6 +373,9 @@ def completion_gate(data):
             issues.append(name + ": image preview belongs to another frozen HTML/version")
         if spec["kind"] == "reply-draft" and result.get("phase") != "draft":
             issues.append(name + ": sent evidence cannot replace pre-send draft verification")
+        if spec["kind"] == "provider-handoff" and (result.get("phase") != "handoff" or result.get("handoff_complete") is not True
+                or result.get("query_original_request") is not False or not result.get("message_id")):
+            issues.append(name + ": original successful provider acknowledgement required")
         if spec["kind"] == "reply-sent" and result.get("phase") != "sent":
             issues.append(name + ": draft evidence cannot replace actual sent-MIME verification")
         if spec["kind"] == "route" and spec.get("resume_step") and (
@@ -432,7 +436,7 @@ def owner_write(data):
         return {"status": "Deferred", "reason": "Failed/stale owner checks; final Completed/Success remains blocked"}
     specs = list(evidence["required_checks"].values())
     kinds = {s["kind"] for s in specs}
-    if owner == "eightdegrees-sales-reply" and "reply-sent" in kinds and "material-handoff" not in kinds:
+    if owner == "eightdegrees-sales-reply" and kinds & {"reply-sent", "provider-handoff"} and "material-handoff" not in kinds:
         return {"status": "Deferred", "reason": "Verified material reply send needs persisted email-to-SMS handoff evidence before final completion"}
     if not set(profiles[owner]) <= kinds or not groups["run_page_ids"]:
         return {"status": "Deferred", "reason": "Owner profile checks or original run binding missing"}
@@ -469,9 +473,9 @@ def owner_write(data):
             step = task_steps.get(identity)
             required_route = [s for s in specs if s["kind"] == "route" and page_id(s["entity_id"]) == identity]
             checks = {s["kind"] for s in specs if page_id(s["entity_id"]) == identity}
-            extra = checks & {"reply-draft", "reply-sent", "outcome", "crm-receipt", "material-handoff", "sms-authority", "email-presentation", "sms-presentation", "contact-restriction"}
+            extra = checks & {"reply-draft", "reply-sent", "provider-handoff", "outcome", "crm-receipt", "material-handoff", "sms-authority", "email-presentation", "sms-presentation", "contact-restriction"}
             try:
-                task_evidence({"resume_step": step, "evidence": sorted(extra)})
+                task_evidence({"resume_step": step, "evidence": sorted(extra)}, allow_legacy=True)
             except ValueError as exc:
                 return {"status": "Deferred", "reason": str(exc)}
             if (route.get("resume_step") != step or any(s.get("resume_step") != step for s in required_route)
@@ -484,6 +488,7 @@ def owner_write(data):
     presentation_targets, presentation_verified, presentation_bindings = set(), set(), {}
     maintenance_targets, maintenance_verified = {}, {}
     sent_bindings, outcome_bindings, receipt_bindings = {}, {}, {}
+    dispatch_bindings, dispatch_statuses, outcome_statuses = {}, {}, {}
     for item in evidence["checks"]:
         spec, result = evidence["required_checks"][item["name"]], item["result"]
         identity = page_id(spec["entity_id"])
@@ -515,9 +520,12 @@ def owner_write(data):
                 return {"status": "Deferred", "reason": "Action display evidence belongs to another task/version"}
         if spec["kind"] == "reply-draft" and result.get("content_version") == versions.get(identity):
             mail_verified.add(identity)
-        if spec["kind"] == "reply-sent" and result.get("content_version") == versions.get(identity):
+        if spec["kind"] in {"reply-sent", "provider-handoff"} and result.get("content_version") == versions.get(identity):
             sent_verified.add(identity)
             sent_bindings[identity] = (result.get("message_id"), result.get("html_sha256"))
+        if spec["kind"] == "provider-handoff":
+            dispatch_bindings[identity] = (result.get("operation"), result.get("message_id"), result.get("payload_sha256"))
+            dispatch_statuses[identity] = result.get('provider_status')
         if (spec["kind"] == "material-handoff" and result.get("content_version") == versions.get(identity)
                 and (result.get("cycle_page_id") or result.get("state") == "NotApplicable")
                 and result.get("event_key") and result.get("message_id")):
@@ -532,6 +540,7 @@ def owner_write(data):
             outcomes_verified.add(identity)
             outcome_bindings[identity] = result.get("expected", {}).get("message_id")
             sms_outcome_digests[identity] = result.get("expected", {}).get("payload_sha256")
+            outcome_statuses[identity] = result.get('expected', {}).get('provider_status')
         if (spec["kind"] == "crm-receipt" and result.get("content_version") == versions.get(identity)
                 and result.get("crm_note_id") and result.get("receipt_key")):
             receipts_verified.add(identity)
@@ -554,12 +563,18 @@ def owner_write(data):
     if not presentation_targets <= presentation_verified:
         return {"status": "Deferred", "reason": "Email send/refresh requires verified linked completed review and current send projections"}
     if not mail_targets <= mail_verified or not mail_targets <= sent_verified:
-        return {"status": "Deferred", "reason": "Email completion requires current pre-send draft AND actual sent-MIME verification; preserve partial provider success"}
+        return {"status": "Deferred", "reason": "Email completion requires the current verified draft AND original successful provider handoff; preserve accepted dispatch without replay"}
     if not handoff_targets <= handoff_bindings.keys():
         return {"status": "Deferred", "reason": "Material send/handoff recovery requires persisted handoff on each original task/version"}
     if not notification_targets <= notification_bindings.keys() or any(
             notification_bindings[x] != sms_outcome_digests.get(x) for x in notification_targets):
         return {"status": "Deferred", "reason": "Notification completion requires standing authority, exact frozen text and matching actual SMS request digest"}
+    for identity in send_targets & dispatch_bindings.keys():
+        if dispatch_statuses[identity] != outcome_statuses.get(identity):
+            return {"status": "Deferred", "reason": "Preserve the original acknowledgement status; do not invent external transport proof"}
+    for identity in notification_targets & dispatch_bindings.keys():
+        if dispatch_bindings[identity] != ("sms", outcome_bindings.get(identity), notification_bindings.get(identity)):
+            return {"status": "Deferred", "reason": "SMS dispatch acknowledgement differs from the authorized request/outcome"}
     if not send_targets <= outcomes_verified or not receipt_targets <= receipts_verified:
         return {"status": "Deferred", "reason": "Current send projections and required CRM receipt readback incomplete; preserve provider success without replay"}
     for identity in receipt_targets:
@@ -571,7 +586,7 @@ def owner_write(data):
             return {"status": "Deferred", "reason": "Linked review presentation and actual sent proof identify different emails"}
         if (not all(sent_bindings[identity]) or receipt_bindings.get(identity) != sent_bindings[identity]
                 or outcome_bindings.get(identity) != sent_bindings[identity][0]):
-            return {"status": "Deferred", "reason": "Sent MIME, current projections and CRM receipt identify different provider messages/payloads"}
+            return {"status": "Deferred", "reason": "Dispatch acknowledgement, current projections and CRM receipt identify different provider messages/payloads"}
         if identity in handoff_targets and handoff_bindings[identity] != sent_bindings[identity][0]:
             return {"status": "Deferred", "reason": "Material handoff identifies another email provider message"}
     return {"status": "WithinOwnerScope", "invocation_id": evidence["invocation_id"],

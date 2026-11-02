@@ -19,7 +19,7 @@ It never authorizes intake of a communication the operator did not initiate.
    scanning is confined to authorized work events and confirmed appointments.
 4. Enqueue newly ready owner steps: verified matching -> source/data application
    -> reviewed Notes/persona sync -> inquiry draft -> email content review ->
-   separate email send approval -> actual Sent -> SMS registration -> due factual
+   separate email send approval -> successful Gmail handoff -> SMS registration -> due factual
    notification dispatch. A stage only proceeds when its own evidence is ready.
    Waiting for a human stops that item; other ready work continues.
 5. Process due follow-ups, configured reminders, acknowledged reminder state,
@@ -52,12 +52,10 @@ only; init/start/stop are not business execution shortcuts.
 
 ## Bounded progression, not busy polling
 
-Verified customer receipt or a known stale project-email result can enqueue
-RefreshEmailOutcome as a Notion-only maintenance item. Its key and affected
-originals follow [email presentation](email-presentation.md). Terminal business
-tasks remain terminal; do not change their State to make them executable. New
-receipt observation does not wait for CRM fact review, while CRM updates still do.
-No repeated history sweep, new native job or extra user command is required.
+Only a known stale internal project-email result can enqueue RefreshEmailOutcome
+as Notion-only maintenance from the saved original dispatch response. Do not
+create receipt-only work or query closed sends. Normal replies/stops remain
+ordinary business intake. CRM updates retain their own reviewed fact scope.
 
 Maintain a worklist and an attempted key of original task/source, ResumeStep,
 ContentVersion and accepted-input/attempt digest. Process a ready key at most

@@ -13,13 +13,16 @@ from zoneinfo import ZoneInfo
 import crm_note
 
 
-VERSION = "send-receipt-v1"
+VERSION = "send-receipt-v2"
+LEGACY_VERSION = "send-receipt-v1"
 
 
 def render(data):
     approval, sent, customer = data["approved"], data["sent"], data["customer"]
-    if approval.get("receipt_template") != VERSION or sent.get("read_verified") is not True or sent.get("status") != "Sent":
-        raise ValueError("The send approval must include this receipt template and actual Sent evidence")
+    template = approval.get("receipt_template")
+    allowed = {"Sent", "ProviderAccepted"} if template == VERSION else {"Sent"}
+    if template not in {VERSION, LEGACY_VERSION} or sent.get("read_verified") is not True or sent.get("status") not in allowed:
+        raise ValueError("The send approval must include this receipt template and the original successful Gmail dispatch response")
     if not re.fullmatch(r"[a-f0-9]{64}", approval.get("payload_sha256", "")) or not approval.get("content_version"):
         raise ValueError("Bind the original approved content version and SHA-256")
     for key in ("location_id", "contact_id"):
@@ -37,14 +40,15 @@ def render(data):
     # One receipt per immutable sender/message, independent of retries or later page versions.
     key = "email-send:" + hashlib.sha256((sent["sender"] + "\n" + sent["message_id"]).encode()).hexdigest()
     payload = {"template_version": crm_note.TEMPLATE_VERSION, "communication_id": key,
-               "content_version": VERSION, "communication_time": moment, "timezone": data["timezone"],
+               "content_version": template, "communication_time": moment, "timezone": data["timezone"],
                "source_url": data["source_url"], "location_id": customer["location_id"],
                "contact_id": customer["contact_id"], "customer_name": customer["name"],
                "sections": {
                    "context_background": ["Approved customer email; exact content and approval are retained at the source."],
-                   "action": ["One approved email sent.", "Sender: " + sent["sender"],
+                   "action": ["One approved email sent." if template == LEGACY_VERSION else "One approved email handed to Gmail for sending.", "Sender: " + sent["sender"],
                               "Recipient: " + sent["recipient"], "Provider message ID: " + sent["message_id"],
-                              "Provider status: Sent; recipient delivery is not inferred."],
+                              "Provider status: Sent; recipient delivery is not inferred." if template == LEGACY_VERSION else
+                              "Provider status: " + sent["status"] + "; dispatch handed off; no external verification requested."],
                    "recommendation": ["No new recommendation or customer-persona change in this send-result receipt."],
                    "next_schedule": ["Follow the separately approved follow-up plan; no new appointment is created by this receipt."]}}
     body = crm_note.render(payload).decode("utf-8")

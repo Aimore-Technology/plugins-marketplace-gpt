@@ -90,7 +90,11 @@ def sent():
     append_check(data, 'reply-draft', TASK, ADAPTER.verify(draft))
     message = copy.deepcopy(draft); message.update(phase='sent', sent_message_id='sent-1')
     message['message'].update(id='sent-1', label_ids=['SENT'])
-    append_check(data, 'reply-sent', TASK, ADAPTER.verify(message))
+    import provider_handoff
+    ack = provider_handoff.verify({'operation': 'email', 'manifest': draft['manifest'],
+        'draft_verification': ADAPTER.verify(draft), 'request': {'draft_id': draft['manifest']['draft_id']},
+        'response': {'id': 'sent-1', 'thread_id': draft['manifest']['thread_id'], 'label_ids': ['SENT']}})
+    append_check(data, 'provider-handoff', TASK, ack)
     append_check(data, 'outcome', TASK, OUTCOME.verify_projection(saved_outcome()))
     receipt = receipt_input()
     for key, value in {'sender': draft['manifest']['from_address'], 'recipient': draft['manifest']['to'],
@@ -181,6 +185,12 @@ class PhaseOrderingTests(unittest.TestCase):
         authority = sms_authority.verify(source)
         event = outcome('sms', 'SentToNetwork'); event['provider']['payload_sha256'] = authority['body_sha256']
         append_check(data, 'sms-authority', TASK, authority)
+        import provider_handoff
+        frozen = sms_authority.prepare(source)['record']
+        ack = provider_handoff.verify({'operation': 'sms', 'notification': frozen, 'authority': authority,
+            'request': {'body': frozen['body'], 'recipient': frozen['recipient'], 'deviceId': frozen['device_id'],
+                        'idempotencyKey': 'one-original-attempt'}, 'response': {'Id': 'sent-1', 'Status': 'SentToNetwork'}})
+        append_check(data, 'provider-handoff', TASK, ack)
         append_check(data, 'outcome', TASK, OUTCOME.verify_projection(saved_outcome(event)))
         self.assertEqual(owner.CHECKS.owner_write(phased(data))['status'], 'WithinOwnerScope')
 

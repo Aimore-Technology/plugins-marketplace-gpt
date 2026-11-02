@@ -1,5 +1,7 @@
 # Testing and evidence
 
+Current policy: [provider handoff](provider-handoff.md). Historical delivery/receipt probes below are observations, not instructions to repeat them or completion requirements.
+
 Evidence: directed batches 0.1.12 and 0.1.13. Purpose: assess workflow reliability without counting helper tests as live acceptance.
 
 | Batch | Scope | Passed | Failed | Waiting | Untested |

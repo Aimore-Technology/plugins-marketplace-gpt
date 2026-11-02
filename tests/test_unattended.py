@@ -65,9 +65,9 @@ def saved_sms(data):
 
 
 class SMSRecovery(unittest.TestCase):
-    def test_failed_does_not_claim_success_or_release_unknown_by_retry(self):
+    def test_late_external_failure_does_not_reopen_accepted_dispatch(self):
         data = sms_fixture('Failed'); saved = saved_sms(data)
-        self.assertEqual(email_presentation.properties(saved['send_run'])['State'], 'Error')
+        self.assertEqual(email_presentation.properties(saved['send_run'])['State'], 'Completed')
         self.assertEqual(email_presentation.blocks(saved['cycle'], 'sms-cycle-current-state')[1]['total_count'], 1)
         self.assertEqual(sms_presentation.plan(data | {'pages': saved})['updates'], [])
 
@@ -96,11 +96,11 @@ class SMSRecovery(unittest.TestCase):
                              email_presentation.blocks(saved['notification'], kind))
         self.assertEqual(sms_presentation.plan(data | {'pages': saved})['updates'], [])
 
-    def test_pending_is_machine_wait_not_human_approval(self):
+    def test_phone_pending_finishes_our_task_and_finalizes_its_slot(self):
         data = sms_fixture('AwaitingPhone'); saved = saved_sms(data)
-        self.assertEqual(email_presentation.properties(saved['send_run'])['State'], 'InProgress')
+        self.assertEqual(email_presentation.properties(saved['send_run'])['State'], 'Completed')
         self.assertEqual(email_presentation.properties(saved['data_run'])['State'], 'Completed')
-        self.assertEqual(email_presentation.blocks(saved['cycle'], 'sms-cycle-current-state')[1]['reserved_count'], 1)
+        self.assertEqual(email_presentation.blocks(saved['cycle'], 'sms-cycle-current-state')[1]['reserved_count'], 0)
 
     def test_wrong_request_wrong_device_and_regression_are_refused(self):
         for key, value in [('id', 'another'), ('deviceId', 'another')]:

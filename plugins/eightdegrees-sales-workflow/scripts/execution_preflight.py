@@ -21,7 +21,7 @@ POLICIES = {"setup-only", "scheduling-only", "manual-review", "one-cycle-no-cust
 TYPES = {"run": ("page-links",), "task": ("page-links", "route"),
          "action": ("page-links", "task-display"), "publication": ("page-links",),
          "html-preview": ("page-links", "preview"), "image-preview": ("page-links", "preview-image")}
-TASK_EVIDENCE = {"reply-draft", "reply-sent", "outcome", "crm-receipt", "material-handoff", "sms-authority", "email-presentation", "sms-presentation", "contact-restriction"}
+TASK_EVIDENCE = {"reply-draft", "reply-sent", "provider-handoff", "outcome", "crm-receipt", "material-handoff", "sms-authority", "email-presentation", "sms-presentation", "contact-restriction"}
 OPERATIONS = {"content", "review", "scan", "setup", "schedule", "report", "recovery", "reply-patch"}
 SCOPE = "Offline preparation/readback only; no host interception, approval, lock or proof of past tool order"
 

@@ -1,5 +1,7 @@
 # Mail reading, frozen bytes and reply transport
 
+Current policy: [provider handoff](provider-handoff.md). Historical delivery/receipt probes below are observations, not instructions to repeat them or completion requirements.
+
 Scope: observed Gmail/Outlook behavior, last confirmed 2026-10-29. Evidence: B113 native-chinese-body, same-source-mime-recovery, preview-hash-orchestration, gmail-exact-MIME, outlook-actual-receipt.
 
 ## Native garbling is distinct from successful same-source recovery
@@ -16,4 +18,4 @@ The observed Gmail send_email call with reply_message_id accepted the exact froz
 
 Use [reply transport](../references/reply-transport.md): the currently documented update_draft contract replaces MIME without appending quotes and send_draft sends that stored object. The package now prepares/validates that object before review and revalidates it before send. Before final SendApproval, establish whether the current supported reply mechanism can suppress automatic quoting or deterministically expose the complete final quoted body for review. Only use an actually documented/verified capability; do not invent a no-quote flag, bypass the connector through hidden APIs or silently use a new unrelated message. If neither exact approved transport nor a frozen final quote can be verified, retain the draft with a specific capability limitation. A new consented, bounded TEST may verify a candidate adapter; older acceptance does not authorize another send.
 
-After an already accepted send, compare actual decoded MIME, thread headers and receipt separately. A mismatch creates a quality finding while retaining the real provider ID. Repeated continuation reconciles that same attempt; it never resends to hide the mismatch. Outlook normalized body or provider acceptance alone does not prove original MIME, pixel rendering or delivery on another channel.
+Historical tests compared decoded MIME, thread headers and receipt after an accepted send. The current provider-handoff policy performs no such post-send comparison. A mismatch creates a quality finding while retaining the real provider ID. Repeated continuation reconciles that same attempt; it never resends to hide the mismatch. Outlook normalized body or provider acceptance alone does not prove original MIME, pixel rendering or delivery on another channel.

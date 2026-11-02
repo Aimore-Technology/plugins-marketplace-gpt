@@ -21,6 +21,7 @@ import sms_presentation
 import contact_preferences
 import scan_cycle
 import sms_channel
+import provider_handoff
 
 OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
@@ -36,6 +37,8 @@ OPERATIONS = {
     "outcome.verify": outcome_checks.verify_projection,
     "outcome.display": outcome_checks.current_display,
     "sms.progress": outcome_checks.sms_progress,
+    "send.progress": outcome_checks.send_progress,
+    "provider.handoff": provider_handoff.verify,
     "operator.feedback": operator_experience.feedback,
     "operator.review": operator_experience.review_brief,
     "operator.results": operator_experience.result_summary,
@@ -65,7 +68,7 @@ PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForC
           "NotionMutationPrepared", "WithinOwnerScope", "WithinReportScope",
           "EmailPresentationPlanned", "EmailPresentationVerified", "OperatorResponseReady",
           "SMSPresentationPlanned", "SMSPresentationVerified", "ContactRestrictionPlanned", "ContactRestrictionVerified", "ContactDispatchChecked",
-          "ScanCyclePlanned", "ScanDeferred", "ChannelCheckEligible", "ChannelCheckBlocked", "SMSProgressChecked"}
+          "ScanCyclePlanned", "ScanDeferred", "ChannelCheckEligible", "ChannelCheckBlocked", "SMSProgressChecked", "DispatchProgressChecked", "ProviderHandoffVerified"}
 
 
 def run(plan, captures):

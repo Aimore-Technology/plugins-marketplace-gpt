@@ -115,7 +115,7 @@ def verify(data):
             "thread_id": m["thread_id"], "content_version": m["content_version"], "phase": phase,
             "html_sha256": m["html_sha256"],
             "draft_binding_sha256": hashlib.sha256(json.dumps(binding, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
-            "scope": "Raw stored message/headers/exact HTML only; separate approval, latest-reply/window/attempt checks and recipient receipt still required"}
+            "scope": "Raw stored message/headers/exact HTML only; separate pre-dispatch approval/latest-reply/window/attempt checks; no recipient verification is required"}
 
 
 def main(argv=None):

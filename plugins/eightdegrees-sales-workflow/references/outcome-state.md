@@ -1,5 +1,7 @@
 # Current state and send-result projections
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 Use after a known external result or when candidate queries disagree with an
 original task. `outcome_checks.py task|project|verify|display|counts|sms-progress` is an offline check over
 normalized actual observations; retain the original tool responses and mapping.
@@ -24,9 +26,8 @@ Terminal tasks return Deferred. Conflicts return NeedsReconciliation.
 
 Keep the immutable provider outcome on the original attempt/task. Normalize
 task_id, content_version and provider={operation:email|sms,message_id,status,
-read_verified:true}. Accepted/AwaitingPhone/PendingApproval/Unknown reserves an
-attempt; it is not a sent count. Actual Gmail Sent, SMS SentToNetwork or Delivered
-counts the unique message once. Deduplicate counts by immutable provider message
+read_verified:true}. Successful acceptance counts the unique submitted request once. Only an
+unknown/unacknowledged handoff reserves an unresolved attempt. Deduplicate counts by immutable provider message
 and attempt, never by number of logs or pages.
 
 Optional human_receipt={message_id,received:true,source,sender_display} records
@@ -84,9 +85,8 @@ provider ID. The next permitted owner repairs only missing projections. A report
 records the issue without repair. Never resend to make a display consistent.
 
 For project email, [email presentation](email-presentation.md) checks the related
-completed content review as well as the send pages. A later explicit customer
-receipt enqueues RefreshEmailOutcome; it does not reactivate the original send.
-Keep provider proof immutable and update the current human receipt independently.
+completed content review as well as the send pages. Do not enqueue recipient receipt maintenance. Known stale internal results may
+use RefreshEmailOutcome with the original response; no new provider observation.
 
 The counts command takes current normalized outcome events plus account and an
 explicit coverage_complete flag. It deduplicates by operation/account/message,
@@ -94,19 +94,15 @@ rejects conflicting current records, separates reserved/unknown attempts and
 labels partial coverage. Feed those derived known totals to current summaries;
 never count operation-log rows or infer global zero from an unavailable query.
 
-## SMS sending completion
+## Email and SMS dispatch completion
 
-SentToNetwork is a successful, terminal SMS sending result. Count it once, close
-the send task/run after saved-result checks, and display Sent. Delivered is
-optional extra provider metadata; human_received=false is not a missing required
-input, failure, waiting stage or reason to degrade the successful send. Do not
-ask the operator to inspect a handset or acknowledge receipt. Preserve actual
-provider_status and existing optional receipt history without fabricating either.
+Known successful Gmail/AndroidSync acceptance is terminal for our dispatch.
+Sent, ProviderAccepted and AndroidSync AwaitingPhone/PendingApproval count one
+submitted request; preserve the exact raw status without claiming network or
+recipient delivery. sent/reserved describe our handoff, not provider transport:
+sent=true after acknowledgement, reserved only for an unacknowledged Unknown.
 
-Before automatic status polling run sms.progress (or outcome_checks.py sms-progress)
-with the original normalized task_id/content_version/provider observation.
-query_original_request=false after SentToNetwork/Delivered: no recurring delivery
-poll or handset task. Pending ProviderAccepted/AwaitingPhone/PendingApproval/Unknown
-queries only the same request. Failed stays failure; Unknown reserves its slot
-and never grants resend. Completion of one send does not cancel a separately
-configured future follow-up or remove stop/window/count/reply checks.
+Use send.progress or sms.progress on the original response. Both stop automatic
+provider queries; no Sent/Delivered/handset/receipt polling or extra approval.
+Rejected/ambiguous handoffs remain internal exceptions and never authorize
+resend. Future notifications and normal inbound reply/stop checks remain separate.

@@ -1,5 +1,7 @@
 # Connector requests, results and retry boundaries
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 Use the tool schemas available in the current host. Similar tool names or an earlier test script do not establish the current argument contract. Inspect the relevant schema before first use and after a schema error; do not trial multiple write signatures. For Notion-specific updates, read [Notion I/O](notion-io.md).
 
 ## Interpret results before recovery
@@ -8,7 +10,12 @@ Inspect MCP `isError` and documented error envelopes at every wrapper level. Rea
 
 For GHL WORKFLOW_API_NOT_ENABLED_FOR_LOCATION, record the original 403 and that this location lacks the Workflow API, even if the connector wraps it as INVALID_ARGUMENT. Do not retry parameter/token/scope changes to resolve that capability absence. Keep verified contact/Notes capability separate. A failed workflow listing is not proof that no outbound automations exist; test fixture creation stays unverified/disabled until safe independently. Preserve more specific nested Gmail quota diagnostics rather than collapsing every 403 into a permission problem.
 
-Classify separately: explicit rejection with no known effect, known provider acceptance, unknown provider result, result interpretation failure and later log/presentation failure. A successful send tool without a message ID is acceptance evidence, not delivery or a fabricated ID. Persist that evidence and reconcile Sent Items/recipient receipt before considering any retry. A missing search hit does not prove the send never occurred. Prefer returned stable message IDs; otherwise use an exact quoted subject, sender/recipient and time range, recording each query's coverage limitations. Do not resend because a compound or non-ASCII subject search omitted an item.
+Classify explicit rejection, successful original service acceptance, ambiguous
+handoff, parsing failure and internal publication failure separately. Known
+Gmail/AndroidSync acceptance completes dispatch. Retain original response and
+attempt IDs, and repair only our missing records. Do not search Sent Items or
+recipient mailboxes or poll external status. Missing metadata is not permission
+to resend. CRM write/readback is the explicit exception under provider-boundary.
 
 These are known contract differences to check against the live schema:
 

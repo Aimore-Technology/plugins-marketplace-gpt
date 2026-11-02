@@ -132,8 +132,8 @@ class ScheduledOutcomeTests(unittest.TestCase):
             data = receipt_input(); data['customer'][key] = 'other'
             with self.assertRaises(ValueError): RECEIPT.render(data)
 
-    def test_accepted_or_unknown_reserves_instead_of_counting_sent(self):
-        for status in ('AwaitingPhone', 'PendingApproval', 'ProviderAccepted', 'Unknown'):
+    def test_only_unknown_handoff_reserves_instead_of_counting_submitted(self):
+        for status in ('Unknown',):
             fields = OUTCOME.projection(outcome('sms', status))['expected']
             self.assertFalse(fields['sent']); self.assertTrue(fields['reserved'])
 

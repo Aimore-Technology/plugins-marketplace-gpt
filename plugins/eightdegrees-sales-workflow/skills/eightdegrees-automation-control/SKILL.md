@@ -5,6 +5,9 @@ description: "Create, reuse or delete one native 30-minute (20-minute optional) 
 
 # Start or stop approved periodic work
 
+Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+
+
 start establishes one native 30-minute (20-minute optional) cycle using [scheduled work](../../references/scheduled-work.md);
 stop deletes it. Apply [schedule lifecycle](../../references/scheduling.md) and
 the edition's [runtime](../../references/platform-runtime.md). The scheduler

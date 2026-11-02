@@ -1,5 +1,7 @@
 # Unattended approved-work operation
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 The operator reviews business facts and email sends in Notion. Native ticks do
 all eligible continuation, source scanning, factual SMS, due internal work and
 result repair without another chat command. A human decision blocks its item,
@@ -120,12 +122,11 @@ result, data_task, data_action, data_run, send_run, cycle, plus raw provider_sta
 and observed_at; maintenance_task_id must be a distinct registered task. This
 binds original payload, request receipt, cycle, task/actions and parent run IDs.
 Update current results on all seven pages, not a new reconciliation run alone.
-Pending stays machine InProgress; network-send closes the original dispatch
-operation without waiting for Delivered or a handset action. Use sms.progress
-before polling: a network-sent result needs no more status queries or human
-receipt task. The overall follow-up cycle remains separate. Failed is Error, unknown
-reserves its slot, and stopped cycles remain stopped. Never reset counts or
-invent actual network-send timestamps from query time.
+A successful original request acknowledgement completes our dispatch, including
+AwaitingPhone/PendingApproval. Recover from the saved response, not another
+provider query. Close our task/run and finalize its one count; raw external
+status is metadata. Only an unacknowledged Unknown remains unresolved. Never
+reset attempts/counts, reopen stopped cycles or infer network timestamps.
 
 Every planned write passes ordinary exact-call and owner scope preflight. Read
 back the affected originals and run sms.presentation-verify. Freeze kind

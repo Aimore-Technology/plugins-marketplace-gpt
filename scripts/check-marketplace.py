@@ -160,6 +160,7 @@ def check():
         require(defaults['sms_notifications']['enabled'] is True and defaults['sms_notifications']['per_message_review_required'] is False, 'Standing notification authority drift')
         require(defaults['queue_execution']['continue_commands_required'] is False, 'Queue must not require extra continuation commands')
         require(defaults['data']['deliberate_redaction'] is False, 'Pilot data policy drift')
+        require(defaults['send_completion'] == {'policy': 'provider-handoff-v1', 'email': 'successful_gmail_dispatch_response', 'sms': 'successful_androidsync_request_response', 'provider_status_polling': False, 'recipient_verification': False, 'crm_write_readback_required': True}, 'Provider handoff boundary drift')
         print(f'PASS {platform}: {name} {manifest["version"]}; nine English skills (eight workflows + command entry); command routes, references, defaults and payload checked')
     return platform
 

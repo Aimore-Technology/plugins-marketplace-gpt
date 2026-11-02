@@ -9,7 +9,7 @@ import re
 import sys
 
 from notion_checks import object_result, page_body, page_id, schema_values
-from outcome_checks import counts, projection, sms_progress
+from outcome_checks import counts, projection, send_progress
 from workflow_checks import submitted_manual_route
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -131,10 +131,12 @@ def feedback(data):
     if pending is not None:
         if pending.get('task_id') != task['PageId'] or pending.get('content_version') != task['ContentVersion']:
             raise ValueError('Pending feedback must use this original task/version')
-        if projection(pending)['expected']['reserved'] is not True:
-            raise ValueError('Pending feedback needs an actually observed reserved outcome')
+        if not any(projection(pending)['expected'][k] for k in ('reserved', 'sent')):
+            raise ValueError('Feedback needs an actually observed handoff or unknown attempt')
     if data.get("result_unknown") is True:
         stage = "unknown"
+    elif pending is not None and projection(pending)['expected']['sent']:
+        stage = 'completed'
     elif pending is not None:
         stage = 'stopped_pending' if data.get('future_sms_stopped') is True else 'external_pending'
     elif state in {"Completed", "Cancelled"}:
@@ -219,16 +221,16 @@ def result_summary(data):
             continue
         seen.add(key)
         receipt = copy["receipt_yes"] if expected["human_received"] else copy["receipt_no"]
-        if operation == 'sms' and expected['sent'] and not expected['human_received']:
+        if expected['sent'] and not expected['human_received']:
             receipt = copy['sms_confirmation_not_required']
-        row = {"channel": copy[operation], "result": copy[expected["provider_status"]],
+        row = {"channel": copy[operation], "result": copy[operation + '_handoff_complete'] if expected['sent'] else copy[expected["provider_status"]],
             "receipt": receipt,
             "observed_at": event.get("observed_at"), "source_url": event.get("source_url"),
             "task_id": derived["entity_id"], "message_id": expected["message_id"]}
-        if operation == 'sms':
-            progress = sms_progress(event)
-            row.update({key: progress[key] for key in ('send_complete', 'query_original_request',
-                                                       'requires_handset_confirmation')})
+        progress = send_progress(event)
+        row.update({key: progress[key] for key in ('send_complete', 'query_original_request',
+                                                   'requires_handset_confirmation')})
+        row.update(provider_status=expected['provider_status'], completion_basis='provider-handoff')
         rows.append(row)
     return {"status": "OperatorResultsReady", "rows": rows, "counts": totals,
             "scope": "Original outcome observations only; UI IDs support links and are not primary labels; no global absence or delivery inference"}

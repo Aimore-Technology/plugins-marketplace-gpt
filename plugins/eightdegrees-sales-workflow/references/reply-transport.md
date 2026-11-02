@@ -18,13 +18,20 @@ The offline helper takes `manifest` fields task_page_id, content_version, draft_
 
 Immediately before permitted dispatch, fetch the original Notion task/active action and current raw draft again. Recheck exact stored draft binding/version, payload/headers/thread, approval/window, latest replies/stop and original attempts. Include this phase=draft StoredReplyVerified evidence in the send owner's frozen completion contract. A changed/vanished draft or added quote suspends execution; do not repair an approved draft and send it under old approval.
 
-Persist AttemptId and that exact draft ID/digest before dispatch. Use send_draft with ONLY the approved draft_id, not send_email with reconstructed HTML. Apply invocation restrictions: reply-draft/report and explicitly restricted no-send scans do not send; public one-cycle-approved-work may execute only independently approved Automatic sends after the same fresh checks. Unknown send results reserve the attempt; a missing draft after send may mean it was consumed, not that sending failed. Reconcile actual sent message/thread and provider identifiers before any retry. Do not call send_draft again to test deduplication.
+Persist AttemptId and that exact draft ID/digest before dispatch. Use send_draft with ONLY the approved draft_id, not send_email with reconstructed HTML. Apply invocation restrictions: reply-draft/report and explicitly restricted no-send scans do not send; public one-cycle-approved-work may execute only independently approved Automatic sends after the same fresh checks. Unknown send results reserve the attempt; a missing draft after send may mean it was consumed, not that sending failed. Record the original ambiguous attempt for operator handling; do not automatically query the provider or retry. Do not call send_draft again to test deduplication.
 
-Read actual sent raw MIME before final send completion. If unsupported/unavailable, retain the real provider result with an unverified quality/publication state; do not declare the exact-body test passed. `verify` with phase=sent and the actual sent_message_id checks SENT/thread/headers/body against the frozen version; that evidence cannot replace the pre-send draft check. Compare receiving mailbox evidence separately. A MIME-quality failure after actual sending preserves the provider result and creates a quality exception; it never resends.
+After the single successful send_draft response, retain its actual ID/status and
+use [provider handoff](provider-boundary.md). Freeze provider-handoff evidence
+from provider_handoff.py, the original response and pre-dispatch draft check.
+Persist email-handoff-proof, finish our Notion outcome/CRM receipt/material
+registration and stop. Do not fetch sent MIME or inspect a receiving mailbox.
+The older phase=sent adapter is for reading existing legacy evidence only, not
+an instruction to obtain new external verification. Never repeat dispatch to
+repair a missing internal field.
 
 ## Assets and limitations
 
-The packaged helper verifies a single text/html part with no assets/attachments, covering the observed acceptance reply. It refuses a nonempty asset manifest or unexpected MIME tree instead of dropping files. For image/CID/attachment EDM, use the SAME create/update/readback/send-stored-draft mechanism with a separately verified complete frozen MIME tree and asset mapping under html-approval. If that verification is unavailable, disclose the narrower supported capability and keep the affected package pending. Never silently downgrade or mark all EDM transport accepted from an HTML-only fixture. Connector-contract review and offline fixtures do not establish a live received-message pass.
+The packaged helper verifies a single text/html part with no assets/attachments, covering the observed acceptance reply. It refuses a nonempty asset manifest or unexpected MIME tree instead of dropping files. For image/CID/attachment EDM, use the SAME create/update/readback/send-stored-draft mechanism with a separately verified complete frozen MIME tree and asset mapping under html-approval. If that verification is unavailable, disclose the narrower supported capability and keep the affected package pending. Never silently downgrade or mark all EDM transport accepted from an HTML-only fixture. Connector-contract review and offline fixtures do not establish a live provider-handoff pass.
 
 ## Deterministic parameter preparation
 

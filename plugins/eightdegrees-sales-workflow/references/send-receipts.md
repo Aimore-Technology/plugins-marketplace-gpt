@@ -5,14 +5,14 @@ Communications and GHL Notes/activity log. This is a distinct system-result
 receipt, not the earlier customer-facts Note and not a new persona proposal.
 
 Before final send approval, show that sending includes one internal CRM receipt
-using send-receipt-v1: approved content/source reference, actual sender/recipient,
+using send-receipt-v2: approved content/source reference, actual sender/recipient,
 verified provider message/status/time and verified CRM customer. Freeze the
 template version and field mapping in that send package. It adds no business
 claims, recommendations, delivery promise or structured customer-field change.
 Approval of this scope permits those deterministic observed values to be filled
 after the send; no second approval is needed for unchanged system facts.
 
-After actual Gmail Sent readback, use `send_receipt.py render` with the original
+After the original successful Gmail dispatch response, use `send_receipt.py render` with the original
 task_id, timezone, source_url, verified customer (location_id/contact_id/name),
 approved (content_version/sender/recipient/subject/payload_sha256/receipt_template/location_id/contact_id)
 and sent (same fields plus message_id/sent_at/status=Sent/read_verified=true).
@@ -43,3 +43,9 @@ retain its successful result; get only the missing receipt scope confirmed if
 needed, never reapprove/reopen the send. A test's artificial Note-count cap
 must be raised for this designed receipt or reported as receipt-pending, not
 used to claim full post-send CRM acceptance.
+
+Preserve already-approved send-receipt-v1 and existing CRM Note bytes. The
+helper still renders that legacy template from its original saved Sent response;
+it does not query Gmail to obtain evidence. New approvals declare v2, which
+records ProviderAccepted or Sent exactly and says handed to Gmail. Never edit
+a past approval or append a second Note merely to upgrade its wording.

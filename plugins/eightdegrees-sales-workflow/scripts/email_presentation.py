@@ -221,18 +221,19 @@ def plan(data):
         if (page_id(binding['TaskPageId']) != ids[role] or page_id(binding['ActionPageId']) != ids[action]
                 or binding['ContentVersion'] != version):
             raise ValueError('Original action binding differs')
-    _, proof = blocks(pages['send_task'], 'email-sent-proof')
+    proof_record = blocks(pages['send_task'], 'email-handoff-proof', required=False) or blocks(pages['send_task'], 'email-sent-proof')
+    _, proof = proof_record
     verification = proof['verification']
     old_block, outcome = blocks(pages['send_task'], 'email-send-current-outcome')
-    if (verification.get('status') != 'StoredReplyVerified' or verification.get('phase') != 'sent'
+    if ((verification.get('status'), verification.get('phase')) not in {('StoredReplyVerified', 'sent'), ('ProviderHandoffVerified', 'handoff')}
             or verification.get('issues') or page_id(verification['entity_id']) != ids['send_task']
             or verification.get('content_version') != version
             or verification.get('html_sha256') != manifest['html_sha256']
             or page_id(outcome['task_id']) != ids['send_task'] or outcome.get('content_version') != version
             or outcome.get('message_id') != verification['message_id'] or outcome.get('sent') is not True
-            or outcome.get('provider_status') != 'Sent' or outcome.get('reserved') is not False
+            or outcome.get('provider_status') not in {'Sent', 'ProviderAccepted'} or outcome.get('reserved') is not False
             or outcome.get('provider_delivered') is not False):
-        raise ValueError('Reconcile the original verified Sent proof; presentation cannot prove or repeat sending')
+        raise ValueError('Use the original verified dispatch acknowledgement; presentation never queries the provider or repeats sending')
     observed = datetime.fromisoformat(data['observed_at'].replace('Z', '+00:00'))
     if observed.tzinfo is None:
         raise ValueError('Observation time needs a timezone')
@@ -245,7 +246,8 @@ def plan(data):
     if language not in {'en', 'zh-CN'}:
         raise ValueError('Use the saved workspace language')
     message = outcome['message_id']
-    text = 'Version: ' + version + '. ' + ('\u90ae\u4ef6\u5df2\u53d1\u9001' if language == 'zh-CN' else 'Email sent') + ' · Sent · ' + message + '.'
+    label = ('\u5df2\u4ea4\u4ed8Gmail' if language == 'zh-CN' else 'Submitted to Gmail') if verification['phase'] == 'handoff' else ('\u90ae\u4ef6\u5df2\u53d1\u9001' if language == 'zh-CN' else 'Email sent')
+    text = 'Version: ' + version + '. ' + label + ' · ' + outcome['provider_status'] + ' · ' + message + '.'
     if new_outcome.get('human_received') is True:
         text += ' ' + ('\u5ba2\u6237\u5df2\u786e\u8ba4\u6536\u5230。' if language == 'zh-CN' else 'Customer receipt confirmed.')
     text += ' ' + ('\u672c\u6b65\u65e0\u9700\u518d\u63d0\u4ea4；\u5176\u4ed6\u6e20\u9053\u89c1\u5176\u539f\u59cb\u7ed3\u679c。' if language == 'zh-CN' else 'No resubmission needed; other channels keep their own results.')

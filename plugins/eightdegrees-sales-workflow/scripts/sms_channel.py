@@ -8,7 +8,7 @@ def gate(data):
     guards = data['guards']
     if any(guards.get(k) is not False for k in ('stop', 'manual_pause', 'unknown_attempt', 'customer_replied')):
         return {'status': 'ChannelCheckBlocked', 'reason': 'Stop/reply/pause or unknown state prevents dispatch'}
-    if data.get('channel_verified') is True and data.get('inbound_reader_available') is True:
+    if data.get('channel_verified') is True:
         return {'status': 'ChannelCheckEligible', 'mode': 'ordinary', 'send_authorized': False}
     test, payload = data.get('controlled_sms_test') or {}, data['payload']
     if (test.get('enabled') is not True or type(test.get('max_messages')) is not int or test['max_messages'] != 1

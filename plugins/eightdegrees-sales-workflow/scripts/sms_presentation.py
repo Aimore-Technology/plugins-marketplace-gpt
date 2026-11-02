@@ -15,6 +15,7 @@ OWNER = 'eightdegrees-sms-follow-up'
 ROLES = {'notification', 'result', 'data_task', 'data_action', 'data_run', 'send_run', 'cycle'}
 PENDING = {'AwaitingPhone', 'PendingApproval', 'ProviderAccepted', 'Unknown'}
 NETWORK = {'SentToNetwork', 'Delivered'}
+ACCEPTED = NETWORK | {'ProviderAccepted', 'AwaitingPhone', 'PendingApproval'}
 
 
 def notification(capture):
@@ -94,9 +95,10 @@ def plan(data):
     if at.tzinfo is None or at < prior_at:
         raise ValueError('Observation cannot predate the saved outcome')
     outcome = copy.deepcopy(old)
-    outcome.update(provider_status=status, sent=status in NETWORK,
-                   reserved=status in PENDING, provider_delivered=status == 'Delivered')
-    outcome['provider'] = outcome['provider'] | {'status': status}
+    accepted = initial.get('status', initial.get('Status')) in ACCEPTED
+    outcome.update(provider_status=status, sent=accepted or status in ACCEPTED,
+                   reserved=not accepted and status == 'Unknown', provider_delivered=status == 'Delivered')
+    outcome['provider'] = outcome['provider'] | {'status': status, 'handoff_accepted': accepted}
     if outcome != old:
         outcome['observed_at'] = data['observed_at']
     updated_cycle = copy.deepcopy(cycle)
@@ -104,13 +106,13 @@ def plan(data):
                          last_provider_status=status, pending_status=status)
     # Never recompute global counts, re-open a stopped cycle, release an unknown
     # slot or infer network-send time from the time this status was queried.
-    if status in NETWORK:
+    if outcome["sent"]:
         if cycle.get('reserved_count') not in (0, 1):
             raise ValueError('Ambiguous reservations need count reconciliation')
         if cycle.get('pending_request_id') not in (None, message) or (
-                cycle.get('reserved_count') == 1 and cycle['current_outcome']['provider_status'] in NETWORK):
+                cycle.get('reserved_count') == 1 and cycle['current_outcome'].get('sent') is True):
             raise ValueError('Another reservation cannot be released by this known request')
-        if cycle['current_outcome']['provider_status'] not in NETWORK:
+        if not cycle['current_outcome'].get('sent'):
             if (cycle.get('reserved_count') != 1 or cycle.get('count_verified') is not True
                     or type(cycle.get('known_this_executor_sent')) is not int):
                 raise ValueError('A newly observed network send must reconcile its one reserved count')
@@ -124,10 +126,10 @@ def plan(data):
         raise ValueError('Use the saved workspace language')
     progress = sms_progress({'task_id': ids['notification'], 'content_version': version,
                              'provider': {'operation': 'sms', 'message_id': message,
-                                          'status': status, 'read_verified': True}})
-    text = ('SMS sent' if progress['send_complete'] else 'SMS') + ' \u00b7 ' + status + ' \u00b7 ' + message + '.'
+                                          'status': status, 'read_verified': True, 'handoff_accepted': accepted}})
+    text = ('Submitted to AndroidSync' if progress['send_complete'] else 'SMS') + ' \u00b7 ' + status + ' \u00b7 ' + message + '.'
     if language == 'zh-CN':
-        text = ('\u77ed\u4fe1\u5df2\u53d1\u9001' if progress['send_complete'] else '\u77ed\u4fe1') + ' \u00b7 ' + status + ' \u00b7 ' + message + '\u3002'
+        text = ('\u5df2\u4ea4\u4ed8AndroidSync' if progress['send_complete'] else '\u77ed\u4fe1') + ' \u00b7 ' + status + ' \u00b7 ' + message + '\u3002'
         text += ' ' + ('\u672c\u8be2\u76d8\u540e\u7eed\u77ed\u4fe1\u5df2\u505c\u6b62\u3002' if stopped else '\u540e\u7eed\u5b89\u6392\u89c1\u539f\u901a\u77e5\u5468\u671f\u3002')
         text += ' \u65e0\u9700\u91cd\u590d\u5ba1\u6279\u6216\u63d0\u4ea4\u3002'
     else:
@@ -136,7 +138,7 @@ def plan(data):
     updates = []
     for role in ('notification', 'data_task'):
         desired = {'Result': text}
-        if role == 'notification' and props[role]['State'] == 'InProgress' and status in NETWORK:
+        if role == 'notification' and props[role]['State'] == 'InProgress' and progress['send_complete']:
             desired['State'] = 'Completed'
         desired = {k: v for k, v in desired.items() if props[role].get(k) != v}
         if desired:
@@ -167,13 +169,13 @@ def plan(data):
         if p.get('State') in {'Cancelled', 'Paused'} or (p.get('State') == 'Error' and not (
                 role == 'send_run' and status == 'Failed' and p.get('CurrentStep') == 'Failed')):
             raise ValueError('Explicitly paused/cancelled/error run requires its owner, not presentation repair')
-        final = role == 'data_run' or status in NETWORK
+        final = role == 'data_run' or progress['send_complete']
         desired = {'Summary': text}
         if p['State'] != 'Completed':
             desired.update(State='Completed' if final else 'InProgress',
-                           CurrentStep='RegistrationCompleted' if role == 'data_run' else status)
+                           CurrentStep='RegistrationCompleted' if role == 'data_run' else 'HandedOff' if progress['send_complete'] else status)
         # A Failed/Unknown request is not made successful by closing a scan.
-        if status == 'Failed' and role == 'send_run':
+        if status == 'Failed' and role == 'send_run' and not progress['send_complete']:
             desired.update(State='Error', CurrentStep='Failed')
         desired = {k: v for k, v in desired.items() if p.get(k) != v}
         if desired:

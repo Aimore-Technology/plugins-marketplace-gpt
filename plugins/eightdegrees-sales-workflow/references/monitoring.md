@@ -1,5 +1,7 @@
 # Operational monitoring and report consistency
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 ## Actual observations
 
 Use real tool/provider timestamps when supplied; otherwise record the actual observation time from the host clock. Never make up event times, reuse init time as a later attempt, or backdate an inferred action. Keep OccurredAt, ObservedAt and RecordedAt distinct when they differ. A manual report observes existing evidence; it is not a new health probe.
@@ -55,9 +57,9 @@ observations and can be coalesced; do not probe every unaffected service.
 
 Read the current saved-view snapshot once, then fetch only the open action/outcome or a specific contradictory original needed to decide current counts. Reuse those captures for links, scope checks, body and final verification. Do not read every completed action, entire client history or all Skill documents to refresh an unchanged daily brief. Fetch the current brief once; patch only changed current sections/metadata and label retained prior versions as history. Report writes remain restricted to the frozen report/run/log registry.
 
-Show waiting external requests, unresolved business failures, presentation issues and recovered history separately in the saved language. Group shared-cause page defects by a stable issue key and list affected records, rather than multiplying one defect by every page or retry. Preserve earlier counts with their stated historical definition; do not silently rewrite an old failure metric. A local diagnostic error or a recovered dependency check is not another failed customer send.
+Show unacknowledged dispatch attempts, unresolved internal business failures, presentation issues and recovered history separately in the saved language. Group shared-cause page defects by a stable issue key and list affected records, rather than multiplying one defect by every page or retry. Preserve earlier counts with their stated historical definition; do not silently rewrite an old failure metric. A local diagnostic error or a recovered dependency check is not another failed customer send.
 
-For SMS, SentToNetwork counts as sent and completed sending. Do not create a
+For email and SMS, successful provider acceptance counts one completed dispatch. Do not create a
 failure/pending item or degrade that result because Delivered or a handset
 observation is absent. Preserve the raw status and optional delivery metadata;
 actual missing reply-reader or scheduler capabilities are separate observations.

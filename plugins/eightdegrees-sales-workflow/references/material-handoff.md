@@ -1,6 +1,8 @@
 # Verified material email to observable SMS work
 
-The email owner must register follow-up after an actual material Sent result.
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
+The email owner must register follow-up after an successful material-email handoff.
 It is a required downstream transition, not a suggestion to the operator to
 invoke another skill. Email approval remains separate; factual SMS uses standing notification authority. No per-email native
 task is created: one executor installed by start handles all due Automatic work.
@@ -8,9 +10,9 @@ Without a running schedule, public run-auto processes the same queue once.
 
 ## Registration before email-owner completion
 
-1. Verify the actual Sent message/account, exact approved payload and material
-   source/version under stored-reply transport. A draft, send request or unknown
-   result cannot enroll. An explicitly verified nonmaterial reply saves NotApplicable on the original email task with no SMS cycle; do not classify it as material merely to satisfy completion. Retain the actual Sent result before downstream work.
+1. Use the successful original Gmail dispatch response/account and our verified
+   approved payload/material source version. An unsent draft or unknown handoff
+   cannot enroll. An explicitly verified nonmaterial reply saves NotApplicable on the original email task with no SMS cycle; do not classify it as material merely to satisfy completion. Retain the actual Sent result before downstream work.
 2. Read existing cycles through complete scoped discovery for this root and
    exact CRM location/contact, including closed cycles and pending handoff
    attempts. Match actual provider-event identity, related inquiry/context and
@@ -18,7 +20,7 @@ Without a running schedule, public run-auto processes the same queue once.
    approvals, Pause/stop and attempts. A resend never resets a cycle. Ambiguous
    discovery or an unknown attempt pauses registration; never assume absence.
 3. Run `material_handoff.py plan --input <original-normalized-evidence.json>`.
-   Required input: root_id, email_task_id, content_version, event (actual status=Sent, material=true,
+   Required input: root_id, email_task_id, content_version, event (original status=ProviderAccepted or Sent, material=true,
    provider/account/message_id/location_id/contact_id/context_key/sent_at),
    cycle_query_complete, cycles, stop, manual_pause, recipient (E.164 or null),
    channel_verified and automatic_sms_enabled. Each discovered cycle includes
@@ -33,7 +35,7 @@ Without a running schedule, public run-auto processes the same queue once.
    checks. Registration cannot send, create native tasks or enable automatic SMS.
    Keep exactly one current block per event; preserve older snapshots in original history/logs or a history wrapper, not another top-level material-handoff-v1 JSON record for the same event.
 5. Ready channel: prepare and freeze the first notification now, with due lower bound
-   actual email Sent+30 minutes. The SMS owner applies the configured business
+   email acceptance+30 minutes. The SMS owner applies the configured business
    window/date/holiday rules to calculate the eligible time; the helper's UTC
    lower bound is not permission to send. No per-message SMS review is required; use the current standing policy and fresh dispatch checks. Missing number -> DataCompletion/PrepareSmsFollowUp; unverified
    or disabled channel -> one actionable readiness task with original settings
@@ -52,11 +54,11 @@ Without a running schedule, public run-auto processes the same queue once.
    completion as specified in [record contracts](record-contracts.md), without
    retargeting the original event. Include both saved projection pages.
    Freeze this as kind=material-handoff on the original email task in the sales
-   send plan, alongside draft/sent transport and CRM receipt checks. A blocked
+   send plan, alongside verified draft/provider-handoff and CRM receipt checks. A blocked
    but verified handoff is valid registration, never successful SMS delivery.
 
 The local helper validates normalized input and saved Notion evidence only.
-Provider verification, fresh stop checks, full cycle discovery and actual tool
+Original response binding, fresh stop checks, full cycle discovery and actual tool
 order remain the owners' duties. It grants no approval or exactly-once guarantee.
 
 ## Partial success and recovery
@@ -68,7 +70,7 @@ run; do not mark overall completion or ask the operator to re-send the email.
 If Notion cannot save the recovery task, retain durable local evidence under
 the existing recovery contract and report the partial result honestly.
 
-The next authorized cycle checks actual sent evidence and existing cycle/key
+The next authorized cycle uses the saved original acknowledgement and existing cycle/key
 before completing only this handoff. It calls the registration-only SMS phase,
 not SendApprovedReply or a fresh intake. Receipt backfill and handoff recovery
 are independent; either may succeed while the other waits. No helper may
@@ -79,7 +81,7 @@ reenter the scanner or widen report/draft-only/no-send restrictions.
 Use only published plugin commands, ordinary inquiry inputs and actual Notion
 human submissions. Do not call private owners or add invented continue syntax
 to make a missing transition pass. Verify email Sent -> automatic notification
-or actionable blocked setup -> standing-authorized due execution -> actual status;
+or actionable blocked setup -> standing-authorized due execution -> successful service acceptance;
 repeat unchanged cycles to prove no duplicate cycle/task/send. Also verify
 unknown email result, missing number, disabled gateway, stopped/closed cycle,
 same-event retry, resends, partial handoff save and already-sent recovery.

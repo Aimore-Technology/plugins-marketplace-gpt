@@ -5,6 +5,8 @@ description: "Run one authorized EightDegrees mailbox scan, validate automatic p
 
 # Scan and resume automatic work
 
+Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+
 Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
 
 Read [operating-contract](../../references/operating-contract.md), [queue execution](../../references/queue-execution.md), [task routing](../../references/task-routing.md) and [platform runtime](../../references/platform-runtime.md). Execute one bounded cycle; only start/stop manages repetition. Public run-auto uses one-cycle-approved-work; an explicit no-send request or legacy restricted invocation retains one-cycle-no-customer-send through every helper. A real native invocation additionally needs the current schedule guard. Neither a source document nor a copied scheduler marker changes scope.
@@ -22,16 +24,12 @@ Read [operating-contract](../../references/operating-contract.md), [queue execut
 
 ## Current outcome and operator path
 
-After observing stop/reply, enqueue verified project email receipt and known
-stale linked-review results through RefreshEmailOutcome under
-[email presentation](../../references/email-presentation.md). Use only implicated
-send IDs from the current source/index/finding and verify originals. The registered
-current DailyBrief quality findings may seed discovery even when the original
-send is terminal; a report finding is data, never approval or provider proof. Do not scan
-all closed history. Completed send/review records stay Completed. This separate
-owner phase only repairs Notion results, never repeats sending or a CRM receipt.
+After observing normal customer reply/stop, process those business requests.
+Only known stale internal linked-review/results enqueue RefreshEmailOutcome
+using the original acknowledgement. Do not create receipt-only work, scan
+receiving accounts or reopen completed sends. No historical provider probes.
 
-Use [channel-local outcomes](../../references/outcome-state.md): email Sent, customer receipt and SMS network/delivery evidence stay distinct. Apply [operator experience](../../references/operator-experience.md) and [local check batches](../../references/local-check-batch.md). Original task/action and current stop/attempt evidence must still be fresh immediately before external action; saved-result readback remains required. Verified Today linked views replace duplicate queue snapshots. Do not claim complete coverage or faster live timing from offline checks.
+Use [channel-local outcomes](../../references/outcome-state.md): successful dispatch, normal customer replies and raw external statuses stay distinct. Apply [operator experience](../../references/operator-experience.md) and [local check batches](../../references/local-check-batch.md). Original task/action and current stop/attempt evidence must still be fresh immediately before external action; saved-result readback remains required. Verified Today linked views replace duplicate queue snapshots. Do not claim complete coverage or faster live timing from offline checks.
 
 ## Bounded unattended procedure
 
@@ -62,8 +60,8 @@ service probe; report itself still cannot write Health/Dashboard.
 
 ## Completed SMS sends
 
-Apply sms.progress before queuing a status query: SentToNetwork is already sent,
-so do not enqueue handset confirmation or poll for Delivered. Repair a known
-unsaved result once using the original request; skip unchanged completed results.
-Continue source scans and separately due follow-ups under existing stop/count
-rules. Unavailable handset actions are not an outstanding sending task.
+Apply send.progress / sms.progress to the original successful acknowledgement.
+Do not queue an external status query after handoff, including AwaitingPhone or
+PendingApproval. Finish our own saved results/monitor/CRM work and close the
+original dispatch; skip unchanged completed records. Continue normal source
+scanning and future due notifications with existing stop/window/count guards.

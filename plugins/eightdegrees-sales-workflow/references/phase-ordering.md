@@ -1,5 +1,7 @@
 # Complete the current step before admitting its successor
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 An owner plan is a completion contract for one current ResumeStep, not an entire
 customer journey. Never put a future send or maintenance task in the executable
 task roles of a content-review plan. A shared owner or parent run does not make
@@ -16,8 +18,8 @@ single-task legacy readback stays compatible.
 | Current phase | Complete using | Successor |
 | --- | --- | --- |
 | ReviewReplyDraft | Accepted exact content/version, current stored draft, canonical task summary and action consistency | Complete and read back this review before preparing the independent send phase |
-| SendApprovedReply | Fresh original review completion and exact send approval, window/stop/attempt checks before dispatch; actual draft and Sent MIME, outcome, CRM receipt, material handoff and linked presentation for final completion | Register the SMS cycle after verified material Sent; SMS has its own owner plan |
-| SendGeneralReply | Exact approved draft and actual Sent, outcome and CRM receipt | Any further work has its own step |
+| SendApprovedReply | Fresh original review completion and exact send approval, window/stop/attempt checks before dispatch; verified draft and original provider acceptance, outcome, CRM receipt, material handoff and linked presentation for final completion | Register the SMS cycle after successful material-email handoff; SMS has its own owner plan |
+| SendGeneralReply | Exact approved draft and original provider acceptance, outcome and CRM receipt | Any further work has its own step |
 | PrepareSmsFollowUp | Verified material Sent and its saved cycle/due/blocked result; no SMS request proof yet | SendNotificationSms under standing permission when eligible |
 | SendNotificationSms | Standing authority and the matching actual request outcome; SentToNetwork completes sending | Maintenance/next due work remains separate |
 | RecordSendReceipt / RecordMaterialHandoff / RefreshEmailOutcome | The named original unfinished result projections and their current verified readbacks | Never replay the provider action |

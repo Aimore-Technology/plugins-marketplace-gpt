@@ -33,8 +33,8 @@ def key(value):
 
 def plan(data):
     event = data["event"]
-    if event.get("status") != "Sent" or type(event.get("material")) is not bool:
-        raise ValueError("Require actual Sent and an explicit material classification; reconcile unknown outcomes first")
+    if event.get("status") not in {"Sent", "ProviderAccepted"} or type(event.get("material")) is not bool:
+        raise ValueError("Require an original successful Gmail handoff and explicit material classification; never enroll an unknown handoff")
     identity = {k: token(event[k]) for k in ("account", "provider", "message_id", "location_id", "contact_id", "context_key")}
     root, email = page_id(data["root_id"]), page_id(data["email_task_id"])
     if not all(re.fullmatch(r"[0-9a-f]{32}", x or "") for x in (root, email)):

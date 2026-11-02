@@ -1,5 +1,7 @@
 # Notification SMS cycle rules
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 Factual notifications use default enabled standing notification-sms-v1 authority
 under [SMS notifications](sms-notifications.md). No individual SMS content/send
 review or extra continue command is required. Generate/edit the copy, freeze its
@@ -55,6 +57,13 @@ run-auto/native tick without private owner or continue commands.
 
 SentToNetwork is already sent. Close the sending step after saving its original
 request/result; do not wait for Delivered, require handset actions, ask for a
-receipt or resend. Optional delivery metadata never gates completion. Pending
-states still reconcile the original request, and Unknown continues to reserve
+receipt or resend. Optional delivery metadata never gates completion. Acknowledged requests finish without a provider query, and Unknown continues to reserve
 its slot. Separate future follow-ups keep the existing due/stop/count rules.
+
+New dispatches use provider-handoff-v1. Configure the authorized connector/device
+without a test delivery. Original successful AndroidSync acceptance finalizes
+the used request count and our task, including AwaitingPhone/PendingApproval.
+No provider-status, receiving-phone, own-number display or stability probe is
+required for completion. Inbound capability is recorded separately; its absence
+is not a delivery-check gate for one-way factual notifications. Keep actual
+observable customer stop/reply and all authority/window/count checks.

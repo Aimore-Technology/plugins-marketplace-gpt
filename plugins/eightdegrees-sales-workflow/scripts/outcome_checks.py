@@ -41,15 +41,18 @@ def projection(data):
     version = required_text(data.get("content_version"), "approved content version")
     message = required_text(result.get("message_id"), "provider message id")
     operation = result.get("operation")
-    if operation not in {"email", "sms"} or operation == "sms" and result["status"] == "Sent":
+    if (operation not in {"email", "sms"} or operation == "sms" and result["status"] == "Sent"
+            or operation == "email" and result["status"] in {"AwaitingPhone", "PendingApproval", "SentToNetwork"}):
         raise ValueError("Normalize actual email/SMS status without upgrading its evidence")
-    network = result["status"] in {"Sent", "SentToNetwork", "Delivered"}
+    accepted = result["status"] in {"Sent", "SentToNetwork", "Delivered", "ProviderAccepted", "AwaitingPhone", "PendingApproval"}
+    if result.get("handoff_accepted") is True:
+        accepted = True  # Bound original acknowledgement; later external metadata cannot reopen dispatch.
     receipt = data.get("human_receipt") or {}
     received = receipt.get("received") is True
     if received and (receipt.get("message_id") != message or not receipt.get("source")):
         raise ValueError("Human receipt must identify this exact provider message and its source")
-    expected = {"message_id": message, "provider_status": result["status"], "sent": network,
-                "reserved": result["status"] in {"Unknown", "AwaitingPhone", "ProviderAccepted", "PendingApproval"},
+    expected = {"message_id": message, "provider_status": result["status"], "sent": accepted,
+                "reserved": not accepted and result["status"] == "Unknown",
                 "provider_delivered": result["status"] == "Delivered", "human_received": received,
                 "sender_display": receipt.get("sender_display") if received else None}
     if operation == "sms" and result.get("payload_sha256") is not None:
@@ -83,21 +86,25 @@ def verify_projection(data):
             "scope": "Offline readback comparison; repair projections only, never repeat the provider operation"}
 
 
-def sms_progress(data):
-    """End send tracking at the network result; never wait for a handset action."""
+def send_progress(data):
+    """End our dispatch at successful AndroidSync handoff, not its later execution."""
     derived = projection(data)
-    if data['provider']['operation'] != 'sms':
-        raise ValueError('SMS progress requires the original SMS request outcome')
     fields = derived['expected']
     status = fields['provider_status']
-    return {'status': 'SMSProgressChecked', 'entity_id': derived['entity_id'],
+    return {'status': 'DispatchProgressChecked', 'entity_id': derived['entity_id'],
             'content_version': derived['content_version'], 'message_id': fields['message_id'],
             'provider_status': status, 'send_complete': fields['sent'],
-            'query_original_request': fields['reserved'],
+            'query_original_request': False,
             'requires_handset_confirmation': False, 'retry_send_allowed': False,
             'needs_reconciliation': status == 'Unknown',
-            'scope': 'SentToNetwork completes sending; optional delivery metadata is not a workflow gate. '
-                     'Pending outcomes query only this original request; no I/O or permission to resend.'}
+            'scope': 'Successful provider acceptance completes our dispatch; no provider polling or receipt checks. '
+                     'Unknown/rejected handoff stays an internal exception, never permission to resend.'}
+
+
+def sms_progress(data):
+    if data["provider"]["operation"] != "sms":
+        raise ValueError("SMS progress requires the original SMS request acknowledgement")
+    return send_progress(data) | {"status": "SMSProgressChecked"}
 
 
 def current_display(data):
@@ -120,6 +127,11 @@ def current_display(data):
     if any(len(v) != 1 for v in groups.values()):
         issues.append("Missing/duplicate current status or processing result section")
     current = "\n".join(text for values in groups.values() for text in values)
+    receipt_wait = (r'(?:waiting|awaiting)(?: for)? (?:recipient|customer|handset|delivery|SentToNetwork)'
+                    r'|recipient (?:receipt|delivery).*(?:unverified|not verified)'
+                    r'|\u7b49\u5f85(?:\u5ba2\u6237|\u6536\u4ef6\u4eba|\u624b\u673a|\u9001\u8fbe|SentToNetwork)')
+    if derived['expected']['sent'] and re.search(receipt_wait, current, re.I):
+        issues.append('Successful handoff must not wait for external transport or recipient confirmation')
     other = (r"\u77ed\u4fe1(?:\u5c1a?\u672a\u53d1\u9001|\u987b\u72ec\u7acb\u5ba1\u6279)|SMS\s+(?:not sent|pending approval)"
              if data["provider"]["operation"] == "email" else r"\u90ae\u4ef6(?:\u5c1a?\u672a\u53d1\u9001|\u987b\u72ec\u7acb\u5ba1\u6279)|email\s+not sent")
     if re.search(other, current, re.I):
@@ -159,18 +171,18 @@ def counts(data):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("task", "project", "verify", "display", "counts", "sms-progress"))
+    parser.add_argument("command", choices=("task", "project", "verify", "display", "counts", "sms-progress", "send-progress"))
     parser.add_argument("--input", required=True)
     args = parser.parse_args()
     try:
         source = sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8")
         result = {"task": task_state, "project": projection, "verify": verify_projection,
-                  "display": current_display, "counts": counts, "sms-progress": sms_progress}[args.command](json.loads(source))
+                  "display": current_display, "counts": counts, "sms-progress": sms_progress, "send-progress": send_progress}[args.command](json.loads(source))
     except (ValueError, KeyError, TypeError, OSError) as exc:
         result = {"status": "NeedsCorrection", "reason": str(exc)}
     print(json.dumps(result, ensure_ascii=False))
     return 0 if result["status"] in {"CurrentStateVerified", "OutcomeDerived", "OutcomeProjectionsVerified",
-                                    "CurrentOutcomeDisplayVerified", "OutcomeCountsDerived", "SMSProgressChecked"} else 2
+                                    "CurrentOutcomeDisplayVerified", "OutcomeCountsDerived", "SMSProgressChecked", "DispatchProgressChecked"} else 2
 
 
 if __name__ == "__main__":

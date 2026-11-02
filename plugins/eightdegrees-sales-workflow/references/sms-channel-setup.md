@@ -1,45 +1,29 @@
-# Actionable SMS channel setup
+# Authorized SMS connector setup
 
-An unverified channel needs ONE DataCompletion/PrepareSmsFollowUp task under
-the SMS owner, with a task-input-v2 ordinary action page. Link it from the
-blocked notification result and Today; a read-only reason/settings link alone
-is insufficient. Preserve the original notification/cycle and deduplicate by
-setup scope/version. Standing notification authority is not asked again.
+Use [provider handoff completion](provider-boundary.md). A configured authorized
+AndroidSync sending tool/device is sufficient for factual notification dispatch;
+no live delivery test, phone observation, stability trial or inbound-reader
+check is a sending prerequisite.
 
-Show only prefilled sending phone, authorized check destination, normal-phone
-inbox reply visibility (yes/no/unknown plus observation time), connected reply
-reader (actual tool or unavailable), multiline observations, and setup choice:
-keep blocked / save connector details / run one controlled channel check.
-Workflow supplies exact device/CRM/task/version bindings. User answers cannot
-set a verified flag or certify an unavailable inbound tool. run-auto validates
-the actual submission and continues the same named phase.
+Create one DataCompletion/PrepareSmsFollowUp action only for actually missing
+connection/device, configured sender or recipient information. Prefill known
+values and ask only for the missing business input. Preserve cycle/task IDs and
+standing permission; do not ask for single-message approval or a test destination
+when the ordinary authorized destination is already configured.
 
-If init context already explicitly requests the check, register that original
-authorization and prefill the choice; do not ask again. Save controlled_sms_test
-with original authorization/input reference, enabled=true, exact configured
-recipient/device/sender, context_key, max_messages=1, expires_at and original
-attempt/result pointers. Bind its actual frozen notification to verified material
-Sent. Keep >=Sent+30m unless an explicit diagnostic timing waiver is recorded;
-that waiver never changes production delay defaults.
+Record unavailable inbound capability separately and keep normal customer
+reply/stop observation in authorized connected sources. Do not claim two-way
+SMS support, and do not turn that capability gap into delivery-verification work.
 
-run-auto executes through the normal SMS owner/standing authority and actual
-Trusted device route. Only the disclosed stable-send/inbound-read capability
-requirement may remain unverified for this bounded check. Fresh stop/reply/Pause,
-device ownership, exact recipient/body, count, window/expiry and unknown-attempt
-guards still apply. Reserve the ONE slot before request; Unknown reserves it
-and never creates a replacement send. Never release an abandoned old request.
-No private Skill/continue, native task or extra approval is required.
+A successful original request response closes our dispatch, including
+AwaitingPhone/PendingApproval. Persist its original ID/status and our result,
+Health and used count once. Do not call get_message_status, ask the operator to
+check a handset or create a reconciliation task solely to wait for the service.
+Only an ambiguous/unacknowledged handoff retains a reserved original attempt;
+never issue a replacement request or automatically query it.
 
-Record SentToNetwork as sent: this completes the sending check without a handset observation or Delivered. Do not request physical receipt or keep polling delivery. Optional later observations remain metadata. Ordinary channel configuration and actual inbound-reader capability remain separate checks; a successful send cannot invent an inbound tool or permit an extra SMS. This bounded check does not certify native scheduling or full unattended operation.
-
-## Local check arguments
-
-Run sms.channel-check with invocation_policy, context_key, now, actual
-channel_verified/inbound_reader_available, payload={recipient,device_id,sender_number},
-guards={stop,manual_pause,unknown_attempt,customer_replied}, and the saved
-controlled_sms_test. Its used_slots is an actual integer0/1, unknown_attempt is
-explicit, and authorization_ref points to original setup input. A newly reserved
-slot can continue only with matching attempt_id/reserved_attempt_id and
-provider_result_present=false. After any provider result, reconcile rather than
-requesting again. The check has no I/O, no host lock and cannot validate its own
-normalized observations; the owner must read their originals.
+The sms.channel-check helper accepts channel_verified=true for an actual saved
+configured connector/device and does not require inbound_reader_available.
+Its older controlled_sms_test arguments are retained only to interpret an
+explicit already-authorized legacy diagnostic scope. They are not required for
+new initialization or ordinary dispatch and never reset attempts or pauses.

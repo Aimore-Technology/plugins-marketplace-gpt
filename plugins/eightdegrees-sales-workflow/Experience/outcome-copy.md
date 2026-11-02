@@ -1,5 +1,7 @@
 # Completed pages must not freeze other-channel state
 
+Current policy: [provider handoff](provider-handoff.md). Historical delivery/receipt probes below are observations, not instructions to repeat them or completion requirements.
+
 Evidence: controlled 0.1.19 run, Q19-03. An email completion page still said
 "SMS not sent" after its separate SMS reached SentToNetwork and a customer
 reply confirmed email receipt. Per-message normalized fields had passed.

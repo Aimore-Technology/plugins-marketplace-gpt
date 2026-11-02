@@ -5,6 +5,8 @@ description: "Build the EightDegrees daily Notion action list, track important r
 
 # Daily brief, reminders and handover
 
+Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+
 Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
 
 For report-only, first apply [Notion publication](../../references/notion-publishing.md): freeze the actual report/run/log target registry and preflight EACH mutation, including corrections. Execute only the reporting parts of steps 1, 2, 4, 6 and 7 below; step 6 reads existing Health/Dashboard evidence without updating those records. Do not run reminder, Calendar, handover-test or business-repair procedures. Outside-registry task/action/hub/preview defects are findings with a separate owner continuation, never child calls from report. Audit actual writes at exit against the same registry; a later clean publication does not erase an earlier violation.
@@ -48,7 +50,7 @@ Use timeless initial procedure/plan prose, labeled as history. Current State/Sum
 
 ## SMS reporting
 
-Display SentToNetwork as Sent, with the raw status available in the original
+Display successful Gmail/AndroidSync acceptance as Submitted to service; preserve SentToNetwork, with the raw status available in the original
 result. Missing Delivered or handset confirmation is not a failure, pending item,
 missing operator input or acceptance gap. Do not ask the operator to acknowledge
 receipt. Optional delivery metadata remains distinct; unknown requests, observed

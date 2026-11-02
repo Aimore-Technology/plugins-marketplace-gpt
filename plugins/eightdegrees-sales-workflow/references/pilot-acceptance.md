@@ -1,11 +1,13 @@
 # Pilot acceptance and first test sequence
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 Package validation proves file/schema/reference integrity, not CRM access, mailbox scope, HTML rendering or actual sending. Record Passed/Failed/Untested plus run/log/provider evidence per case. Use authorized real data without deliberate redaction; do not store customer samples/results in this repository.
 
 1. Initialize the customer's accounts and clean Aimore tree with pilot-v1/schema 2. Use any designated test operator with actual authorized accounts; unset operator fields require setup, not a name fallback. Use real allowed labels, work-folder IDs, verified CRM LocationId and explicit test recipients; missing values remain disabled/waiting, never fabricated.
 2. Test 3-5 authorized emails/records: scoped listing/body access, matching, customer/stakeholder separation, four-section Notes, draft and Notion preview. Mixed-label thread limitations must not broaden reads. Gmail attachments remain unopened by default.
 3. Without a scheduler, complete manual P0-A: submit, match and review exact note/persona changes in Notion, then run-auto resumes and appends ONE combined CRM note with readback. Unsubmitted Manual work stays waiting; repeated scans fill only unfinished steps without another continue command.
-4. With operator-approved content/window, test a normal Gmail message to a designated test recipient. Verify actual received content, HTML/assets and reply visibility. Edited content/recipient/file or expired window invalidates approval. Note confirmation and reminder acknowledgement must never send a customer message.
+4. With operator-approved content/window, test a normal Gmail message to a designated test recipient. Verify our approved stored draft/HTML/assets before dispatch and retain the successful original tool response. Normal inbound reply handling is a separate business test. Edited content/recipient/file or expired window invalidates approval. Note confirmation and reminder acknowledgement must never send a customer message.
 5. Test material -> SMS -> email response with the operator present. Before gateway acceptance, actual automated dispatch is capability-blocked despite standing notification permission; any operator manual send is logged. Verify actual first +30-minute and second +24-hour timing, allowed-window rollover, weekend/no-send date rules, manual+AI two-message cap and non-reset after resending materials.
 6. Verify reply/stop first, do-not-contact, the operator's manual pause for unconnected channels, one active cycle and handover after two. Unknown results/counts block later attempts. Verify the configured own-number device/sender and actually connected reply visibility separately. SentToNetwork passes SMS sending acceptance; Delivered, physical handset actions and recipient acknowledgement are not required and must not become waiting/failure items. Do not certify an unavailable inbound reader from a successful send.
 7. Test reminders on actual connected channels: one initial, 19-minute escalation, 24-hour acknowledgement/overdue. Single-channel or late checks are marked degraded, not passed. Acknowledgement closes only the reminder. Check scan reruns do not duplicate notices.
@@ -90,7 +92,7 @@ Before verifying a release fix, record the actual loaded manifest/skill version 
 
 ## Independent send-gate coverage
 
-For changed version, expired approval, customer stop, incomplete latest-reply coverage and invocation restrictions, record each check's inputs and result separately. Use an offline decision rehearsal/fake provider to isolate one business blocker while others are satisfied, without changing real customer stop settings or granting real send permission. Test zero provider-adapter calls for each rejection and a counterfactual valid case reaching only the fake adapter. Mark this as simulated gate coverage, not live sending acceptance. A record with batchStop=true and CustomerSendAllowed=false proves combined suppression only; it does not prove an independent expiry/version gate or a real delivery path. Real valid sending/received HTML, SMS, scheduling, host visual and concurrency still require their own explicitly authorized tests.
+For changed version, expired approval, customer stop, incomplete latest-reply coverage and invocation restrictions, record each check's inputs and result separately. Use an offline decision rehearsal/fake provider to isolate one business blocker while others are satisfied, without changing real customer stop settings or granting real send permission. Test zero provider-adapter calls for each rejection and a counterfactual valid case reaching only the fake adapter. Mark this as simulated gate coverage, not live sending acceptance. A record with batchStop=true and CustomerSendAllowed=false proves combined suppression only; it does not prove an independent expiry/version gate or a real delivery path. Real provider handoff, scheduling, host visual and concurrency still require their own explicitly authorized tests.
 
 ## 0.1.12 publication regressions
 
@@ -104,7 +106,7 @@ During report, compare every actual mutation against frozen report/run/log targe
 
 Replay the actual invalid source enum and native-mention whole-section plan offline: both must refuse before mutation. Exclude database/view schema descriptions from typed page coverage, and block completion on failed/nonzero/missing/duplicate/stale/wrong-target results. Before final report Completed/Success, all registered report pages need current successful checks. A top Pause with Not submitted or a choose-one prompt in another current section fails task-display. Retain original answers/history and provider IDs on repair.
 
-Only on the operator's explicit real-channel test request, use separate owner-workflow invocations for an exact approved HTML reply and one AndroidSync SMS. Record actual recipients/device, immutable payload, AttemptId and one-message timing exception; waive only the requested hours/delay. Verify actual received mail/thread/MIME and SMS state/inbound evidence when available. An unobserved phone reply stays Waiting/Untested; simulation is not receipt. Draft-only/report/setup and explicitly restricted scans retain their no-send policies, old stopped batches remain stopped and automatic enrollment stays disabled. A standalone channel probe does not establish material-follow-up acceptance.
+Only on the operator's explicit real-channel test request, use separate owner-workflow invocations for an exact approved HTML reply and one AndroidSync SMS. Record actual recipients/device, immutable payload, AttemptId and one-message timing exception; waive only the requested hours/delay. Accept the original successful Gmail/AndroidSync response as dispatch completion. Do not query sent/received mail or SMS state; inbound reply/stop tests remain separate. Draft-only/report/setup and explicitly restricted scans retain their no-send policies, old stopped batches remain stopped and automatic enrollment stays disabled. A standalone channel probe does not establish material-follow-up acceptance.
 
 ## 0.1.16 scheduling and realistic-business regression
 
@@ -168,7 +170,7 @@ Require actual material Sent -> automatically persisted SMS cycle/notification/d
   send is complete, counted once, displayed Sent, and needs no operator task.
 - Repeat the scan: no automatic delivery polling, duplicate request or count
   increment. Later optional Delivered does not increment the sent count again.
-- Pending/Unknown queries only the original ID, retaining reservations; Failed
+- Accepted requests complete without queries. Unknown handoff keeps its original reservation; Failed
   is not success. Missing handset observations never authorize resend.
 - Completed sending does not cancel independent future due follow-ups, bypass
   reply/stop guards, or certify inbox/scheduler capabilities.

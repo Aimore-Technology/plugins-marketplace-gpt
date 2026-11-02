@@ -1,5 +1,7 @@
 # Standing authority for factual SMS notifications
 
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
 P0 SMS is a notification channel. Initialization defaults sms_notifications to
 enabled notification-sms-v1, per_message_review_required=false and automatic
 follow-up permission enabled. State this in setup and save the actual root,
@@ -51,10 +53,10 @@ native phone/Web restrictions cannot be bypassed or described as completed.
    needs a new frozen version/check, without human approval. A pending/unknown
    old attempt blocks text mutation and retry until reconciliation.
 6. Record actual request ID/result, the SHA-256 of the actual submitted body,
-   and status readback. Supply that actual digest as provider.payload_sha256 to
+   from the original successful response, without a status readback. Supply that actual digest as provider.payload_sha256 to
    outcome_checks. SendNotificationSms completion requires sms-authority plus
    current outcome evidence for that same task/version and matching body digest.
-   SentToNetwork is sent and completes this dispatch. Delivered and handset observations are optional metadata, never required confirmation or further polling. Repair log/projection
+   Successful service acceptance completes this dispatch, including AwaitingPhone/PendingApproval. Delivered and handset observations are optional metadata, never required confirmation or further polling. Repair log/projection
    failures without resending. The read-only result page can serve the existing
    action-result projection contract; it contains no approval controls.
 
@@ -67,8 +69,8 @@ the actual calendar source/cutoff visible. Email holiday/date approval rules
 remain unchanged. A task-specific explicit expiry/Pause is preserved; do not
 catch up an expired legacy one-off authorization automatically.
 
-First material follow-up is no earlier than Sent+30 minutes; second is no earlier
-than first actual follow-up+24 hours. Count manual+AI related messages together
+First material follow-up is no earlier than Gmail acceptance+30 minutes; second is no earlier
+than first accepted notification request+24 hours. Count manual+AI related messages together
 up to two per cycle. Unknown reserves a slot. Customer reply/stop, authority
 revocation, cap and manual Pause prevent further sends. Internal operator alerts
 are separately deduplicated by ReminderKey+phase and only use the configured
@@ -86,3 +88,11 @@ binding stays a single configuration/capability task, never repeated message
 approval. Old SendApprovedSms results remain historical; migrate only eligible
 unsent factual notifications with verified intent, payload and current standing
 authority, keeping IDs/mode/history and no invented old approval. The verified new notification route may execute with preserved Manual provenance under standing authority; it does not require a human submission.
+
+New dispatches use provider-handoff-v1. Configure the authorized connector/device
+without a test delivery. Original successful AndroidSync acceptance finalizes
+the used request count and our task, including AwaitingPhone/PendingApproval.
+No provider-status, receiving-phone, own-number display or stability probe is
+required for completion. Inbound capability is recorded separately; its absence
+is not a delivery-check gate for one-way factual notifications. Keep actual
+observable customer stop/reply and all authority/window/count checks.

@@ -33,10 +33,10 @@ class OperatorExperienceTests(unittest.TestCase):
         event={'task_id':t['PageId'],'content_version':t['ContentVersion'],
                'provider':{'operation':'sms','message_id':'sms-1','status':'AwaitingPhone','read_verified':True}}
         value=UX.feedback({'task':t,'reserved_outcome':event})
-        self.assertEqual(value['stage'],'external_pending')
+        self.assertEqual(value['stage'],'completed')
         self.assertIsNone(value['continue_command'])
         value=UX.feedback({'task':t,'reserved_outcome':event,'future_sms_stopped':True})
-        self.assertEqual(value['stage'],'stopped_pending')
+        self.assertEqual(value['stage'],'completed')
         self.assertIsNone(value['continue_command'])
         event['task_id']='other'
         with self.assertRaises(ValueError):UX.feedback({'task':t,'reserved_outcome':event})
@@ -96,11 +96,11 @@ class OperatorExperienceTests(unittest.TestCase):
         from test_scheduled_outcomes import outcome
         event={**outcome('sms','SentToNetwork'),'account':'device-owner'}
         result=UX.result_summary({'events':[event],'coverage_complete':True})
-        self.assertEqual('Sent',result['rows'][0]['result'])
+        self.assertEqual('Submitted to AndroidSync',result['rows'][0]['result'])
         self.assertFalse(result['rows'][0]['query_original_request'])
         event['human_receipt']={'message_id':'sent-1','received':True,'source':'operator observation'}
         row=UX.result_summary({'events':[event],'coverage_complete':True})['rows'][0]
-        self.assertEqual('Sent',row['result']);self.assertIn('confirmed',row['receipt'])
+        self.assertEqual('Submitted to AndroidSync',row['result']);self.assertIn('confirmed',row['receipt'])
 
     def test_conflicting_original_result_is_not_a_clean_ui_total(self):
         from test_scheduled_outcomes import outcome

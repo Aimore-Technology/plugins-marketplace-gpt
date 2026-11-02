@@ -1,6 +1,8 @@
 # Email results and linked completed reviews
 
-After verified project email Sent, synchronize the completed content-review task
+Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
+
+After successful project email handoff, synchronize the completed content-review task
 and action as well as the original send task/action. A completed review cannot
 retain current unsent-draft or send-approval instructions after that email sent.
 Keep State, Mode, operator inputs, approval history, frozen HTML/preview and
@@ -11,8 +13,8 @@ operations `email.presentation-plan` / `email.presentation-verify`. It performs
 no network I/O or business action. Input has `pages={send_task,send_action,
 review_task,review_action}` containing complete original MCP fetches, saved
 language and timezone-aware observed_at. It derives related IDs from the original
-sales-send-package/content_approval and action bindings, and requires a matching
-email-sent-proof. The send may be InProgress after actual Sent, or Completed;
+sales-send-package/content_approval and action bindings, and requires matching
+email-handoff-proof (or already-saved legacy email-sent-proof). The send may be InProgress after actual Sent, or Completed;
 the linked content review must be Completed with the same version.
 
 If the registered RunSettings source index already embeds current_outcome for
@@ -34,17 +36,17 @@ or download unchanged HTML/PNG for presentation repair.
 
 At initial SendApprovedReply completion, freeze email-presentation evidence on
 that task, with both linked completed review pages as publication roles. Require
-EmailPresentationVerified alongside actual Sent, current outcome, CRM receipt
-and material handoff. It does not replace approval or draft/sent MIME checks.
+EmailPresentationVerified alongside provider-handoff, current outcome, CRM receipt
+and material handoff. It does not replace approval or the pre-dispatch draft check.
 
 ## Later receipts and legacy display repair
 
-The scanner handles stops first. For a verified explicit receipt or observed
-stale review, enqueue one Automatic RefreshEmailOutcome item owned by sales-reply,
-Category ScheduledWork (ExecutionExceptions on failure). Key it by original send
-task/version plus receipt message ID, or presentation revision for display repair.
-Reuse it on repeated scans. Do not reopen completed send/review records, require
-continue, a new approval/window or another CRM Note. Keep the native schedule as-is.
+The scanner handles customer reply/stop as normal business input. Do not enqueue
+work merely to verify recipient receipt or delivery. A scoped known stale
+internal review/result can enqueue Automatic RefreshEmailOutcome for display
+repair only, using the saved original dispatch acknowledgement. Reuse one task
+per original send/version/presentation revision; no provider calls, new approval,
+CRM replay, native schedule or receipt-only workflow.
 
 On upgrade, the registered current DailyBrief's unresolved quality findings can
 discover an implicated completed send. Read that scoped current finding and its
@@ -61,15 +63,11 @@ This route only updates Notion current results: no email/SMS/CRM/provider writes
 enrollment, stop reset or approval changes. report only records findings and links
 run-auto; it cannot dispatch or repair this work.
 
-Add receipt={message,received_quote,explicit_confirmation:true} only after the
-owner reads an actual authorized full Gmail reply and selects a positive receipt
-statement. Do not infer it from generic thanks, silence, tracking or quoted history.
-The helper binds parties/thread and References/In-Reply-To to the actual sent RFC
-Message-ID, and checks the selected quote against observed content. Wrong,
-ambiguous or unsupported sources stay pending; never reconstruct source evidence
-to obtain a pass. Operational receipt can update Notion before separate CRM fact
-review; it keeps provider status=Sent and supplies no provider/SMS delivery proof.
-An absent new receipt does not downgrade an existing verified receipt.
+Preserve existing legacy receipt metadata as history. Do not collect new receipt
+proof, query receiving accounts or require any customer acknowledgement. The
+legacy receipt input parser exists only for already-captured historical evidence;
+new presentation maintenance supplies no receipt input. Customer replies and
+stop requests continue through ordinary source/stop processing.
 
 After a partial patch failure, retain the original plan and reconcile only missing
 patches/readbacks. Do not resend email or append CRM to repair a view. Closed

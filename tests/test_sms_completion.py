@@ -22,12 +22,12 @@ class SMSCompletion(unittest.TestCase):
             self.assertFalse(result['retry_send_allowed'])
             self.assertEqual(result['message_id'], data['provider']['message_id'])
 
-    def test_pending_results_query_original_only_and_unknown_keeps_reservation(self):
-        for status in ('ProviderAccepted', 'AwaitingPhone', 'PendingApproval', 'Unknown'):
+    def test_unknown_handoff_keeps_reservation_without_automatic_polling(self):
+        for status in ('Unknown',):
             data = outcome('sms', status)
             result = outcome_checks.sms_progress(data)
             self.assertFalse(result['send_complete'])
-            self.assertTrue(result['query_original_request'])
+            self.assertFalse(result['query_original_request'])
             self.assertFalse(result['retry_send_allowed'])
             self.assertTrue(outcome_checks.projection(data)['expected']['reserved'])
             self.assertEqual(result['needs_reconciliation'], status == 'Unknown')
@@ -38,12 +38,13 @@ class SMSCompletion(unittest.TestCase):
         self.assertFalse(result['query_original_request'])
         self.assertFalse(result['retry_send_allowed'])
 
-    def test_waiving_receipt_does_not_waive_an_existing_native_approval_policy(self):
+    def test_native_pending_status_is_preserved_after_accepted_handoff(self):
         event = outcome('sms', 'PendingApproval') | {'account': 'configured-device'}
         row = operator_experience.result_summary({'events': [event], 'coverage_complete': True})['rows'][0]
-        self.assertEqual(row['result'], 'Waiting for native approval')
-        self.assertFalse(row['send_complete'])
-        self.assertTrue(row['query_original_request'])
+        self.assertEqual(row['result'], 'Submitted to AndroidSync')
+        self.assertEqual(row['provider_status'], 'PendingApproval')
+        self.assertTrue(row['send_complete'])
+        self.assertFalse(row['query_original_request'])
         self.assertFalse(row['requires_handset_confirmation'])
 
     def test_unread_or_email_status_cannot_be_used_as_sms_completion(self):
@@ -62,7 +63,7 @@ class SMSCompletion(unittest.TestCase):
         self.assertFalse(result['checks'][0]['result']['query_original_request'])
 
     def test_current_pages_finish_once_without_changing_payload_counts_or_stop(self):
-        for language, label in [('en', 'SMS sent'), ('zh-CN', '\u77ed\u4fe1\u5df2\u53d1\u9001')]:
+        for language, label in [('en', 'Submitted to AndroidSync'), ('zh-CN', '\u5df2\u4ea4\u4ed8AndroidSync')]:
             data = sms_fixture() | {'language': language}
             original = copy.deepcopy(data)
             plan = sms_presentation.plan(data)
@@ -83,7 +84,7 @@ class SMSCompletion(unittest.TestCase):
 
     def test_operator_success_has_no_missing_confirmation_prompt_in_either_language(self):
         event = outcome('sms', 'SentToNetwork') | {'account': 'configured-device'}
-        for language, label in [('en', 'Sent'), ('zh-CN', '\u5df2\u53d1\u9001')]:
+        for language, label in [('en', 'Submitted to AndroidSync'), ('zh-CN', '\u5df2\u4ea4\u4ed8AndroidSync')]:
             result = operator_experience.result_summary({'events': [event], 'language': language,
                                                          'coverage_complete': True})
             row = result['rows'][0]
