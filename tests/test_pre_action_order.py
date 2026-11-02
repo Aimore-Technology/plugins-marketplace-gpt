@@ -100,6 +100,12 @@ class ReviewOrder(unittest.TestCase):
         data['target']['text'] = data['target']['text'].replace('</content>', '\n- [ ] Confirm content\n- [ ] Submit content decision\n</content>')
         data['call']['args']['content'] = '- [x] Confirm content\n- [x] Submit content decision'
         self.assertEqual(notion_mutation.prepare(data)['status'], 'NotionMutationPrepared')
+        # A whole-page preservation patch includes the same binding. That is
+        # neither a new review release nor permission to revalidate idle work.
+        body = data['target']['text'].split('<content>\n')[1].split('\n</content>')[0]
+        data['call']['args'] = {'page_id': 'a' * 32, 'command': 'replace_content',
+                              'new_str': body.replace('- [ ]', '- [x]')}
+        self.assertEqual(notion_mutation.prepare(data)['status'], 'NotionMutationPrepared')
 
     def test_unverified_controls_cannot_be_published_in_first_create(self):
         data = action(); body = data['target']['text'].split('<content>')[1].split('</content>')[0]

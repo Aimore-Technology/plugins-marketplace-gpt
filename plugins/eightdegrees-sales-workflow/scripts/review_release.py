@@ -83,10 +83,11 @@ def gate_mutation(data, texts):
         return values
     old_bindings = bindings(old_body)
     new_bindings = bindings('\n'.join(texts))
+    changed_binding = any(bound not in old_bindings for bound in new_bindings)
     controls = lambda text: set(re.findall(r'^\s*- \[[ xX]\] ([^\n]+)', visible_markdown(text), re.M))
     new_controls = controls('\n'.join(texts)) - controls(old_body)
     active = new_bindings or old_bindings
-    if not active or not (new_controls or new_bindings and controls(old_body)):
+    if not active or not (new_controls or changed_binding and controls(old_body)):
         return None
     if not args.get('page_id') or len(active) != 1:
         raise ValueError('Create an inert email action first; activate one registered review on its actual page')
