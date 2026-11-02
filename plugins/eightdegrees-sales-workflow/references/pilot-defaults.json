@@ -151,7 +151,10 @@
     "publication_reserve_seconds": 120,
     "checkpoint_contract": "scan-checkpoint-v1",
     "executor_mode": "single_native_owner",
-    "unchanged_result_writes": false
+    "unchanged_result_writes": false,
+    "event_discovery_contract": "scan-event-index-v1",
+    "event_index_page_id": null,
+    "discovery_before_business_work": true
   },
   "send_completion": {
     "policy": "provider-handoff-v1",

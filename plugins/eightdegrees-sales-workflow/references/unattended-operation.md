@@ -84,22 +84,27 @@ is active defers; it must not create a second worker.
 
 ## Short idle ticks and notification policy
 
-Reuse registered view IDs and known quota fallback. Read each affected page once
-per unchanged phase; local checks use capture references and --output. Do not
-copy raw captures into many command arguments or repeat full owner plans for
-progress writes. Do not read all completed history, regenerate unchanged previews,
-write unchanged results, or rebuild the daily brief on every tick. Scan ready
-work first, then targeted presentation repair and due daily brief. Save missed
-work for the next tick without another native job or chat prompt.
+Apply [event discovery](event-discovery.md) before business plans or validation.
+Use scan.probe over actual scoped changes, registered action inputs, controls,
+due indexes and recovery pointers. ScanIdle ends this tick immediately. An
+unchanged empty tick has no owner calls, business checks, CRM/source-content/
+preview reads, full setup reconstruction, completed-history sweep or routine
+Health/report/projection writes. Persist only a changed compact event index and
+an optional actual discovery heartbeat; no operator notification.
 
-An unchanged empty scan may save one compact checkpoint/heartbeat needed for
-health; do not notify the operator. Notify only newly actionable decisions,
-meaningful completion/failure, new capability loss or configured important
-reminders. Reuse the original task/action link and deduplicate the reason/version.
-Pending gateway execution is machine waiting, not an approval task. Unknown
-send results are reconciled read-only on later ticks; do not repeatedly prompt
-for approval. An actual unresolvable failure stays one linked exception while
-unrelated eligible work continues.
+ScanWorkReady selects affected owners via scan.cycle. Fresh approval/stop/
+version/attempt checks apply just before actual dependent effects, rather than
+revalidating all waiting tasks each tick. A changed form still needs its actual
+submission; due work is input even without new mail. Preserve pending keys and
+registered wake-up pointers across crashes. A missing feed is partial coverage,
+not an idle result; retry only that feed within budget.
+
+Notify only newly actionable decisions, meaningful completion/failure, new
+capability loss or configured important reminders. Reuse the original task link
+and deduplicate reason/version. A successful provider acknowledgement closes
+our dispatch without an external status watcher. Unknown results retain their
+original attempt and wake only on new evidence or a saved bounded recovery
+trigger; no blind resend, repeated approval prompt or busy poll.
 
 ## Restriction and SMS projection maintenance
 

@@ -9,6 +9,11 @@ It never authorizes intake of a communication the operator did not initiate.
 
 ## Sources and order
 
+FIRST apply [event discovery](event-discovery.md). The native tick is a discovery
+opportunity, not a reason to run business owners. ScanIdle stops before the
+steps below; incomplete coverage recovers only missing feeds. These steps apply
+to ready events and their affected successors, not every waiting task.
+
 1. Read configured scope, actual ownership, checkpoints and pending attempts.
 2. Observe current scoped Gmail and available SMS replies/stop, plus Notion
    Pause/Cancel/revocation, before due outbound work. Missing relevant reply

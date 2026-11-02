@@ -11,6 +11,7 @@ import sys
 
 from notion_checks import object_result, page_body, page_id, schema_values
 from workflow_checks import check_links
+from review_release import gate_mutation
 
 SCOPE = "Exact proposed call only; no host interception, scope permission or retrospective order proof"
 IDENTITY_FIELDS = {"TaskId", "RunId", "ParentRunId", "StepId", "SourceKey", "ClientId", "ContactId", "LocationId", "OperatorId", "ApproverId", "ContentVersion", "DecisionVersion", "OwnerSkill", "ResumeStep", "ResumeContractVersion", "CycleId", "AttemptId"}
@@ -92,6 +93,9 @@ def prepare(data):
         checks.append({"kind": "properties", "index": index, "result": result})
     if any(c["result"]["status"] == "NeedsCorrection" for c in checks):
         return {"status": "NeedsCorrection", "checks": checks, "scope": SCOPE}
+    review = gate_mutation(data, texts)
+    if review is not None:
+        checks.append({"kind": "email-review-release", "result": review})
     encoded = json.dumps(call, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
     return {"status": "NotionMutationPrepared", "call": copy.deepcopy(call),
             "call_sha256": hashlib.sha256(encoded.encode()).hexdigest(), "checks": checks, "scope": SCOPE}

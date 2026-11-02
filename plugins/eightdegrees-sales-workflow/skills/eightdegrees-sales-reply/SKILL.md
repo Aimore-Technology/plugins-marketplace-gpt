@@ -69,3 +69,13 @@ Persist actual Sent and its registration event before optional linked-display
 maintenance. Reuse unchanged captures in one local batch, not repeated plans
 for each progress sentence. If post-send work does not fit, save one original
 recovery pointer; next run-auto repairs it without a provider/CRM replay.
+
+## Before review activation or dispatch
+
+Apply [prospective action gates](../../references/pre-action-order.md) only for
+an affected ready phase. Before email review controls, supply original saved
+copy/draft/preview evidence to review.prepare and notion.mutation.review_release.
+Before a queued Gmail/AndroidSync send, dispatch.admit must be saved/read back;
+dispatch.prepare then emits only the exact admission-bound call. Changed SMS
+payload/version/key requires fresh admission. Retain all fresh approval/stop/
+window/count/attempt guards; these gates do not grant authority or intercept MCP.

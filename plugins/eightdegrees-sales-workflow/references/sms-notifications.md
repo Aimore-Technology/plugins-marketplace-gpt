@@ -96,3 +96,7 @@ No provider-status, receiving-phone, own-number display or stability probe is
 required for completion. Inbound capability is recorded separately; its absence
 is not a delivery-check gate for one-way factual notifications. Keep actual
 observable customer stop/reply and all authority/window/count checks.
+
+Use [prospective action gates](pre-action-order.md) before opening new email
+review controls or emitting outgoing call arguments. A post-action check cannot
+repair missing historical order. Run these only on the affected event phase.

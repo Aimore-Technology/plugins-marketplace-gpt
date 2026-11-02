@@ -22,6 +22,9 @@ import contact_preferences
 import scan_cycle
 import sms_channel
 import provider_handoff
+import event_probe
+import dispatch_admission
+import review_release
 
 OPERATIONS = {
     "notion.page-links": notion_checks.page_links,
@@ -58,6 +61,10 @@ OPERATIONS = {
     "contact.restriction-verify": contact_preferences.verify,
     "contact.dispatch-gate": contact_preferences.dispatch_gate,
     "scan.cycle": scan_cycle.advance,
+    "scan.probe": event_probe.probe,
+    "dispatch.admit": dispatch_admission.prepare,
+    "dispatch.prepare": dispatch_admission.release,
+    "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
 PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
@@ -68,7 +75,7 @@ PASSED = {"ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForC
           "NotionMutationPrepared", "WithinOwnerScope", "WithinReportScope",
           "EmailPresentationPlanned", "EmailPresentationVerified", "OperatorResponseReady",
           "SMSPresentationPlanned", "SMSPresentationVerified", "ContactRestrictionPlanned", "ContactRestrictionVerified", "ContactDispatchChecked",
-          "ScanCyclePlanned", "ScanDeferred", "ChannelCheckEligible", "ChannelCheckBlocked", "SMSProgressChecked", "DispatchProgressChecked", "ProviderHandoffVerified"}
+          "ScanCyclePlanned", "ScanDeferred", "ScanIdle", "ScanWorkReady", "ScanDiscoveryRequired", "DispatchAdmissionPrepared", "DispatchArgumentsPrepared", "EmailReviewReady", "ChannelCheckEligible", "ChannelCheckBlocked", "SMSProgressChecked", "DispatchProgressChecked", "ProviderHandoffVerified"}
 
 
 def run(plan, captures):

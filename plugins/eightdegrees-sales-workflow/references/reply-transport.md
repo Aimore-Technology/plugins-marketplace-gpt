@@ -40,3 +40,7 @@ the actual reply manifest. From/To/Cc/Bcc/Reply-To/Subject are header strings
 under this adapter, never lists or null. An invalid type returns no patch plan;
 do not guess a conversion or change approved recipients. Use the returned
 reply_args with the current tool schema, then retain raw stored-draft verification.
+
+Use [prospective action gates](pre-action-order.md) before opening new email
+review controls or emitting outgoing call arguments. A post-action check cannot
+repair missing historical order. Run these only on the affected event phase.

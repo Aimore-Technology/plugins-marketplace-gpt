@@ -60,3 +60,13 @@ Health/counter/log writes at owner boundaries; never recursively monitor logging
 Unattended operations add scan.cycle, sms.presentation-plan/verify, contact.restriction-plan/verify and contact.dispatch-gate. Plans select work or propose patches; only verified saved readback can supply completion evidence. ScanDeferred and ContactDispatchChecked do not authorize an external effect. See [unattended operation](unattended-operation.md).
 
 When the host exposes programmatic tool orchestration, persist each original response once directly from that returned object, and print only path/status/digest. Do not retype the response through many model-generated shell chunks or repeatedly include it in helper arguments. Use the available native file/capture facility with correct argument quoting, outside the plugin repository; do not add another service or send customer captures elsewhere. Compact output does not remove original error/completeness evidence.
+
+scan.probe is the read-only discovery entry BEFORE owner checks. Branch on
+ScanIdle / ScanWorkReady / ScanDiscoveryRequired from its actual result, not
+batch success. See [event discovery](event-discovery.md). Durable input
+fingerprints are discovery deduplication, never cross-invocation authority.
+
+review.prepare, dispatch.admit and dispatch.prepare support the prospective
+[review/dispatch gates](pre-action-order.md). Only the final operation can emit
+an outgoing call after exact saved-admission readback; batch success grants no
+approval. Failed later checks still remove earlier executable calls.

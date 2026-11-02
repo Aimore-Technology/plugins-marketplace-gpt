@@ -48,3 +48,16 @@ Adopt send_completion.policy=provider-handoff-v1 on the authorized configuration
 update: Gmail/AndroidSync success responses complete dispatch with no provider
 status or recipient checks; required CRM writes still need exact readback.
 Never rewrite old decisions, receipts or observed provider states on upgrade.
+
+## Event discovery index
+
+Register queue_execution.event_discovery_contract=scan-event-index-v1 and the
+actual event_index_page_id for one compact Aimore/Dashboard/EventIndex page.
+Use [event discovery](../../references/event-discovery.md). This page stores only
+scope/cursors, input fingerprints, pending work identities/due times and durable
+owner-result pointers. Initialize from complete actual registered discovery
+coverage, never from an assumed empty workspace/mailbox. An explicit upgrade
+preserves prior source cursors, accepted submissions, future work and attempts;
+missing/expired coverage needs a targeted baseline before claiming idle.
+This creates no task/schedule and executes no business work. Add missing settings
+without resetting human choices, scheduler state or authority.

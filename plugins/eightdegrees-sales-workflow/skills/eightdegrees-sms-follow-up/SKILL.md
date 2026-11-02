@@ -56,3 +56,13 @@ the existing SMS Health row in the owned publication plan and save this actual
 request timestamp/status once; no separate service probe is needed. An accepted
 request closes our task/run and finalizes its used count without waiting for
 network transmission, delivery or an ordinary-inbox capability test.
+
+## Before review activation or dispatch
+
+Apply [prospective action gates](../../references/pre-action-order.md) only for
+an affected ready phase. Before email review controls, supply original saved
+copy/draft/preview evidence to review.prepare and notion.mutation.review_release.
+Before a queued Gmail/AndroidSync send, dispatch.admit must be saved/read back;
+dispatch.prepare then emits only the exact admission-bound call. Changed SMS
+payload/version/key requires fresh admission. Retain all fresh approval/stop/
+window/count/attempt guards; these gates do not grant authority or intercept MCP.

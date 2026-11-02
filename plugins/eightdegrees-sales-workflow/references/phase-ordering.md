@@ -65,3 +65,7 @@ new decision only when its actual content/recipient/window or authority changed.
 If Sent already exists, recover only the named original receipt/handoff/display
 work. No new send repairs a phase contract. The helpers are offline preflights;
 live model/tool ordering and the recovered original workflow still need testing.
+
+Use [prospective action gates](pre-action-order.md) before opening new email
+review controls or emitting outgoing call arguments. A post-action check cannot
+repair missing historical order. Run these only on the affected event phase.

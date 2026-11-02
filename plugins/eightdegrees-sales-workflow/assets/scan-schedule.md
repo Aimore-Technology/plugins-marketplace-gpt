@@ -15,6 +15,14 @@ native task ID, lifecycle, generation, executor and single active-run ownership
 before work and again before each dependent mutation. Stopped, stale, busy or
 uncertain invocations defer without taking over work or catching up in parallel.
 
+FIRST use references/event-discovery.md and local scan.probe. Discover scoped
+mail/action/control changes and due/recovery triggers before business reasoning
+or owner preflights. ScanIdle ends immediately after necessary compact index
+persistence: no owner work, CRM/source-content/preview checks, routine report/
+Health rewrites or notifications. Incomplete discovery retries only missing
+feeds within budget. Only ready events enter the procedure below; a future
+timer becomes input when due. Do not mistake unchanged waiting tasks for work.
+
 Only a current EligibleForScheduledCycle guard permits the internal
 scheduled-approved-work policy. It permits checking Automatic tasks and executing
 their reviewed steps and standing-authorized factual SMS notifications; it does not approve email content/sending or CRM facts.

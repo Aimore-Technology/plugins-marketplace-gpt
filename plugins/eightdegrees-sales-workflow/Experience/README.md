@@ -4,6 +4,8 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 
 | Before this operation | Read | What it prevents |
 | --- | --- | --- |
+| Begin run-auto or a native tick | [Event discovery](../references/event-discovery.md) | Full business reasoning/checks without changed or due input |
+| Activate email review or emit dispatch arguments | [Prospective action gates](../references/pre-action-order.md) | Opening controls before saved-copy agreement or sending before saved queue admission |
 | Resume a submitted task or dispatch notification SMS | [Queue and notifications](queue-and-notification.md) | Extra continue/per-message SMS approval, duplicate successor execution |
 | First dependent write or a refused precheck | [Preflight failures](preflight-failures.md) | Continuing after a nonzero/unsuccessful precheck |
 | Freeze owner checks or revise returned content | [Check plan](check-plan.md) | Missing dependencies and late backfilled plans |
