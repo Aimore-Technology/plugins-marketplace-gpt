@@ -6,7 +6,7 @@ from pathlib import Path
 FILES = ('scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
          'references/scheduled-work.md', 'references/schedule-execution.md',
          'scripts/schedule_checks.py', 'scripts/scan_control.py', 'scripts/event_probe.py',
-         'scripts/backlog_recovery.py', 'scripts/scan_cycle.py', 'scripts/cycle_metrics.py')
+         'scripts/backlog_recovery.py', 'scripts/queue_construction.py', 'scripts/scan_cycle.py', 'scripts/cycle_metrics.py')
 
 
 def load(data=None):
@@ -19,7 +19,7 @@ def load(data=None):
     captures = {name: (root/name).read_text(encoding='utf-8') for name in FILES}
     digest = hashlib.sha256(json.dumps(captures, sort_keys=True,
                           separators=(',', ':')).encode()).hexdigest()
-    return {'status': 'CurrentScheduledRulesLoaded', 'rule_version': version,
+    return {'status': 'CurrentScheduledRulesLoaded', 'package_root': str(root), 'rule_version': version,
             'rule_sha256': digest, 'rules': captures,
             'owner': 'eightdegrees-email-scanning', 'policy': 'scheduled-approved-work',
             'scope': 'Actual installed files read on this wake; no approval or scheduler identity requirement'}

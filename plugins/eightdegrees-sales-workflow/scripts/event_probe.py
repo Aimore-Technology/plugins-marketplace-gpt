@@ -80,6 +80,22 @@ def probe(data):
                              'version': pending[identity]['version'], 'receipt_ref': ack['receipt_ref'],
                              'state': ack['state'], **({'wake_ref': ack['wake_ref']} if 'wake_ref' in ack else {})}
         del pending[identity]
+    # Current validated preparation remains recovery demand without row edits.
+    # Supplemental task records do not certify missing feed coverage.
+    for record in data.get('ready_task_records', []):
+        for raw_event in record['events']:
+            if raw_event.get('kind') not in {'recovery', 'timer'}:
+                raise ValueError('Ready task supplementation is recovery/timing, never synthetic approval')
+            identity, value = event(raw_event)
+            # A producer may already have registered the same ready phase with
+            # its richer original input digest. Do not create a second trigger.
+            if any((v['source_key'], v['step'], v['version']) ==
+                   (value['source_key'], value['step'], value['version']) for v in pending.values()):
+                continue
+            if identity not in handled:
+                if identity in pending and pending[identity] != value:
+                    raise ValueError('Preserve the original ready task event')
+                pending[identity] = value
     observations = data['observations']
     if set(observations) - set(required):
         raise ValueError('Undeclared observation feed')
@@ -164,6 +180,11 @@ def probe(data):
             index['feeds'][name]['resume_cursor'] = observation.get('next_cursor', old.get('resume_cursor'))
             if observation['mode'] == 'snapshot':
                 index['feeds'][name]['snapshot_ids'] = sorted(snapshot_ids)
+    for issue in data.get('ready_task_blocks', []):
+        missing.append('recovery')
+        recovery.append({'feed':'recovery','scope':issue.get('source_key'),'reason':issue['reason'],
+                         'action':'Repair only the original task metadata; retain independent ready work',
+                         'evidence_ref':issue['evidence_ref']})
     ready = [dict(value, key=identity) for identity, value in pending.items()
              if not value.get('due_at') or timestamp(value['due_at']) <= now]
     ready.sort(key=lambda v: (0 if v['kind'] in {'stop', 'control'} else 1, v['key']))

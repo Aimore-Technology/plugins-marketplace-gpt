@@ -74,7 +74,11 @@ def plan(data):
             if identity in watches and watches[identity] != watch:
                 raise ValueError('A dependency has conflicting registered revisions or paths')
             watches[identity] = watch
+    from queue_construction import ready_task_records
+    ready_issues = []
+    ready_records = ready_task_records(rows, ready_issues)
     return {'status': 'DiscoveryWatchesPrepared', 'action_page_urls': sorted(set(actions)),
+            'ready_task_records': ready_records, 'ready_task_blocks': ready_issues,
             'source_metadata': list(watches.values()), 'excluded_projects': excluded,
             'conservative_source_watch': conservative,
             'mail_scope_unchanged': True, 'external_actions_allowed': False,

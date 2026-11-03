@@ -176,7 +176,18 @@ def advance(data):
                                   'task_pages': data['terminal_task_pages']})['checkpoint']
     states = dict(previous['items'])
     candidates = {key(v): v for v in previous.get('work_items', [])}
-    for item in data['items']:
+    queue = data.get('queue_plan')
+    if queue is not None and (queue.get('status') != 'ReadyQueueConstructed' or page_id(queue['root_id']) != root):
+        raise ValueError('Use the original constructed queue for this installation')
+    # A narrowed caller list must not hide other ready events. Existing items
+    # retain their exact scopes, estimates, digests and unknown attempts.
+    current_items = list(data['items'])
+    known = set(candidates) | {key(v) for v in current_items}
+    for item in queue['items'] if queue is not None else []:
+        if key(item) not in known:
+            current_items.append(item)
+            known.add(key(item))
+    for item in current_items:
         identity = key(item)
         work_scope(item)
         old = candidates.get(identity, states.get(identity, {}))

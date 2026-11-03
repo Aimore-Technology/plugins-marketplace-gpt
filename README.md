@@ -1,8 +1,8 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing `eightdegrees-sales-workflow` 0.1.45: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
+Private marketplace containing `eightdegrees-sales-workflow` 0.1.46: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
 
-Current 0.1.45 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
+Current 0.1.46 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
 A stopped run-auto reads only settings and exits without discovery or logs.
 No command creates/updates/pauses/deletes native automations. Older release
 sections below describe historical behavior and are superseded for start/stop.
@@ -27,7 +27,7 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.45.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
+`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.46.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
 
 This is a skills-only distribution. It adds no server, secret, customer data, account authorization, actual schedule or automatic send. Readiness must be established in the customer's own environment. Real samples and test logs stay in customer accounts.
 
@@ -98,7 +98,7 @@ Version0.1.37 gates sales preparation on durable source intake, preserves review
 
 Version0.1.38 preserves effective invocation restrictions, inquiry-level SMS limits and scoped queue barriers. Ordinary verified inquiries inherit standing SMS authority without re-init; missing inbound SMS is coverage metadata, not a send gate. See [the flow fixes](docs/release-0.1.38.md).
 
-Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](docs/release-0.1.45.md).
+Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](docs/release-0.1.46.md).
 
 ## Existing local tasks do not need management tools
 
@@ -119,6 +119,8 @@ Per-task approvals, stops, completed results and original pending/unknown attemp
 remain checked. Native schedule target IDs remain for start/stop management;
 this release creates no schedule and does not claim an atomic parallel lock.
 
-0.1.45 makes business setup visible on every explicit init/upgrade: operator, mailbox labels/time scope, Dropbox allowlist, sender/signature, CRM/workspace and optional channels. Saved values are not newly confirmed consent. Missing or conflicting scopes are shown explicitly; setup audit adds no periodic execution gate.
+0.1.46 makes business setup visible on every explicit init/upgrade: operator, mailbox labels/time scope, Dropbox allowlist, sender/signature, CRM/workspace and optional channels. Saved values are not newly confirmed consent. Missing or conflicting scopes are shown explicitly; setup audit adds no periodic execution gate.
 
-0.1.45 also reuses original waiting tasks when Notion renders their SourceKey email as a mailto link. Only exact matching email-link rendering is normalized; conflicting source pointers remain scoped recovery, never duplicate tasks.
+0.1.46 also reuses original waiting tasks when Notion renders their SourceKey email as a mailto link. Only exact matching email-link rendering is normalized; conflicting source pointers remain scoped recovery, never duplicate tasks.
+
+0.1.46 constructs the complete ready queue in code. scan.queue merges original pending mail, submissions, due/recovery events and validated automatic preparation; scan.cycle cannot lose fitting work through a narrowed caller list. No new native identity or management gate.

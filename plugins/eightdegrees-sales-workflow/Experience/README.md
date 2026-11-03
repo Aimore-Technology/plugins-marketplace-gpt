@@ -39,3 +39,5 @@ For persona snapshots, Sent proof and distinct registration recovery, read
   acceptance; verify our records and CRM, not external transport.
 
 - [Durable backlog and current rules](durable-recovery.md): unchanged inputs can still need source handoff recovery; separate native triggers, guards and business progress.
+
+- [Complete ready queues](queue-completeness.md): code constructs all ready mail, submissions, timers and preparation; preserve fitting independent work.

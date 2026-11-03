@@ -25,6 +25,7 @@ route it through automation-control, start/stop, or the public run-auto policy.
    gets its feed, exact failure and recovery action; work independent of that
    gap still proceeds. Preserve original backlog, cursors and provider attempts.
 4. Always consider pending events, even with unchanged mail/index/task status.
+   Run scan.queue on the original saved EventIndex plus current complete task/source captures. Pass its entire result as queue_plan to every scan.cycle; never hand-select just the first owner's tasks. All pending mail, submissions, due and recovery events must be accounted for as ready, actual human wait, scoped block or original terminal readback. Enqueue validated automatic preparation from scan.watches.ready_task_records even when its row did not change; pass those records and ready_task_blocks to scan.probe.
    Run backlog.recover over complete original source/task captures. Reuse saved
    source pages; RecoverSourceHandoff repairs a missing successor separately
    from an already completed ReadMessageBody. Read only sources not yet saved.
@@ -52,3 +53,7 @@ After restart, run one current discovery/recovery cycle from saved checkpoints;
 do not replay each missed interval. Old native tasks are reused, never cloned.
 If a host cannot load the fresh entry, record that deployment limitation and do
 not claim cross-version or native-cycle acceptance from an offline helper test.
+
+A large draft phase that does not fit must not hide fitting mail or a due brief. scan.queue constructs the full candidate set and scan.cycle merges missing candidates automatically, preserving scopes/attempts. Save every remaining checkpoint pointer, not only the current owner's next task. Previously admitted Gmail pending IDs remain demand if an unchanged UNREAD filter no longer lists them; recover the saved source/original ID within its still-authorized scope. Explicit stop/revocation remains binding.
+
+Use the actual package_root returned by current_rules.py for this wake's local helpers, not a cached path from an older chat. Re-resolve the current package on the next native wake. Execute ordinary package upgrades between active cycles when practical; do not rewrite frozen business approvals or existing attempt records.
