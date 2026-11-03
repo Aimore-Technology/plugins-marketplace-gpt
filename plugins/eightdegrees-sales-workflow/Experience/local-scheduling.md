@@ -1,10 +1,8 @@
 # start/stop is a scanning switch, not native task management
 
-0.1.42 replaces previous schedule create/delete semantics. Only patch the
-registered RunSettings.scan_control enabled flag, verify actual readback and
-return the settings link. Do not discover scheduler APIs, require native IDs/
-identity, edit cadence/prompts, create/delete jobs or make a workflow log for
-this settings-only command. Old interval arguments do not control scheduling.
+0.1.43 retains previous schedule create/delete semantics. Only patch the
+registered RunSettings.scan_control enabled flag and optional actual existing-task registration, verify actual readback and
+return the settings link. Explicit start reuses and observes the registered existing task when readable; register actual native configuration separately from enabled scanning and live business progress. Missing management access is a registration limitation, never an execution gate. Do not require native execution identity, edit cadence/prompts, create/delete jobs or make a business run for this settings change. Old interval arguments do not control scheduling.
 
 Every manual/periodic run-auto FIRST reads this switch. Stopped means no other
 source/task/form reads, cursor/index updates, run/log/Health/Today writes or

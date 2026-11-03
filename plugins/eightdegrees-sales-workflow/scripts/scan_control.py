@@ -52,6 +52,19 @@ def plan(data):
     # into a replacement payload. Only this field may be patched.
     control = copy.deepcopy(previous) if isinstance(previous, dict) else {}
     control.update(contract=CONTRACT, enabled=target)
+    # Optional administrative evidence belongs to the switch's registration,
+    # never to enabled() or the scheduled execution guard. Never invent it.
+    if operation == 'start' and data.get('native_observation') is not None:
+        observed = data['native_observation']
+        required = ('task_id', 'status', 'rrule', 'observed_at', 'evidence_ref')
+        if any(not isinstance(observed.get(k), str) or not observed[k] for k in required):
+            raise ValueError('Register actual existing-task readback with its original evidence')
+        registered = (settings.get('scheduling') or {}).get('schedule_ids', [])
+        if observed['task_id'] not in registered:
+            raise ValueError('Reuse the registered task; reconcile an unknown task without creating another')
+        control['native_registration'] = copy.deepcopy(observed)
+        control['native_configuration_verified'] = observed['status'] == 'ACTIVE'
+        control['business_cycle_verified'] = False
     return {'status': 'ScanControlPlanned', 'operation': operation,
             'patch': {'scan_control': control}, 'previous_sha256': fingerprint(settings),
             'write_required': previous != control, 'native_task_mutation_allowed': False,

@@ -71,3 +71,5 @@ stop means scanning disabled, not a deleted/failed native task. A stopped tick
 reads only settings and writes no run/log/Health/Today status. An explicit report
 may display that flag using its own report-only scope. Never infer a scheduler
 failure from absent stopped-cycle logs or claim start created a job.
+
+Current native execution and backlog/metrics rules: [scheduled entry](scheduled-entry.md). Always restore pending source-to-owner handoffs from original captures; unchanged inputs do not remove executable backlog. Native configuration acceptance and guard pass never imply business progress. Legacy unknown scope blocks its original source/effect, not every unrelated customer/channel.

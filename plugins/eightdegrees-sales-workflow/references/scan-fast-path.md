@@ -104,3 +104,5 @@ estimate is not an exception to the customer window or a promise of API speed.
 When reporting timing, retain original phase/checkpoint/turn boundaries and
 historical overruns separately. Do not rewrite the four old overrun records or
 old missing-version/SourceKey evidence to make the release pass.
+
+Current native execution and backlog/metrics rules: [scheduled entry](scheduled-entry.md). Always restore pending source-to-owner handoffs from original captures; unchanged inputs do not remove executable backlog. Native configuration acceptance and guard pass never imply business progress. Legacy unknown scope blocks its original source/effect, not every unrelated customer/channel.

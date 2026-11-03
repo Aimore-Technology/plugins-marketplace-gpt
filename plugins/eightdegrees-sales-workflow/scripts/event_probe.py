@@ -59,11 +59,15 @@ def probe(data):
         original = blocks(data['index_page'], CONTRACT)[1]
         if page_id(original['root_id']) != root:
             raise ValueError('Event index belongs to another installation')
-        if original['scope_sha256'] != scope:
-            return {'status': 'ScanDiscoveryRequired', 'reason': 'Configuration changed; reconcile scope and retained events first',
-                    'coverage_complete': False, 'ready': [], 'persist_required': False,
-                    'external_actions_allowed': False}
+    scope_changed = original['scope_sha256'] != scope
     index = copy.deepcopy(original)
+    # Retain pending work even when a configuration digest changes. Rebaseline
+    # the changed feeds from real snapshots; never erase a durable backlog or
+    # pretend old cursors establish new-scope coverage.
+    index['scope_sha256'] = scope
+    if scope_changed:
+        for feed in index['feeds'].values():
+            feed.setdefault('scope_sha256', original['scope_sha256'])
     pending, handled = index['pending'], index['handled']
     # Acknowledgements come from saved owner results, never from probe success.
     for ack in data.get('acknowledgements', []):
@@ -79,11 +83,13 @@ def probe(data):
     observations = data['observations']
     if set(observations) - set(required):
         raise ValueError('Undeclared observation feed')
-    missing = []
+    missing, recovery = [], []
     for name in required:
         observation = observations.get(name)
         if observation is None:
             missing.append(name)
+            recovery.append({'feed': name, 'reason': 'No current observation',
+                             'action': 'Read the registered feed within its authorized scope', 'scope': name})
             continue
         observed = timestamp(observation['observed_at'])
         if observed > now or (now - observed).total_seconds() > 900:
@@ -98,15 +104,29 @@ def probe(data):
             if actual != failure or not actual['failed'] or observation['complete']:
                 raise ValueError('Preserve the exact failed capture; failure cannot establish complete coverage')
         old = index['feeds'].get(name, {'cursor': None, 'revisions': {}})
+        feed_scope_changed = old.get('scope_sha256', original['scope_sha256']) != scope
+        if feed_scope_changed and observation['mode'] != 'snapshot':
+            missing.append(name)
+            recovery.append({'feed': name, 'reason': 'Authorized scope digest changed',
+                             'action': 'Take a complete scoped snapshot; preserve original pending work/cursors', 'scope': name})
+            continue
         if observation['mode'] == 'delta' and (name not in index['feeds'] or 'from_cursor' not in observation
                                               or observation['from_cursor'] != old['cursor']):
             missing.append(name)
+            recovery.append({'feed': name, 'reason': 'Delta cursor missing or expired',
+                             'action': 'Read a bounded scoped snapshot, then commit its actual cursor', 'scope': name})
             continue  # Lost/expired cursor needs this feed's bounded recovery.
         if observation.get('page_cursor') != old.get('resume_cursor'):
             missing.append(name)
+            recovery.append({'feed': name, 'reason': 'Incomplete saved pagination',
+                             'action': 'Continue the actual saved resume cursor', 'scope': name})
             continue  # Continue saved pagination rather than silently skipping a page.
         if not observation['complete']:
             missing.append(name)
+            recovery.append({'feed': name, 'reason': 'Connector failed' if failure else 'Pagination incomplete',
+                             'action': 'Retry only this failed feed' if failure else 'Continue the returned page cursor',
+                             'scope': name,
+                             **({'evidence_ref': failure['capture_ref']} if failure else {})})
         records = observation['records']
         ids = [r['id'] for r in records]
         if any(not isinstance(i, str) or not i for i in ids) or len(set(ids)) != len(ids):
@@ -131,7 +151,8 @@ def probe(data):
             revisions = {i: revisions[i] for i in snapshot_ids}
         # Never advance a pagination cursor across incomplete observations.
         index['feeds'][name] = {'cursor': observation.get('next_cursor') if observation['complete'] else old['cursor'],
-                                'revisions': revisions}
+                                'revisions': revisions,
+                                'scope_sha256': scope if observation['complete'] else old.get('scope_sha256', original['scope_sha256'])}
         if failure:
             index['feeds'][name]['last_failure'] = {k: failure[k] for k in
                 ('capture_ref', 'capture_sha256', 'observed_at', 'inspection')}
@@ -147,8 +168,17 @@ def probe(data):
              if not value.get('due_at') or timestamp(value['due_at']) <= now]
     ready.sort(key=lambda v: (0 if v['kind'] in {'stop', 'control'} else 1, v['key']))
     future = [v['due_at'] for v in pending.values() if v.get('due_at') and timestamp(v['due_at']) > now]
+    # NeedsBaseline is an observation projection, never a permanent execution
+    # lock. Ready backlog may enter source/draft work while unrelated coverage
+    # recovers; affected sends still require their fresh source/stop coverage.
+    if index.get('baseline') != {'state': 'NeedsBaseline' if missing else 'Complete',
+                                 'required_feeds': sorted(required), 'missing_feeds': sorted(set(missing))}:
+        index['baseline'] = {'state': 'NeedsBaseline' if missing else 'Complete',
+                             'required_feeds': sorted(required), 'missing_feeds': sorted(set(missing))}
     return {'status': 'ScanWorkReady' if ready else 'ScanDiscoveryRequired' if missing else 'ScanIdle',
             'coverage_complete': not missing, 'missing_feeds': missing, 'ready': ready,
+            'baseline_state': index['baseline']['state'], 'recovery_actions': recovery,
+            'scope_revalidation_required': scope_changed, 'ready_count': len(ready),
             'pending_count': len(pending), 'next_due_at': min(future, key=timestamp) if future else None,
             'candidate_index': index, 'index_sha256': digest(index),
             'persist_required': index != original, 'external_actions_allowed': False,

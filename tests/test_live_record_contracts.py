@@ -170,7 +170,7 @@ class ScanAdmission(unittest.TestCase):
     def test_unfitting_stop_is_not_skipped_to_admit_an_outbound_send(self):
         data = cycle_fixture(); data['now'] = '2026-11-01T00:06:00Z'
         data['items'].append(data['items'][0] | {'source_key': 'stop', 'step': 'RefreshContactRestrictions',
-            'estimated_seconds': 90, 'priority': 9})
+            'estimated_seconds': 90, 'priority': 9, 'scope': {'global': True}})
         data['items'][0]['estimated_seconds'] = 10
         self.assertEqual(scan_cycle.advance(data)['work'], [])
 

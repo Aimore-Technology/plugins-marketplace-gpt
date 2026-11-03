@@ -68,7 +68,7 @@ class BudgetAndPriority(unittest.TestCase):
 
     def test_stop_and_unknown_barriers_cannot_be_skipped(self):
         for patch in [{'step':'ObserveStop'},{'unknown_attempt':True,'attempt_id':'original'}]:
-            data=self.boundary(179,180);data['items'][0].update(estimated_seconds=600,**patch)
+            data=self.boundary(179,180);data['items'][0].update(estimated_seconds=600,scope={'global':True},**patch)
             data['items'].append({'source_key':'notify','step':'SendNotificationSms','version':'v1','input_digest':'new','estimated_seconds':60})
             self.assertEqual(scan_cycle.advance(data)['work'],[])
 

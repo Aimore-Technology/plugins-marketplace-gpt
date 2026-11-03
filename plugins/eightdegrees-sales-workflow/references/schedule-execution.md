@@ -8,7 +8,7 @@ Only ScanEnabled enters event-discovery.md and scan.cycle.
 
 start/stop only changes this switch. The independently configured local task
 continues to wake run-auto even while scanning is stopped. Neither command
-creates, edits, pauses or deletes that task, queries a scheduler or starts an
+creates, edits, pauses or deletes that task, mutates a scheduler or starts an
 immediate cycle. The native host owns repetition outside this plugin.
 
 A scheduled internal owner path uses schedule_checks.py guard with current
@@ -32,3 +32,5 @@ AttemptId, accepted result and stop/count/window rules. Completed or cancelled
 work is skipped; pending/unknown effects cannot become another send. Notion is
 not an atomic global lock and no unique executor is required. Gmail/AndroidSync
 original success ends external dispatch; CRM writes retain readback.
+
+Explicit start may read and register the actual existing native task configuration under scan_control.native_registration. This administrative observation is separate from the scanning switch and cycle progress; unavailable native management never blocks an enabled existing tick. Actual scheduled execution follows [fresh scheduled entry](scheduled-entry.md), directly loading the current scanner and guard. Never create duplicate tasks. Real stop/revocation remains binding.

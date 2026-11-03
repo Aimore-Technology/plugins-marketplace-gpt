@@ -119,3 +119,7 @@ This reduces repeated reasoning and business checks. Connector reads and the
 model invocation still have costs; polling is not push and offline tests do not
 prove a specific live time/token saving. Record discovery vs processing time,
 event count and owner steps separately in the next live test.
+
+## Baseline and durable backlog recovery
+
+scan.probe computes baseline Complete/NeedsBaseline from actual current coverage. Persist that projection with its index and update the corresponding settings projection without clearing queues, cursors or attempts. A scope change retains pending/handled identities and requires real snapshots; a failed feed gets exact recovery_actions. Even unchanged snapshots must return original pending ready events. Use backlog.recover before interpreting an already saved ReadMessageBody as a completed source-to-owner handoff. Missing source handoff uses RecoverSourceHandoff, not a repeated source creation. See [scheduled entry](scheduled-entry.md) for the ordered continuation and metrics.

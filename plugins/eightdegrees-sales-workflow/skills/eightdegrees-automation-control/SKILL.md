@@ -1,6 +1,6 @@
 ---
 name: eightdegrees-automation-control
-description: "Enable or disable scanning in Notion RunSettings. Never create, update, pause or delete an automation, and never run an immediate scan."
+description: "Enable or disable scanning; register actual existing-task configuration on explicit start. Never create duplicate tasks or run an immediate scan."
 ---
 
 # Start or stop scanning
@@ -10,16 +10,14 @@ scan-control-v1 under [scan control](../../references/scheduling.md). These are
 settings-only actions; the historical internal policy name scheduling-only
 does not permit any native scheduler mutation.
 
-1. Read only the registered installation's actual RunSettings. Do not discover
-   automation_update, list native tasks, require a runtime/host/session identity
-   or verify cadence. Missing settings must be reported without starting init.
+1. Read the registered installation's actual RunSettings. On explicit start, reuse its existing native task ID and read its actual configuration through the supported host interface where available; pass the original task_id/status/rrule/observed_at/evidence_ref as native_observation to scan.control-plan. Never create a replacement or duplicate. Missing management capability is a reported registration limitation, not a new scheduled execution gate. stop needs only RunSettings. Missing settings must be reported without starting init.
 2. Run local scan.control-plan with operation=start|stop and original settings.
    Preserve every other setting, cursor, approval, task, due time, provider
    attempt, native task ID and legacy scheduling metadata. Patch only the
-   returned scan_control. interval_minutes no longer controls anything here;
+   returned scan_control, including the separate native_registration evidence on explicit start. Native ACTIVE, business scanning enabled and actual business-cycle progress are separate states. A later stopped/revoked switch cannot be overwritten by task metadata. interval_minutes no longer controls anything here;
    an old argument must not modify cadence or create a task.
 3. If write_required=false, return the existing switch state without another
-   write. Otherwise perform one exact-call-preflighted settings update, then
+   write when its actual registration is also unchanged. Otherwise perform one exact-call-preflighted settings update, then
    read back and run scan.control-verify. Never claim success from a plan or
    failed/unknown write. No workflow plan/run/task/action/log creation is needed
    for a flag flip. [Notion mutation](../../references/notion-mutation.md) still

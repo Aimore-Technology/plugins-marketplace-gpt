@@ -51,7 +51,7 @@ The guard permits owner checks; it is not sending authorization or a server lock
 New installs start with scanning stopped. Installing/upgrading/init creates or
 changes no native task. Preserve effective verified legacy scanning when adding
 a missing switch, without broadening business approvals. Explicit start/stop
-writes only scan_control and verifies it; it never edits prompts/cadence or
+writes scan_control and verifies it, registering observed original native configuration separately on start; it never edits prompts/cadence or
 cleans native IDs. Existing stop/Pause/Manual modes/attempts remain.
 
 The current source/continuation contract is [queue execution](queue-execution.md): current submitted Manual communication forms can resume without another command; factual SMS notifications use standing authority and read-only queued/result pages. A ready successor is enqueued in the same bounded cycle, without scanner recursion or waiting for a future due time.

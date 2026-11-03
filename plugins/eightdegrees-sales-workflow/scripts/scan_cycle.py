@@ -118,13 +118,19 @@ def work_scope(item):
 
 def conflicts(barrier, item):
     left, right = work_scope(barrier), work_scope(item)
-    if not left or not right or left.get('global') or right.get('global'):
+    if left and left.get('global') or right and right.get('global'):
         return True
+    if not left or not right:
+        # A legacy unscoped attempt reserves its original work, not every
+        # unrelated customer/project/channel. Explicit global barriers stay global.
+        return bool(barrier.get('source_key') and barrier.get('source_key') == item.get('source_key'))
     if (left['location_id'], left['contact_id']) != (right['location_id'], right['contact_id']):
         return False
     # An unknown attempt may reserve a shared customer count across contexts.
     if barrier.get('unknown_attempt'):
-        return True
+        return (not left.get('channel') or not right.get('channel')
+                or '*' in {left.get('channel'), right.get('channel')}
+                or left['channel'] == right['channel'])
     return all(not left.get(k) or not right.get(k) or '*' in {left[k], right[k]} or left[k] == right[k]
                for k in ('channel', 'context_key'))
 
@@ -254,6 +260,7 @@ def advance(data):
         if type(cost) is not int or not 1 <= cost <= 600:
             raise ValueError('Use a bounded estimated duration from the owner phase')
         priority = (0 if item['step'] in {'ObserveStop', 'RefreshContactRestrictions'} else
+                    0 if item['step'] == 'RecoverSourceHandoff' else
                     2 if item['step'] == 'SendNotificationSms' else
                     4 if item['step'] in {'RecordMaterialHandoff', 'RefreshEmailOutcome', 'RefreshSmsOutcome'} else
                     1 if item['step'] == 'ReadMessageBody' else item.get('priority', 3))

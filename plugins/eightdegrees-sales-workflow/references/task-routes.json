@@ -3,6 +3,7 @@
   "CompleteCommunicationData": {"owner": "eightdegrees-communication-context-process", "categories": ["DataCompletion", "ExecutionExceptions"], "effect": "draft"},
   "ReviewCommunication": {"owner": "eightdegrees-communication-context-process", "categories": ["ContentReview", "ExecutionExceptions"], "effect": "crm"},
   "SyncApprovedPersona": {"owner": "eightdegrees-client-persona-update", "categories": ["ExecutionExceptions"], "effect": "crm"},
+  "RecoverSourceHandoff": {"owner": "eightdegrees-email-scanning", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "checkpoint"},
   "ReadMessageBody": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions"], "effect": "read"},
   "SaveMailCheckpoint": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions"], "effect": "checkpoint"},
   "ReviewGeneralReply": {"owner": "eightdegrees-email-scanning", "categories": ["ContentReview"], "effect": "draft"},

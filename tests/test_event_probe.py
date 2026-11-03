@@ -188,7 +188,7 @@ class EventProbe(unittest.TestCase):
         data['index_page'] = saved(first); data['root_id'] = 'b' * 32
         with self.assertRaises(ValueError): event_probe.probe(data)
         data['root_id'] = ROOT; data['scope_sha256'] = '2' * 64
-        self.assertEqual(event_probe.probe(data)['status'], 'ScanDiscoveryRequired')
+        self.assertEqual(event_probe.probe(data)['status'], 'ScanIdle')  # Fresh complete new-scope snapshots.
         data = fixture(); data['now'] = '2026-11-02T14:00:00Z'
         with self.assertRaises(ValueError): event_probe.probe(data)
 

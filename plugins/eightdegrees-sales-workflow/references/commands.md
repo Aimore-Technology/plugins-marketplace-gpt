@@ -50,8 +50,8 @@ For new/migrated DataCompletion, open the registered ordinary action page, fill 
 start enables the RunSettings scan_control switch; stop disables it. Both
 change only that settings field and read it back, without a scan, workflow log
 or native task operation. A repeated command with the same state is a no-op.
-The operator/host independently configures the local periodic task to invoke
-run-auto;30 minutes remains suggested,20 optional. Old interval_minutes
+The operator/host independently configures the local periodic task to invoke the current internal
+scheduled entry;30 minutes remains suggested,20 optional. Old interval_minutes
 arguments have no scheduling effect.
 
 Every manual or periodic run-auto reads this switch FIRST. While stopped it
@@ -74,3 +74,5 @@ any authorized conversation. A locally generated RunId is a log/recovery label.
 Historical executor assignment fields are ignored without init/rebinding.
 Completed effects and pending/unknown attempts remain protected per task.
 Native job IDs are historical metadata; start/stop never manages those jobs.
+
+On explicit start, reuse/read and register the actual existing native task configuration when supported; report missing readback without inventing an execution gate. Every actual native wake loads current_rules.py and scheduled-entry.md afresh and enters email-scanning directly with its current guard. See [fresh entry](scheduled-entry.md).

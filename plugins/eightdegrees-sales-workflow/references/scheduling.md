@@ -42,10 +42,9 @@ changing legacy scheduling/native job metadata. No init/rebinding is needed.
 
 ## Native task outside this plugin
 
-The operator/host independently configures local repetition and invokes public
-run-auto each time. Existing local tasks are left intact. start creates no task;
-stop deletes/pauses none. Do not call automation_update or native list/read/
-create/update/delete for these commands. Old cloud IDs/unknown native attempts
+The operator/host independently configures local repetition and invokes the current
+internal scheduled entry each time. Existing local tasks are left intact. start creates no task;
+stop deletes/pauses none. Do not call native create/update/delete for these commands. Explicit start may read the registered original task to register its actual configuration. Old cloud IDs/unknown native attempts
 remain untouched metadata; cleanup is a separate explicit operator task.
 
 30 minutes remains the suggested external cadence,20 optional. Old start
@@ -61,3 +60,5 @@ and write_required; verify checks the saved flag and unchanged other settings.
 schedule_checks.py plan/verify are compatibility aliases to the same switch;
 its scheduled guard uses the switch and actual root/operator/mailbox scope.
 No helper grants approval or calls any connector/scheduler.
+
+Explicit start may read and register the actual existing native task configuration under scan_control.native_registration. This administrative observation is separate from the scanning switch and cycle progress; unavailable native management never blocks an enabled existing tick. Actual scheduled execution follows [fresh scheduled entry](scheduled-entry.md), directly loading the current scanner and guard. Never create duplicate tasks. Real stop/revocation remains binding.

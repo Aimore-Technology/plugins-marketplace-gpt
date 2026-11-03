@@ -88,3 +88,5 @@ Before a queued Gmail/AndroidSync send, dispatch.admit must be saved/read back;
 dispatch.prepare then emits only the exact admission-bound call. Changed SMS
 payload/version/key requires fresh admission. Retain all fresh approval/stop/
 window/count/attempt guards; these gates do not grant authority or intercept MCP.
+
+Current native execution and backlog/metrics rules: [scheduled entry](scheduled-entry.md). Always restore pending source-to-owner handoffs from original captures; unchanged inputs do not remove executable backlog. Native configuration acceptance and guard pass never imply business progress. Legacy unknown scope blocks its original source/effect, not every unrelated customer/channel.

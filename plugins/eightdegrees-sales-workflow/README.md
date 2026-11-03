@@ -1,8 +1,8 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.42. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.43. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
-Current 0.1.42 behavior: start/stop only toggles the Notion scanning switch.
+Current 0.1.43 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
 A stopped run-auto reads only settings and exits without discovery or logs.
 No command creates/updates/pauses/deletes native automations. Older release
 sections below describe historical behavior and are superseded for start/stop.
@@ -144,8 +144,7 @@ Version0.1.39 makes start/stop local-only: bind the selected computer and direct
 tick runs email-scanning with its current execution guard without requiring
 automation_update or scheduler list/read/create/update/delete tools in that
 conversation. Start/stop capability limits affect only those management actions.
-Current local identity, lifecycle, approval, stop and duplicate-effect guards
-remain required; missing execution evidence still defers. No job is created by
+Current per-task approval, stop and duplicate-effect guards remain required. Native identity/lifecycle and management checks are not execution gates. No job is created by
 this update. See the packaged schedule-execution.md contract.
 
 ## Execute without a unique host/session

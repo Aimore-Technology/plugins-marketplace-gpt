@@ -197,6 +197,8 @@ class ScopedQueue(unittest.TestCase):
         d=scoped_cycle();d['items'][0].update(step='ObserveStop',unknown_attempt=False,scope={'global':True})
         self.assertEqual(scan_cycle.advance(d)['work'],[])
         d=scoped_cycle();d['items'][0].pop('scope')
+        self.assertEqual(scan_cycle.advance(d)['work'][0]['source_key'],'customer-B')
+        d['items'][1]['source_key']='customer-A'
         self.assertEqual(scan_cycle.advance(d)['work'],[])
 
     def test_stop_is_scoped_but_must_be_saved_before_same_customer_sends(self):
