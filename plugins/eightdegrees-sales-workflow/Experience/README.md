@@ -17,6 +17,7 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 | Reuse current captures during a scan/continuation | [Read reuse](read-reuse.md) | Repeated reads, stale input assumptions and skipped fresh send checks |
 | Save a completed send result or repair current text | [Outcome copy](outcome-copy.md) | Stale other-channel state and undated receipt negatives on closed pages |
 | Discover/call a connector, prepare SMS parameters or recover a read | [Connector contracts](connector-contracts.md) | Remembered argument names, hidden request limits, ambiguous retries |
+| Resume a restricted invocation or reuse cycles across customers/projects | [Scoped recovery](scoped-recovery.md) | Lost no-send limits, cross-project count leakage, global unknown barriers |
 | Edit a current queue/report/status or publish file names | [Notion edits](notion-edits.md) | Native-reference match failures, duplicate anchors, filename auto-links |
 | Create a task/form, consume input or mark any owner complete | [Workflow integrity](workflow-integrity.md) | Missing route contracts, retrospective checks, skipped completion gates |
 | Read garbled mail, freeze HTML or approve/send a reply | [Mail delivery](mail-delivery.md) | Charset confusion, newline digest errors, connector-added quotes |

@@ -50,6 +50,11 @@ do not add its key to attempted_keys until finishing or saving its unknown resul
 Admission expires after 120 seconds or sooner if budget/ownership/stop changes.
 Expired admission requires prospective fresh admission, never a backdated log.
 Only DispatchArgumentsPrepared emits the exact unchanged call and digest.
+Material notifications additionally bind the verified material_handoff and its
+frozen per-inquiry material_limits. Supply material_current at admission and
+current_material_current at release from the original fresh cycle capture;
+material.dispatch-guard rechecks both caps, expiry/due, and the original
+reservation. A stopped/expired/used/unknown result emits no outgoing call.
 
 Separately retain actual current approval/standing authority, original task/
 action, stop/reply coverage, window/count/channel/schedule and prior-attempt

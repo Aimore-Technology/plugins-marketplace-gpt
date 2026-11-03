@@ -156,6 +156,12 @@ class ScanAdmission(unittest.TestCase):
         results = [{'key': scan_cycle.key(item), 'state': 'unknown', 'attempt_id': 'attempt'+str(i),
                     'receipt_ref': 'actual'+str(i)} for i,item in enumerate(data['items'])]
         data['results'] = results
+        saved = scan_cycle.advance(data)
+        self.assertEqual(saved['work'], [])
+        data['checkpoint_page'] = page('9'*32, block(saved['checkpoint']), {})
+        data.pop('results')
+        for item in data['items']:
+            item['recovery_wakeup'] = {'evidence_ref': 'capture:original-new-evidence', 'revision': 'new:'+item['version']}
         r = scan_cycle.advance(data); self.assertEqual(r['work'][0]['action'], 'reconcile')
         data['attempted_keys'] = [r['work'][0]['key']]
         r2 = scan_cycle.advance(data); self.assertEqual(r2['work'][0]['action'], 'reconcile')

@@ -81,7 +81,10 @@ commands. Failed normalization stops its dependent step and retains the raw file
 - New replies/stops and unknown reconciliation precede notifications. Due
   factual notifications precede ordinary reviews and optional display repairs.
   Select another fitting independent item if a nonblocking phase is too large;
-  do not skip a pending stop or unknown-result barrier to send.
+  do not skip a pending stop or unknown-result barrier for conflicting work.
+  Original verified customer/channel/context scopes allow independent work;
+  legacy missing scope remains conservative. Unknown recovery needs a new
+  evidence revision or bounded timer, never just another scan tick.
 - 900s total and the nominal 120s publication reserve remain. Each admission
   rechecks the actual clock, and admission still stops at minute 13. Estimates
   may use up to 15s of the nominal reserve (at least 30s retained), only when

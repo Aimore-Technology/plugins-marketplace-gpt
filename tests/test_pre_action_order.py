@@ -7,7 +7,7 @@ import unittest
 
 from test_notion_checks import page, preview, HTML
 from test_reply_transport import fixture as transport_fixture
-from test_sms_authority import inputs as sms_inputs, saved as saved_sms
+from test_sms_authority import inputs as sms_inputs, saved as saved_sms, current_material
 from test_unattended import cycle_fixture
 import dispatch_admission
 import local_checks
@@ -55,7 +55,7 @@ def dispatch(channel='email'):
     if channel == 'sms':
         sms = sms_inputs(); sms['saved_task'] = saved_sms(sms)
         scan['root_id'] = sms['authority']['root_id']
-        result.update(notification=sms, task_page_id=sms['payload']['task_id'])
+        result.update(notification=sms, task_page_id=sms['payload']['task_id'], material_current=current_material(sms))
         scan['items'][0].update(step='SendNotificationSms', version=sms['payload']['content_version'])
         result['call'] = {'tool': 'mcp__androidsync__request_sms', 'args': {
             'body': sms['payload']['body'], 'recipient': sms['payload']['recipient'],
@@ -69,6 +69,8 @@ def ready(data):
     data['saved_run'] = page(block(record)); data['saved_run']['id'] = data['run_page_id']
     data['now'] = '2026-11-01T00:01:10Z'
     data['current_scan'] = copy.deepcopy(data['scan']); data['current_scan']['now'] = data['now']
+    if 'material_current' in data:
+        data['current_material_current'] = copy.deepcopy(data['material_current'])
     return data
 
 

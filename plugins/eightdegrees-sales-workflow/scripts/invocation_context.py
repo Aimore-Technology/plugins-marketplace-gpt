@@ -28,8 +28,18 @@ def prepare(data):
     if type(seconds) is not int or not 120 <= seconds <= 900:
         raise ValueError('Keep the original bounded invocation budget')
     start = timestamp(data['started_at'])
+    default = COMMANDS[command]['policy']
+    policy = data.get('policy', default)
+    allowed = {default} | ({'one-cycle-no-customer-send'} if command == 'run-auto' else set())
+    if policy not in allowed:
+        raise ValueError('The effective invocation policy may only narrow the command default')
+    restrictions = data.get('restrictions', [])
+    if (not isinstance(restrictions, list) or any(not isinstance(v, str) or not v.strip() for v in restrictions)
+            or len(set(restrictions)) != len(restrictions)):
+        raise ValueError('Preserve explicit invocation restrictions as unique nonempty strings')
     record = {'record_type': 'invocation-context-v1', 'role': 'plugin-executor',
-              'command': command, 'policy': COMMANDS[command]['policy'],
+              'command': command, 'default_policy': default, 'policy': policy,
+              'restrictions': list(restrictions),
               'root_id': page_id(data['root_id']), 'invocation_id': data['invocation_id'],
               'executor_id': data['executor_id'], 'started_at': data['started_at'],
               'deadline': (start + timedelta(seconds=seconds)).isoformat(),
@@ -44,8 +54,14 @@ def resume(data):
         raise ValueError('Use one original saved page or local invocation record')
     record = blocks(data['context_page'], 'invocation-context-v1')[1] if 'context_page' in data else data['context_record']
     expected = prepare(record)['record']
-    if record != expected:
+    legacy = 'default_policy' not in record and 'restrictions' not in record
+    comparable = {k: v for k, v in expected.items() if not legacy or k not in {'default_policy', 'restrictions'}}
+    if record != comparable:
         raise ValueError('Saved invocation context differs from its frozen command/budget')
+    if 'policy' in data and data['policy'] != record['policy']:
+        raise ValueError('Current effective policy differs from the original invocation restriction')
+    if 'restrictions' in data and data['restrictions'] != record.get('restrictions', []):
+        raise ValueError('Current restrictions differ from the original invocation')
     for key in ('command', 'invocation_id', 'executor_id'):
         if record[key] != data[key]:
             raise ValueError('Resume this invocation only; do not restart or control a peer Session')
@@ -57,9 +73,12 @@ def resume(data):
     if now < timestamp(record['started_at']):
         raise ValueError('Invocation clock regressed')
     expired = now >= timestamp(record['deadline'])
+    unverified = legacy and record['command'] == 'run-auto'
     return {'status': 'InvocationResumeChecked', 'role': record['role'],
-            'command': record['command'], 'policy': record['policy'],
+            'command': record['command'], 'policy': 'one-cycle-no-customer-send' if unverified else record['policy'],
+            'default_policy': expected['default_policy'], 'restrictions': record.get('restrictions', []),
             'remaining_seconds': max(0, (timestamp(record['deadline']) - now).total_seconds()),
-            'closeout_only': expired, 'receipt_pages_to_read': record['receipt_page_ids'],
+            'closeout_only': expired or unverified, 'legacy_restrictions_unverified': unverified,
+            'receipt_pages_to_read': record['receipt_page_ids'],
             'peer_session_control_allowed': False, 'external_actions_allowed': False,
             'scope': 'Resume current execution only; read original receipts and fresh guards, never resend to repair publication'}

@@ -193,9 +193,12 @@ Each scan.cycle result admits only ONE owner. It returns
 admission_required_before_next_owner and seconds_available_for_work. Supply an
 estimated_seconds phase cost (default90); no phase is admitted unless it fits
 budget minus reserve. This is admission control, not a hard provider timeout.
-Do not skip a pending stop/reconciliation merely to fit a cheaper send.
+Do not skip a pending stop/reconciliation to perform conflicting work. A
+verified unrelated customer may proceed; retain each item's original scope.
+Unknowns remain blocked without new evidence or a bounded recovery timer; see
+queue-execution.md for recovery_wakeup/recovery_due_at and persisted markers.
 
-ReadMessageBody has source priority2; optional RecordMaterialHandoff,
+ReadMessageBody has source priority1; optional RecordMaterialHandoff,
 RefreshEmailOutcome and RefreshSmsOutcome priority4. Required immediate result
 recording still belongs to the in-flight effect; later independent maintenance
 must not starve source intake. Save compact pointers/check results instead of

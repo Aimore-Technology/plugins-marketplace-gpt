@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.37. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.38. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
 ## Skills
 
@@ -127,3 +127,5 @@ scan.watches, connector.capture and run.record; they prepare data, not approvals
 or external actions. Unchanged completed projects need no source sweeps.
 
 Version0.1.37 adds durable intake handoff, whole-page binding/current-section guards, linked source result synchronization and pinned invocation recovery. See [handover integrity](references/handover-integrity.md).
+
+Version0.1.38 preserves effective invocation restrictions, inquiry-level SMS limits and scoped queue barriers. Ordinary verified inquiries inherit standing SMS authority without re-init; missing inbound SMS is coverage metadata, not a send gate. See [scoped recovery](Experience/scoped-recovery.md).

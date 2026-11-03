@@ -28,9 +28,12 @@ Without a running schedule, public run-auto processes the same queue once.
    active, total_count and unknown_attempt=false; include actual stop/manual_pause,
    maximum_count and state when recorded. Supply real observations,
    not fabricated verification flags. Preserve the input for same-phase readback.
-   For an explicitly initiated new context, also supply saved_settings (the
-   actual RunSettings fetch), observed_at and event.source_message_id (the
-   original incoming inquiry, distinct from the outgoing Gmail message_id).
+   For new inquiries also supply saved_settings (the actual RunSettings fetch),
+   observed_at and event.source_message_id (the original incoming inquiry,
+   distinct from the outgoing Gmail message_id). Register enquiries[context_key]
+   from verified intake/customer/recipient evidence; this is source binding, not
+   another SMS approval. The key identifies the inquiry/thread, not just a project
+   title. Repeated material sends retain the original context identity.
    Use the saved authorization contract below; a loose authorized=true is not evidence.
 4. Under the SMS owner's separate affected-role plan, create/reuse its cycle
    record in the customer's existing Communications area and one Automatic ScheduledWork
@@ -49,10 +52,17 @@ Without a running schedule, public run-auto processes the same queue once.
    or disabled channel -> one actionable readiness task with original settings
    link and clear reason; no guessed number or automatic enable. A stop/closed
    or capped cycle -> explicit Stopped/no-new-follow-up result, no new notification.
-6. For reuse, append this material event association without changing existing
-   count/due/approved payload or reopening a closed cycle. The planned first_due
-   is this event's audit lower bound, not a replacement cycle timer. A different
-   material context with an active cycle does not create a second active cycle.
+6. For reuse, append this material event association without changing the
+   existing customer cycle count/cap/timer or reopening closed work. Keep the
+   returned notification_limits separately for THIS inquiry: its maximum_count,
+   second_sms_allowed, starts_at/expires_at, recipient, due bound and source.
+   cycle_maximum_count remains the original shared customer cap. Do not overwrite
+   it with the event's maximum_count. Each request must satisfy both sets.
+   first_due_not_before is no earlier than both this event's delay and the
+   original cycle timer. One active cycle/customer remains; unrelated inquiry
+   limits never disappear into that aggregate. For cross-context counts supply
+   context_counts_complete and original context_counts; missing nonzero-count
+   attribution is targeted recovery, never a zero-count reset.
 7. Fetch the saved email task and cycle. Run `material_handoff.py verify` with
    input=<frozen plan input>, saved_email_task and saved_cycle as their actual
    original Notion fetches (saved_cycle is omitted only for explicit nonmaterial NotApplicable). It checks exact persisted blocks, original email
@@ -77,10 +87,18 @@ page), and optional context_key/revoked_at/starts_at/expires_at. Its first_delay
 defaults to the saved 30-minute rule; max_messages_per_cycle_including_manual is
 one or two, with coherent second_sms_allowed. Save enquiries[context_key] with
 location_id/contact_id/source_message_id/phone so authorization cannot migrate
-to another customer, inquiry or number. Initialization records a user's explicit
-new-context request once; a subsequent run-auto reads it without another approval.
-Missing scope data uses the existing DataCompletion route, never guessed consent.
+to another customer, inquiry or number. Explicit exceptions are recorded once; run-auto reads them without another
+approval. Ordinary source-bound inquiries inherit the saved enabled standing
+policy and standard delay/cap when new_cycle_requires_explicit_manual_start=false
+(the new default); no context_override, re-init or separate consent is required.
+An actual saved manual-initiation requirement remains respected. The source-bound
+enquiries entry is created automatically from verified intake. Missing identity,
+number or source binding uses targeted DataCompletion, never guessed consent.
 
+Always pass the original settings for current new-context registration. With
+no explicit override, the returned authorization is labeled standing-policy;
+it is not a newly invented user decision. An explicit override is labeled
+context-override and keeps its original expiry and limit even on active reuse.
 The helper checks these actual saved bindings, current observation time and
 expiry/revocation. It emits the frozen authorization reference/digest and limits
 with a new or recovered registration. It does not create authorization, change
@@ -89,7 +107,8 @@ zero-delay exception is honored only within its own recorded scope/expiry.
 
 Keep all cycles in complete discovery. A closed cycle from another project is
 history, not a global stop: it may coexist with a separately authorized new cycle.
-An active customer cycle is reused; no second active cycle is created. Existing
+An active customer cycle is reused with per-inquiry notification_limits; no second
+active customer cycle is created. Existing
 same-event/same-context cycles retain their identity, count, due time and limits,
 including a one-message cap. A stop on the current context, wildcard/global SMS
 stop, CRM DND, Pause, revoked authority or unknown attempt still prevents sending.
@@ -150,3 +169,31 @@ or actionable blocked setup -> standing-authorized due execution -> successful s
 repeat unchanged cycles to prove no duplicate cycle/task/send. Also verify
 unknown email result, missing number, disabled gateway, stopped/closed cycle,
 same-event retry, resends, partial handoff save and already-sent recovery.
+
+## Current per-inquiry dispatch limits
+
+New material_receipt/follow_up_notice freezes through sms.prepare/verify with
+material_handoff={input,saved_email_task,saved_cycle}, using actual original
+registration captures. The frozen notification includes material_limits; it
+cannot be stripped to fall back to the shared cap. Before dispatch, use
+material.dispatch-guard or the integrated dispatch.admit/dispatch.prepare guard.
+
+Input is limits, cycle_page_id (from material.verify), saved_cycle (the original
+current cycle fetch), now and optional attempt_id. Read its one
+sms-cycle-current-state with original cycle_id/location_id/contact_id/context_key,
+active/stop/manual_pause/unknown_attempt, count_verified, total_count,
+reserved_count, original maximum_count and context_counts_complete/context_counts.
+Both customer and context counts include reserved slots. With no cross-context
+count map, zero total is safe; nonzero total needs attribution. A current own
+reservation may be counted once only when pending_attempt_id and
+pending_context_key match this exact attempt/context; any other reservation
+blocks. Never subtract an unknown old slot. Keep these fields durable when
+reserving and accepting a request, and preserve the old customer cap/timer.
+
+Only MaterialNotificationEligible passes. The original due/expiry and both caps
+are checked at admission and again at final release with material_current and
+current_material_current; use the ordinary fresh cycle reads, no provider query.
+Other reply/stop/authority/timezone/window guards remain mandatory. Registration
+can be complete while a notification is future/blocked. Legacy completed sends
+remain read-only; an eligible unsent legacy material notification needs a
+prospective source-bound limits freeze, never fabricated historical approval.

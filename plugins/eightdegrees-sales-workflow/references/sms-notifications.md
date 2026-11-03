@@ -14,18 +14,21 @@ appointment reminder and an internal operator alert. It does not authorize
 quotation dispatch, offers, advice, commitments, payment/signing or fabricated
 facts. Email sending and CRM facts/Notes/persona review are unchanged.
 
-Permission and capability are separate. Check the authenticated actual device,
-own-number display, stable send, ordinary-inbox reply visibility and available
-reply/stop coverage. A gateway limitation is a capability task, not a request to
-approve the same SMS. Trusted AndroidSync uses its actual request route; genuine
-native phone/Web restrictions cannot be bypassed or described as completed.
+Permission and capability are separate. Check the authorized sending tool and
+configured device/sender/recipient. Missing inbound reading is reported as
+uncovered, never a sending gate. Do not require sender-display, stability or
+delivery trials. Actual observed reply/stop restrictions still apply. Trusted
+AndroidSync uses its real request route. A successful accepted request completes
+our dispatch even when raw service status is AwaitingPhone/PendingApproval; do
+not claim that this proves later transport or bypasses native restrictions.
 
 ## Prepare, freeze and send
 
 1. Generate/edit concise notification copy from actual material/send/appointment
    or reminder evidence and saved style. Verify recipient and purpose. A material
-   notification can say the email is in the inbox only after actual Sent; it must
-   not claim the customer read it. No per-message ContentReview or SendApproval.
+   notification may say the material email has been sent after original Gmail
+   acceptance; do not claim inbox delivery or that the customer read it.
+   No per-message ContentReview or SendApproval.
 2. Create/reuse one canonical ScheduledWork task with OwnerSkill SMS,
    ResumeStep=SendNotificationSms and Mode=Automatic. Its ordinary result page is
    read-only workflow copy, not a form; show queued/due/status and original links.
@@ -40,6 +43,11 @@ native phone/Web restrictions cannot be bypassed or described as completed.
    intent, recipient_role (customer/operator), recipient/sender_number/device_id,
    body, source_refs and facts_verified from actual source checking. Supply the
    real invocation_policy; report/draft/setup/explicit-no-send cannot dispatch.
+   material_receipt/follow_up_notice also require material_handoff containing
+   the original material.verify input, saved_email_task and saved_cycle. Freeze
+   its returned material_limits in the payload record; do not drop or regenerate
+   this association when reusing a customer cycle. Other notification intents
+   keep their own original source rules.
 4. Persist the exact returned sms-notification-v1 JSON in the original task,
    preserving source/version and current due/window. Fetch that actual saved
    task and run verify with the same current authority/payload, saved_task and
@@ -49,7 +57,13 @@ native phone/Web restrictions cannot be bypassed or described as completed.
    checks binding/bytes, not semantic truth, gateway readiness or current time.
 5. Immediately before dispatch reread current authority/revocation, customer
    stop/Pause and relevant replies, window/date/due, manual+AI count, current
-   device/target/text and prior attempt. Save AttemptId first. A changed text
+   device/target/text and prior attempt. For material notifications, admission
+   takes material_current={saved_cycle,attempt_id?} from the original current
+   cycle. Final release requires current_material_current from the fresh capture.
+   material.dispatch-guard must return MaterialNotificationEligible for both
+   inquiry and customer caps, original due/expiry and reserved attempt; no new
+   connector read is needed beyond the ordinary fresh cycle observation.
+   Save AttemptId first. A changed text
    needs a new frozen version/check, without human approval. A pending/unknown
    old attempt blocks text mutation and retry until reconciliation.
 6. Record actual request ID/result, the SHA-256 of the actual submitted body,

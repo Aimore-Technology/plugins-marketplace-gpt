@@ -114,6 +114,45 @@ def bound_on_demand(data, root, current_id):
             and binding.get('other_active_scan_ids') == [])
 
 
+def work_scope(item):
+    scope = item.get('scope')
+    if scope is None:
+        return None  # Legacy unknown scope remains conservative.
+    if (not isinstance(scope, dict) or set(scope) - {'global', 'location_id', 'contact_id', 'channel', 'context_key'}
+            or 'global' in scope and type(scope['global']) is not bool
+            or any(not isinstance(v, str) or not v.strip() for k, v in scope.items() if k != 'global')
+            or scope.get('channel', '*') not in {'*', 'email', 'sms', 'crm', 'calendar'}
+            or bool(scope.get('location_id')) != bool(scope.get('contact_id'))
+            or not scope.get('global') and not scope.get('contact_id')):
+        raise ValueError('Work scope needs an observed CRM customer or explicit global barrier')
+    return copy.deepcopy(scope)
+
+
+def conflicts(barrier, item):
+    left, right = work_scope(barrier), work_scope(item)
+    if not left or not right or left.get('global') or right.get('global'):
+        return True
+    if (left['location_id'], left['contact_id']) != (right['location_id'], right['contact_id']):
+        return False
+    # An unknown attempt may reserve a shared customer count across contexts.
+    if barrier.get('unknown_attempt'):
+        return True
+    return all(not left.get(k) or not right.get(k) or '*' in {left[k], right[k]} or left[k] == right[k]
+               for k in ('channel', 'context_key'))
+
+
+def recovery_ready(item, prior, now):
+    wake = item.get('recovery_wakeup')
+    if wake is not None:
+        if (not isinstance(wake, dict) or set(wake) != {'evidence_ref', 'revision'}
+                or any(not isinstance(v, str) or not v.strip() for v in wake.values())):
+            raise ValueError('Recovery wake-up requires original evidence and its actual revision')
+        if wake != prior.get('last_recovery_wakeup'):
+            return True
+    due = item.get('recovery_due_at')
+    return bool(due and timestamp(due) <= now and due != prior.get('last_recovery_due_at'))
+
+
 def advance(data):
     root = page_id(data['root_id'])
     start, now = timestamp(data['started_at']), timestamp(data['now'])
@@ -148,7 +187,13 @@ def advance(data):
                                   'task_pages': data['terminal_task_pages']})['checkpoint']
     states = dict(previous['items'])
     candidates = {key(v): v for v in previous.get('work_items', [])}
-    candidates.update({key(v): v for v in data['items']})
+    for item in data['items']:
+        identity = key(item)
+        work_scope(item)
+        old = candidates.get(identity, states.get(identity, {}))
+        if old.get('scope') is not None and old['scope'] != item.get('scope'):
+            raise ValueError('Do not remove or change the original work scope')
+        candidates[identity] = item
     for result in data.get('results', []):
         if result.get('state') not in {'completed', 'cancelled', 'unknown', 'waiting', 'retry_read'} or not result.get('receipt_ref'):
             raise ValueError('Persisted step result needs actual evidence and an explicit state')
@@ -157,9 +202,24 @@ def advance(data):
             raise ValueError('Unknown external effect needs the original AttemptId')
         if states.get(work_key, {}).get('state') in {'completed', 'cancelled'} and result['state'] != states[work_key]['state']:
             raise ValueError('Completed steps cannot be rewound by a later checkpoint')
+        prior = states.get(work_key, {})
+        if prior.get('state') == 'unknown' and (result.get('attempt_id') != prior.get('attempt_id')
+                or result['state'] not in {'unknown', 'completed'}):
+            raise ValueError('Reconcile only the original unknown attempt; do not clear or replace its reservation')
         states[work_key] = {k: result[k] for k in ('state', 'receipt_ref', 'attempt_id') if k in result}
+        for name in ('scope', 'last_recovery_wakeup', 'last_recovery_due_at'):
+            if name in prior:
+                states[work_key][name] = copy.deepcopy(prior[name])
         if work_key in candidates:
             states[work_key].update({k: candidates[work_key][k] for k in ('source_key', 'step', 'version')})
+            candidate = candidates[work_key]
+            if candidate.get('scope') is not None:
+                states[work_key]['scope'] = work_scope(candidate)
+            if result['state'] == 'unknown':
+                if candidate.get('recovery_wakeup') is not None:
+                    states[work_key]['last_recovery_wakeup'] = copy.deepcopy(candidate['recovery_wakeup'])
+                if candidate.get('recovery_due_at') and timestamp(candidate['recovery_due_at']) <= now:
+                    states[work_key]['last_recovery_due_at'] = candidate['recovery_due_at']
     streams = dict(previous['streams'])
     for name, stream in data.get('streams', {}).items():
         if not isinstance(stream.get('complete'), bool) or not isinstance(stream.get('durable'), bool):
@@ -183,6 +243,10 @@ def advance(data):
                for k, v in states.items() if v.get('state') == 'unknown'}
     def finished(item):
         return (item['source_key'], item['step'], item['version']) in completed
+    barriers = []
+    for identity, state in states.items():
+        if state.get('state') == 'unknown' and identity not in candidates:
+            barriers.append({**state, 'key': identity, 'unknown_attempt': True})
     for item in candidates.values():
         identity = key(item)
         if identity in seen:
@@ -195,6 +259,10 @@ def advance(data):
             continue
         # The persisted unknown overrides a newly constructed "ready" candidate.
         action = 'reconcile' if prior.get('state') == 'unknown' or item.get('unknown_attempt') else 'owner_step'
+        if action == 'reconcile' or item['step'] in {'ObserveStop', 'RefreshContactRestrictions'}:
+            barriers.append({**item, 'key': identity, 'unknown_attempt': action == 'reconcile'})
+        if action == 'reconcile' and not recovery_ready(item, prior, now):
+            continue
         if action == 'owner_step' and (item.get('stopped') is True or item.get('waiting') is True):
             continue
         if action == 'owner_step' and item.get('due_at') and timestamp(item['due_at']) > now:
@@ -209,6 +277,7 @@ def advance(data):
         pending.append({'key': identity, 'action': action,
                         **{k: item[k] for k in ('source_key', 'step', 'version', 'input_digest')},
                         'attempt_id': prior.get('attempt_id', item.get('attempt_id')),
+                        **({'scope': work_scope(item)} if item.get('scope') is not None else {}),
                         'priority': priority, 'estimated_seconds': cost})
         if action == 'reconcile' and not pending[-1]['attempt_id']:
             raise ValueError('Unknown candidate must retain the original attempt')
@@ -228,15 +297,17 @@ def advance(data):
     slack = min(15, reserve - 30)
     fitting = []
     for candidate in ready:
+        if (candidate['action'] != 'reconcile' and candidate['step'] not in {'ObserveStop', 'RefreshContactRestrictions'}
+                and any(b['key'] != candidate['key'] and conflicts(b, candidate) for b in barriers)):
+            continue
         if remaining >= 30 and candidate['estimated_seconds'] <= remaining + slack:
             fitting = [candidate]
             break
-        # A pending stop or unknown outcome cannot be skipped to send instead.
-        if candidate['priority'] == 0 or candidate['action'] == 'reconcile':
-            break
+        # Unfitting barriers block their scope, not unrelated customer work.
     work = [] if expired or len(attempted) >= limit else fitting[:1]
     work_items = [{k: v[k] for k in ('source_key', 'step', 'version', 'input_digest', 'attempt_id', 'unknown_attempt',
-                                   'due_at', 'waiting', 'stopped', 'priority', 'estimated_seconds') if k in v}
+                                   'due_at', 'waiting', 'stopped', 'priority', 'estimated_seconds', 'scope',
+                                   'recovery_wakeup', 'recovery_due_at') if k in v}
                   for identity, v in candidates.items() if states.get(identity, {}).get('state') not in {'completed', 'cancelled'} and not finished(v)]
     checkpoint = {'record_type': 'scan-checkpoint-v1', 'root_id': root,
                   'invocation_id': current_id, 'items': states, 'streams': streams,

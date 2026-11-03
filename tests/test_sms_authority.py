@@ -20,7 +20,28 @@ def inputs():
                'sender_number': authority['sender_number'], 'device_id': authority['device_id'],
                'body': 'Hi Alex, the brochure email has been sent. Thanks, Ori',
                'source_refs': ['actual-material-message-id'], 'facts_verified': True}
-    return {'authority': authority, 'payload': payload, 'invocation_policy': 'one-cycle-approved-work'}
+    from test_material_handoff import inputs as material_inputs, saved as material_saved
+    material = material_inputs()
+    material.update(root_id=authority['root_id'], email_task_id='b'*32, recipient=payload['recipient'])
+    material['event'].update(sent_at='2026-10-31T23:00:00Z')
+    handoff = {'input': material, 'saved_email_task': material_saved(material, 'email'),
+               'saved_cycle': material_saved(material)}
+    handoff['saved_email_task']['id'] = material['email_task_id']
+    return {'authority': authority, 'payload': payload, 'invocation_policy': 'one-cycle-approved-work',
+            'material_handoff': handoff}
+
+
+def current_material(data):
+    import material_handoff
+    record = material_handoff.plan(data['material_handoff']['input'])['record']
+    cycle = {'record_type': 'sms-cycle-current-state', 'cycle_id': record['cycle_key'],
+             'location_id': record['location_id'], 'contact_id': record['contact_id'],
+             'context_key': record['context_key'], 'active': True, 'stop': False, 'manual_pause': False,
+             'total_count': 0, 'reserved_count': 0, 'unknown_attempt': False, 'count_verified': True,
+             'maximum_count': 2}
+    capture = page('```json\n' + json.dumps(cycle) + '\n```')
+    capture['id'] = data['material_handoff']['saved_cycle']['id']
+    return {'saved_cycle': capture}
 
 
 def saved(data):

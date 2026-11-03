@@ -10,6 +10,7 @@ from notion_checks import object_result, page_body, page_id
 from reply_transport import verify
 from scan_cycle import advance, timestamp, key
 import sms_authority
+import material_handoff
 
 
 def digest(value):
@@ -32,6 +33,14 @@ def payload(data):
         notification = data['notification']
         result = sms_authority.verify(notification)
         frozen = notification['payload']
+        if frozen['intent'] in {'material_receipt', 'follow_up_notice'}:
+            material = material_handoff.plan(notification['material_handoff']['input'])['record']
+            current = data['material_current']
+            binding = material_handoff.verify(notification['material_handoff'])
+            checked = material_handoff.dispatch_guard({**current, 'cycle_page_id': binding['cycle_page_id'],
+                'limits': material['notification_limits'], 'now': data['scan']['now']})
+            if checked['status'] != 'MaterialNotificationEligible':
+                raise ValueError('Material notification limits block dispatch: ' + '; '.join(checked['reasons']))
         if page_id(frozen['root_id']) != page_id(data['scan']['root_id']):
             raise ValueError('SMS notification belongs to another scan installation')
         if (not tool.endswith('request_sms') or set(args) != {'body', 'recipient', 'deviceId', 'idempotencyKey'}
@@ -106,6 +115,8 @@ def release(data):
     fresh = advance(dispatch_scan(current, data['work_key']))
     if (fresh['status'] != 'ScanCyclePlanned' or not fresh['work'] or fresh['work'][0] != original['work']):
         raise ValueError('Stop, ownership, budget, work or version changed after admission')
+    if data['channel'] == 'sms' and data['notification']['payload']['intent'] in {'material_receipt', 'follow_up_notice'}:
+        payload({**data, 'scan': current, 'material_current': data['current_material_current']})
     return {'status': 'DispatchArgumentsPrepared', 'call': copy.deepcopy(data['call']),
             'call_sha256': original['call_sha256'], 'admission': original,
             'scope': 'Exact admission-bound call only; retain fresh approval/stop/window/count/attempt checks; no host interception'}

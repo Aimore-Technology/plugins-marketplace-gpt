@@ -71,7 +71,19 @@ Use queue_execution.bounded_work_items (default 12) and the host's actual
 execution deadline. On exhaustion, persist remaining work/cutoffs and mark
 partial coverage for the next cycle. A future due time is saved, not slept on.
 An unchanged wait, unsubmitted review, unknown external result or stopped item
-cannot cause another loop. Do not claim all sources were scanned when capability,
+cannot cause another loop. Every new queue item retains observed scope with
+location_id/contact_id and relevant channel/context_key; an installation-wide
+control uses scope={global:true}. Unknown attempts block related customer work
+and count variants, not a provably different customer. Missing legacy scope
+remains conservative. When the original source/task has a verifiable CRM binding,
+read it once and persist that observed scope prospectively without changing
+AttemptId, counts or old history; never guess a customer from a title. Stops
+apply to their actual channel/context. Persist this
+scope unchanged in checkpoint items/results; do not infer identity from titles.
+Unknown reconciliation needs recovery_wakeup={evidence_ref,revision} from real
+new evidence or recovery_due_at from an explicit bounded timer. Its consumed
+wake-up is recorded only with the durable owner result; unchanged wakes cannot
+run again. A customer barrier that does not fit cannot block independent work. Do not claim all sources were scanned when capability,
 pagination, quota or the time budget left gaps.
 
 Fresh original approval/policy/stop/attempt checks remain mandatory immediately

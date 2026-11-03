@@ -67,11 +67,19 @@ def context_authorization(data, identity, root, sent_at):
             if context in ('*', identity['context_key'], None, ''):
                 restricted = True
     override = settings['sms_follow_up'].get('context_overrides', {}).get(identity['context_key'])
-    if override is None:
-        return None, restricted
     enquiry = settings.get('enquiries', {}).get(identity['context_key'], {})
     source = data['event'].get('source_message_id')
     authority = settings['sms_notifications']
+    if override is None:
+        if settings['sms_follow_up'].get('new_cycle_requires_explicit_manual_start', False):
+            return None, restricted
+        # This is ordinary standing permission, not a fabricated one-off consent.
+        override = {'explicitly_initiated': True, 'context_key': identity['context_key'],
+                    'source_message_id': source, 'recipient': data.get('recipient'),
+                    'authorization_ref': settings_id,
+                    'first_delay_minutes': settings['sms_follow_up']['first_delay_minutes'],
+                    'max_messages_per_cycle_including_manual': settings['sms_follow_up'].get('max_messages_per_cycle_including_manual', 2),
+                    'authorization_kind': 'standing-policy'}
     if (override.get('explicitly_initiated') is not True
             or override.get('revoked_at') is not None
             or override.get('context_key', identity['context_key']) != identity['context_key']
@@ -105,10 +113,12 @@ def context_authorization(data, identity, root, sent_at):
             or type(second) is not bool or second != (cap == 2)):
         raise ValueError('Use an exact nonnegative delay and coherent one/two-message authorization limit')
     return {'settings_page_id': settings_id, 'authorization_ref': override['authorization_ref'],
+            'authorization_kind': override.get('authorization_kind', 'context-override'),
             'root_id': root, 'location_id': identity['location_id'], 'contact_id': identity['contact_id'],
             'context_key': identity['context_key'], 'source_message_id': source,
             'recipient': data['recipient'], 'first_delay_minutes': delay,
             'maximum_count': cap, 'second_sms_allowed': second, 'expires_at': expires,
+            'starts_at': override.get('starts_at'),
             'authorization_sha256': key(override)}, restricted
 
 
@@ -198,17 +208,27 @@ def plan(data):
     reasons = []
     authorization, scoped_stop = context_authorization(data, identity, root, sent_at)
     recovering = bool(existing and blocked_registration(data, existing, event_key, identity, root, email, authorization))
-    limit = existing.get('maximum_count', 2) if existing else 2
-    if authorization and (existing is None or existing.get('context_key') == identity['context_key']):
+    cycle_limit = existing.get('maximum_count', 2) if existing else 2
+    limit = cycle_limit
+    if authorization:
         limit = min(limit, authorization['maximum_count'])
+    context_count = existing['total_count'] if existing else 0
+    if existing and existing.get('context_key') != identity['context_key']:
+        context_count = (existing.get('context_counts', {}).get(identity['context_key'], 0)
+                         if existing.get('context_counts_complete') is True else 0 if existing['total_count'] == 0 else None)
+        if context_count is None:
+            reasons.append('Read original per-context counts before reusing an active customer cycle')
+    if context_count is not None and (type(context_count) is not int or not 0 <= context_count <= (existing['total_count'] if existing else 0)):
+        raise ValueError('Context count must be an observed subset of the customer cycle count')
     stopped = (data['stop'] or scoped_stop or data['manual_pause']
                or bool(existing and (existing.get('stop') is True or existing.get('manual_pause') is True
                                      or not existing['active'] and not recovering
-                                     or existing['total_count'] >= limit)))
+                                     or existing['total_count'] >= cycle_limit
+                                     or context_count is not None and context_count >= limit)))
     if data["cycles"] and existing is None:
         if authorization is None:
             stopped = True
-            reasons.append("Previous cycles exist; a different context requires explicit manual new-cycle authorization")
+            reasons.append("Read saved standing policy and the source-bound enquiry before registering a new context")
     if stopped:
         reasons.append("Customer stop, operator pause or closed/capped cycle; never reopen automatically")
     if not data.get("recipient"):
@@ -216,7 +236,7 @@ def plan(data):
     elif not re.fullmatch(r"\+[1-9][0-9]{7,14}", data["recipient"]):
         raise ValueError("Use a verified E.164 recipient or leave it missing")
     if not data["channel_verified"]:
-        reasons.append("Own-number display, stable send and ordinary-inbox replies not verified")
+        reasons.append("Authorized sending connector, configured device or sender number is missing")
     if not data["automatic_sms_enabled"]:
         reasons.append("Automatic SMS disabled; prepare only, do not silently enable")
     record = {"contract": "material-handoff-v1", "event_key": event_key,
@@ -231,16 +251,24 @@ def plan(data):
               "reasons": reasons, "recipient": data.get("recipient"),
               "executor": "shared-approved-work", "create_native_task": False,
               "customer_send_allowed": False}
-    if authorization is not None and (existing is None or recovering):
+    record.update(maximum_count=limit, second_sms_allowed=limit == 2)
+    if authorization is not None:
         record.update(first_due_not_before=(sent_at + timedelta(minutes=authorization['first_delay_minutes'])).isoformat(),
-                      maximum_count=authorization['maximum_count'], second_sms_allowed=authorization['second_sms_allowed'],
                       authorization=authorization)
         if recovering:
             record['registration_recovery'] = 'ClosedPriorContextBlocksExplicitNewContext'
-    elif existing is not None:
-        record.update(maximum_count=limit, second_sms_allowed=limit == 2)
-        if existing.get('first_due_not_before') is not None:
-            record['first_due_not_before'] = stamp(existing['first_due_not_before']).isoformat()
+    if existing and existing.get('first_due_not_before') is not None:
+        record['first_due_not_before'] = max(stamp(record['first_due_not_before']), stamp(existing['first_due_not_before'])).isoformat()
+    record['notification_limits'] = {
+        'record_type': 'material-notification-limits-v1', 'root_id': root,
+        'event_key': event_key, 'cycle_key': record['cycle_key'], 'context_key': identity['context_key'],
+        'location_id': identity['location_id'], 'contact_id': identity['contact_id'],
+        'recipient': data.get('recipient'), 'first_due_not_before': record['first_due_not_before'],
+        'maximum_count': limit, 'second_sms_allowed': limit == 2,
+        'cycle_maximum_count': cycle_limit, 'context_total_count': context_count,
+        'expires_at': authorization.get('expires_at') if authorization else None,
+        'starts_at': authorization.get('starts_at') if authorization else None,
+        'authorization_sha256': authorization.get('authorization_sha256') if authorization else None}
     return {"status": "MaterialHandoffPlanned", "record": record, "scope": SCOPE}
 
 
@@ -289,6 +317,52 @@ def verify(data):
             "projection_page_ids": [v for v in (email_id, cycle_id) if v is not None], "cycle_page_id": cycle_id,
             "event_key": expected["event_key"], "state": expected["state"],
             "message_id": expected["message_id"], "content_version": expected["content_version"], "scope": SCOPE}
+
+
+def dispatch_guard(data):
+    """Check the frozen inquiry limits against a current original cycle capture."""
+    limits = data['limits']
+    if limits.get('record_type') != 'material-notification-limits-v1':
+        raise ValueError('Use the original frozen material notification limits')
+    cycle = blocks(data['saved_cycle'], 'sms-cycle-current-state')[1]
+    if (page_id(object_result(data['saved_cycle'])['id']) != page_id(data['cycle_page_id'])
+            or cycle.get('cycle_id') != limits['cycle_key']
+            or any(cycle.get(k) != limits[k] for k in ('location_id', 'contact_id'))):
+        raise ValueError('Current counts belong to another customer cycle')
+    now = stamp(data['now'])
+    reasons = []
+    if (cycle.get('stop') is not False or cycle.get('manual_pause') is not False
+            or cycle.get('active') is not True or cycle.get('unknown_attempt') is not False):
+        reasons.append('Stopped, paused, inactive or unknown customer cycle')
+    if now < stamp(limits['first_due_not_before']) or limits.get('starts_at') and now < stamp(limits['starts_at']):
+        reasons.append('Notification is not due')
+    if limits.get('expires_at') and now >= stamp(limits['expires_at']):
+        reasons.append('Original inquiry authorization expired')
+    total, reserved = cycle.get('total_count'), cycle.get('reserved_count', 0)
+    if (cycle.get('count_verified') is not True or type(total) is not int or type(reserved) is not int
+            or not 0 <= reserved <= total <= 2):
+        raise ValueError('Read actual verified customer counts including reserved slots')
+    own = reserved == 1 and bool(data.get('attempt_id')) and cycle.get('pending_attempt_id') == data['attempt_id']
+    if reserved and not own:
+        reasons.append('Another original attempt reserves the customer slot')
+    counts = cycle.get('context_counts', {})
+    count = (counts.get(limits['context_key'], 0) if cycle.get('context_counts_complete') is True
+             else total if cycle.get('context_key') == limits['context_key'] else 0 if total == 0 else None)
+    if type(count) is not int or not 0 <= count <= total:
+        raise ValueError('Read verified per-context counts; never substitute a different project count')
+    if own and (cycle.get('pending_context_key') != limits['context_key'] or count < 1):
+        raise ValueError('The original reservation must also be counted in this exact context')
+    cycle_cap = cycle.get('maximum_count', limits['cycle_maximum_count'])
+    if (type(cycle_cap) is not int or cycle_cap not in (1, 2)
+            or type(limits['maximum_count']) is not int or limits['maximum_count'] not in (1, 2)
+            or type(limits['cycle_maximum_count']) is not int or limits['cycle_maximum_count'] not in (1, 2)
+            or limits.get('second_sms_allowed') is not (limits['maximum_count'] == 2)):
+        raise ValueError('Preserve coherent original context and customer cycle caps')
+    if total - int(own) >= min(cycle_cap, limits['cycle_maximum_count']) or count - int(own) >= limits['maximum_count']:
+        reasons.append('Customer cycle or inquiry notification limit reached')
+    return {'status': 'MaterialNotificationBlocked' if reasons else 'MaterialNotificationEligible',
+            'reasons': reasons, 'event_key': limits['event_key'], 'context_key': limits['context_key'],
+            'send_authorized': False, 'scope': SCOPE}
 
 
 def main():

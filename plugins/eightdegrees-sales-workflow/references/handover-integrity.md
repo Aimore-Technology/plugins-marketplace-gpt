@@ -84,9 +84,12 @@ An event is acknowledged only after this result and next wake-up are durable.
 ## Resume this command after compaction
 
 Pin the actual selected public command and policy, current invocation/executor
-identity and original start time locally. Once the real root is known, use
+identity, actual effective policy, explicit user restrictions and original start time locally. Once the real root is known, use
 invocation.prepare with command, invocation_id, executor_id, root_id,
-started_at, budget_seconds and receipt_page_ids (original proof pointers only).
+started_at, budget_seconds, policy (the actual possibly narrower policy),
+restrictions (exact nonempty user restriction strings) and receipt_page_ids
+(original proof pointers only). The pin retains default_policy separately;
+run-auto may narrow to one-cycle-no-customer-send, never another broader policy.
 Keep its invocation-context-v1 on the active run and/or a compact local capture;
 never create a Notion record just for an idle tick. Save receipt pointers with
 the successful original handoff before verbose publication work.
@@ -94,6 +97,8 @@ the successful original handoff before verbose publication work.
 After compaction, FIRST read this short original pin, then invocation.resume
 with context_page (original page) or context_record (the original locally saved record, without a fabricated Notion envelope), plus the actual current command, invocation_id, executor_id, original started_at, root_id and now. Do not copy runtime identities out of the pin to fabricate a
 match. Wrong command/session/turn, changed original start/deadline or clock regression refuses. Exact page mutations preserve the pin; only receipt pointers may be appended.
+A legacy run-auto pin without effective-restriction metadata is closeout-only
+and no-send; do not reconstruct permission from commands.json after compaction.
 Budget expiration permits closeout only; never reset the start, create another
 public invocation, restart the rehearsal, message a peer or act as its test
 controller. Resume the current owner using original receipts and fresh guards.

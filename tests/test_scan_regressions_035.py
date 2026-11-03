@@ -50,7 +50,8 @@ class BudgetAndPriority(unittest.TestCase):
     def test_small_reserve_has_no_slack_and_unknown_is_not_retried(self):
         data=self.boundary(179,180);data['reserve_seconds']=30;data['now']='2026-11-01T00:11:31Z'
         self.assertEqual(scan_cycle.advance(data)['estimate_slack_seconds'],0)
-        data=self.boundary(179,180);data['items'][0].update(unknown_attempt=True,attempt_id='original')
+        data=self.boundary(179,180);data['items'][0].update(unknown_attempt=True,attempt_id='original',
+            recovery_wakeup={'evidence_ref':'capture:new-original-evidence','revision':'new-evidence-v1'})
         self.assertEqual(scan_cycle.advance(data)['work'][0]['action'],'reconcile')
 
     def test_notification_precedes_reviews_and_display_but_never_mail_intake(self):
@@ -86,6 +87,7 @@ class BudgetAndPriority(unittest.TestCase):
         # Ninety seconds of preparation have actually elapsed. The full 180s
         # estimate must not be charged again before a remaining 30s API call.
         data['now']='2026-11-01T00:11:31Z';data['current_scan']=copy.deepcopy(data['scan']);data['current_scan']['now']=data['now']
+        data['current_material_current']=copy.deepcopy(data['material_current'])
         self.assertEqual(dispatch_admission.release(data)['call'],data['call'])
         data['current_scan']['items'][0]['stopped']=True
         with self.assertRaises(ValueError):dispatch_admission.release(data)

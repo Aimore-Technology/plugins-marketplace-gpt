@@ -278,10 +278,12 @@ class BoundedRecovery(unittest.TestCase):
         self.assertEqual(len(result['checkpoint']['remaining_keys']), 2)
         self.assertEqual(result['work'][0]['step'], 'ObserveStop')
         attempted = [v['key'] for v in result['work']]
-        result = scan_cycle.advance(data | {'attempted_keys': attempted})
+        result = scan_cycle.advance(data | {'attempted_keys': attempted, 'results': [
+            {'key': attempted[0], 'state': 'completed', 'receipt_ref': 'original-stop-saved'}]})
         self.assertEqual(result['work'][0]['step'], 'SendApprovedReply')
         attempted += [v['key'] for v in result['work']]
-        result = scan_cycle.advance(data | {'attempted_keys': attempted})
+        result = scan_cycle.advance(data | {'attempted_keys': attempted, 'results': [
+            {'key': attempted[0], 'state': 'completed', 'receipt_ref': 'original-stop-saved'}]})
         self.assertEqual(result['work'], [])
 
     def test_unchanged_completed_item_is_not_reopened_by_stale_candidate(self):
@@ -298,11 +300,12 @@ class BoundedRecovery(unittest.TestCase):
         checkpoint = lambda v: page('f'*32, block(v['checkpoint']), {})
         second = scan_cycle.advance(data | {'checkpoint_page': checkpoint(first), 'results': [
             {'key': identity, 'state': 'unknown', 'attempt_id': 'original-attempt', 'receipt_ref': 'request-receipt'}]})
-        self.assertEqual(second['work'][0]['action'], 'reconcile')
-        self.assertEqual(second['work'][0]['attempt_id'], 'original-attempt')
+        self.assertEqual(second['work'], [])  # An ambiguous result is not a new recovery trigger.
         # A crash leaves a durable unknown. Even a rebuilt "ready" item cannot resend.
-        third = scan_cycle.advance(data | {'checkpoint_page': checkpoint(second), 'items': []})
+        item['recovery_wakeup'] = {'evidence_ref': 'capture:original-operator-evidence', 'revision': 'r1'}
+        third = scan_cycle.advance(data | {'checkpoint_page': checkpoint(second)})
         self.assertEqual(third['work'][0]['action'], 'reconcile')
+        self.assertEqual(third['work'][0]['attempt_id'], 'original-attempt')
         fourth = scan_cycle.advance(data | {'checkpoint_page': checkpoint(third), 'results': [
             {'key': identity, 'state': 'completed', 'attempt_id': 'original-attempt', 'receipt_ref': 'actual-sent-readback'}]})
         self.assertEqual(fourth['work'], [])

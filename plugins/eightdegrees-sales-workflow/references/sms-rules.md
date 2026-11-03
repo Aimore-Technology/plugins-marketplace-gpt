@@ -31,9 +31,10 @@ Email approval and CRM fact review remain separate.
   Keep project stops scoped to that context; global/channel stops still cover all
   contexts. A separately initiated new inquiry uses its existing saved authorization
   without another SMS review, and never reopens the prior stopped cycle.
-- Verify actual own-number display, stable gateway and ordinary-inbox reply
-  visibility, device ownership and latest accessible reply coverage. Permission
-  is enabled by default; unverified capability still blocks actual dispatch.
+- Verify the authorized sending connector, configured device/sender and recipient,
+  plus current reply/stop observations in actually connected sources. Permission
+  is enabled by default. Missing sending configuration blocks dispatch; missing
+  inbound reading, sender-display/stability trials or delivery observations do not.
   Do not substitute a service sender ID or force another app approval route
   when the actual device is already Trusted.
 - A changed unsent notification needs a new frozen version/check, not a human

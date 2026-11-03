@@ -22,7 +22,7 @@
     "second_delay_hours": 24,
     "max_messages_per_cycle_including_manual": 2,
     "max_active_cycles_per_client": 1,
-    "new_cycle_requires_explicit_manual_start": true,
+    "new_cycle_requires_explicit_manual_start": false,
     "automatic_sending_enabled": true
   },
   "daily_brief": {

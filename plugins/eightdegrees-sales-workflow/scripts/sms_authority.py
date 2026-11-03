@@ -55,6 +55,16 @@ def prepare(data):
         "recipient", "sender_number", "device_id", "body", "source_refs", "facts_verified")},
         "body_sha256": hashlib.sha256(body.encode()).hexdigest(),
         "authority_policy": authority["policy"], "requires_human_review": False}
+    if intent in {'material_receipt', 'follow_up_notice'}:
+        import material_handoff
+        handoff = data['material_handoff']
+        material_handoff.verify(handoff)
+        material = material_handoff.plan(handoff['input'])['record']
+        if (material.get('material') is not True or material['state'] != 'ReadyForNotification'
+                or material['root_id'] != page_id(payload['root_id'])
+                or material['recipient'] != payload['recipient']):
+            raise ValueError('Material notification must retain its own verified inquiry limits and recipient')
+        record['material_limits'] = material['notification_limits']
     return {"status": "SMSNotificationPrepared", "record": record, "scope": SCOPE}
 
 
