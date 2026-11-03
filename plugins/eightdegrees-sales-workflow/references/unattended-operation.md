@@ -152,12 +152,12 @@ wait, a customer scope-specific stop, a long cycle and a concurrent tick. Assert
 one original request/CRM append, no re-enable, no second worker, no lost cursor,
 no unchanged projection writes and zero business writes from report. Then test
 actual native start/ticks/stop/restart with real host run IDs, phone/network and
-cloud connector access. Local replay cannot certify host serialization, timing,
+local runner/Skill/connector access. Local replay cannot certify host serialization, timing,
 message delivery or Claude Cowork runtime.
 
 ## Explicitly bound on-demand conversation
 
-A public run-auto need not prove cloud scheduler serialization when no native
+A public run-auto need not prove native local scheduler serialization when no native
 schedule exists and the operator has designated one current conversation for
 on-demand work. This is the same manual workflow, not a native scheduling test.
 Pass policy=one-cycle-approved-work or one-cycle-no-customer-send to scan.cycle.

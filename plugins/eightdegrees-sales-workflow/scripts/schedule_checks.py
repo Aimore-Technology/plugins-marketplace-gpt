@@ -4,7 +4,7 @@
 import argparse
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import sys
 from urllib.parse import urlsplit
@@ -12,12 +12,21 @@ from zoneinfo import ZoneInfo
 
 
 TEMPLATE = Path(__file__).resolve().parents[1] / "assets/scan-schedule.md"
+LOCAL_RUNTIMES = {"codex-local-task", "cowork-local-task"}
+LEGACY_RUNTIMES = {"work-gpt-task", "cowork-cron-task"}
 
 
 def context(data):
     ctx = data["context"]
-    if ctx.get("runtime") not in {"work-gpt-task", "cowork-cron-task"}:
-        raise ValueError("Select the verified Work GPT task or Cowork native cron runtime")
+    stopping = data.get('operation') == 'stop'
+    if ctx.get('runtime') not in LOCAL_RUNTIMES and not (stopping and ctx.get('runtime') in LEGACY_RUNTIMES):
+        raise ValueError('Select a verified local Codex or Cowork task; legacy cloud runtimes are deletion-only')
+    if not stopping:
+        directory = ctx.get('working_directory')
+        if (ctx.get('execution_location') != 'local' or not isinstance(directory, str)
+                or not directory.strip() or re.search(r'[\r\n]', directory)
+                or not (PurePosixPath(directory).is_absolute() or PureWindowsPath(directory).is_absolute())):
+            raise ValueError('Bind local execution to the actual absolute working directory on its owner host')
     for key in ("root_id", "root_url", "operator_id", "mailbox", "provider", "account_id", "host_id", "timezone"):
         if not isinstance(ctx.get(key), str) or not ctx[key].strip() or re.search(r"[\r\n]", ctx[key]):
             raise ValueError("Missing or invalid context: " + key)
@@ -74,9 +83,23 @@ def owned_tasks(data, ctx):
 
 
 def exact_task(task, ctx):
-    return (task.get("enabled") is True and task.get("runtime") == ctx["runtime"] and type(task.get("interval_minutes")) is int
+    return (task.get('execution_location') == 'local' and task.get('working_directory') == ctx.get('working_directory')
+            and task.get("enabled") is True and task.get("runtime") == ctx["runtime"] and type(task.get("interval_minutes")) is int
             and task["interval_minutes"] == ctx["interval_minutes"] and task.get("timezone") == ctx["timezone"]
             and task.get("prompt") == prompt_for(ctx))
+
+
+def saved_executor_conflict(saved, ctx):
+    return (saved.get('enabled') is True or bool(saved.get('schedule_ids'))) and any(
+        saved.get(k) != ctx[c] for k, c in (('owner_host', 'host_id'), ('provider', 'provider'),
+            ('account_id', 'account_id'), ('runtime', 'runtime')))
+
+
+def local_capabilities(caps, ctx):
+    supported = caps.get('supported_interval_minutes')
+    return (all(caps.get(k) is True for k in ('list', 'read', 'runner_ready', 'local_execution', 'local_context_ready'))
+            and isinstance(supported, list) and all(type(v) is int for v in supported)
+            and ctx['interval_minutes'] in supported)
 
 
 def plan(data):
@@ -88,8 +111,7 @@ def plan(data):
     if caps.get("list") is not True:
         return {"status": "NativeSchedulingUnavailable", "reason": "Native listing capability is required"}
     saved = data.get("scheduling") or {}
-    if (saved.get("enabled") is True or saved.get("schedule_ids")) and any(
-            saved.get(k) != ctx[c] for k, c in (("owner_host", "host_id"), ("provider", "provider"), ("account_id", "account_id"), ("runtime", "runtime"))):
+    if saved_executor_conflict(saved, ctx):
         return {"status": "NeedsReconciliation", "reason": "Saved schedule belongs to another executor; access its native scheduler before changing ownership"}
     pending = data.get("pending_attempt") or saved.get("pending_attempt") or {}
     if pending and pending.get("status") not in ("Resolved", "RejectedBeforeDispatch", "NoEffectVerified"):
@@ -101,11 +123,8 @@ def plan(data):
                 "schedule_ids": [t["id"] for t in tasks], "owner_key": ctx["owner_key"]}
     if ctx["generation"] < 1:
         raise ValueError("Start must first register a positive lifecycle generation")
-    supported = caps.get("supported_interval_minutes")
-    if (caps.get("read") is not True or caps.get("runner_ready") is not True
-            or not isinstance(supported, list) or any(type(v) is not int for v in supported)
-            or ctx["interval_minutes"] not in supported):
-        return {"status": "NativeSchedulingUnavailable", "reason": "Verify the selected 20/30-minute native cadence and skill/connector access; no silent fallback or backend"}
+    if not local_capabilities(caps, ctx):
+        return {"status": "NativeSchedulingUnavailable", "reason": "Verify local execution, directory, installed skills/connectors and selected 20/30-minute cadence; no cloud fallback"}
     if len(tasks) > 1:
         return {"status": "NeedsReconciliation", "reason": "Duplicate owned scanners; do not create another", "schedule_ids": [t["id"] for t in tasks]}
     if tasks and exact_task(tasks[0], ctx):
@@ -115,20 +134,25 @@ def plan(data):
         return {"status": "NativeSchedulingUnavailable", "reason": "Required native " + capability + " operation is unavailable"}
     return {"status": "EligibleForNativeUpdate" if tasks else "EligibleForNativeCreate",
             "schedule_id": tasks[0]["id"] if tasks else None, "owner_key": ctx["owner_key"],
+            "execution_location": 'local', 'working_directory': ctx['working_directory'],
             "interval_minutes": ctx["interval_minutes"], "timezone": ctx["timezone"], "prompt": prompt_for(ctx)}
 
 
 def verify(data):
     ctx = context(data)
     tasks = owned_tasks(data, ctx)
+    if saved_executor_conflict(data.get('scheduling') or {}, ctx):
+        return {'status': 'NeedsReconciliation', 'reason': 'Original scheduler ownership is unresolved; do not certify a replacement'}
     pending = data.get("pending_attempt") or (data.get("scheduling") or {}).get("pending_attempt") or {}
     if pending.get("status") in ("Unknown", "Pending", "Creating", "Deleting", "WaitingForConfirmation"):
         return {"status": "NeedsReconciliation", "reason": "Native operation still unresolved; absence alone cannot settle an in-flight create"}
     if data.get("operation") == "start":
-        valid = ctx["generation"] > 0 and len(tasks) == 1 and exact_task(tasks[0], ctx)
+        valid = (ctx["generation"] > 0 and len(tasks) == 1 and exact_task(tasks[0], ctx)
+                 and local_capabilities(data.get('capabilities', {}), ctx))
         return {"status": "RunningVerified" if valid else "NeedsCorrection",
                 "schedule_ids": [t["id"] for t in tasks], "owner_key": ctx["owner_key"],
                 "interval_minutes": ctx["interval_minutes"],
+                'execution_location': 'local', 'working_directory': ctx['working_directory'],
                 "prompt_sha256": hashlib.sha256(prompt_for(ctx).encode()).hexdigest()}
     if data.get("operation") != "stop":
         raise ValueError("operation must be start or stop")
@@ -141,6 +165,8 @@ def guard(data):
         return {"status": "EligibleForManualCycle", "customer_send_allowed": False}
     if data.get("trigger") != "scheduled":
         raise ValueError("Use the actual manual or native scheduled invocation context")
+    if data.get('context', {}).get('runtime') not in LOCAL_RUNTIMES:
+        return {'status': 'Deferred', 'reason': 'Legacy/cloud runtime cannot execute a local-only cycle'}
     ctx, saved, invocation = context(data), data["scheduling"], data["invocation"]
     setup = data["setup"]
     if (ctx["generation"] < 1 or saved.get("enabled") is not True or saved.get("state") != "Running"
@@ -151,6 +177,11 @@ def guard(data):
             or saved.get("owner_host") != ctx["host_id"] or saved.get("provider") != ctx["provider"]
             or saved.get("account_id") != ctx["account_id"]
             or saved.get("runtime") != ctx["runtime"]
+            or saved.get('execution_location') != 'local'
+            or saved.get('working_directory') != ctx['working_directory']
+            or invocation.get('execution_location') != 'local'
+            or invocation.get('working_directory') != ctx['working_directory']
+            or invocation.get('host_id') != ctx['host_id']
             or type(saved.get("target_scan_minutes")) is not int
             or saved.get("target_scan_minutes") != ctx["interval_minutes"]
             or type(saved.get("actual_scan_minutes")) is not int
@@ -167,6 +198,8 @@ def guard(data):
             "policy": "scheduled-approved-work", "operator_id": ctx["operator_id"],
             "schedule_id": invocation["schedule_id"], "invocation_id": invocation["invocation_id"],
             "owner_key": ctx["owner_key"], "generation": ctx["generation"], "runtime": ctx["runtime"],
+            'execution_location': 'local', 'working_directory': ctx['working_directory'],
+            'host_id': ctx['host_id'],
             "scope": "Observed state only; Notion is not an atomic lock or native execution interceptor"}
 
 

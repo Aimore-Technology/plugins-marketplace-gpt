@@ -1,6 +1,6 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing `eightdegrees-sales-workflow` 0.1.38: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
+Private marketplace containing `eightdegrees-sales-workflow` 0.1.39: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
 
 For a local ChatGPT/Codex marketplace, clone this private repository, open the checkout in the desktop host and use its plugin directory to install the listed plugin. With a compatible Codex CLI:
 
@@ -21,7 +21,7 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.38.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
+`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.39.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
 
 This is a skills-only distribution. It adds no server, secret, customer data, account authorization, actual schedule or automatic send. Readiness must be established in the customer's own environment. Real samples and test logs stay in customer accounts.
 
@@ -41,7 +41,7 @@ Garbled mail suspends fact extraction until the same authorized MIME source is s
 
 ## Periodic scan controls
 
-`@eightdegrees-sales-workflow start` creates/reuses one native 30-minute (20-minute optional) approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto handles independently approved Automatic work and manually initiated communication submissions also resume through the queue. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](plugins/eightdegrees-sales-workflow/references/scheduling.md).
+`@eightdegrees-sales-workflow start` creates/reuses one local 30-minute (20-minute optional) approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto handles independently approved Automatic work and manually initiated communication submissions also resume through the queue. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](plugins/eightdegrees-sales-workflow/references/scheduling.md).
 
 ## Shared queue and standing notification authority
 
@@ -91,3 +91,5 @@ see [the readback fix](docs/release-0.1.36.md). Saved originals are preserved.
 Version0.1.37 gates sales preparation on durable source intake, preserves review bindings/current sections, synchronizes original source results and pins command recovery. See [the handover fix](docs/release-0.1.37.md).
 
 Version0.1.38 preserves effective invocation restrictions, inquiry-level SMS limits and scoped queue barriers. Ordinary verified inquiries inherit standing SMS authority without re-init; missing inbound SMS is coverage metadata, not a send gate. See [the flow fixes](docs/release-0.1.38.md).
+
+Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](docs/release-0.1.39.md).

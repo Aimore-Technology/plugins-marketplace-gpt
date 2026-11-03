@@ -105,7 +105,9 @@
     "pending_attempt": null,
     "last_verified_at": null,
     "runtime": null,
-    "approved_work_enabled": false
+    "approved_work_enabled": false,
+    "execution_location": "local",
+    "working_directory": null
   },
   "customer_setup": {
     "operator_id": null,

@@ -15,8 +15,9 @@ def request(operation="start"):
     return {"operation": operation, "context": {"root_id": "a" * 32,
         "root_url": "https://app.notion.com/p/" + "a" * 32, "operator_id": "operator-local-demo",
         "mailbox": "operator@example.com", "provider": "native-demo", "account_id": "native-account",
-        "host_id": "native-host", "runtime": "work-gpt-task", "timezone": "Australia/Adelaide", "generation": 1},
-        "capabilities": {"supported_interval_minutes": [20, 30], **{k: True for k in ("list", "read", "create", "update", "delete", "runner_ready")}},
+        "host_id": "native-host", "runtime": "codex-local-task", "execution_location": "local",
+        "working_directory": "/customer/eightdegrees", "timezone": "Australia/Adelaide", "generation": 1},
+        "capabilities": {"supported_interval_minutes": [20, 30], **{k: True for k in ("list", "read", "create", "update", "delete", "runner_ready", "local_execution", "local_context_ready")}},
         "tasks": [], "list_complete": True, "list_includes_inactive": True}
 
 
@@ -24,24 +25,26 @@ def actual_task(data, identity="native-task-1"):
     ctx = SCHEDULE.context(data)
     return {"id": identity, "prompt": SCHEDULE.prompt_for(ctx), "enabled": True,
             "interval_minutes": ctx["interval_minutes"], "timezone": ctx["timezone"], "read_verified": True,
-            **{k: ctx[k] for k in ("provider", "account_id", "host_id", "runtime")}}
+            **{k: ctx[k] for k in ("provider", "account_id", "host_id", "runtime", "execution_location", "working_directory")}}
 
 
 def scheduled_guard():
     data = request(); ctx = SCHEDULE.context(data)
-    data.update(trigger="scheduled", invocation={"schedule_id": "native-task-1", "invocation_id": "scan-invocation-1"},
+    data.update(trigger="scheduled", invocation={"schedule_id": "native-task-1", "invocation_id": "scan-invocation-1",
+                **{k:ctx[k] for k in ('execution_location','working_directory','host_id')}},
                 setup={"operator_id": ctx["operator_id"], "gmail_account": ctx["mailbox"], "notion_root_id": ctx["root_id"]},
                 scheduling={"enabled": True, "state": "Running", "desired_state": "Running", "generation": 1,
                             "owner_key": ctx["owner_key"], "provider": ctx["provider"], "account_id": ctx["account_id"],
                             "owner_host": ctx["host_id"], "runtime": ctx["runtime"], "approved_work_enabled": True,
                             "target_scan_minutes": 30, "actual_scan_minutes": 30,
+                            "execution_location":"local", "working_directory":ctx['working_directory'],
                             "schedule_ids": ["native-task-1"]})
     return data
 
 
 class ScheduleTests(unittest.TestCase):
     def test_explicit_twenty_minute_cadence_is_bound_and_read_back(self):
-        for runtime in ('work-gpt-task', 'cowork-cron-task'):
+        for runtime in ('codex-local-task', 'cowork-local-task'):
             data = request(); data['context'].update(runtime=runtime, interval_minutes=20)
             result = SCHEDULE.plan(data)
             self.assertEqual(result['interval_minutes'], 20)
@@ -227,7 +230,7 @@ class ScheduleTests(unittest.TestCase):
         self.assertEqual(SCHEDULE.guard(data), {"status": "EligibleForManualCycle", "customer_send_allowed": False})
 
     def test_work_and_cowork_guards_never_enable_legacy_no_send_jobs(self):
-        for runtime in ('work-gpt-task', 'cowork-cron-task'):
+        for runtime in ('codex-local-task', 'cowork-local-task'):
             data = scheduled_guard(); data['context']['runtime'] = data['scheduling']['runtime'] = runtime
             result = SCHEDULE.guard(data)
             self.assertEqual(result['policy'], 'scheduled-approved-work'); self.assertTrue(result['customer_send_allowed'])
@@ -235,5 +238,5 @@ class ScheduleTests(unittest.TestCase):
             self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
 
     def test_wrong_runtime_does_not_take_over_a_different_executor(self):
-        data = scheduled_guard(); data['scheduling']['runtime'] = 'cowork-cron-task'
+        data = scheduled_guard(); data['scheduling']['runtime'] = 'cowork-local-task'
         self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')

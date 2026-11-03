@@ -25,8 +25,8 @@ Accept `@eightdegrees-sales-workflow <command> [context]`, or a bare command whe
 | `report` | [daily brief](../eightdegrees-daily-brief-and-handover/SKILL.md) | Show/update report; no notifications, Calendar changes or task execution. |
 | `reply-draft` | [sales reply](../eightdegrees-sales-reply/SKILL.md) | Prepare copy and preview; stop before sending. |
 
-| `start` | [automation control](../eightdegrees-automation-control/SKILL.md) | Create/reuse one native 30-minute (20-minute optional) approved-work task; no immediate scan or sends. |
-| `stop` | [automation control](../eightdegrees-automation-control/SKILL.md) | Delete only the installation-owned native task; preserve business records. |
+| `start` | [automation control](../eightdegrees-automation-control/SKILL.md) | Create/reuse one local 30-minute (20-minute optional) approved-work task; no immediate scan or sends. |
+| `stop` | [automation control](../eightdegrees-automation-control/SKILL.md) | Delete only the installation-owned local task; preserve business records. |
 
 When an actual result/action page exists, finish with operator_experience.py response
 (or operator.response in the local batch), reusing its current captures. Return

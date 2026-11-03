@@ -1,4 +1,4 @@
-EightDegrees native scheduled cycle
+EightDegrees local scheduled cycle
 
 EightDegreesOwnerKey: {owner_key}
 InstallationRoot: {root_url}
@@ -6,12 +6,16 @@ OperatorId: {operator_id}
 Mailbox: {mailbox}
 ScheduleGeneration: {generation}
 Runtime: {runtime}
+ExecutionLocation: {execution_location}
+WorkingDirectory: {working_directory}
+OwnerHost: {host_id}
 ScanIntervalMinutes: {interval_minutes}
 
 Use the installed EightDegrees Sales Workflow plugin's email-scanning skill
-for ONE native scheduled cycle. This is not the public manual run-auto command.
+for ONE local native scheduled cycle in the bound working directory. This is
+not the public manual run-auto command and cannot select a cloud executor.
 Read current RunSettings and actual native invocation metadata. Validate the
-native task ID, lifecycle, generation, executor and single active-run ownership
+native task ID, lifecycle, generation, actual local execution/host/directory and single active-run ownership
 before work and again before each dependent mutation. Stopped, stale, busy or
 uncertain invocations defer without taking over work or catching up in parallel.
 
@@ -42,6 +46,10 @@ quiet while nothing actionable changes; surface new operator input/review,
 meaningful failures, completion and recovery with original Notion links.
 Record actual progress, partial coverage and native errors without fabricated
 success. The native host owns repetition; exit after this one cycle.
+
+The selected computer/app/local runner must be available. After a sleep,
+disconnect or restart, discover current inputs and due work once from saved
+Notion progress; never replay every missed tick or resend an accepted request.
 
 Use queue-execution.md to scan authorized sources and enqueue newly ready owner steps within this bounded cycle. No extra continue command and no per-message notification SMS approval. Future due work waits without sleeping or recursively starting another scan.
 

@@ -23,6 +23,7 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 | Read garbled mail, freeze HTML or approve/send a reply | [Mail delivery](mail-delivery.md) | Charset confusion, newline digest errors, connector-added quotes |
 | Resolve a saved HTML/image preview or diagnose missing evidence | [Preview evidence](preview-evidence.md) | Missing nested mappings, guessed URLs, confusing incomplete evidence with connector failure |
 | Plan or assess acceptance | [Testing and evidence](testing-and-evidence.md) | Comparing unlike totals, treating recovered/simulated checks as acceptance |
+| Start/stop or migrate a recurring worker | [Local scheduling](local-scheduling.md) | Verified computer/directory, cloud rejection and legacy cleanup |
 | Select scan cadence or assess cycle duration | [Scan timing](scan-timing.md) | Resetting a saved choice, confusing timing with sending failure or claiming native performance |
 
 Maintainers add a lesson only with a concrete trigger, observed behavior, scoped action, verification and evidence. Keep observations separate from open product defects. Recheck connector-version-dependent limits against current capabilities; a historical tip does not widen permissions or make an unavailable tool exist. Promote a resolved lesson only after its affected workflow is verified, retaining previous failures and the confirming evidence. Keep entries short instead of copying whole test reports here.

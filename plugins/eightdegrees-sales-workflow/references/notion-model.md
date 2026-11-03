@@ -85,7 +85,7 @@ Register GeneratedAt, DataCutoff, CurrentVersion, Coverage and PendingCount. Sep
 
 ## Current send state and native runtime
 
-scheduling.runtime records the verified work-gpt-task or cowork-cron-task
+scheduling.runtime records the verified codex-local-task or cowork-local-task
 adapter; approved_work_enabled defaults false. Native field mappings and actual
 task IDs remain saved as evidence. Explicit start establishes a new verified
 approved-work lifecycle; init/upgrade never enables it silently.
@@ -109,3 +109,5 @@ Keep this distinct from immutable operation logs and the current scan execution
 checkpoint. Owners register next action/timer/recovery wake-ups before consuming
 an input event. No HTML, copied bodies, credentials or cached approvals belong
 here; ordinary active input/permission sources remain authoritative.
+
+Local scheduling also binds execution_location=local and the actual absolute working_directory on owner_host. Preserve legacy cloud identities for explicit cleanup; never relabel them local or enable them during init.

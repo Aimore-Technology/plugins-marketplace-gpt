@@ -3,15 +3,24 @@
 
 import argparse
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import sys
 from urllib.parse import unquote, urlsplit
+from schedule_checks import LOCAL_RUNTIMES
 
 
 ROUTES_PATH = Path(__file__).resolve().parents[1] / "references/task-routes.json"
 POLICIES = ("setup-only", "scheduling-only", "manual-review", "one-cycle-no-customer-send", "one-cycle-approved-work", "draft-only", "report-only", "scheduled-approved-work", "owner-workflow")
 SUBMITTED_MANUAL_STEPS = {"VerifyCustomer", "CompleteCommunicationData", "ReviewCommunication", "SyncApprovedPersona"}
+
+
+def local_schedule_guard(guard):
+    directory = guard.get('working_directory')
+    return (guard.get('runtime') in LOCAL_RUNTIMES and guard.get('execution_location') == 'local'
+            and isinstance(guard.get('host_id'), str) and bool(guard['host_id'].strip())
+            and isinstance(directory, str) and bool(directory.strip()) and not re.search(r'[\r\n]', directory)
+            and (PurePosixPath(directory).is_absolute() or PureWindowsPath(directory).is_absolute()))
 
 
 def submitted_manual_route(task):
@@ -221,7 +230,7 @@ def check_resume(task, policy, explicit_continue=False, phase="execute", schedul
         return {"status": "Deferred", "reason": "Queue work excludes unrelated Manual tasks and installation setup"}
     if policy == "scheduled-approved-work":
         guard = schedule_guard or {}
-        if (guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
+        if (not local_schedule_guard(guard) or guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
                 or guard.get("customer_send_allowed") is not True or not guard.get("schedule_id")
                 or not guard.get("invocation_id") or not task.get("OperatorId")
                 or guard.get("operator_id") != task["OperatorId"]):

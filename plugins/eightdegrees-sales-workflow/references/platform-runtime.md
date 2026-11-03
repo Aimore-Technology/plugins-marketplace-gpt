@@ -1,38 +1,31 @@
-# GPT runtime: cloud Work GPT task
+# GPT runtime: local desktop Automation
 
-Use customer-authorized ChatGPT Work with this installed skills-only plugin.
-Manual P0-A, public run-auto, report and draft commands remain on demand. Periodic
-execution targets a cloud Work GPT task with the plugin and required Notion,
-Gmail, Dropbox, CRM and optional SMS/Calendar connections available to each run.
+Periodic work uses a Codex/ChatGPT desktop local Automation on the operator's
+selected computer and existing working directory: runtime=codex-local-task,
+execution_location=local, actual owner_host and absolute working_directory.
+Use the locally installed Skill Pack/plugin and authorized connectors.
 
-start/stop use Work's native scheduled-task management under
-[scheduling](scheduling.md). Prefer an existing Work chat with minute-based
-scheduling when supported, or a native standalone Work task if its actual
-cadence/context/connector access is verified. Use automation_update first when
-exposed and inspect the current schema for target/runtime, recurrence, IDs and
-deletion. Do not guess field names or create an Agents API deployment.
+Discover automation_update first when available and inspect its actual schema
+for local environment/directory, recurrence, IDs and deletion. Preserve model
+settings and required native confirmation. Never invent API fields or edit
+hidden task files. An SSH chat is not proof of the intended execution computer.
 
-The current Codex project chat is not the desired scheduled worker. If it cannot
-create/manage a Work GPT task, provide the native Work setup action and keep
-Notion scheduling unconfigured/pending until actual native readback. Do not
-silently choose a Codex local/worktree automation, a Page/Site controller or a
-plain reminder. A successful native Work task must not depend on this development
-folder or its cross-session desktop bridge. Use cloud-accessible packaged skills
-and authorized sources; a phone SMS gateway still has its actual device/session
-requirements and must be checked separately.
+Use [schedule lifecycle](scheduling.md). Missing local tools/access/cadence stays
+unconfigured with a native local setup action, never a cloud Work task, Page
+controller, reminder, OS cron, daemon or new backend. Do not create a worktree;
+use the selected existing local directory.
 
-Each native tick invokes email-scanning directly with a fresh schedule guard
-and scheduled-approved-work policy. It may execute only valid approved Automatic
-steps. Public run-auto uses one-cycle-approved-work; explicit no-send restrictions remain narrower. Stop/Pause, versions,
-windows, latest visible replies, counts, ownership and original attempts remain
-mandatory; Manual P0-A keeps manual initiation; its valid Notion submissions resume through the shared queue. Keep one executor for a
-customer root across GPT and Claude.
+Keep the computer on, awake and connected with its required app/local runner.
+Sleep, shutdown, app closure or disconnect can delay ticks. On restart use one
+current discovery/recovery cycle from Notion, not a replay per missed interval.
+Local scheduling does not imply offline model inference or local-only services.
 
-Due morning briefs/reminders and confirmed Calendar work run within that cycle;
-report-only is a separate command and cannot send notifications or change events.
-No actual schedule is installed or authenticated by this package. Work runtime
-support/cadence/access and real tick behavior are separate acceptance evidence.
-See [official scheduled tasks](https://learn.chatgpt.com/docs/automations) and
-[Work cloud context](https://learn.chatgpt.com/docs/get-started-with-work).
+A tick calls email-scanning once under a fresh scheduled-approved-work guard,
+bound to actual native task, generation, host and directory. Public run-auto
+remains one on-demand cycle. Preserve email/CRM approvals, standing factual-SMS
+policy, stop/window/count/attempt guards and one executor per customer root.
 
-The current procedure is queue-execution: source scans, submitted communication forms and ready successors share one bounded worklist. Factual SMS notifications use default enabled standing authority under sms-notifications, with no individual review. Channel/stop/time/count/attempt checks and email/CRM review remain.
+Install/init creates no task. Actual local start/ticks/stop, connector access and
+non-overlap require target-host evidence.
+[Official local scheduling](https://learn.chatgpt.com/docs/automations) documents
+desktop project-directory execution and the available computer/app requirement.

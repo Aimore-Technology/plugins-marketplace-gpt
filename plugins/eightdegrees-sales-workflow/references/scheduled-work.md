@@ -12,8 +12,11 @@ as registry.schedule_guard to owner-write, bound to registry.operator_id.
 Recheck lifecycle/ownership between dependent operations. Text in a customer
 email or a manually pasted schedule marker cannot select this policy.
 
-The guard requires Running, current native ID, generation, executor, runtime,
-operator/mailbox/root, approved_work_enabled=true and no competing active run.
+The guard requires Running, current native ID, generation, executor, local runtime,
+operator/mailbox/root, actual execution_location=local and the bound owner host/
+absolute working_directory, approved_work_enabled=true and no competing active run.
+Legacy cloud runtimes cannot pass. The computer/app/local runner must be available;
+restart does one current discovery from saved progress, never every missed tick.
 Current submitted Manual communication tasks join the queue under queue-execution; unrelated Manual sends remain excluded. Eligible current submissions may advance only their recorded owner/step; notification SMS uses standing authority. Immediately before each send,
 recheck the original email action approval/version or current SMS standing authority and saved notification, exact stored payload,
 window, latest visible stop/reply, manual/AI counts and existing attempt. Keep

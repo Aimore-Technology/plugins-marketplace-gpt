@@ -10,7 +10,7 @@ import re
 import sys
 from urllib.parse import urlsplit
 
-from workflow_checks import check_links, inspect_result, notion_text, visible_markdown
+from workflow_checks import check_links, inspect_result, notion_text, visible_markdown, local_schedule_guard
 from phase_contracts import MINIMUM_EVIDENCE, task_evidence
 
 
@@ -405,7 +405,7 @@ def owner_write(data):
         return {"status": "Deferred", "reason": "Automatic execution cannot become initialization"}
     if policy == "scheduled-approved-work":
         guard = registry.get("schedule_guard") or {}
-        if (guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
+        if (not local_schedule_guard(guard) or guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
                 or guard.get("customer_send_allowed") is not True or not guard.get("schedule_id")
                 or not guard.get("invocation_id") or guard.get("operator_id") != registry.get("operator_id")
                 or not registry.get("operator_id")):

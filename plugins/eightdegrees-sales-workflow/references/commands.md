@@ -55,7 +55,7 @@ Without an argument preserve a supported saved choice, or use 30 for new setup.
 Keep the selected target separate from native readback; see scheduling for
 legacy-task migration without creating a duplicate.
 
-After setup, `start` creates or reuses one native 30-minute (20-minute optional) task; `stop` deletes
+After setup, `start` creates or reuses one local 30-minute (20-minute optional) task; `stop` deletes
 that task. `run-auto` still runs once. Start/stop manage schedules only: they do
 not immediately process mail, approve work or send customer messages. The native task calls email-scanning directly under the guarded scheduled-approved-work policy; it retains its native guard instead of masquerading as a deliberate public invocation. Actual host support and task
 readback are required; unsupported exact timing/deletion remains explicit, not
@@ -64,3 +64,5 @@ an hourly fallback or a fake local-state success. See [schedule lifecycle](sched
 ## One cycle or repeated cycles
 
 Public run-auto selects one-cycle-approved-work; a real native invocation additionally needs its scheduled-approved-work guard. Both use queue-execution: current Notion submissions, scoped source/reply scans, due notification SMS, reminders and confirmed appointments. Email/CRM facts require review; factual SMS uses standing authority. Relevant stop/attempt checks are fresh before every effect. No extra continue command, per-email Cron or independent daemon is required.
+
+Scheduled execution is local-only on the selected computer/directory. The host app/local runner must remain available. Missing local scheduling never falls back to cloud. Legacy owned cloud tasks must be reconciled/deleted on their original scheduler before a replacement. See scheduling.md for readback and restart behavior.
