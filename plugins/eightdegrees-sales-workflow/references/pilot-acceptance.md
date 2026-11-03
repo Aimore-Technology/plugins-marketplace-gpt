@@ -120,31 +120,25 @@ Only on the operator's explicit real-channel test request, use separate owner-wo
 - Notes headers stay machine-readable; body uses business actions and future
   customer follow-up. Execute terms are caught before review, without altering
   approved bytes or suppressing source quotations.
-- On a connected native scheduler: start once, verify one actual active task,
-  the exact selected 20/30 minutes, real ID, prompt and timezone. Repeat start must reuse it.
-  Missing native support, unknown create result, duplicate ownership and another
-  host's owner block creation; they must not produce a second scanner.
-- Trigger a real scheduled tick, verifying original scope and Automatic-only,
-  public approved-work behavior, explicit no-send restrictions and native guarded execution separately. Repeat no-change ticks stay quiet. A busy
-  run must not launch a parallel catch-up. Measure actual wall time/call count.
-- stop must delete the exact owned native task, verify absence including paused
-  records and preserve unrelated schedules/business records. Repeat stop is a
-  verified no-op. A paused task, missing delete API or unknown result is not
-  Stopped. A stale queued tick must defer; manual run-auto remains usable.
-- Native schedule support, UI confirmation/deletion, live concurrency and actual
-  runtime speed remain untested until observed in that host. Source/package
-  checks and mocked normalized scheduler fixtures are not live acceptance.
+- With a separately configured periodic task, start must update only the scan
+  switch. Repeat is a no-op. No native task/tool call or immediate scan occurs.
+- stop must update only the switch; the native task remains intact. Invoke
+  run-auto repeatedly: only settings are read, with no discovery, task/source
+  reads, EventIndex/cursor/log/Health/Today writes, notifications or sends.
+- After start, resume original cursors/pending work without resetting approvals,
+  windows, counts or attempts. A stop after admission blocks the next dispatch.
+  Persist only an in-flight effect's original result; never resend.
+- Missing scheduler tools or native execution IDs cannot block either command.
+  Missing/invalid settings still cannot authorize scanning or false success.
 
 ## 0.1.17 alignment acceptance
 
-- In a real Work GPT task, verify native 30-minute (20-minute optional) creation/readback, same-ID
-  reuse, current lifecycle/connector access and deletion. Claude targets native
-  Cowork cron but remains explicitly untested until its environment is available.
-  Do not substitute a Codex project-local task for the requested Work runtime.
-- Explicitly no-send run-auto still defers customer sends; ordinary public run-auto may execute separately approved Automatic sends. A real current native tick may
-  reach only valid approved Automatic owner steps. Test no guard, stale/stop,
-  wrong operator/runtime, competing run, unsubmitted or mismatched Manual input and legacy no-send job
-  upgrade: none may dispatch customer work. A policy name alone is insufficient.
+- On the actual local host, a separately configured task calls run-auto. Its
+  cadence/timing is independent of the plugin scanning switch. start/stop never
+  creates, edits or deletes it and requires no scheduler management interface.
+- No-send, wrong operator/root, invalid review and unknown attempts remain
+  blocked. Enabled scanning is not a content/send approval. No unique executor
+  or competing-session gate is required.
 - Verify an actual sent email's deterministic GHL receipt and current task/index/
   action projections. Interrupt after send and after receipt append: reconcile
   existing IDs, backfill only unfinished result work, never send/append again.

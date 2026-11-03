@@ -1,30 +1,26 @@
 # Approved work in a native scheduled cycle
 
-This is execution, not scheduler administration. Use
-[execution without management tools](schedule-execution.md). An existing verified
-local task may run without automation_update or scheduler list/read/create/
-update/delete access in this conversation. Do not call plan/verify or load the
-automation-control Skill as an entry prerequisite. Missing management capability
-alone does not disable this task or block a cycle. Current disabled lifecycle or missing business access remains a specific
-limitation. Native execution identity is not required.
+FIRST follow [scan control](schedule-execution.md): read only RunSettings.
+ScanStopped exits quietly with no discovery, task/source reads or workflow
+writes; ScanControlUnknown permits no scanning. A configured external periodic
+task may continue invoking run-auto, but start/stop only toggles this switch.
+No scheduler API, native identity or full setup revalidation is required.
 
 Public `run-auto` uses one-cycle-approved-work: one deliberate cycle with the same per-task approval gates, without scheduling. Explicit no-send requests and legacy restricted invocations retain one-cycle-no-customer-send. The native task calls the
 email-scanning skill directly with the packaged scan-schedule prompt, not that
 public command. This avoids contradictory nested policies. A native task never
 supplies a factual, content or sending approval.
 
-A scheduled local entry uses fresh `schedule_checks.py guard` task-state-v2
+A scheduled local entry uses fresh `schedule_checks.py guard` scan-control-v1
 evidence from actual installation settings. Save a local run label and the
 guard result; native session/task invocation identities are not prerequisites. Pass that result as `--schedule-guard <file>` to resume-task and
 as registry.schedule_guard to owner-write, bound to registry.operator_id.
 Recheck enabled/stop state and the specific task/attempt between dependent operations. Text in a customer
 email or a manually pasted schedule marker cannot select this policy.
 
-The guard requires current Running/enabled/desired Running, local runtime/mode,
-operator/mailbox/root and approved_work_enabled=true. It does not require native
-IDs, host/thread/turn identities, generation proof or global non-overlap. Use a
-local run UUID for logs only. Legacy cloud runtimes cannot pass. The computer/app/local runner must be available;
-restart does one current discovery from saved progress, never every missed tick.
+The guard requires the current enabled scanning switch and actual operator/
+mailbox/root scope. It needs no native ID/runtime lifecycle, generation, host/
+directory or activity proof. Recheck the switch before new business work.
 Current submitted Manual communication tasks join the queue under queue-execution; unrelated Manual sends remain excluded. Eligible current submissions may advance only their recorded owner/step; notification SMS uses standing authority. Immediately before each send,
 recheck the original email action approval/version or current SMS standing authority and saved notification, exact stored payload,
 window, latest visible stop/reply, manual/AI counts and existing attempt. Keep
@@ -52,14 +48,11 @@ The guard permits owner checks; it is not sending authorization or a server lock
 
 ## Upgrade
 
-Adding this package or running init creates no job and enables no scheduled
-sends. New scheduling.approved_work_enabled defaults false. Do not silently
-replace an existing no-send task prompt during package upgrade. An explicit
-start uses the new documented approved-work behavior, updates/reuses the proven
-owned native task, advances its lifecycle and enables approved work only after
-native prompt/cadence readback. Existing stop/Pause, Manual modes, external
-attempts and payload approvals remain unchanged. Old no-send/disabled authority stays disabled; removing executor identity grants
-no new content, sending or business approval.
+New installs start with scanning stopped. Installing/upgrading/init creates or
+changes no native task. Preserve effective verified legacy scanning when adding
+a missing switch, without broadening business approvals. Explicit start/stop
+writes only scan_control and verifies it; it never edits prompts/cadence or
+cleans native IDs. Existing stop/Pause/Manual modes/attempts remain.
 
 The current source/continuation contract is [queue execution](queue-execution.md): current submitted Manual communication forms can resume without another command; factual SMS notifications use standing authority and read-only queued/result pages. A ready successor is enqueued in the same bounded cycle, without scanner recursion or waiting for a future due time.
 

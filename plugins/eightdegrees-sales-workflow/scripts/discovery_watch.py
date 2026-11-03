@@ -8,8 +8,6 @@ FACT_STEPS = {'ResolveProjectSources', 'ReviewReplyDraft', 'SendApprovedReply'}
 
 
 def plan(data):
-    if data.get('tasks_complete') is not True:
-        raise ValueError('Complete current task discovery is required before omitting watches')
     settings = blocks(data['settings_page'], 'run-settings', required=False)
     # RunSettings has historically used settings_schema_version rather than a tag.
     if settings:
@@ -22,6 +20,12 @@ def plan(data):
         if len(found) != 1:
             raise ValueError('Use the original unambiguous RunSettings page')
         config = found[0]
+    from scan_control import gate
+    entry = gate({'settings': config})
+    if entry['status'] != 'ScanEnabled':
+        return entry
+    if data.get('tasks_complete') is not True:
+        raise ValueError('Complete current task discovery is required before omitting watches')
     rows = data['tasks']
     if not isinstance(rows, list):
         raise ValueError('Use the actual complete task rows')

@@ -1,25 +1,18 @@
-# Local scheduling without a unique executor
+# start/stop is a scanning switch, not native task management
 
-Use this card for start/stop, a periodic tick or legacy task migration.
+0.1.42 replaces previous schedule create/delete semantics. Only patch the
+registered RunSettings.scan_control enabled flag, verify actual readback and
+return the settings link. Do not discover scheduler APIs, require native IDs/
+identity, edit cadence/prompts, create/delete jobs or make a workflow log for
+this settings-only command. Old interval arguments do not control scheduling.
 
-0.1.41 removes the unique executor requirement from business execution, including
-scan admission, scheduled routing, dispatch and compaction recovery. Do not ask
-for native host/thread/turn/task invocation identity or serialize all conversations.
-An existing local tick uses schedule-execution.md with actual RunSettings and
-task-state-v2; a local RunId is just a log label. Legacy assigned-thread and
-single-owner flags are inert immediately, without init or rebinding.
+Every manual/periodic run-auto FIRST reads this switch. Stopped means no other
+source/task/form reads, cursor/index updates, run/log/Health/Today writes or
+business work. Do not load owners or revive setup. Unknown switch means no
+scan, not assumed enabled. Keep the external repeating task intact.
 
-Only start/stop manages native jobs. Keep its actual native ID/account/host/
-directory evidence for correct creation, reuse and deletion. Maintain one
-configured scanner per root; management target identity is not a business
-executor identity. Do not relabel/drop unresolved cloud IDs to create duplicates.
-
-Per-task approvals, stop state, source/context scopes, counts and original
-AttemptIds remain. Completed effects are skipped. Pending/unknown requests are
-not resent. Another session alone does not block independent work. Notion
-provides no atomic parallel exactly-once guarantee; use actual provider
-idempotency support and never claim a global lock.
-
-Keep the selected computer/app available. After restart discover current events
-once, not each missed tick. No management APIs are needed for execution.
-Offline tests do not certify live scheduler timing or concurrent delivery.
+Recheck before new work; persist only an already in-flight effect's original
+result after stop. start resumes original due work/cursors/approvals/attempts,
+without replaying missed ticks, reopening closed work or resetting limits.
+No unique executor/session identity is required. Native recurrence is configured
+separately; helpers and this Skill never manage it.

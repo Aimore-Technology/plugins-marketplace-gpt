@@ -27,7 +27,7 @@ class TaskStateExecutionTests(unittest.TestCase):
         before = copy.deepcopy(data)
         guard = SCHEDULE.guard(data)
         self.assertEqual(guard['status'], 'EligibleForScheduledCycle')
-        self.assertEqual(guard['guard_contract'], 'task-state-v2')
+        self.assertEqual(guard['guard_contract'], 'scan-control-v1')
         self.assertNotIn('host_id', guard)
         self.assertNotIn('invocation_id', guard)
         self.assertEqual(data, before)
@@ -62,7 +62,7 @@ class TaskStateExecutionTests(unittest.TestCase):
                       {'desired_state': 'Stopped'}, {'state': 'StopRequested'}):
             data = configured_tick()
             data['scheduling'].update(patch)
-            self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
+            self.assertEqual(SCHEDULE.guard(data)['status'], 'ScanStopped')
 
     def test_owner_route_accepts_task_state_without_session_identity(self):
         from test_scheduled_outcomes import task

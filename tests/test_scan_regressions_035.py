@@ -135,7 +135,7 @@ class RunMetadata(unittest.TestCase):
 
 class ActiveWatches(unittest.TestCase):
     def fixture(self):
-        config={'settings_schema_version':2,'project_sources':{},'sales_replies':{}}
+        config={'scan_control':{'contract':'scan-control-v1','enabled':True},'settings_schema_version':2,'project_sources':{},'sales_replies':{}}
         for n in [1,2,3]:
             config['project_sources'][str(n)]={'context_key':str(n),'index':{'file_id':f'index{n}'},'files':{'current':{'file_id':f'current{n}','status':'Current'},'old':{'file_id':f'old{n}','status':'Superseded'}}}
             config['sales_replies'][str(n)]={'context_key':str(n),'content_task_page_id':format(n,'032x'),'send_task_page_id':format(n+10,'032x')}

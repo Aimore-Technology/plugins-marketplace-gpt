@@ -142,6 +142,11 @@ def recovery_ready(item, prior, now):
 
 
 def advance(data):
+    from scan_control import gate
+    entry = gate(data)
+    if entry['status'] != 'ScanEnabled':
+        return entry
+
     root = page_id(data['root_id'])
     if data.get('policy') not in (None, 'one-cycle-approved-work', 'one-cycle-no-customer-send', 'scheduled-approved-work'):
         return {'status': 'ScanDeferred', 'work': [], 'reason': 'This invocation policy cannot execute queue work', 'external_actions_allowed': False}

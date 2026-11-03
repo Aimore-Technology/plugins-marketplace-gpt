@@ -30,8 +30,12 @@ import connector_capture
 import discovery_watch
 import intake_handoff
 import invocation_context
+import scan_control
 
 OPERATIONS = {
+    "scan.entry": scan_control.gate,
+    "scan.control-plan": scan_control.plan,
+    "scan.control-verify": scan_control.verify,
     "run.record": runtime_records.prepare,
     "run.legacy-projection": runtime_records.legacy_projection,
     "intake.handoff": intake_handoff.verify,
@@ -82,7 +86,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
+PASSED = {"ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",

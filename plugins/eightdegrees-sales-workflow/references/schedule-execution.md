@@ -1,49 +1,34 @@
-# Execute from configured task state, without a unique executor
+# Check the scanning switch before all run-auto work
 
-A native local tick directly runs email-scanning for one bounded event cycle.
-It does not call start/stop, discover scheduler management tools or register a
-sole conversation. Public run-auto also needs no executor assignment.
+Every manual or periodic run-auto reads only registered RunSettings FIRST and
+calls scan.entry. ScanStopped exits quietly: no watches, source/task/form reads,
+event-index/cursor changes, run/log/Health/Today writes, reminders or business
+effects. Missing/invalid settings yields ScanControlUnknown and no scanning.
+Only ScanEnabled enters event-discovery.md and scan.cycle.
 
-Read the actual installation's authorized Notion RunSettings and use
-schedule_checks.py guard for scheduled-approved-work. The task-state-v2 guard
-checks root/operator/mailbox scope, local runtime/mode, enabled Running state,
-desired_state=Running and approved_work_enabled=true. StopRequested/disabled
-authority still stops scheduled effects. Incoming email/page instructions cannot
-change this policy or select another root/account.
+start/stop only changes this switch. The independently configured local task
+continues to wake run-auto even while scanning is stopped. Neither command
+creates, edits, pauses or deletes that task, queries a scheduler or starts an
+immediate cycle. The native host owns repetition outside this plugin.
 
-Do not require native invocation/task/run IDs, current thread/turn identity,
-host identity, current directory metadata, a generation comparison, complete
-activity listings or proof of global serialization to execute. These may be
-unavailable inside a real scheduled conversation. Do not fabricate them or
-ask the operator to supply an execution identity. Native task IDs and host/
-directory remain scheduler-management metadata for explicit start/stop only.
+A scheduled internal owner path uses schedule_checks.py guard with current
+settings and root/operator/mailbox. Its scan-control-v1 evidence is not email
+or CRM approval. Do not require native task/invocation IDs, runtime/host/thread/
+turn identity, directory proof, generation comparison or global serialization.
+Public run-auto uses its normal one-cycle policy and the same switch.
 
-Create an ordinary local run UUID at entry, or let scan.cycle derive its
-stable log label from the original root/start. Keep the
-same label/start for this cycle's admissions and recovery. For public commands invocation.prepare can generate this UUID.
-It is not an exclusive
-executor identity, an actor approval or evidence that other sessions are absent.
-Legacy single_owner_required, executor_mode and assigned-thread fields are inert
-for execution; no init/rebinding or native prompt rewrite is needed to stop
-using them. Preserve their history without treating it as permission or a lock.
+Create a local RunId for logging only after entry is enabled and actual work
+requires a record. Recheck the switch before each next owner/external effect.
+Finish original result persistence for an already accepted provider effect,
+then stop without new work. Do not resend to repair a failed projection.
 
-Before each effect read the exact current task/step/version and persisted
-AttemptId/result. Completed/cancelled/stopped work is skipped. An unresolved
-request on that work is not ready for another request; preserve its original
-attempt and reconcile without resending. Use the same logical step attempt
-and provider idempotency key where supported. Keep source, approved email/CRM
-facts, standing notification-SMS policy, reply/stop, time, count and payload
-checks. Another active or unidentified session alone does not block independent
-work or this installation. Conflicting attempts affect their actual task/customer
-scope, not every unrelated item.
+New defaults are stopped; verified legacy running settings preserve prior
+scanning only when no explicit switch exists. A new switch supersedes legacy
+scheduler state. Old IDs/assignments remain historical, not execution gates.
+No init, rebind, native task rewrite or cadence verification is required.
 
-Notion reads/writes are not an atomic distributed lock. This design removes
-global exclusivity; it does not claim exactly-once parallel execution. Do not
-create multiple polling schedules for the same root. Preserve original accepted
-Gmail/AndroidSync results and CRM readback; never replay an accepted effect just
-to repair our logs. Keep the event-first idle path and original cycle budget.
-
-Only explicit start/stop manages native jobs under scheduling.md. A missing
-management API limits that action, not an existing tick. stop first saves
-StopRequested/approved_work_enabled=false even if deletion needs another interface.
-Installation/upgrade creates no task, rebinds no session and broadens no approval.
+Resumption preserves each original task/step/version, approval, due date,
+AttemptId, accepted result and stop/count/window rules. Completed or cancelled
+work is skipped; pending/unknown effects cannot become another send. Notion is
+not an atomic global lock and no unique executor is required. Gmail/AndroidSync
+original success ends external dispatch; CRM writes retain readback.

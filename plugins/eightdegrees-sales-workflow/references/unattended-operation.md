@@ -2,6 +2,11 @@
 
 Apply [provider handoff completion](provider-boundary.md): successful Gmail/AndroidSync acceptance ends dispatch; verify our own records and CRM, with no post-handoff provider or recipient checks.
 
+Before everything below, read only registered RunSettings and call scan.entry.
+Stopped means immediate quiet exit, no other workflow reads/writes or records.
+Recheck before each next admission; after stop only persist an already accepted
+effect's original result. start/stop never changes the external periodic task.
+
 The operator reviews business facts and email sends in Notion. Native ticks do
 all eligible continuation, source scanning, factual SMS, due internal work and
 result repair without another chat command. A human decision blocks its item,
@@ -78,7 +83,7 @@ activity/assignment fields and reports execution_basis=TaskStateAndAttempts.
 Generate a local run UUID or use the cycle's root/start-derived label for logs
 and recovery only; retain it across fresh admissions without resetting time.
 
-Keep one configured polling task per root to avoid unnecessary repeated scans;
+The operator may keep one external polling task per root to avoid unnecessary repeated scans;
 this is schedule configuration, not a global business lock. Before each effect
 read the exact current step/version/approval and original AttemptId/result. Do
 not retry a pending/unknown request, repeat a completed effect or expire an
@@ -160,8 +165,8 @@ message delivery or Claude Cowork runtime.
 
 Public run-auto runs once under its actual approved-work or explicit no-send
 policy, from any authorized conversation. It needs no init session selection,
-thread rebinding or stopped scheduler. A local scheduled entry checks current
-configured task state with task-state-v2. Both use the same per-task approvals,
+thread rebinding or stopped scheduler. A local scheduled entry checks the current
+scan_control switch with scan-control-v1, independently of native scheduler state. Both use the same per-task approvals,
 source/version/stop/window/count/attempt rules. report/draft/setup command
 policies still cannot execute queued customer sends.
 

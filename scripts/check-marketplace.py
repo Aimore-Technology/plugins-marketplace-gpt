@@ -146,6 +146,7 @@ def check():
             if resource.is_file() and resource.suffix in {'.md', '.json'} and resource.name != 'operator-setup.md':
                 require(not re.search(r'john|vivian', resource.read_text(encoding='utf-8'), re.I), f'Fixed pilot person in runtime payload: {resource.relative_to(plugin)}')
         require(defaults['timezone'] == 'Australia/Adelaide', 'Pilot timezone drift')
+        require(defaults.get('scan_control') == {'contract': 'scan-control-v1', 'enabled': False}, 'Package must default to stopped scanning')
         require(defaults['scheduling']['enabled'] is False, 'Package must not enable schedules')
         require(defaults['scheduling']['target_scan_minutes'] == 30
                 and defaults['scheduling']['allowed_scan_minutes'] == [20, 30], 'Scan cadence defaults drift')

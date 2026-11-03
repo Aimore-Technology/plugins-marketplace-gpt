@@ -1,44 +1,24 @@
-# GPT runtime: local desktop Automation
+# GPT local host: scan switch and independent recurrence
 
-## Existing task execution
+The operator/host independently configures local periodic calls to run-auto.
+Use the installed plugin/Skill Pack and authorized connectors.30 minutes is
+suggested,20 optional; the plugin does not create/configure a task or certify
+that cadence. The selected computer/app must be available for local execution.
 
-A configured local tick uses [task-state execution](schedule-execution.md).
-No unique executor, native task/invocation ID, host/thread/turn identity, current
-directory proof, generation comparison or activity/serialization listing is
-required. Read current authorized installation settings and exact task/attempt
-state. Generate a local RunId for logging only. Legacy executor assignment
-fields are inert; no rebind/setup loop. Missing management APIs do not block
-execution. Stop/disabled authority, approvals and unknown attempts still apply.
+start enables RunSettings.scan_control; stop disables it. Neither command
+queries, creates, updates, pauses or deletes native tasks or edits their prompt,
+cadence, directory or host. Do not discover automation_update or scheduler APIs
+for these commands. Existing jobs and IDs remain untouched.
 
-## Explicit start/stop management
+Every manual/periodic run-auto FIRST reads only RunSettings and scan.entry.
+ScanStopped exits quietly with no other workflow reads/writes, logs or effects.
+ScanControlUnknown permits no work; only ScanEnabled enters event discovery.
+Missing management tools or native host/thread/turn/invocation identity is no
+execution blocker. A local RunId is just a log/recovery label.
 
-Periodic work uses a Codex/ChatGPT desktop local Automation on the operator's
-selected computer and existing working directory: runtime=codex-local-task,
-execution_location=local, actual owner_host and absolute working_directory.
-Use the locally installed Skill Pack/plugin and authorized connectors.
-
-Discover automation_update first when available and inspect its actual schema
-for local environment/directory, recurrence, IDs and deletion. Preserve model
-settings and required native confirmation. Never invent API fields or edit
-hidden task files. An SSH chat is not proof of the intended execution computer.
-
-Use [schedule lifecycle](scheduling.md). For an explicit start without an
-existing verified task, missing local management tools/access/cadence leaves
-that management action unconfigured with a native local setup action, never a
-cloud Work task, Page controller, reminder, OS cron, daemon or new backend. Do not create a worktree;
-use the selected existing local directory.
-
-Keep the computer on, awake and connected with its required app/local runner.
-Sleep, shutdown, app closure or disconnect can delay ticks. On restart use one
-current discovery/recovery cycle from Notion, not a replay per missed interval.
-Local scheduling does not imply offline model inference or local-only services.
-
-A tick calls email-scanning once under a fresh scheduled-approved-work guard,
-using current configured task state, without native executor identity. Public run-auto
-remains one on-demand cycle. Preserve email/CRM approvals, standing factual-SMS
-policy, stop/window/count/attempt guards and per-task attempt checks.
-
-Install/init creates no task. Actual local start/ticks/stop, connector access and
-native management require target-host evidence.
-[Official local scheduling](https://learn.chatgpt.com/docs/automations) documents
-desktop project-directory execution and the available computer/app requirement.
+Use [scan control](scheduling.md) and [execution](schedule-execution.md). Stop
+before new admissions/effects; persist only an already accepted original result
+after a stop. Keep approvals, scoped customer stops, windows, counts, cursors
+and attempts. Gmail/AndroidSync success ends external dispatch; CRM retains
+readback. New installs are stopped. Legacy verified scanning can be preserved
+without init/rebinding or touching the native scheduler.

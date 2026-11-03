@@ -1,13 +1,19 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.41. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.42. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+
+Current 0.1.42 behavior: start/stop only toggles the Notion scanning switch.
+A stopped run-auto reads only settings and exits without discovery or logs.
+No command creates/updates/pauses/deletes native automations. Older release
+sections below describe historical behavior and are superseded for start/stop.
+
 
 ## Skills
 
 | Skill | Use |
 | --- | --- |
 | eightdegrees-sales-workflow | Route the seven short commands to existing workflows. |
-| eightdegrees-automation-control | Start/reuse or delete one local 30-minute (20-minute optional) approved-work task. |
+| eightdegrees-automation-control | Enable/disable scanning only; periodic tasks remain untouched. |
 | eightdegrees-initialization | Set up customer Notion, actual connections, defaults and readiness. |
 | eightdegrees-email-scanning | One scoped scan and automatic-task validation cycle. |
 | eightdegrees-communication-context-process | Manual P0-A; reviewed communication to CRM Notes. |

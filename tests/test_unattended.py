@@ -179,7 +179,7 @@ class ScopedContactStops(unittest.TestCase):
 
 def cycle_fixture():
     item = {'source_key': 'email1', 'step': 'SendApprovedReply', 'version': 'v1', 'input_digest': 'sha1'}
-    return {'root_id': 'a'*32, 'started_at': '2026-11-01T00:00:00Z', 'now': '2026-11-01T00:01:00Z',
+    return {'settings': {'scan_control': {'contract':'scan-control-v1','enabled':True}}, 'root_id': 'a'*32, 'started_at': '2026-11-01T00:00:00Z', 'now': '2026-11-01T00:01:00Z',
             'budget_seconds': 480, 'reserve_seconds': 60,
             'executor': {'current_id': 'run1', 'active_ids': ['run1'], 'serialized': True, 'coverage_complete': True},
             'items': [item], 'streams': {'gmail': {'cutoff': '2026-11-01T00:00:00Z', 'durable': True, 'complete': True}}}

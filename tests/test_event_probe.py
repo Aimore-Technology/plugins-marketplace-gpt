@@ -15,7 +15,7 @@ NOW = '2026-11-02T12:00:00Z'
 
 
 def fixture():
-    return {'root_id': ROOT, 'now': NOW, 'scope_sha256': '1' * 64,
+    return {'settings': {'scan_control': {'contract':'scan-control-v1','enabled':True}}, 'root_id': ROOT, 'now': NOW, 'scope_sha256': '1' * 64,
             'required_feeds': sorted(event_probe.REQUIRED),
             'observations': {name: {'mode': 'snapshot', 'complete': True, 'observed_at': NOW,
                                     'records': [], 'next_cursor': 'c1'} for name in event_probe.REQUIRED}}

@@ -7,7 +7,6 @@ from pathlib import Path
 import re
 import sys
 from urllib.parse import unquote, urlsplit
-from schedule_checks import LOCAL_RUNTIMES
 
 
 ROUTES_PATH = Path(__file__).resolve().parents[1] / "references/task-routes.json"
@@ -16,10 +15,8 @@ SUBMITTED_MANUAL_STEPS = {"VerifyCustomer", "CompleteCommunicationData", "Review
 
 
 def local_schedule_guard(guard):
-    return (guard.get('guard_contract') == 'task-state-v2'
-            and guard.get('runtime') in LOCAL_RUNTIMES
-            and guard.get('execution_location') == 'local'
-            and guard.get('lifecycle_running') is True
+    return (guard.get('guard_contract') == 'scan-control-v1'
+            and guard.get('scan_enabled') is True
             and bool(re.fullmatch(r'[0-9a-f]{32}', str(guard.get('root_id', '')))))
 
 

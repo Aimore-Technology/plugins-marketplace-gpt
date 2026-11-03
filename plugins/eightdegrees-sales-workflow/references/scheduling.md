@@ -1,133 +1,63 @@
-# Local approved-work schedule lifecycle
+# Scanning switch; native recurrence is independent
 
-start creates/reuses ONE local task for this Aimore root and selected computer/
-directory. Default30 minutes;20 explicitly optional. stop deletes it. Scheduling
-commands do no immediate scan, customer send, CRM/Calendar write or approval.
-Installation/init creates no job.
+start/stop changes only RunSettings.scan_control:
 
-## Management scope versus execution scope
+```json
+{"contract":"scan-control-v1","enabled":false}
+```
 
-These list/read/create/update/delete requirements apply to explicit start/stop
-and their native-operation readback. They are not prerequisites for every cycle.
-Existing verified local ticks use [execution](schedule-execution.md) and guard,
-without management-tool discovery, plan/verify or a current scheduler listing.
-A management limitation affects only that management action; do not mark an
-existing Running task unconfigured or recreate it due solely to absent tools.
-Current stop/authority state and task-specific unknown attempts still defer
-affected effects. Executor/session identity is no longer an execution gate;
-approvals remain independent of scheduler management.
+start sets true; stop sets false. A successful change requires actual settings
+readback. Repetition is a no-op. No immediate scan, approval, business effect,
+workflow log creation or native scheduler mutation belongs to either command.
+The legacy internal scheduling-only policy now means settings-only control.
 
-## Runtime and ownership
+## Entry before discovery
 
-GPT uses codex-local-task in the desktop local Automation environment. Claude
-uses cowork-local-task explicitly configured for local-folder execution.
-Require execution_location=local, absolute working_directory and actual owner_host.
-Discover automation_update first when exposed, then actual native schemas and
-confirmation. Verify installed Skill/authorized connector access on that runner.
-Missing local capability stays unconfigured with its native local setup action;
-no cloud task, Page controller, plain reminder, OS cron or independent backend.
+Every public or periodic run-auto FIRST reads only the original registered
+RunSettings and calls scan.entry. This precedes watch/task queries, EventIndex,
+mail IDs/bodies, CRM, Dropbox, owner plans, invocation/run records and reports.
 
-Identity is eightdegrees-scan:<normalized Notion root UUID>, actual native ID,
-full prompt and provider/account/host/runtime/directory. List paused jobs too;
-titles are insufficient. Verify execution mode from native configuration, not a
-prompt saying local. An SSH conversation does not automatically select its host
-as the schedule computer. Use the existing chosen directory, no new worktree.
+- ScanStopped: end quietly. No discovery, source/task/form reads, watermark/label/
+  EventIndex changes, logs, Health/Today updates, reminders or sends. The native
+  host may still wake the task; the plugin does no further workflow operation.
+- ScanEnabled: proceed to event-first discovery and affected approved work.
+- ScanControlUnknown: reading/validating the setting failed; do not scan or
+  mutate anything. Report the actual limitation without auto-init or retries
+  across unrelated services.
 
-## State and upgrade
+Recheck the current switch before admitting another owner step/external action.
+A stop after an original provider success permits only saving that effect's
+original result; it never permits another send or new business work. A resumed
+scan keeps original cursors, submissions, due dates, approvals, attempts and
+accepted results. It does not replay each missed interval or reset expired work.
 
-Saved scheduling fields: enabled, desired_state, state, generation, owner_key,
-provider, account_id, owner_host, runtime, execution_location, working_directory,
-schedule_ids, target_scan_minutes, allowed_scan_minutes, actual_scan_minutes,
-prompt_sha256, approved_work_enabled, pending_attempt and last_verified_at.
-Fresh installs are Stopped/disabled with execution_location=local, runtime/
-directory unset and approved_work_enabled=false.
+## Upgrade
 
-Install/init adds configuration without creating/deleting/enabling tasks.
-Preserve live IDs/runtime/history/attempts; do not relabel a cloud task as local.
-On explicit start, reconcile/delete the old owned task through its original
-scheduler and prove absence before a local replacement. An empty local list
-cannot prove a different host/cloud task is gone. Inaccessible original owner
-remains one migration item, never permission for another worker.
+New defaults are stopped. Installing/upgrading/init does not enable scanning.
+With no scan_control field, derive enabled only from legacy scheduling fields
+enabled=true, approved_work_enabled=true, state=Running, desired_state=Running.
+Otherwise remain stopped. A malformed explicit switch is unknown, never a
+fallback to legacy true. An explicit start/stop writes the new switch without
+changing legacy scheduling/native job metadata. No init/rebinding is needed.
 
-States: Stopped -> Starting -> Running; Running/Starting -> StopRequested ->
-Stopped. Unknown native effects retain one pending AttemptId and
-NeedsReconciliation. Known native success plus failed Notion saving repairs
-only the projection, never another native create. Notion is not an atomic lock.
+## Native task outside this plugin
 
-## Start
+The operator/host independently configures local repetition and invokes public
+run-auto each time. Existing local tasks are left intact. start creates no task;
+stop deletes/pauses none. Do not call automation_update or native list/read/
+create/update/delete for these commands. Old cloud IDs/unknown native attempts
+remain untouched metadata; cleanup is a separate explicit operator task.
 
-1. Read actual setup/settings, selected host/directory and complete native list
-   including inactive tasks. Reconcile pending/unknown attempts and another
-   owner first; multiple owned matches block creation.
-2. Select explicit interval_minutes=20|30, else preserve a supported saved value
-   or default30. Explicit start may migrate legacy15 to30. Before mutation save
-   Starting intent/AttemptId and advance generation when changing lifecycle.
-   Preserve model and unrelated native settings.
-3. Native create/update binds root/operator/mailbox/runtime/host/directory in
-   the full [prompt](../assets/scan-schedule.md); no immediate business run.
-4. Read back actual native ID, full prompt, enabled state, local execution mode,
-   exact directory/host, cadence/timezone and Skill/connector access; list again
-   to prove one owned job. Only then save Running/enabled/approved_work_enabled.
-   Configuration success does not certify future ticks or channel delivery.
+30 minutes remains the suggested external cadence,20 optional. Old start
+interval_minutes arguments neither change cadence nor schedule anything. No
+unique executor, host/thread/turn identity, native invocation ID or global
+serialization proof is required. Keep per-task approvals and original attempts.
 
-## Stop and legacy cleanup
+## Deterministic helpers
 
-Save desired_state=Stopped, approved_work_enabled=false and StopRequested before
-deletion. Delete only proven owned IDs, including owned duplicates, then verify
-complete absence including paused tasks before Stopped. A pause, local flag,
-missing API/confirmation or unknown delete is not success. Keep approvals,
-customer tasks, source progress, provider attempts and unrelated schedules.
-
-work-gpt-task and cowork-cron-task are legacy names allowed ONLY for stop/delete
-verification on their original scheduler. They cannot start or execute a cycle.
-Do not clear their live IDs after a failed cleanup. Repeat stop with verified
-absence is a no-op. Stop cannot undo an accepted provider effect. A later
-deliberate run-auto remains one manual cycle, without restarting scheduling.
-
-## Each local tick and interruption
-
-Reread current setup/enabled/stop/authority state before work and between
-effects. Use task-state-v2 under [execution](schedule-execution.md). Do not
-compare a native invocation ID, generation, host/thread/turn or directory, or
-require complete activity/serialization proof for business execution. Those
-metadata remain relevant only to managing the actual native schedule.
-
-The scheduled procedure calls email-scanning once. Public run-auto is one
-on-demand cycle without a sole-conversation assignment. Keep each current
-task/version's original AttemptId, accepted result, approval and stop/window/
-count checks. Another active session is not a global lock. Due briefs/reminders/
-confirmed appointments share this cycle; no per-email timers.
-
-The selected computer must stay on, awake and connected with its required app/
-local runner. Sleep, app closure, shutdown or disconnect can delay/miss ticks.
-After restart perform ONE current discovery/recovery from saved cursors and due
-events, not one execution for every missed interval. Keep actual last/next run,
-partial coverage, original budget and unknown/accepted attempts.
-
-## Offline helper evidence
-
-schedule_checks.py plan|verify|guard consumes original normalized native evidence,
-not guessed API fields. context includes runtime, execution_location=local,
-absolute working_directory, root/account/provider/host/operator/mailbox/timezone/
-generation and optional interval_minutes. capabilities.local_execution and
-local_context_ready must be true along with actual list/read/runner/cadence
-evidence. runner_ready alone proves no local capability.
-
-Actual task readback contains execution_location/working_directory plus original
-ID/prompt/provider/host/cadence fields. Those fields prove native management targeting, not an execution identity.
-The execution guard consumes actual configured task state without scheduler
-management capabilities, native invocation metadata or sole-worker assignment.
-
-Verify the exact selected integer20/30 cadence. No silent hourly/cloud/directory/
-host fallback. A plan is not Running/Stopped and helpers grant no native access.
-Stay quiet while unchanged; notify meaningful failure/completion/required action.
-A20/30-minute tick does not prove a19-minute reminder deadline.
-
-## Platform references
-
-[OpenAI local schedules](https://learn.chatgpt.com/docs/automations) documents
-desktop project-directory execution and the running-computer/app requirement.
-[Claude scheduling](https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork)
-currently defaults to remote execution but documents local mode for local files/
-apps. Select and verify that local setting explicitly; ordinary Cowork cron is
-not proof. Actual account cadence, local tick and deletion still require testing.
+scan_control.py gate/plan/verify are exposed as scan.entry, scan.control-plan and
+scan.control-verify in local_checks.py. plan returns only a scan_control patch
+and write_required; verify checks the saved flag and unchanged other settings.
+schedule_checks.py plan/verify are compatibility aliases to the same switch;
+its scheduled guard uses the switch and actual root/operator/mailbox scope.
+No helper grants approval or calls any connector/scheduler.

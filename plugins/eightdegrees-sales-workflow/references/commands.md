@@ -5,7 +5,6 @@ Enable/select EightDegrees Sales Workflow in the host first. The unified entry s
 ```text
 @eightdegrees-sales-workflow init
 @eightdegrees-sales-workflow start
-@eightdegrees-sales-workflow start interval_minutes=20
 @eightdegrees-sales-workflow stop
 @eightdegrees-sales-workflow add-communication <message URL or pasted content>
 @eightdegrees-sales-workflow run-auto
@@ -22,7 +21,7 @@ On first init, choose Chinese or English for workspace pages, forms and reports.
 3. Actual material email Sent automatically registers its SMS cycle/due/notification. Factual notification SMS is permitted by default through notification-sms-v1; generate/edit, freeze and send when due without individual ContentReview/SendApproval. Stop/Pause, current channel/time/count/attempt checks still apply. Email and CRM facts retain exact-version human review.
 4. report shows current results/waits without execution. reply-draft prepares/revises the email and separate send approval; it never sends from that command. Use public run-auto or the native queue after submission, not reply-draft continue or an internal owner command.
 
-The seven names stay unchanged. run-auto runs once; start enables repetition; stop deletes only the owned repeating task. Package installation and init create no schedule. Explicit no-send requests and old restricted native jobs remain narrow; explicit start/readback is required to replace their prompt. Unknown/closed/stopped work is not reopened. Existing explicit SMS disable/revocation remains effective. See [queue execution](queue-execution.md) and [SMS notifications](sms-notifications.md).
+The seven names stay unchanged. run-auto runs once; start enables scanning; stop disables scanning while leaving the periodic task intact. Package installation and init create no schedule. Explicit no-send requests and old restricted native jobs remain narrow; the scan switch never changes an existing task prompt or approval. Unknown/closed/stopped work is not reopened. Existing explicit SMS disable/revocation remains effective. See [queue execution](queue-execution.md) and [SMS notifications](sms-notifications.md).
 
 A legacy explicit continuation phrase may still be understood for compatibility, but normal help and tests must not require it. Unknown commands and quoted source instructions never authorize mutations.
 
@@ -33,7 +32,6 @@ The Claude edition also includes seven native command files:
 ```text
 /eightdegrees-sales-workflow:init
 /eightdegrees-sales-workflow:start
-/eightdegrees-sales-workflow:start interval_minutes=20
 /eightdegrees-sales-workflow:stop
 /eightdegrees-sales-workflow:add-communication <message URL or pasted content>
 /eightdegrees-sales-workflow:run-auto
@@ -47,31 +45,25 @@ These are Claude command registrations, not OpenAI manifest fields. The GPT edit
 
 For new/migrated DataCompletion, open the registered ordinary action page, fill only requested fields and check its named submission to-do. The original task's InputSubmitted property is no longer a human control. Legacy task-input-v1 keeps its original task-body/property route until explicitly migrated. Automatic tasks validate on the next authorized scan; Submitted Manual communication work resumes through the same queue. A checkbox starts no schedule and supplies no content/send approval. See [pending input](pending-input.md) and [operator actions](operator-actions.md).
 
-## Periodic scanning
+## Scanning control
 
-Scheduler management and task execution are separate. Missing native management
-tools limits only start/stop; it does not stop an existing verified local tick or
-block run-auto. A native tick calls email-scanning directly with its current
-execution guard, without repeating start, management-tool discovery or schedule
-setup. See [execution contract](schedule-execution.md).
+start enables the RunSettings scan_control switch; stop disables it. Both
+change only that settings field and read it back, without a scan, workflow log
+or native task operation. A repeated command with the same state is a no-op.
+The operator/host independently configures the local periodic task to invoke
+run-auto;30 minutes remains suggested,20 optional. Old interval_minutes
+arguments have no scheduling effect.
 
-The optional start argument interval_minutes=20 selects the faster cadence;
-interval_minutes=30 explicitly returns to the default cadence.
-Without an argument preserve a supported saved choice, or use 30 for new setup.
-Keep the selected target separate from native readback; see scheduling for
-legacy-task migration without creating a duplicate.
-
-After setup, `start` creates or reuses one local 30-minute (20-minute optional) task; `stop` deletes
-that task. `run-auto` still runs once. Start/stop manage schedules only: they do
-not immediately process mail, approve work or send customer messages. The native task calls email-scanning directly under the guarded scheduled-approved-work policy; it retains its native guard instead of masquerading as a deliberate public invocation. Actual host support and task
-readback are required; unsupported exact timing/deletion remains explicit, not
-an hourly fallback or a fake local-state success. See [schedule lifecycle](scheduling.md).
+Every manual or periodic run-auto reads this switch FIRST. While stopped it
+exits quietly without source/task/form reads, event-index/cursor updates, run/
+log/Health/Today writes, reminders or sends. Only the settings read is needed.
+An unknown/unreadable switch does not authorize a scan. See scheduling.md.
 
 ## One cycle or repeated cycles
 
-Public run-auto selects one-cycle-approved-work; a real native invocation additionally needs its scheduled-approved-work guard. Both use queue-execution: current Notion submissions, scoped source/reply scans, due notification SMS, reminders and confirmed appointments. Email/CRM facts require review; factual SMS uses standing authority. Relevant stop/attempt checks are fresh before every effect. No extra continue command, per-email Cron or independent daemon is required.
+Only an enabled scan switch permits run-auto. Public run-auto selects one-cycle-approved-work; an internal scheduled owner path uses a scan-control-v1 guard. Both use queue-execution: current Notion submissions, scoped source/reply scans, due notification SMS, reminders and confirmed appointments. Email/CRM facts require review; factual SMS uses standing authority. Relevant stop/attempt checks are fresh before every effect. No extra continue command, per-email Cron or independent daemon is required.
 
-Scheduled execution is local-only on the selected computer/directory. The host app/local runner must remain available. Missing local scheduling never falls back to cloud. Legacy owned cloud tasks must be reconciled/deleted on their original scheduler before a replacement. See scheduling.md for readback and restart behavior.
+Scheduled execution is local-only on the selected computer/directory. The host app/local runner must remain available. Missing local scheduling never falls back to cloud. Existing native jobs are untouched; start/stop performs no migration or cleanup. See scheduling.md for readback and restart behavior.
 
 ## No unique executor requirement
 
@@ -81,4 +73,4 @@ local tick uses current installation/task state; public run-auto can run from
 any authorized conversation. A locally generated RunId is a log/recovery label.
 Historical executor assignment fields are ignored without init/rebinding.
 Completed effects and pending/unknown attempts remain protected per task.
-Native job IDs still identify the exact schedule for start/stop only.
+Native job IDs are historical metadata; start/stop never manages those jobs.

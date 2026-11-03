@@ -63,3 +63,11 @@ For email and SMS, successful provider acceptance counts one completed dispatch.
 failure/pending item or degrade that result because Delivered or a handset
 observation is absent. Preserve the raw status and optional delivery metadata;
 actual missing reply-reader or scheduler capabilities are separate observations.
+
+## Scanning switch and externally managed timer
+
+Show actual RunSettings.scan_control state separately from native task metadata.
+stop means scanning disabled, not a deleted/failed native task. A stopped tick
+reads only settings and writes no run/log/Health/Today status. An explicit report
+may display that flag using its own report-only scope. Never infer a scheduler
+failure from absent stopped-cycle logs or claim start created a job.

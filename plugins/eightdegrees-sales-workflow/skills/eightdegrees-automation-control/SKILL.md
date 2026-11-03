@@ -1,51 +1,41 @@
 ---
 name: eightdegrees-automation-control
-description: "Create, reuse or delete one local 30-minute (20-minute optional) approved-work task on the selected computer. Does not immediately scan or send."
+description: "Enable or disable scanning in Notion RunSettings. Never create, update, pause or delete an automation, and never run an immediate scan."
 ---
 
-# Start or stop local periodic work
+# Start or stop scanning
 
-start establishes one local host-owned task; stop deletes it. Use
-[schedule lifecycle](../../references/scheduling.md),
-[scheduled work](../../references/scheduled-work.md) and the edition's
-[runtime](../../references/platform-runtime.md). Default30 minutes; optionally
-start interval_minutes=20. No new public command.
+start sets scan_control.enabled=true; stop sets it false. Both use
+scan-control-v1 under [scan control](../../references/scheduling.md). These are
+settings-only actions; the historical internal policy name scheduling-only
+does not permit any native scheduler mutation.
 
-Management-only boundary: this Skill handles explicit start/stop, never the
-body of an already-created tick. A chat/runtime management limitation applies
-only to the requested native management action. It does not prove execution
-unavailable, disable a verified task or block run-auto. Existing ticks load
-[execution without management tools](../../references/schedule-execution.md)
-and use their execution guard. Do not rediscover management tools each tick.
+1. Read only the registered installation's actual RunSettings. Do not discover
+   automation_update, list native tasks, require a runtime/host/session identity
+   or verify cadence. Missing settings must be reported without starting init.
+2. Run local scan.control-plan with operation=start|stop and original settings.
+   Preserve every other setting, cursor, approval, task, due time, provider
+   attempt, native task ID and legacy scheduling metadata. Patch only the
+   returned scan_control. interval_minutes no longer controls anything here;
+   an old argument must not modify cadence or create a task.
+3. If write_required=false, return the existing switch state without another
+   write. Otherwise perform one exact-call-preflighted settings update, then
+   read back and run scan.control-verify. Never claim success from a plan or
+   failed/unknown write. No workflow plan/run/task/action/log creation is needed
+   for a flag flip. [Notion mutation](../../references/notion-mutation.md) still
+   applies to the exact settings call; no other page is a permitted target.
+4. Return Scanning enabled/Scanning stopped and the original settings link.
+   start performs no immediate scan and supplies no business approval. stop
+   leaves the externally configured periodic task intact; its next run-auto
+   checks the switch and exits quietly without discovery or workflow writes.
 
-1. Read RunSettings, actual selected computer and absolute working directory.
-   GPT uses codex-local-task; Claude uses cowork-local-task with verified
-   local-folder execution. Both require execution_location=local. Discover
-   automation_update first when exposed, then actual native schemas. Missing
-   local support remains unconfigured; no cloud job, OS cron or backend fallback.
-2. Before dependent writes persist/read back a scheduling-only plan under
-   [execution preflight](../../references/execution-preflight.md) and
-   [owner completion](../../references/owner-completion.md). Read complete native
-   listing including paused jobs and owned prompts. Reconcile another host/
-   runtime and unknown attempts first. Every Notion write uses
-   [exact-call preflight](../../references/notion-mutation.md).
-3. Reuse/update one exact owned local task, or create after verified absence.
-   Save intent first. Verify actual ID, local mode, owner computer, directory,
-   installed Skill/connector access, full prompt, selected cadence/timezone and
-   enabled state before Running and approved_work_enabled=true. start grants
-   no approval, enables no disabled SMS channel and runs no immediate scan.
-4. stop saves StopRequested and disables approved work, deletes only proven
-   owned IDs, then verifies complete absence before Stopped. Support deletion-
-   only legacy cloud cleanup on its original scheduler; never relabel it local
-   or discard its ID to create another worker. Preserve business history,
-   approvals, attempts and unrelated tasks.
-5. Return actual task/result links and host/directory, with any setup limit.
-   The computer/app/local runner must remain available. Restart does one current
-   discovery, never a burst of missed ticks. init/install/run-auto creates no
-   schedule. No acceptance sends, CRM changes or immediate business execution.
+Every run-auto, manual or periodic, reads the switch first under
+[execution](../../references/schedule-execution.md). Stopped cycles perform no
+mail/Dropbox/CRM/SMS/Calendar reads, task/form scans, event-index writes, run/log/
+Health/Today updates or customer actions. No routine stopped notification. A
+current in-flight provider effect cannot be undone; finish only its original
+result persistence, then admit no next work. Re-enabling resumes original
+unfinished events under fresh per-task approvals, stops, windows and attempts.
 
-Apply [provider completion](../../references/provider-boundary.md): successful
-original Gmail/AndroidSync acknowledgement ends business dispatch; verify our
-records and CRM writes without transport/delivery queries.
-Use [operator experience](../../references/operator-experience.md) and
-[local checks](../../references/local-check-batch.md) for concise actual results.
+Native recurring jobs and their frequency are configured separately by the
+operator/host. These commands never create, update, pause or delete them.

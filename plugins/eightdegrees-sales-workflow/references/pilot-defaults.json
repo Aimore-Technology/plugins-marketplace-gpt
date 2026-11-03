@@ -155,7 +155,7 @@
     "event_discovery_contract": "scan-event-index-v1",
     "event_index_page_id": null,
     "discovery_before_business_work": true,
-    "execution_contract": "task-state-v2"
+    "execution_contract": "scan-control-v1"
   },
   "send_completion": {
     "policy": "provider-handoff-v1",
@@ -164,5 +164,9 @@
     "provider_status_polling": false,
     "recipient_verification": false,
     "crm_write_readback_required": true
+  },
+  "scan_control": {
+    "contract": "scan-control-v1",
+    "enabled": false
   }
 }

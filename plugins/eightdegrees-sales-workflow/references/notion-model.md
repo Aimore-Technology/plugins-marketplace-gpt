@@ -85,10 +85,10 @@ Register GeneratedAt, DataCutoff, CurrentVersion, Coverage and PendingCount. Sep
 
 ## Current send state and native runtime
 
-scheduling.runtime records the verified codex-local-task or cowork-local-task
-adapter; approved_work_enabled defaults false. Native field mappings and actual
-task IDs remain saved as evidence. Explicit start establishes a new verified
-approved-work lifecycle; init/upgrade never enables it silently.
+scan_control={contract:scan-control-v1, enabled:boolean} is the execution
+switch in RunSettings. New installs default false; preserve verified legacy
+scanning when absent. start/stop patches only this field. Legacy scheduling
+runtime/IDs/owner/lifecycle remain untouched metadata, not execution gates.
 
 Current send result fields are derived under [outcome state](outcome-state.md).
 Keep the original immutable provider attempt and one lightweight current index,

@@ -5,9 +5,16 @@ description: "Discover changed or due EightDegrees inputs, exit immediately when
 
 # Discover input, then process affected work
 
+FIRST read only registered RunSettings and call scan.entry before any discovery
+or workflow record. ScanStopped exits quietly without source/task/form queries,
+EventIndex/cursor changes, logs, reports, reminders or sends. ScanControlUnknown
+also permits no scan/mutation. Only ScanEnabled continues below. Recheck before
+new owner/external effects. start/stop changes only this switch, never native
+tasks. The host configures periodic invocation independently.
+
 Run one event-discovery cycle. Public run-auto uses one-cycle-approved-work;
 explicit no-send context retains one-cycle-no-customer-send. Native ticks need
-the actual current schedule guard; start/stop alone manage repetition. Existing
+the actual current schedule guard; the external host alone manages repetition. Existing
 ticks follow [execution without management tools](../../references/schedule-execution.md);
 absence of scheduler management tools never blocks their execution. Do not load
 automation-control or run scheduler plan/verify from a tick. Source

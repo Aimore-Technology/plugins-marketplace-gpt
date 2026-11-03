@@ -81,7 +81,11 @@ Direct Notion edits are logged when actually observed and validated; polling doe
 
 ## Explicit periodic control
 
-Only start/stop may create/delete the installation-owned native task. Follow [scheduling](scheduling.md): native ticks invoke the scanning skill under a current scheduled-approved-work guard and may execute valid independently approved Automatic work. Public run-auto executes one cycle of independently approved Automatic work; explicitly no-send invocations remain restricted. A schedule never approves content, invents a manually initiated communication or creates another schedule. Initialization and installation remain disabled by default.
+start/stop toggles only RunSettings.scan_control.enabled. It never creates,
+updates, pauses or deletes an automation. Every run-auto reads this switch first;
+stopped means no further reads, logs or business work. Native recurrence is
+configured separately by the operator/host. See [scanning control](scheduling.md).
+
 
 ## Approved periodic work and result consistency
 
@@ -89,7 +93,7 @@ A deliberate public run-auto selects one-cycle-approved-work without creating a 
 native cycle uses [scheduled work](scheduled-work.md), current lifecycle guard
 and scheduled-approved-work instead; eligible current Notion decisions may execute, including manually initiated communication review; factual SMS uses standing authority.
 Manual P0-A keeps its intake provenance; validated submissions resume through the shared queue. Upgrade/install/init enables no existing job or new
-send scope. Explicit start and native readback are required for the new lifecycle.
+send scope. Explicit start changes only the verified scan switch; it grants no business approval.
 
 Before dependent actions reconcile conflicting task observations under
 [outcome state](outcome-state.md). After a send, retain one immutable provider

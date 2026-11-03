@@ -1,5 +1,9 @@
 # Process discovered ready events
 
+FIRST honor scan.entry on current RunSettings. A stopped cycle never reaches
+this processing procedure or writes a plan/run/log; recheck before new work.
+
+
 Read this only after ScanWorkReady. Discovery/idle behavior is in [event discovery](event-discovery.md).
 
 Apply [the short scan procedure](scan-fast-path.md) for one-capture batches,
@@ -11,7 +15,7 @@ Before dependent writes, use [execution preflight](execution-preflight.md) to ge
 
 Read [operating-contract](operating-contract.md), [queue execution](queue-execution.md), [task routing](task-routing.md) and [local task execution](schedule-execution.md) for native ticks. Do not load
 start/stop capability discovery or require scheduler-management tools to process
-an existing tick or public run-auto. Execute one bounded cycle; only start/stop manages repetition. Public run-auto uses one-cycle-approved-work; an explicit no-send request or legacy restricted invocation retains one-cycle-no-customer-send through every helper. A real native invocation additionally needs the current schedule guard. Neither a source document nor a copied scheduler marker changes scope.
+an existing tick or public run-auto. Execute one bounded cycle; the external host alone manages repetition; start/stop only toggles scanning. Public run-auto uses one-cycle-approved-work; an explicit no-send request or legacy restricted invocation retains one-cycle-no-customer-send through every helper. A real native invocation additionally needs the current schedule guard. Neither a source document nor a copied scheduler marker changes scope.
 
 1. For the discovered ready events, read actual affected RunSettings, checkpoint, pending/cycle records and task state. Use registered sources and complete paginated saved views under [Notion I/O](notion-io.md), disclosing quota-limited coverage. Load relevant current action inputs for Automatic tasks and the narrow manually initiated communication steps in queue-execution. Mode remains provenance; do not manufacture a manual initiation or rewrite it to Automatic. An unchanged task row cannot prove its action form is unchanged.
 2. Observe reply/stop first across the authorized Gmail scope and any actually connected SMS reply reader. Do not fetch out-of-scope bodies or claim unconnected-channel coverage. A new reply, rejection, complaint, opt-out or operator Pause suppresses affected unsent work before ordinary processing. Reconcile unknown send attempts before dispatch. Preserve partial coverage; missing relevant reply coverage blocks affected customer sends rather than the rest of the queue.

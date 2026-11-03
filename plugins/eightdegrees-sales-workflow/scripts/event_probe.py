@@ -37,6 +37,11 @@ def probe(data):
     persists/readbacks candidate_index. Merely observing a source never handles
     its event. The index contains identities/digests, not cached permissions.
     """
+    from scan_control import gate
+    entry = gate(data)
+    if entry['status'] != 'ScanEnabled':
+        return entry
+
     root, now = page_id(data['root_id']), timestamp(data['now'])
     scope = data['scope_sha256']
     if not isinstance(scope, str) or len(scope) != 64 or any(c not in '0123456789abcdef' for c in scope):

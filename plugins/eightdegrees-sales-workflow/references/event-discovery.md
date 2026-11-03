@@ -1,5 +1,11 @@
 # Discover events before running business work
 
+FIRST read only RunSettings and call scan.entry. ScanStopped exits quietly
+without discovery/task/source reads, indexes, run/log/Health/Today writes or
+notifications. ScanControlUnknown also permits no work. Only ScanEnabled enters
+the procedure below. Exclude scan_control and legacy scheduler lifecycle flags
+from the authorized scope digest so stop/start preserves existing cursors.
+
 run-auto has two stages: lightweight discovery, then affected owner work. A native
 30-minute tick (20 optional) discovers inputs; it is not itself a business event.
 There is no new service, webhook deployment, public command or busy-wait loop.
@@ -86,8 +92,8 @@ Results:
   sweep, routine report/Health rewrite or operator notification. A tiny optional
   heartbeat records actual probe duration/coverage only. Existing Today links
   can be returned without rereading/rebuilding the page.
-- ScanWorkReady: persist/read back candidate_index if changed, establish actual
-  executor ownership, then use scan.cycle for affected events only. Process stop
+- ScanWorkReady: persist/read back candidate_index if changed, retain current task state
+  and a local log label, then use scan.cycle for affected events only. Process stop
   events first; unfinished related successors may run in the same bounded cycle.
   Missing discovery coverage still blocks affected sends through fresh guards.
 - ScanDiscoveryRequired: coverage/configuration/cursor needs attention. Retry
