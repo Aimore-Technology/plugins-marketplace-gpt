@@ -3,6 +3,19 @@ from email_presentation import properties
 from intake_handoff import source_key
 from notion_checks import object_result, page_id
 from runtime_records import read_identity
+import re
+from urllib.parse import unquote
+
+
+def task_source_key(row):
+    """Decode only Notion's exact leading-email rendering, never arbitrary links."""
+    value = read_identity(row.get('SourceKey'))
+    if not isinstance(value, str):
+        return value
+    linked = re.fullmatch(r'\[([^\[\]]+)\]\(mailto:([^()]+)\):(inbound|outbound):([^\s<>\\`():]+)', value)
+    if linked and linked[1] == unquote(linked[2]):
+        return linked[1] + ':' + linked[3] + ':' + linked[4]
+    return value
 
 
 def plan(data):
@@ -16,20 +29,37 @@ def plan(data):
         if identity in sources:
             raise ValueError('Duplicate original source identity; reconcile without creating another')
         # Source pages must retain the actual current installation ancestor.
-        import re
         ancestors = re.findall(r'<(?:parent-page|ancestor-\d+-page)\b[^>]*url="([^"]+)"', source['text'].split('<content>', 1)[0])
         if root not in {page_id(v) for v in ancestors}:
             raise ValueError('Original source belongs to another installation')
         sources[identity] = (capture, source)
     existing_tasks = data['tasks']
-    work, waiting, terminal = [], [], []
+    work, waiting, terminal, blockers = [], [], [], []
     for event in data['events']:
         if event.get('kind') != 'mail':
             continue
         identity = event['source_key']
-        matched = [row for row in existing_tasks if read_identity(row.get('SourceKey')) == identity]
-        active = [row for row in matched if row.get('State') not in {'Completed', 'Cancelled'}]
+        matched = [row for row in existing_tasks if task_source_key(row) == identity]
         source = sources.get(identity)
+        if source:
+            source_id = page_id(source[1]['id'])
+            def original_source_id(row):
+                try:
+                    return page_id(row.get('SourceURL', ''))
+                except (ValueError, TypeError):
+                    return None
+            inconsistent = [row for row in existing_tasks
+                            if original_source_id(row) == source_id and task_source_key(row) != identity
+                            or row in matched and original_source_id(row) not in {None, source_id}]
+            if inconsistent:
+                blockers.extend({'source_key': identity, 'code': 'TaskSourceIdentityConflict',
+                    'reason': 'Original task source key and saved source pointer disagree; retain both originals',
+                    'resume_step': row.get('ResumeStep') or 'VerifyCustomer',
+                    'evidence_ref': row.get('url', row.get('PageId')),
+                    'recovery': 'Repair the original task identity from its original source; do not create another task'}
+                    for row in inconsistent)
+                continue
+        active = [row for row in matched if row.get('State') not in {'Completed', 'Cancelled'}]
         if active:
             for row in active:
                 pointer = {'source_key': identity, 'task_id': row.get('url', row.get('PageId')),
@@ -57,5 +87,5 @@ def plan(data):
                          'version': event['version'], 'input_digest': event['input_digest'],
                          'action': 'ReadAuthorizedMessageThenSaveSource', 'create_source': True})
     return {'status': 'BacklogRecoveryPlanned', 'work': work, 'waiting': waiting,
-            'terminal_handoffs': terminal, 'ready_count': len(work),
+            'terminal_handoffs': terminal, 'blocks': blockers, 'ready_count': len(work),
             'scope': 'Pointers only; persist source-to-successor handoff before acknowledging original event; no approval or send'}

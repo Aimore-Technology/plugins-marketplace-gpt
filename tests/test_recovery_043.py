@@ -58,6 +58,24 @@ class Recovery043(unittest.TestCase):
         d['sources_complete']=False
         with self.assertRaises(ValueError):backlog_recovery.plan(d)
 
+    def test_notion_email_link_projection_reuses_waiting_task_and_rejects_conflict(self):
+        root='a'*32
+        source=page('b'*32,'Saved original',{'Account':'user@example.com','MessageId':'m1','Direction':'Inbound','ContentVersion':'source-v1'})
+        source['text']='<ancestor-1-page url="https://app.notion.com/p/'+root+'">Aimore</ancestor-1-page>\n'+source['text']
+        row={'SourceKey':'[user@example.com](mailto:user%40example.com)\\:inbound\\:m1',
+             'SourceURL':'https://app.notion.com/p/'+'b'*32,'State':'WaitingForOperator',
+             'ResumeStep':'VerifyCustomer','ContentVersion':'match-v1','url':'notion:original-task'}
+        d={'root_id':root,'sources_complete':True,'tasks_complete':True,'source_pages':[source],
+           'tasks':[row],'events':[work(source_key='user@example.com:inbound:m1')]}
+        r=backlog_recovery.plan(d);self.assertEqual(r['work'],[]);self.assertEqual(len(r['waiting']),1)
+        row['SourceKey']='[different@example.com](mailto:user%40example.com):inbound:m1'
+        r=backlog_recovery.plan(d);self.assertEqual(r['work'],[]);self.assertEqual(len(r['blocks']),1)
+        row['SourceKey']='[user@example.com](https://untrusted.example):inbound:m1'
+        r=backlog_recovery.plan(d);self.assertEqual(r['work'],[]);self.assertEqual(len(r['blocks']),1)
+        # A contradictory task must not suppress another original customer.
+        d['events'].append(work(source_key='other@example.com:inbound:m2'))
+        r=backlog_recovery.plan(d);self.assertEqual(len(r['work']),1);self.assertTrue(r['work'][0]['create_source'])
+
     def test_existing_completed_read_cannot_suppress_distinct_handoff(self):
         d=scoped_cycle();source='user@example.com:inbound:m1'
         d['items']=[dict(source_key=source,step='ReadMessageBody',version='v1',input_digest='mail')]
