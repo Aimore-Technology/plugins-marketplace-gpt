@@ -41,3 +41,20 @@ unknown attempts and executor metadata remain untouched historical records.
 start/stop changes only the switch. No scheduler discovery, lifecycle migration,
 cleanup, prompt edit or task creation/deletion is part of this upgrade. Preserve
 all business facts, approvals, submissions, cursors, counts and attempts.
+
+## Visible configuration, not hidden defaults
+
+Use setup.audit during explicit init/upgrade and expose its saved values in a
+Dashboard configuration summary. Include operator display name, mailbox, actual
+read-label names/IDs, read time scope, Dropbox folder allowlist, sender/signature,
+CRM location and workspace/language. Show inherited values as inherited; do not
+claim this deployment obtained new consent. Fresh init asks for a name and scope
+selection even when profiles can propose defaults, unless already supplied.
+
+UNREAD is a broad unread filter, not a dedicated inquiry folder. AimoreScanned
+is a progress marker, not permission. Missing scope is not all-mail access.
+Customer_setup.dropbox_work_folders is the saved current folder allowlist; show
+conflicting legacy dropbox.work_folders without silently merging/expanding it.
+Collect missing/corrected values in one setup form with explicit submission,
+then resume ValidateSetupInput. Preserve existing validated scope on upgrade;
+this setup audit is not a fresh global prerequisite for every timer wake.

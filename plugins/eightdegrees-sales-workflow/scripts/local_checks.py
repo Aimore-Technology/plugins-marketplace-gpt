@@ -34,8 +34,10 @@ import scan_control
 import backlog_recovery
 import cycle_metrics
 import current_rules
+import configuration_audit
 
 OPERATIONS = {
+    "setup.audit": configuration_audit.audit,
     "scheduled.rules": current_rules.load,
     "backlog.recover": backlog_recovery.plan,
     "cycle.metrics": cycle_metrics.summarize,
@@ -92,7 +94,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
+PASSED = {"ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",

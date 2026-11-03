@@ -82,3 +82,31 @@ feed under [event discovery](../../references/event-discovery.md). This makes th
 repair visible once to run-auto without repeated human submission or quiet-tick
 history sweeps. Init only registers the wake-up; it does not activate/send work.
 Stopped, used, unknown or expired work remains blocked with its original reason.
+
+## Required business configuration review
+
+At every explicit init/upgrade run setup.audit on the original saved settings.
+Show a short business-readable configuration summary: operator name, scanned
+mailbox, actual allowed label names/IDs and date scope, authorized Dropbox
+folders, sender/signature, CRM location, Notion root/language and optional
+notification channels. Never substitute installation success for this summary.
+Profiles only propose an operator name; fresh setup asks the operator to choose
+the name and source scopes unless already explicitly supplied. Do not guess
+Dropbox scope, choose UNREAD as a fallback, or treat AimoreScanned as inquiry
+authorization. A broad unread scope must be described as such.
+
+On upgrade preserve prior valid authorizations and show their saved values; do
+not demand repeated consent simply because the package version changed. Record
+which choices were supplied now versus inherited; installation or a profile is
+not a new confirmation. Missing required choices get one concise setup input,
+with concrete fields and owner/ResumeStep=ValidateSetupInput. Conflicting legacy
+projections are displayed together; never union folder sets or silently replace
+current scope. customer_setup holds the current business scope; legacy duplicate
+fields are diagnostic and must not secretly drive another scope. Apply only
+explicitly authorized corrections, retaining original cursors and attempts.
+
+Persist/link the configuration summary under Dashboard and return it with the
+normal init result. Readiness is per capability. This audit is setup-only, not
+another scheduled-cycle gate: existing saved sources can recover without a full
+re-onboarding; only genuinely missing/revoked permissions or necessary facts
+block their affected work. Existing stop/revocation always remains effective.

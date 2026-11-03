@@ -1,8 +1,8 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.43. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.44. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
-Current 0.1.43 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
+Current 0.1.44 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
 A stopped run-auto reads only settings and exits without discovery or logs.
 No command creates/updates/pauses/deletes native automations. Older release
 sections below describe historical behavior and are superseded for start/stop.
@@ -156,3 +156,5 @@ and recovery only. Legacy executor assignments are inert without init/rebinding.
 Per-task approvals, stops, completed results and original pending/unknown attempts
 remain checked. Native schedule target IDs remain for start/stop management;
 this release creates no schedule and does not claim an atomic parallel lock.
+
+0.1.44 makes business setup visible on every explicit init/upgrade: operator, mailbox labels/time scope, Dropbox allowlist, sender/signature, CRM/workspace and optional channels. Saved values are not newly confirmed consent. Missing or conflicting scopes are shown explicitly; setup audit adds no periodic execution gate.

@@ -3,15 +3,15 @@
 Apply this section only to actual EightDegrees scheduled wakes in this working
 directory. Ordinary user commands retain their own command boundaries.
 
-On EVERY native wake, resolve the current installed EightDegrees plugin with the
-host's supported plugin listing. Do not reuse an old cached version path. In
-Codex, read `codex plugin list --json`, select the enabled installed
-eightdegrees-sales-workflow@aimore-gpt-marketplace record and use its source.path.
-Run `python <source.path>/scripts/current_rules.py` and read the returned current
-scheduled entry, scanner and guard rules. Enter email-scanning directly under
-scheduled-approved-work; do not route through public run-auto's policy or start.
-If the current loader is unavailable, report the exact deployment failure;
-never silently use a historical unique-executor policy.
+On EVERY native wake resolve the current installed EightDegrees resource from
+the host's enabled plugin catalog or its previously verified unversioned
+source.path. Read scripts/current_rules.py there afresh and read the returned
+current scheduled entry, scanner and guard. Enter email-scanning directly under
+scheduled-approved-work; do not route through public run-auto or start/stop.
+Do not repeat marketplace upgrades or management discovery every tick. Resolve
+a moved resource through supported host listing when necessary; listing itself
+is not a native execution prerequisite. Retain the actual rule version/hash,
+not an old version path or historical chat instruction.
 
 Read original registered Notion RunSettings first. Stop/revocation is effective;
 native task ACTIVE metadata cannot enable scanning. Old executor/chat binding,
