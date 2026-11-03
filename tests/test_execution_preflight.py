@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 from test_notion_checks import source_schema, PARENT, CHECKS
 from test_reply_transport import fixture, SCRIPTS
+from fixtures_intake import handoff
 
 SPEC = importlib.util.spec_from_file_location("execution_preflight", SCRIPTS / "execution_preflight.py")
 PREFLIGHT = importlib.util.module_from_spec(SPEC)
@@ -21,7 +22,7 @@ RUN, TASK, ACTION, HTML, IMAGE = [c * 32 for c in "12345"]
 def request():
     return {"owner_skill": "eightdegrees-sales-reply", "policy": "draft-only", "operation": "content",
             "invocation_id": "synthetic-invocation", "publication_version": "reply-v2",
-            "facts": {"finance_status": "unconfirmed", "finance_approved": None},
+            "facts": {"finance_status": "unconfirmed", "finance_approved": None}, "intake_handoff": handoff(),
             "resources": [{"role": "run", "type": "run", "entity_id": RUN},
                           {"role": "review", "type": "task", "entity_id": TASK, "content_version": "reply-v2", "resume_step": "ReviewReplyDraft"},
                           {"role": "review-input", "type": "action", "entity_id": ACTION, "task_role": "review"}],
@@ -47,7 +48,7 @@ class ExecutionPreflightTests(unittest.TestCase):
             result = PREFLIGHT.prepare(data)
         schema.assert_not_called()
         self.assertEqual(result["status"], "NeedsCorrection")
-        self.assertEqual(result["checks"][0]["exit_code"], 2)
+        self.assertEqual(result["checks"][-1]["exit_code"], 2)
         self.assertNotIn("execution_plan", result)
         self.assertNotIn("outputs", result)
 

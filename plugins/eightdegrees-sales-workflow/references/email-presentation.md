@@ -24,6 +24,8 @@ nested outcome value, preserving all other settings and stop/policy data byte fo
 byte. Pointer-only indexes need no synthesized outcome. Supply saved_index_page
 for verification, even when unchanged; never leave an existing duplicate stale.
 
+For new source-bound packages, supply source_page and declare it as a publication role. The helper matches its original incoming account/message/thread, updates its current text/Result and moves a waiting source to Processing for internal closeout. Supply saved_source_page to verify. Only AFTER presentation and all owner checks pass, prepare and apply the source_completion marker through the final owner-write gate and re-read its Processed marker. No source final marker gates its own presentation proof. Legacy packages may add a verified original source capture without rewriting their frozen package.
+
 The plan supplies only Result properties, plain current-section/navigation
 patches, review-history labels and the original current-outcome JSON on task and
 action. Use `page_ids[role]` as each update's target;

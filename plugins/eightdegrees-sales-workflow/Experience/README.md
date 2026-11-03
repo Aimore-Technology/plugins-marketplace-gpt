@@ -5,6 +5,7 @@ Read this short index once per invocation, then only the card relevant BEFORE it
 | Before this operation | Read | What it prevents |
 | --- | --- | --- |
 | Begin run-auto or a native tick | [Event discovery](../references/event-discovery.md) | Full business reasoning/checks without changed or due input |
+| Source intake, current-result publication or compaction recovery | [Handover and recovery](handover-and-recovery.md) | Preparing before durable intake, losing approval bindings, stale waits and changing executor role |
 | A scan is slow or a ready successor misses its cycle | [Short handovers](scan-handover.md) | Historical dependency sweeps, repeated phase estimates and missing run/error metadata |
 | Activate email review or emit dispatch arguments | [Prospective action gates](../references/pre-action-order.md) | Opening controls before saved-copy agreement or sending before saved queue admission |
 | Resume a submitted task or dispatch notification SMS | [Queue and notifications](queue-and-notification.md) | Extra continue/per-message SMS approval, duplicate successor execution |

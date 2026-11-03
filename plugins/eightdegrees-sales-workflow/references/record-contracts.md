@@ -11,6 +11,8 @@ client_pages entry must bind exact location_id, contact_id and persona_page_id.
 The helper inserts above the unique original snapshot for localized headings,
 preserving every approved byte. A conflicting or unavailable binding refuses.
 
+New sales-send-package records also retain source_page_id from the verified durable intake handoff. New package publication rejects a missing source pointer; email result publication must update/read back that same original page. Legacy frozen packages stay unchanged.
+
 New sales-send-package records include content_approval={task_page_id,
 action_page_id, decision: Confirm, content_version}, referencing the actual
 accepted review and content_approval_sha256. Legacy pointer-only packages are

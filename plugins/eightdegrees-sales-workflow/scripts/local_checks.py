@@ -28,9 +28,17 @@ import review_release
 import runtime_records
 import connector_capture
 import discovery_watch
+import intake_handoff
+import invocation_context
 
 OPERATIONS = {
     "run.record": runtime_records.prepare,
+    "run.legacy-projection": runtime_records.legacy_projection,
+    "intake.handoff": intake_handoff.verify,
+    "intake.plan": intake_handoff.plan,
+    "invocation.prepare": invocation_context.prepare,
+    "invocation.resume": invocation_context.resume,
+    "checkpoint.reconcile": scan_cycle.reconcile,
     "connector.capture": connector_capture.normalize,
     "scan.watches": discovery_watch.plan,
     "notion.page-links": notion_checks.page_links,
@@ -73,7 +81,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"RunRecordPrepared", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
+PASSED = {"RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",

@@ -37,6 +37,8 @@ Use [unattended operation](unattended-operation.md) and local scan.cycle before 
 
 For explicitly assigned on-demand execution, normalize the actual current thread/turn, saved queue_execution.on_demand_executor_thread_id, stopped/no-attempt scheduler and complete installation Scan activity into executor.on_demand under the bounded procedure. Pass the real invocation policy. This scoped basis permits public manual cycles without claiming native/global host serialization; it never applies to scheduled-approved-work. Preserve pending submissions and original attempts.
 
+Apply [handover integrity](handover-integrity.md): complete/read back source intake before sales preparation, preserve bindings/current sections, reconcile only affected terminal waits, and pin the original invocation across compaction.
+
 ## One admission, source progress and service observations
 
 scan.cycle now returns at most one owner admission. Recheck actual clock, current

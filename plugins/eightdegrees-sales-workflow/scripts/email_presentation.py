@@ -181,6 +181,8 @@ def plan(data):
         raise ValueError('Capture exactly the send and linked content-review task/actions')
     if data.get('index_page') is not None:
         pages['index'] = data['index_page']
+    if data.get('source_page') is not None:
+        pages['source'] = data['source_page']
     props = {k: properties(v) for k, v in pages.items()}
     ids = {k: page_id(object_result(v)['id']) for k, v in pages.items()}
     if len(set(ids.values())) != len(ids):
@@ -190,6 +192,15 @@ def plan(data):
         raise ValueError('A maintenance task must not reopen or impersonate the original completed records')
     _, package = blocks(pages['send_task'], 'sales-send-package')
     manifest, approval = package['transport_manifest'], package.get('content_approval')
+    if package.get('source_page_id') and ('source' not in pages or ids['source'] != page_id(package['source_page_id'])):
+        raise ValueError('Read and synchronize the original package source_page_id')
+    if 'source' in pages:
+        from intake_handoff import source_key
+        expected_source = manifest['from_address'] + ':inbound:' + manifest['reply_message_id']
+        if (source_key(pages['source']) != expected_source
+                or props['source'].get('ThreadId') != manifest['thread_id']
+                or props['source'].get('State') not in {'Processing', 'WaitingForOperator', 'Processed'}):
+            raise ValueError('Source projection must identify this original inbound mail/thread')
     version = package['content_version']
     if approval is None:
         accepted = blocks(pages['review_task'], 'accepted-action-submission')[1]
@@ -305,7 +316,11 @@ def plan(data):
                                  ('## Review summary', '## Review summary (at approval)')]:
                     if re.search(r'(?m)^' + re.escape(old) + r'\s*$', body) and body.count(old) == 1:
                         edits.append({'old_str': old, 'new_str': new})
-            for names in ({'current status', '\u5f53\u524d\u72b6\u6001'}, {'processing result', '\u5904\u7406\u7ed3\u679c'}):
+        # Canonical task bodies need the same current copy as their actions.
+        # Edit only existing plain sections; immutable packages/bindings stay.
+        body = page_body(pages[role])
+        for names in ({'current status', '\u5f53\u524d\u72b6\u6001'}, {'processing result', '\u5904\u7406\u7ed3\u679c'}):
+            if role.endswith('action') or any(re.search(r'(?m)^## ' + re.escape(name) + r'\s*$', visible_markdown(body), re.I) for name in names):
                 edit = current_patch(body, names, text)
                 if edit:
                     edits.append(edit)
@@ -316,11 +331,31 @@ def plan(data):
     if 'index' in pages:
         edit = index_patch(pages['index'], ids['send_task'], version, new_outcome)
         if edit: updates.append(edit)
+    if 'source' in pages:
+        edits = []
+        body = page_body(pages['source'])
+        for names in ({'current status', '\u5f53\u524d\u72b6\u6001'}, {'processing result', '\u5904\u7406\u7ed3\u679c'}):
+            if any(re.search(r'(?m)^## ' + re.escape(name) + r'\s*$', visible_markdown(body), re.I) for name in names):
+                edit = current_patch(body, names, text)
+                if edit: edits.append(edit)
+        if edits:
+            updates.append({'role': 'source', 'command': 'update_content', 'content_updates': edits})
+        # Processed is a separately gated final owner write. Requiring it as
+        # input to this very completion proof would introduce a circular gate.
+        desired_state = 'Processed' if props['source'].get('State') == 'Processed' else 'Processing'
+        desired = {k: v for k, v in {'State': desired_state, 'Result': text}.items() if props['source'].get(k) != v}
+        if 'Progress' in props['source'] and props['source']['Progress'] != 'EmailHandedOff':
+            desired['Progress'] = 'EmailHandedOff'
+        if desired:
+            updates.append({'role': 'source', 'command': 'update_properties', 'properties': desired})
     return {'status': 'EmailPresentationPlanned', 'entity_id': entity_id,
             'send_task_id': ids['send_task'], 'content_version': version, 'message_id': message,
             'projection_page_ids': list(ids.values()), 'page_ids': ids, 'updates': updates,
             'index_page_id': ids.get('index'),
-            'expected_outcome': new_outcome, 'scope': 'Notion current results only; no state/approval/payload/provider/CRM change'}
+            'expected_outcome': new_outcome,
+            'source_completion': ({'entity_id': ids['source'], 'state': 'Processed', 'requires': 'FullOwnerCompletion'}
+                                  if 'source' in pages and props['source'].get('State') != 'Processed' else None),
+            'scope': 'Current results/source progress only; source completion is not an executable call and needs owner completion separately; no approval/payload/provider/CRM change'}
 
 
 def verify(data):
@@ -332,6 +367,9 @@ def verify(data):
     if 'index_page' in data:
         originals['index'] = data['index_page']
         saved['index'] = data['saved_index_page']
+    if 'source_page' in data:
+        originals['source'] = data['source_page']
+        saved['source'] = data['saved_source_page']
     issues = []
     for role in originals:
         body, props = page_body(originals[role]), properties(originals[role])

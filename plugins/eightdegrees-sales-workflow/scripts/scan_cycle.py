@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Bound a scan and prepare durable recovery state; no scheduler, lock or I/O."""
 
+import copy
 import hashlib
 import json
+import re
 from datetime import datetime, timedelta
 
-from email_presentation import blocks
+from email_presentation import blocks, properties
+from runtime_records import read_identity
 from notion_checks import object_result, page_id
 
 
@@ -21,6 +24,69 @@ def key(item):
     if any(not isinstance(v, str) or not v.strip() for v in fields):
         raise ValueError('Work identity requires source, step, version and input digest')
     return hashlib.sha256(json.dumps(fields, separators=(',', ':')).encode()).hexdigest()
+
+
+def reconcile(data):
+    """Retire stale waiting pointers from original terminal tasks, not old prose.
+
+    This reconciles queue bookkeeping only. Unknown attempts are never released,
+    and cancellation never becomes evidence that a provider accepted anything.
+    """
+    original = blocks(data['checkpoint_page'], 'scan-checkpoint-v1')[1]
+    result = copy.deepcopy(original)
+    if page_id(original['root_id']) != page_id(data['root_id']):
+        raise ValueError('Checkpoint belongs to another installation')
+    tasks = {}
+    for page in data['task_pages']:
+        actual = object_result(page)
+        identity = page_id(actual['id'])
+        ancestors = re.findall(r'<(?:parent-page|ancestor-\d+-page)\b[^>]*url="([^"]+)"', actual['text'].split('<content>', 1)[0])
+        if page_id(data['root_id']) not in {page_id(v) for v in ancestors}:
+            raise ValueError('Terminal task is outside this checkpoint installation')
+        if identity in tasks:
+            raise ValueError('Ambiguous canonical task observations')
+        tasks[identity] = properties(page)
+    changes = []
+    for identity, item in result['items'].items():
+        if item.get('state') != 'waiting' or not item.get('receipt_ref'):
+            continue
+        task_id = page_id(item['receipt_ref'])
+        task = tasks.get(task_id)
+        if not task or task.get('State') not in {'Completed', 'Cancelled'}:
+            continue
+        if (task.get('ContentVersion') != item.get('version') or task.get('ResumeStep') != item.get('step')
+                or item.get('source_key') not in {read_identity(task.get('TaskId')), read_identity(task.get('SourceKey'))}):
+            raise ValueError('Terminal task does not match the stale checkpoint identity/version/step')
+        item.update(state='completed' if task['State'] == 'Completed' else 'cancelled',
+                    canonical_state=task['State'])
+        changes.append({'key': identity, 'task_page_id': task_id, 'canonical_state': task['State']})
+    retained = []
+    for work in original.get('work_items', []):
+        work_key = key(work)
+        prior = result['items'].get(work_key, {})
+        if not work.get('waiting') or work.get('unknown_attempt') or prior.get('state') == 'unknown':
+            retained.append(work)
+            continue
+        matches = [(identity, task) for identity, task in tasks.items()
+                   if task.get('State') in {'Completed', 'Cancelled'}
+                   and task.get('ContentVersion') == work['version']
+                   and task.get('ResumeStep') == work['step']
+                   and work['source_key'] in {read_identity(task.get('TaskId')), read_identity(task.get('SourceKey'))}]
+        if len(matches) > 1:
+            raise ValueError('Multiple canonical tasks match a stale waiting work item')
+        if not matches:
+            retained.append(work)
+            continue
+        task_id, task = matches[0]
+        result['items'][work_key] = {**prior, 'state': task['State'].lower(),
+                                    'canonical_state': task['State'], 'receipt_ref': task_id,
+                                    **{k: work[k] for k in ('source_key', 'step', 'version')}}
+        if not any(c['key'] == work_key for c in changes):
+            changes.append({'key': work_key, 'task_page_id': task_id, 'canonical_state': task['State']})
+    if 'work_items' in original:
+        result['work_items'] = retained
+    return {'status': 'CheckpointReconciled', 'checkpoint': result, 'changes': changes,
+            'scope': 'Prospective queue bookkeeping only; preserve original checkpoint history; no provider, approval or count change'}
 
 
 def bound_on_demand(data, root, current_id):
@@ -77,16 +143,19 @@ def advance(data):
             raise ValueError('Checkpoint belongs to a different installation')
         # Do not confuse the recorded expired scan with proof of current ownership.
         object_result(data['checkpoint_page'])
+        if data.get('terminal_task_pages'):
+            previous = reconcile({'checkpoint_page': data['checkpoint_page'], 'root_id': root,
+                                  'task_pages': data['terminal_task_pages']})['checkpoint']
     states = dict(previous['items'])
     candidates = {key(v): v for v in previous.get('work_items', [])}
     candidates.update({key(v): v for v in data['items']})
     for result in data.get('results', []):
-        if result.get('state') not in {'completed', 'unknown', 'waiting', 'retry_read'} or not result.get('receipt_ref'):
+        if result.get('state') not in {'completed', 'cancelled', 'unknown', 'waiting', 'retry_read'} or not result.get('receipt_ref'):
             raise ValueError('Persisted step result needs actual evidence and an explicit state')
         work_key = result['key']
         if result['state'] == 'unknown' and not result.get('attempt_id'):
             raise ValueError('Unknown external effect needs the original AttemptId')
-        if states.get(work_key, {}).get('state') == 'completed' and result['state'] != 'completed':
+        if states.get(work_key, {}).get('state') in {'completed', 'cancelled'} and result['state'] != states[work_key]['state']:
             raise ValueError('Completed steps cannot be rewound by a later checkpoint')
         states[work_key] = {k: result[k] for k in ('state', 'receipt_ref', 'attempt_id') if k in result}
         if work_key in candidates:
@@ -108,7 +177,7 @@ def advance(data):
     # Persist identities so a crash before the next query cannot forget ready
     # work. They are discovery pointers, never cached permission or payloads.
     completed = {(v['source_key'], v['step'], v['version']) for v in states.values()
-                 if v.get('state') == 'completed' and all(k in v for k in ('source_key', 'step', 'version'))}
+                 if v.get('state') in {'completed', 'cancelled'} and all(k in v for k in ('source_key', 'step', 'version'))}
     unknown = {(v.get('source_key', candidates.get(k, {}).get('source_key')),
                 v.get('step', candidates.get(k, {}).get('step')))
                for k, v in states.items() if v.get('state') == 'unknown'}
@@ -120,7 +189,7 @@ def advance(data):
             continue
         seen.add(identity)
         prior = states.get(identity, {})
-        if prior.get('state') == 'completed' or finished(item):
+        if prior.get('state') in {'completed', 'cancelled'} or finished(item):
             continue
         if (item['source_key'], item['step']) in unknown and prior.get('state') != 'unknown':
             continue
@@ -168,7 +237,7 @@ def advance(data):
     work = [] if expired or len(attempted) >= limit else fitting[:1]
     work_items = [{k: v[k] for k in ('source_key', 'step', 'version', 'input_digest', 'attempt_id', 'unknown_attempt',
                                    'due_at', 'waiting', 'stopped', 'priority', 'estimated_seconds') if k in v}
-                  for identity, v in candidates.items() if states.get(identity, {}).get('state') != 'completed' and not finished(v)]
+                  for identity, v in candidates.items() if states.get(identity, {}).get('state') not in {'completed', 'cancelled'} and not finished(v)]
     checkpoint = {'record_type': 'scan-checkpoint-v1', 'root_id': root,
                   'invocation_id': current_id, 'items': states, 'streams': streams,
                   'work_items': work_items,

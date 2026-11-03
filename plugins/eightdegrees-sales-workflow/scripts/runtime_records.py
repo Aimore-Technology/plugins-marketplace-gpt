@@ -60,3 +60,25 @@ def prepare(data):
     validate(props, creating=True)
     return {'status': 'RunRecordPrepared', 'properties': props,
             'scope': 'Current run metadata only; merge before exact-call/schema preflight; no history rewrites'}
+
+
+def legacy_projection(data):
+    """A summary-only navigation repair; never invent missing old identities."""
+    from email_presentation import properties
+    from notion_checks import object_result, page_id
+    original = properties(data['run_page'])
+    task = properties(data['task_page'])
+    if (original.get('RecordType') != 'Business' or not original.get('RunId')
+            or original.get('Skill') not in OWNERS
+            or original.get('SkillVersion') and original.get('SourceKey')
+            or task.get('State') not in {'Completed', 'Cancelled'}
+            or task.get('OwnerSkill') != original['Skill']
+            or read_identity(task.get('RunId')) != read_identity(original['RunId'])
+            or not task.get('ContentVersion') or not task.get('TaskId')):
+        raise ValueError('Legacy summary repair requires its original terminal canonical task and exact owner/run binding')
+    identity = page_id(object_result(data['task_page'])['id'])
+    text = ('Canonical task ' + identity + ' is ' + task['State']
+            + '; original run metadata is incomplete. Original state, identifiers and failure history are retained.')
+    return {'status': 'LegacyRunProjectionPrepared', 'properties': {'Summary': text},
+            'run_page_id': page_id(object_result(data['run_page'])['id']), 'task_page_id': identity,
+            'scope': 'Summary-only canonical navigation; never backfill version/source, change old state or replay effects'}

@@ -12,7 +12,8 @@ import sys
 from notion_checks import object_result, page_body, page_id, schema_values
 from workflow_checks import check_links
 from review_release import gate_mutation
-from runtime_records import validate as validate_run
+from runtime_records import validate as validate_run, legacy_projection
+import publication_integrity
 
 SCOPE = "Exact proposed call only; no host interception, scope permission or retrospective order proof"
 IDENTITY_FIELDS = {"TaskId", "RunId", "ParentRunId", "StepId", "SourceKey", "ClientId", "ContactId", "LocationId", "OperatorId", "ApproverId", "ContentVersion", "DecisionVersion", "OwnerSkill", "ResumeStep", "ResumeContractVersion", "CycleId", "AttemptId"}
@@ -94,7 +95,15 @@ def prepare(data):
             if len(schemas) == 1 and {'RecordType', 'RunId', 'SkillVersion'} <= json.loads(schemas[0])['schema'].keys():
                 if run_props.get('RecordType') not in {'Scan', 'Business', 'Initialization'}:
                     raise ValueError('WorkflowRun must declare its actual RecordType and identity')
-        validate_run(run_props, creating=creating)
+        try:
+            validate_run(run_props, creating=creating)
+        except ValueError:
+            if creating or props.keys() != {'Summary'} or 'legacy_task_page' not in data:
+                raise
+            legacy = legacy_projection({'run_page': data['target'], 'task_page': data['legacy_task_page']})
+            if props != legacy['properties']:
+                raise ValueError('Use only the generated canonical legacy summary')
+            checks.append({'kind': 'legacy-summary', 'result': legacy})
         for field in IDENTITY_FIELDS & props.keys():
             value = props[field]
             if isinstance(value, str) and re.search(r'\[[^\]]*\]\(|<\/?(?:mention|page|a)\b|[`*\n\r]', value):
@@ -110,6 +119,7 @@ def prepare(data):
     if any(c["result"]["status"] == "NeedsCorrection" for c in checks):
         return {"status": "NeedsCorrection", "checks": checks, "scope": SCOPE}
     review = gate_mutation(data, texts)
+    publication_integrity.check(data, review)
     if review is not None:
         checks.append({"kind": "email-review-release", "result": review})
     encoded = json.dumps(call, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)

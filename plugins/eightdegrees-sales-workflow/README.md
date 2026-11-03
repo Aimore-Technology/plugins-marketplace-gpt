@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.36. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.37. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
 ## Skills
 
@@ -125,3 +125,5 @@ Use [the short execution procedure](references/scan-fast-path.md) and
 [the incident card](Experience/scan-handover.md). New local operations are
 scan.watches, connector.capture and run.record; they prepare data, not approvals
 or external actions. Unchanged completed projects need no source sweeps.
+
+Version0.1.37 adds durable intake handoff, whole-page binding/current-section guards, linked source result synchronization and pinned invocation recovery. See [handover integrity](references/handover-integrity.md).

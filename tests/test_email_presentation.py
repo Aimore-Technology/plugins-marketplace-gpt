@@ -59,6 +59,8 @@ def apply_plan(data):
     saved = copy.deepcopy(data['pages'])
     if data.get('index_page') is not None:
         saved['index'] = copy.deepcopy(data['index_page'])
+    if data.get('source_page') is not None:
+        saved['source'] = copy.deepcopy(data['source_page'])
     for update in PRESENTATION.plan(data)['updates']:
         capture = saved[update['role']]
         if update['command'] == 'update_content':

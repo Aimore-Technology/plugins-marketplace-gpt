@@ -37,6 +37,8 @@ the first page and check it afterwards, use an earlier empty notion_rows array
 as approval of a later property update, or replay CRM/email/SMS after a display
 write fails. Reconcile the refused Notion write and repair that projection only.
 
+The exact-call guard also simulates the proposed whole page: it rejects missing/ambiguous anchors, duplicate live current sections and lost/rebound action-binding records. See [handover integrity](handover-integrity.md) for verified new-version history and the narrow summary-only legacy-run path. Never bypass a refusal with a raw write.
+
 Other Notion mutation types use their actual tool contract and explicit scoped
 checks; never invent a tool alias to obtain this helper's pass. Root/teamspace
 operations unavailable to the current connector remain setup limitations.

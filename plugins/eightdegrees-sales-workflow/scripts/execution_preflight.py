@@ -14,6 +14,7 @@ from notion_checks import object_result, page_body, page_id, schema_values
 from reply_transport import prepare as prepare_reply
 from phase_contracts import task_evidence, validate_phase
 import runtime_records
+import intake_handoff
 
 
 PROFILES = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
@@ -113,6 +114,16 @@ def prepare(data):
                        "result_sha256": digest(result), "exit_code": exit_code, "result": result})
         return result, exit_code
 
+    if owner == 'eightdegrees-sales-reply' and (operation in {'content', 'reply-patch'} or stage_step == 'ReviewReplyDraft'):
+        result, code = checked('intake-handoff', 'intake-handoff', data['intake_handoff'],
+                               intake_handoff.verify, 'IntakeHandoffVerified')
+        if code:
+            return {'status': 'NeedsCorrection', 'checks': checks, 'scope': SCOPE}
+        outputs['intake_handoff'] = copy.deepcopy(result)
+        if 'reply' in data:
+            manifest = data['reply']['manifest']
+            if result['source_key'] != manifest['from_address'] + ':inbound:' + manifest['reply_message_id']:
+                raise ValueError('Reply transport differs from the original completed source intake')
     if "facts" in data:
         result, code = checked("facts", "facts", data["facts"], canonical_facts, "ValidFactSemantics")
         if code:
@@ -155,7 +166,7 @@ def ready(data):
     if not phased and sum(r['type'] == 'task' for r in plan['resources']) > 1:
         raise ValueError("Legacy multi-task plan has no frozen phase boundaries; preserve it and prepare linked current-step repair before work")
     # Recheck results as well as hashes; a zero exit without a successful result is not evidence.
-    expected = {"facts": "ValidFactSemantics", "schema-values": "ValidSelectValues", "reply-prepare": "DraftPatchPlanned"}
+    expected = {"facts": "ValidFactSemantics", "schema-values": "ValidSelectValues", "reply-prepare": "DraftPatchPlanned", "intake-handoff": "IntakeHandoffVerified"}
     observed = prepared.get("checks", [])
     if len(observed) != len(plan["prechecks"]):
         raise ValueError("Missing original preflight results")
@@ -170,12 +181,18 @@ def ready(data):
             raise ValueError("Preflight is failed, missing or malformed")
     outputs = {}
     for check in observed:
+        if check['kind'] == 'intake-handoff':
+            outputs['intake_handoff'] = check['result']
         if check["kind"] == "facts":
             outputs["facts"] = check["result"]["facts"]
         if check["kind"] == "reply-prepare":
             outputs["reply_args"] = check["result"]["args"]
     if prepared.get("outputs") != outputs:
         raise ValueError("Prepared outputs changed after validation")
+    needs_intake = (plan['owner_skill'] == 'eightdegrees-sales-reply'
+                    and (plan['operation'] in {'content', 'reply-patch'} or plan.get('stage_step') == 'ReviewReplyDraft'))
+    if needs_intake and plan.get('run_properties', {}).get('SkillVersion') == runtime_records.VERSION and 'intake_handoff' not in outputs:
+        raise ValueError('Current reply plan cannot omit its durable intake handoff')
     bindings = data.get("bindings", {})
     roles = {r["role"]: r for r in plan["resources"]}
     if not isinstance(bindings, dict) or not set(bindings) <= roles.keys():

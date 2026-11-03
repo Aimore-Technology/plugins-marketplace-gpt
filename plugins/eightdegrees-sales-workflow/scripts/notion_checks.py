@@ -418,7 +418,7 @@ def owner_write(data):
     if tool.endswith("__notion_notion_update_page") and args.get("command") == "update_properties":
         allowed = page_id(args.get("page_id")) in allowed_pages
         props = args.get("properties", {})
-        final = props.get("State", props.get("Status")) == "Completed" or props.get("Result") == "Success"
+        final = props.get("State", props.get("Status")) in {"Completed", "Processed"} or props.get("Result") == "Success"
     elif tool.endswith("__notion_notion_create_pages") and args.get("parent", {}).get("data_source_id"):
         allowed = page_id(args["parent"]["data_source_id"]) in groups["operation_log_source_ids"]
         final = any(p.get("properties", {}).get("Result") == "Success" and

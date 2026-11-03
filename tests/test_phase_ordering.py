@@ -17,6 +17,7 @@ import material_handoff
 import sms_authority
 import workflow_checks
 from phase_contracts import ROUTES, MINIMUM_EVIDENCE
+from fixtures_intake import handoff
 
 RUN, TASK, ACTION, HUB = owner.RUN, owner.TASK, owner.ACTION, owner.HUB
 FUTURE, FUTURE_ACTION = '1' * 32, '2' * 32
@@ -45,7 +46,8 @@ def request(data):
     resources.extend({'role': 'projection-' + str(i), 'type': 'publication', 'entity_id': identity}
                      for i, identity in enumerate(registry['publication_page_ids']))
     return {'owner_skill': registry['owner_skill'], 'policy': registry['policy'], 'operation': 'review',
-            'invocation_id': 'run-1', 'publication_version': 'publication-v1', 'resources': resources}
+            'invocation_id': 'run-1', 'publication_version': 'publication-v1', 'resources': resources,
+            'intake_handoff': handoff()}
 
 
 def phased(data):
@@ -159,6 +161,7 @@ class PhaseOrderingTests(unittest.TestCase):
                     {'role': 'task', 'type': 'task', 'entity_id': TASK, 'content_version': 'v1', 'resume_step': step},
                     {'role': 'action', 'type': 'action', 'entity_id': ACTION, 'task_role': 'task'}]}
             with self.subTest(step=step):
+                data['intake_handoff'] = handoff()
                 prepared = PREFLIGHT.prepare(data)
                 required = prepared['execution_plan']['required_checks']
                 self.assertEqual({s['kind'] for s in required.values()} - {'page-links', 'route', 'task-display', 'task-summary'},
