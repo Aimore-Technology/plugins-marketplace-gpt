@@ -1,5 +1,8 @@
 """Business setup visibility must not manufacture scope/consent or a runtime gate."""
 import copy,unittest
+from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'plugins/eightdegrees-sales-workflow/scripts'))
 import configuration_audit
 from test_email_presentation import page
 
