@@ -18,10 +18,13 @@ Execution only: this already-created task does not need scheduler management
 tools. Do not call start/stop, probe automation_update/list/create/update/delete,
 or stop with a generic chat/runtime management setup limitation. Follow the
 installed references/schedule-execution.md; management tools are not a tick gate.
-Read current RunSettings and actual native invocation metadata. Validate the
-native task ID, lifecycle, generation, actual local execution/host/directory and single active-run ownership
-before work and again before each dependent mutation. Stopped, stale, busy or
-uncertain invocations defer without taking over work or catching up in parallel.
+Read current authorized RunSettings and use the task-state-v2 schedule guard.
+No unique executor, native invocation identity, host/thread/turn metadata,
+activity listing or serialization proof is required for execution. Header task/
+host/generation fields are management context, not per-tick identity gates.
+Keep current local mode, account scope, enabled/stop state and per-task approvals/
+attempts. Generate one local run UUID for logging/recovery; never request a host
+execution identity. Another active session is not a global business blocker.
 
 FIRST use references/event-discovery.md and local scan.probe. Discover scoped
 mail/action/control changes and due/recovery triggers before business reasoning
@@ -57,7 +60,7 @@ Notion progress; never replay every missed tick or resend an accepted request.
 
 Use queue-execution.md to scan authorized sources and enqueue newly ready owner steps within this bounded cycle. No extra continue command and no per-message notification SMS approval. Future due work waits without sleeping or recursively starting another scan.
 
-Apply references/unattended-operation.md: preserve the original scan checkpoint, stop admitting work before its budget minus publication reserve, and resume only unfinished step identities next tick. One actual serialized executor; overlapping manual/native runs defer effects. Unknown requests reconcile the same attempt. Keep unchanged idle ticks quiet.
+Apply references/unattended-operation.md: preserve the original scan checkpoint, stop admitting work before its budget minus publication reserve, and resume only unfinished step identities next tick. No global executor lock or sole-session assignment. Check each actual task/step/version and original attempt before effects; completed, pending or unknown work cannot be resent. Unknown requests reconcile the same attempt. Keep unchanged idle ticks quiet.
 
 Dispatch boundary: after a successful original Gmail/AndroidSync response,
 finish our owned results/monitor/log and required CRM readback. Do not query

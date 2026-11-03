@@ -13,8 +13,9 @@ Existing verified local ticks use [execution](schedule-execution.md) and guard,
 without management-tool discovery, plan/verify or a current scheduler listing.
 A management limitation affects only that management action; do not mark an
 existing Running task unconfigured or recreate it due solely to absent tools.
-Actual stopped/stale/unidentified/busy execution still defers. Never relax
-execution identity or approval gates as a substitute for management capability.
+Current stop/authority state and task-specific unknown attempts still defer
+affected effects. Executor/session identity is no longer an execution gate;
+approvals remain independent of scheduler management.
 
 ## Runtime and ownership
 
@@ -85,18 +86,17 @@ deliberate run-auto remains one manual cycle, without restarting scheduling.
 
 ## Each local tick and interruption
 
-Reread lifecycle/setup and actual native invocation before work and between
-effects. Match task ID/generation/root/operator/mailbox/runtime/owner_host and
-execution_location/working_directory independently against actual execution.
-Stale/stopped/wrong-host/cloud/busy/uncertain ticks defer without takeover.
-Verify real non-overlap; a Notion lease is not enough.
+Reread current setup/enabled/stop/authority state before work and between
+effects. Use task-state-v2 under [execution](schedule-execution.md). Do not
+compare a native invocation ID, generation, host/thread/turn or directory, or
+require complete activity/serialization proof for business execution. Those
+metadata remain relevant only to managing the actual native schedule.
 
-The [scheduled procedure](scheduled-work.md) calls email-scanning once after
-EligibleForScheduledCycle under scheduled-approved-work. It is the same event
-workflow as run-auto, with native lifecycle evidence rather than manual scope.
-Email/CRM approvals, standing factual-SMS policy and fresh stop/window/count/
-attempt guards remain. Due briefs/reminders/confirmed appointments share this
-one cycle, never per-email timers or an extra daily task.
+The scheduled procedure calls email-scanning once. Public run-auto is one
+on-demand cycle without a sole-conversation assignment. Keep each current
+task/version's original AttemptId, accepted result, approval and stop/window/
+count checks. Another active session is not a global lock. Due briefs/reminders/
+confirmed appointments share this cycle; no per-email timers.
 
 The selected computer must stay on, awake and connected with its required app/
 local runner. Sleep, app closure, shutdown or disconnect can delay/miss ticks.
@@ -114,9 +114,9 @@ local_context_ready must be true along with actual list/read/runner/cadence
 evidence. runner_ready alone proves no local capability.
 
 Actual task readback contains execution_location/working_directory plus original
-ID/prompt/provider/host/cadence fields. The scheduled invocation independently
-supplies execution_location/working_directory/host_id. Save the same fields in
-settings and prompt; matching saved state alone is insufficient.
+ID/prompt/provider/host/cadence fields. Those fields prove native management targeting, not an execution identity.
+The execution guard consumes actual configured task state without scheduler
+management capabilities, native invocation metadata or sole-worker assignment.
 
 Verify the exact selected integer20/30 cadence. No silent hourly/cloud/directory/
 host fallback. A plan is not Running/Stopped and helpers grant no native access.

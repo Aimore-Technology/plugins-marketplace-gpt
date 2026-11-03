@@ -83,20 +83,21 @@ An event is acknowledged only after this result and next wake-up are durable.
 
 ## Resume this command after compaction
 
-Pin the actual selected public command and policy, current invocation/executor
-identity, actual effective policy, explicit user restrictions and original start time locally. Once the real root is known, use
-invocation.prepare with command, invocation_id, executor_id, root_id,
-started_at, budget_seconds, policy (the actual possibly narrower policy),
-restrictions (exact nonempty user restriction strings) and receipt_page_ids
-(original proof pointers only). The pin retains default_policy separately;
-run-auto may narrow to one-cycle-no-customer-send, never another broader policy.
-Keep its invocation-context-v1 on the active run and/or a compact local capture;
-never create a Notion record just for an idle tick. Save receipt pointers with
-the successful original handoff before verbose publication work.
+Pin the selected public command, effective policy, explicit user restrictions
+and original start time locally. invocation.prepare accepts command, root_id,
+started_at, budget_seconds, policy, restrictions and receipt_page_ids. It creates
+a local run UUID when invocation_id is omitted. Save that returned record before
+dependent work; the label is logging/recovery context, not a unique executor.
+executor_id and native host/thread/turn IDs are optional diagnostics only. Do not
+request privileged execution metadata or register a sole conversation.
 
-After compaction, FIRST read this short original pin, then invocation.resume
-with context_page (original page) or context_record (the original locally saved record, without a fabricated Notion envelope), plus the actual current command, invocation_id, executor_id, original started_at, root_id and now. Do not copy runtime identities out of the pin to fabricate a
-match. Wrong command/session/turn, changed original start/deadline or clock regression refuses. Exact page mutations preserve the pin; only receipt pointers may be appended.
+After compaction read the original context_page or context_record and call
+invocation.resume with the original command, root_id, started_at, now, policy/
+restrictions and retained local invocation_id when available. Keep the original
+run label/deadline/receipt pointers; a different executor_id is not a refusal.
+Wrong command/root/local run label, changed policy/start/deadline or clock
+regression still refuses. Exact page mutations preserve the pin; only receipt
+pointers may be appended. No native identity proof is required.
 A legacy run-auto pin without effective-restriction metadata is closeout-only
 and no-send; do not reconstruct permission from commands.json after compaction.
 Budget expiration permits closeout only; never reset the start, create another

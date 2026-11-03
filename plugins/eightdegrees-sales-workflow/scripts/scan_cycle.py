@@ -89,29 +89,17 @@ def reconcile(data):
             'scope': 'Prospective queue bookkeeping only; preserve original checkpoint history; no provider, approval or count change'}
 
 
-def bound_on_demand(data, root, current_id):
-    """A designated conversation can be serial without claiming cloud readiness.
-
-    All fields are observations normalized from current original settings,
-    runtime thread/turn and the complete installation scan view. This is not
-    a replacement for any native schedule guard or an atomic Notion lock.
-    """
-    if data.get('policy') not in {'one-cycle-approved-work', 'one-cycle-no-customer-send'}:
-        return False
-    binding = data['executor'].get('on_demand') or {}
-    assigned = binding.get('registered_thread_id')
-    return (binding.get('operator_assigned') is True and binding.get('settings_read_verified') is True
-            and binding.get('runs_read_complete') is True and isinstance(assigned, str) and bool(assigned)
-            and binding.get('current_thread_id') == assigned
-            and binding.get('current_thread_status') == 'active'
-            and binding.get('current_turn_id') == current_id
-            and binding.get('current_turn_status') == 'inProgress'
-            and page_id(binding.get('root_id', '')) == root
-            and binding.get('scheduler_enabled') is False
-            and binding.get('scheduler_state') == 'Stopped'
-            and binding.get('schedule_ids') == []
-            and 'schedule_pending_attempt' in binding and binding['schedule_pending_attempt'] is None
-            and binding.get('other_active_scan_ids') == [])
+def run_id(data):
+    """An ordinary cycle log label, never a privileged host/session identity."""
+    value = data.get('run_id', (data.get('executor') or {}).get('current_id'))
+    if value is None:
+        # Stable for repeated admission checks of this original cycle. Callers
+        # may instead create a UUID at entry and persist it with the same start.
+        value = 'run-' + hashlib.sha256(json.dumps(
+            [page_id(data['root_id']), data['started_at']], separators=(',', ':')).encode()).hexdigest()[:32]
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError('Use a nonempty local run label; no native identity is required')
+    return value
 
 
 def work_scope(item):
@@ -155,6 +143,8 @@ def recovery_ready(item, prior, now):
 
 def advance(data):
     root = page_id(data['root_id'])
+    if data.get('policy') not in (None, 'one-cycle-approved-work', 'one-cycle-no-customer-send', 'scheduled-approved-work'):
+        return {'status': 'ScanDeferred', 'work': [], 'reason': 'This invocation policy cannot execute queue work', 'external_actions_allowed': False}
     start, now = timestamp(data['started_at']), timestamp(data['now'])
     if now < start:
         raise ValueError('Clock regressed')
@@ -162,25 +152,13 @@ def advance(data):
     if (type(budget) is not int or not 120 <= budget <= 900 or type(reserve) is not int
             or not 30 <= reserve < budget or type(limit) is not int or not 1 <= limit <= 100):
         raise ValueError('Use a 2-15 minute budget, publication reserve and bounded item count')
-    executor = data['executor']
-    current_id = executor['current_id']
-    if not isinstance(current_id, str) or not current_id:
-        raise ValueError('Use the current actual invocation identity')
-    active = executor.get('active_ids')
-    if not isinstance(active, list) or any(not isinstance(v, str) or not v for v in active):
-        raise ValueError('Supply actual executor observations')
-    native_single = executor.get('coverage_complete') is True and executor.get('serialized') is True
-    scoped_single = bound_on_demand(data, root, current_id)
-    single = (native_single or scoped_single) and not (set(active) - {current_id})
-    if not single:
-        return {'status': 'ScanDeferred', 'work': [], 'reason': 'Executor ownership not established',
-                'external_actions_allowed': False, 'scope': 'Observation only; Notion is not an atomic lock'}
+    current_id = run_id(data)
     previous = {'record_type': 'scan-checkpoint-v1', 'root_id': root, 'items': {}, 'streams': {}}
     if data.get('checkpoint_page') is not None:
         previous = blocks(data['checkpoint_page'], 'scan-checkpoint-v1')[1]
         if page_id(previous['root_id']) != root:
             raise ValueError('Checkpoint belongs to a different installation')
-        # Do not confuse the recorded expired scan with proof of current ownership.
+        # The old cycle is diagnostic history, not a global execution lock.
         object_result(data['checkpoint_page'])
         if data.get('terminal_task_pages'):
             previous = reconcile({'checkpoint_page': data['checkpoint_page'], 'root_id': root,
@@ -290,7 +268,7 @@ def advance(data):
     ready = [v for v in pending if v['key'] not in attempted]
     remaining = max(0, int((start + timedelta(seconds=budget-reserve) - now).total_seconds()))
     # Return only one admission. The caller must re-observe time/stop/activity
-    # before choosing another owner, rather than execute a stale whole-cycle list.
+    # before choosing another step, rather than execute a stale whole-cycle list.
     # Estimates are not deadlines. Permit at most 15s of estimated work to use
     # the nominal publication reserve, retaining at least 30s. Never extend the
     # work-admission deadline, change a saved budget or release a provider call.
@@ -323,7 +301,7 @@ def advance(data):
             'publication_reserve_seconds': reserve,
             'timing_status': 'SoftBudgetOverrun' if (now - start).total_seconds() > budget else 'WithinSoftBudget',
             'soft_budget_overrun_seconds': max(0, (now - start).total_seconds() - budget),
-            'execution_basis': 'BoundOnDemand' if scoped_single and not native_single else 'ObservedSerializedHost',
+            'execution_basis': 'TaskStateAndAttempts',
             'budget_exhausted': expired or len(attempted) >= limit,
             'admission_required_before_next_owner': True, 'seconds_available_for_work': remaining,
             'estimate_slack_seconds': slack,

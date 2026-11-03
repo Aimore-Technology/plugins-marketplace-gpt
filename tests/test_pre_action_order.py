@@ -166,11 +166,10 @@ class DispatchOrder(unittest.TestCase):
         data['call']['args']['body'] = 'x' * 71
         with self.assertRaises(ValueError): dispatch_admission.prepare(data)
 
-    def test_new_stop_overlap_expiry_or_no_send_policy_blocks_release(self):
-        for fault in ('stop', 'overlap', 'expiry', 'restricted', 'unknown'):
+    def test_new_stop_expiry_no_send_policy_or_unknown_attempt_blocks_release(self):
+        for fault in ('stop', 'expiry', 'restricted', 'unknown'):
             data = ready(dispatch())
             if fault == 'stop': data['current_scan']['items'][0]['stopped'] = True
-            elif fault == 'overlap': data['current_scan']['executor']['active_ids'].append('another-scan')
             elif fault == 'expiry':
                 data['now'] = '2026-11-01T00:03:01Z'; data['current_scan']['now'] = data['now']
             elif fault == 'restricted': data['scan']['policy'] = 'one-cycle-no-customer-send'

@@ -94,7 +94,6 @@
     "actual_scan_minutes": null,
     "schedule_ids": [],
     "owner_host": null,
-    "single_owner_required": true,
     "state": "Stopped",
     "desired_state": "Stopped",
     "generation": 0,
@@ -152,11 +151,11 @@
     "cycle_budget_seconds": 900,
     "publication_reserve_seconds": 120,
     "checkpoint_contract": "scan-checkpoint-v1",
-    "executor_mode": "single_native_owner",
     "unchanged_result_writes": false,
     "event_discovery_contract": "scan-event-index-v1",
     "event_index_page_id": null,
-    "discovery_before_business_work": true
+    "discovery_before_business_work": true,
+    "execution_contract": "task-state-v2"
   },
   "send_completion": {
     "policy": "provider-handoff-v1",

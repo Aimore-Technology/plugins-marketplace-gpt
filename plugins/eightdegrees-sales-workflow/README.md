@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.40. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.41. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
 ## Skills
 
@@ -141,3 +141,13 @@ conversation. Start/stop capability limits affect only those management actions.
 Current local identity, lifecycle, approval, stop and duplicate-effect guards
 remain required; missing execution evidence still defers. No job is created by
 this update. See the packaged schedule-execution.md contract.
+
+## Execute without a unique host/session
+
+0.1.41 uses task-state-v2 for existing local ticks. No unique executor, assigned
+conversation, privileged native invocation/host/thread/turn identity, global
+activity listing or serialization proof is required. Local RunIds label logs
+and recovery only. Legacy executor assignments are inert without init/rebinding.
+Per-task approvals, stops, completed results and original pending/unknown attempts
+remain checked. Native schedule target IDs remain for start/stop management;
+this release creates no schedule and does not claim an atomic parallel lock.

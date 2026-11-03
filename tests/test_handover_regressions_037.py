@@ -239,8 +239,8 @@ class CheckpointAndRecovery(unittest.TestCase):
             data['call']['args']['content_updates'][0]['new_str'] = new
             with self.assertRaises(ValueError): notion_mutation.prepare(data)
 
-    def test_wrong_invocation_command_executor_or_reset_deadline_cannot_resume(self):
-        for key in ('command', 'invocation_id', 'executor_id'):
+    def test_wrong_local_run_command_or_reset_deadline_cannot_resume(self):
+        for key in ('command', 'invocation_id'):
             data = self.context(); data[key] = 'report' if key == 'command' else 'other'
             with self.assertRaises(ValueError): invocation_context.resume(data)
         data = self.context(); data['context_page']['text'] = data['context_page']['text'].replace('00:15:00+00:00', '01:15:00+00:00')

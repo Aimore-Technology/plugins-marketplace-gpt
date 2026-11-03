@@ -55,7 +55,7 @@ For action-page decisions, validate the submitted single choice and bound input/
 
 Immediately before email sending, reread approval and approved files; for notification SMS reread the current standing authority and frozen payload; check the time window, latest accessible reply/stop state, target, asset versions and prior attempts. New replies or version mismatches suspend sending. Never regenerate approved content at send time.
 
-Persist source, approval and a stable `AttemptId` BEFORE CRM writes or sending. Reuse provider idempotency support when actually available. Notion is not an atomic execution lock: if another run/host may own the item and single ownership cannot be established, stop that item for reconciliation. Do not claim exactly-once delivery from instructions alone.
+Persist source, approval and a stable `AttemptId` BEFORE CRM writes or sending. Reuse provider idempotency support when actually available. Notion is not an atomic execution lock. Read the exact task/step/version and its original attempt: completed effects are skipped; pending/unknown requests wait for reconciliation. An unidentified or active session alone does not block work. No unique executor is required. Do not claim exactly-once delivery from instructions alone.
 
 An unknown send result reserves that attempt and blocks later sends. Keep the original ambiguous attempt for explicit operator handling; do not automatically poll the provider or retry. If only logging failed, repair the log, not the send. Provider acceptance is not delivery; record delivery only with evidence. If Notion cannot persist required evidence and no approved reliable recovery method exists, pause new external writes/sends; read-only diagnosis may continue.
 
@@ -104,4 +104,4 @@ unreviewed customer-persona change. Logging/projection failures never replay a s
 
 ## Unattended reliability
 
-Apply [unattended operation](unattended-operation.md): stop-first scoped restrictions override old approved contact preferences, all related SMS status pages converge, and bounded cycles persist progress for restart. No extra human continuation, expiring-lock takeover, unknown resend or unchanged-task alerts. Single-owner native execution and actual channel coverage must still be demonstrated.
+Apply [unattended operation](unattended-operation.md): stop-first scoped restrictions override old approved contact preferences, all related SMS status pages converge, and bounded cycles persist progress for restart. No extra human continuation, expiring-lock takeover, unknown resend or unchanged-task alerts. Task-state execution requires no unique host/session or serialization proof; actual business channel coverage and per-task attempt checks still apply.

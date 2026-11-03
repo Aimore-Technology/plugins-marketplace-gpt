@@ -1,31 +1,25 @@
-# Local task means a verified computer and directory
+# Local scheduling without a unique executor
 
-Trigger: start/stop, a periodic tick or migration from an older cloud schedule.
+Use this card for start/stop, a periodic tick or legacy task migration.
 
-0.1.39 changes the intended scheduler to a host-owned local task. A runtime name,
-prompt mentioning local files or a successful recurrence create is not proof of
-local execution. Verify actual execution_location, owner_host and absolute
-working_directory, installed skills/connectors and exact20/30-minute cadence.
-Missing local mode remains unconfigured, with no cloud or OS-cron fallback.
+0.1.41 removes the unique executor requirement from business execution, including
+scan admission, scheduled routing, dispatch and compaction recovery. Do not ask
+for native host/thread/turn/task invocation identity or serialize all conversations.
+An existing local tick uses schedule-execution.md with actual RunSettings and
+task-state-v2; a local RunId is just a log label. Legacy assigned-thread and
+single-owner flags are inert immediately, without init or rebinding.
 
-Keep the old task ID/runtime and pending attempts until its original scheduler
-proves deletion/absence. An empty local list does not clear a cloud owner.
-Only explicit start creates/enables the local lifecycle; init/install does not.
-stop can clean proven legacy runtime IDs, but they cannot start or pass a tick.
+Only start/stop manages native jobs. Keep its actual native ID/account/host/
+directory evidence for correct creation, reuse and deletion. Maintain one
+configured scanner per root; management target identity is not a business
+executor identity. Do not relabel/drop unresolved cloud IDs to create duplicates.
 
-The selected computer/app/local runner must remain available. Restart performs
-one discovery from current saved state, not a run for each missed interval.
-Preserve accepted messages, unknown attempts, original expiry/counts and budget.
+Per-task approvals, stop state, source/context scopes, counts and original
+AttemptIds remain. Completed effects are skipped. Pending/unknown requests are
+not resent. Another session alone does not block independent work. Notion
+provides no atomic parallel exactly-once guarantee; use actual provider
+idempotency support and never claim a global lock.
 
-Management-tool discovery is only for explicit start/stop. In 0.1.38 the old
-blanket chat/runtime setup refusal could be misapplied to an existing tick.
-Use the installed schedule-execution.md for ticks: they need actual execution
-evidence and business connections, not scheduler management APIs. Do not clear
-Running or relaunch setup solely because management tools are absent. Real
-stops, stale IDs/generation, wrong host/directory, unknown attempts and missing
-execution evidence still defer; never turn a tick into a manual bypass.
-
-Read scheduling.md for management and schedule-execution.md for execution;
-use the actual platform-runtime.md only for the relevant section. Offline normalized-evidence
-tests cover locality/migration guards; they do not certify a live local host,
-native connector access, availability or start/stop execution.
+Keep the selected computer/app available. After restart discover current events
+once, not each missed tick. No management APIs are needed for execution.
+Offline tests do not certify live scheduler timing or concurrent delivery.

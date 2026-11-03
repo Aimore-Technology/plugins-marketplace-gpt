@@ -406,10 +406,9 @@ def owner_write(data):
     if policy == "scheduled-approved-work":
         guard = registry.get("schedule_guard") or {}
         if (not local_schedule_guard(guard) or guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
-                or guard.get("customer_send_allowed") is not True or not guard.get("schedule_id")
-                or not guard.get("invocation_id") or guard.get("operator_id") != registry.get("operator_id")
+                or guard.get("customer_send_allowed") is not True or guard.get("operator_id") != registry.get("operator_id")
                 or not registry.get("operator_id")):
-            return {"status": "Deferred", "reason": "Current native schedule guard/operator binding missing"}
+            return {"status": "Deferred", "reason": "Current scheduled task-state/operator binding missing"}
     groups = {k: {page_id(x) for x in registry.get(k, [])} for k in
               ("run_page_ids", "task_page_ids", "action_page_ids", "publication_page_ids", "operation_log_source_ids")}
     allowed_pages = set().union(*(v for k, v in groups.items() if k != "operation_log_source_ids"))

@@ -72,3 +72,13 @@ an hourly fallback or a fake local-state success. See [schedule lifecycle](sched
 Public run-auto selects one-cycle-approved-work; a real native invocation additionally needs its scheduled-approved-work guard. Both use queue-execution: current Notion submissions, scoped source/reply scans, due notification SMS, reminders and confirmed appointments. Email/CRM facts require review; factual SMS uses standing authority. Relevant stop/attempt checks are fresh before every effect. No extra continue command, per-email Cron or independent daemon is required.
 
 Scheduled execution is local-only on the selected computer/directory. The host app/local runner must remain available. Missing local scheduling never falls back to cloud. Legacy owned cloud tasks must be reconciled/deleted on their original scheduler before a replacement. See scheduling.md for readback and restart behavior.
+
+## No unique executor requirement
+
+0.1.41 removes sole-conversation assignment, native host/thread/turn/invocation
+identity and global serialization/activity checks from business execution. A
+local tick uses current installation/task state; public run-auto can run from
+any authorized conversation. A locally generated RunId is a log/recovery label.
+Historical executor assignment fields are ignored without init/rebinding.
+Completed effects and pending/unknown attempts remain protected per task.
+Native job IDs still identify the exact schedule for start/stop only.

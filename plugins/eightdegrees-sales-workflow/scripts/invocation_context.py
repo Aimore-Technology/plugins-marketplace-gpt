@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
+from uuid import uuid4
 
 from email_presentation import blocks
 from notion_checks import page_id
@@ -21,9 +22,11 @@ def prepare(data):
     command = data['command']
     if command not in COMMANDS:
         raise ValueError('Pin one exact supported public command')
-    for key in ('invocation_id', 'executor_id'):
-        if not isinstance(data.get(key), str) or not data[key].strip():
-            raise ValueError('Use actual current invocation/executor identities')
+    invocation_id = data.get('invocation_id')
+    if invocation_id is None:
+        invocation_id = 'run-' + uuid4().hex
+    if not isinstance(invocation_id, str) or not invocation_id.strip():
+        raise ValueError('Use a local run label and retain it across recovery')
     seconds = data.get('budget_seconds', 900)
     if type(seconds) is not int or not 120 <= seconds <= 900:
         raise ValueError('Keep the original bounded invocation budget')
@@ -40,13 +43,13 @@ def prepare(data):
     record = {'record_type': 'invocation-context-v1', 'role': 'plugin-executor',
               'command': command, 'default_policy': default, 'policy': policy,
               'restrictions': list(restrictions),
-              'root_id': page_id(data['root_id']), 'invocation_id': data['invocation_id'],
-              'executor_id': data['executor_id'], 'started_at': data['started_at'],
+              'root_id': page_id(data['root_id']), 'invocation_id': invocation_id,
+              'executor_id': data.get('executor_id'), 'started_at': data['started_at'],
               'deadline': (start + timedelta(seconds=seconds)).isoformat(),
               'budget_seconds': seconds,
               'receipt_page_ids': [page_id(x) for x in data.get('receipt_page_ids', [])]}
     return {'status': 'InvocationContextPrepared', 'record': record,
-            'scope': 'Recovery identity and receipt pointers only; no cached permission or provider state'}
+            'scope': 'Local run label and receipt pointers only; no executor identity or exclusivity; no cached permission or provider state'}
 
 
 def resume(data):
@@ -62,8 +65,9 @@ def resume(data):
         raise ValueError('Current effective policy differs from the original invocation restriction')
     if 'restrictions' in data and data['restrictions'] != record.get('restrictions', []):
         raise ValueError('Current restrictions differ from the original invocation')
-    for key in ('command', 'invocation_id', 'executor_id'):
-        if record[key] != data[key]:
+    for key in ('command', 'invocation_id'):
+        current = data.get(key) if key == 'command' else data.get(key, record[key])
+        if record[key] != current:
             raise ValueError('Resume this invocation only; do not restart or control a peer Session')
     if page_id(data['root_id']) != record['root_id']:
         raise ValueError('Invocation root changed')

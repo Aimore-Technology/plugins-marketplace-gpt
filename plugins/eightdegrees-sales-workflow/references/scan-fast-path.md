@@ -65,7 +65,7 @@ commands. Failed normalization stops its dependent step and retains the raw file
   mutation checks with `--output` rather than serializing the same originals
   into many helper invocations. Mutations stay ordered; a changed input/result
   invalidates only its affected captures. Fresh approval, stop/window/count,
-  executor/attempt checks and actual saved readback are never skipped.
+  task-state/attempt checks and actual saved readback are never skipped.
 - After successful Gmail/AndroidSync acceptance, retain the original proof and
   promptly update the original task's current Result to “submitted to service;
   internal recording in progress”, with its actual message ID. Do not leave a
@@ -97,7 +97,7 @@ The final dispatch gate has a separate estimate for the remaining provider call
 (at most30s). It does not charge already completed preparation time again.
 Both dispatch.admit and dispatch.prepare still recompute current selection,
 check the exact saved admission and120s expiry, and retain current stop, due,
-ownership, no-send policy, unknown attempt and actual deadline checks. The owner
+task state, no-send policy, unknown attempt and actual deadline checks. The owner
 phase must already have obtained its ordinary scan.cycle admission. A30s call
 estimate is not an exception to the customer window or a promise of API speed.
 

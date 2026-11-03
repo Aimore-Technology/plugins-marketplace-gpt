@@ -106,17 +106,11 @@ class ScheduleTests(unittest.TestCase):
         data['capabilities']['exact_15_minutes'] = True
         self.assertEqual(SCHEDULE.plan(data)['status'], 'NativeSchedulingUnavailable')
 
-    def test_tick_defers_mismatched_or_unverified_cadence_and_keeps_overlap_guard(self):
-        for interval in (20, 30):
-            data = scheduled_guard(); data['context']['interval_minutes'] = interval
-            data['scheduling'].update(target_scan_minutes=interval, actual_scan_minutes=interval)
-            self.assertEqual(SCHEDULE.guard(data)['status'], 'EligibleForScheduledCycle')
-            for field, value in (('actual_scan_minutes', None), ('actual_scan_minutes', 15),
-                                 ('actual_scan_minutes', '20'), ('target_scan_minutes', 15)):
-                bad = copy.deepcopy(data); bad['scheduling'][field] = value
-                self.assertEqual(SCHEDULE.guard(bad)['status'], 'Deferred')
+    def test_tick_does_not_revalidate_cadence_or_global_activity(self):
+        for field, value in (('actual_scan_minutes', None), ('target_scan_minutes', 15)):
+            data = scheduled_guard(); data['scheduling'][field] = value
             data['active_run'] = {'status': 'InProgress', 'invocation_id': 'other'}
-            self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
+            self.assertEqual(SCHEDULE.guard(data)['status'], 'EligibleForScheduledCycle')
 
     def test_stop_before_first_start_accepts_verified_absence_at_generation_zero(self):
         data = request("stop"); data["context"]["generation"] = 0
@@ -210,24 +204,22 @@ class ScheduleTests(unittest.TestCase):
         data["tasks"] = [item]
         with self.assertRaises(ValueError): SCHEDULE.plan(data)
 
-    def test_scheduled_guard_rejects_stop_stale_wrong_task_and_changed_setup(self):
+    def test_scheduled_guard_keeps_stop_and_installation_scope(self):
         data = scheduled_guard()
-        self.assertEqual(SCHEDULE.guard(data)["status"], "EligibleForScheduledCycle")
-        for field, value in [("enabled", False), ("desired_state", "Stopped"), ("state", "StopRequested"),
-                             ("generation", 2), ("generation", True), ("owner_host", "other")]:
-            changed = copy.deepcopy(data); changed["scheduling"][field] = value
-            self.assertEqual(SCHEDULE.guard(changed)["status"], "Deferred")
-        for field in ("operator_id", "gmail_account", "notion_root_id"):
-            changed = copy.deepcopy(data); changed["setup"][field] = "changed"
-            self.assertEqual(SCHEDULE.guard(changed)["status"], "Deferred")
-        data["invocation"]["schedule_id"] = "unrelated"
-        self.assertEqual(SCHEDULE.guard(data)["status"], "Deferred")
+        for field,value in [('enabled',False),('desired_state','Stopped'),('state','StopRequested')]:
+            changed=copy.deepcopy(data);changed['scheduling'][field]=value
+            self.assertEqual(SCHEDULE.guard(changed)['status'],'Deferred')
+        for field in ('operator_id','gmail_account','notion_root_id'):
+            changed=copy.deepcopy(data);changed['setup'][field]='changed'
+            self.assertEqual(SCHEDULE.guard(changed)['status'],'Deferred')
+        data['invocation']['schedule_id']='unavailable-native-id'
+        self.assertEqual(SCHEDULE.guard(data)['status'],'EligibleForScheduledCycle')
 
-    def test_busy_tick_defers_but_manual_cycle_remains_available_when_stopped(self):
-        data = scheduled_guard(); data["active_run"] = {"status": "InProgress", "invocation_id": "another-run"}
-        self.assertEqual(SCHEDULE.guard(data)["status"], "Deferred")
-        data["trigger"] = "manual"; data["scheduling"]["enabled"] = False
-        self.assertEqual(SCHEDULE.guard(data), {"status": "EligibleForManualCycle", "customer_send_allowed": False})
+    def test_another_scan_does_not_block_the_installation(self):
+        data=scheduled_guard();data['active_run']={'status':'InProgress','invocation_id':'other'}
+        self.assertEqual(SCHEDULE.guard(data)['status'],'EligibleForScheduledCycle')
+        data['trigger']='manual';data['scheduling']['enabled']=False
+        self.assertEqual(SCHEDULE.guard(data),{'status':'EligibleForManualCycle','customer_send_allowed':False})
 
     def test_work_and_cowork_guards_never_enable_legacy_no_send_jobs(self):
         for runtime in ('codex-local-task', 'cowork-local-task'):
@@ -237,6 +229,8 @@ class ScheduleTests(unittest.TestCase):
             del data['scheduling']['approved_work_enabled']
             self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
 
-    def test_wrong_runtime_does_not_take_over_a_different_executor(self):
-        data = scheduled_guard(); data['scheduling']['runtime'] = 'cowork-local-task'
-        self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
+    def test_local_host_runtime_identity_is_not_a_global_worker_assignment(self):
+        data=scheduled_guard();data['scheduling']['runtime']='cowork-local-task'
+        self.assertEqual(SCHEDULE.guard(data)['status'],'EligibleForScheduledCycle')
+        data['scheduling']['runtime']='work-gpt-task'
+        self.assertEqual(SCHEDULE.guard(data)['status'],'Deferred')

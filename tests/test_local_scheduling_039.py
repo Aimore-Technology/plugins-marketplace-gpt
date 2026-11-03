@@ -52,26 +52,25 @@ class LocalTaskTests(unittest.TestCase):
             self.assertEqual(SCHEDULE.verify(d)['status'],'NeedsCorrection')
             self.assertEqual(SCHEDULE.plan(d)['status'],'EligibleForNativeUpdate')
 
-    def test_tick_actual_local_context_cannot_be_inferred_from_saved_settings(self):
-        for field,value in [('execution_location','cloud'),('working_directory','/other'),
-                            ('host_id','another-computer')]:
-            d=scheduled_guard();d['invocation'][field]=value
-            self.assertEqual(SCHEDULE.guard(d)['status'],'Deferred')
-        d=scheduled_guard();d['invocation'].pop('execution_location')
-        self.assertEqual(SCHEDULE.guard(d)['status'],'Deferred')
+    def test_tick_does_not_require_native_invocation_host_or_directory_metadata(self):
+        d=scheduled_guard();d.pop('invocation')
+        for field in ('host_id','working_directory','generation','provider','account_id'):
+            d['context'].pop(field,None)
+        self.assertEqual(SCHEDULE.guard(d)['status'],'EligibleForScheduledCycle')
 
-    def test_saved_local_location_and_directory_are_also_required(self):
-        for field,value in [('execution_location','cloud'),('execution_location',None),
-                            ('working_directory','/other'),('working_directory',None)]:
-            d=scheduled_guard();d['scheduling'][field]=value
+    def test_local_mode_remains_required_but_directory_is_not_an_execution_identity(self):
+        for value in ('cloud',None):
+            d=scheduled_guard();d['scheduling']['execution_location']=value
             self.assertEqual(SCHEDULE.guard(d)['status'],'Deferred')
+        d=scheduled_guard();d['scheduling'].pop('working_directory')
+        self.assertEqual(SCHEDULE.guard(d)['status'],'EligibleForScheduledCycle')
 
     def test_valid_tick_keeps_one_cycle_policy_and_does_not_create_schedule(self):
         d=scheduled_guard();before=copy.deepcopy(d);r=SCHEDULE.guard(d)
         self.assertEqual(r['status'],'EligibleForScheduledCycle')
         self.assertEqual(r['policy'],'scheduled-approved-work')
         self.assertEqual(r['execution_location'],'local')
-        self.assertEqual(r['working_directory'],d['context']['working_directory'])
+        self.assertEqual(r['guard_contract'],'task-state-v2')
         self.assertEqual(d,before)
         self.assertNotIn('create',r)
 
@@ -81,7 +80,7 @@ class LocalTaskTests(unittest.TestCase):
         guard=SCHEDULE.guard(scheduled_guard());item=task();item['OperatorId']=guard['operator_id']
         self.assertEqual(workflow_checks.check_resume(item,'scheduled-approved-work',schedule_guard=guard)['status'],'EligibleForOwnerCheck')
         for patch in [{'runtime':'work-gpt-task'},{'execution_location':'cloud'},
-                      {'working_directory':None},{'host_id':None}]:
+                      {'guard_contract':None},{'lifecycle_running':False}]:
             self.assertEqual(workflow_checks.check_resume(item,'scheduled-approved-work',schedule_guard=guard|patch)['status'],'Deferred')
 
     def test_final_publication_also_refuses_a_cloud_guard(self):
@@ -141,7 +140,7 @@ class LocalTaskTests(unittest.TestCase):
         self.assertIn('exit after this one cycle',prompt)
         self.assertIn('Unknown handoff never authorizes resend or polling',prompt)
         d=scheduled_guard();d['active_run']={'status':'InProgress','invocation_id':'pre-sleep-run'}
-        self.assertEqual(SCHEDULE.guard(d)['status'],'Deferred')
+        self.assertEqual(SCHEDULE.guard(d)['status'],'EligibleForScheduledCycle')
 
 if __name__=='__main__':
     unittest.main()

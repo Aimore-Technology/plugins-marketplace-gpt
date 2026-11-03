@@ -30,9 +30,14 @@ Apply [operator experience](../../references/operator-experience.md) for Today, 
 
 ## Unattended configuration
 
-Add missing queue_execution cycle_budget_seconds=900, publication_reserve_seconds=120, bounded_work_items=12 and checkpoint_contract=scan-checkpoint-v1 on explicit init upgrade. Preserve saved user limits, native lifecycle, review decisions and disabled authority. Existing 480/60 budgets remain valid; replace them with 900/120 only when the operator explicitly adopts the new defaults during init upgrade. Do not reset a deliberate 20-minute choice or mutate a live native schedule during init; explicit start reconciles its owned ID/cadence. Confirm actual single-owner serialization/activity capability before reporting unattended readiness under [unattended operation](../../references/unattended-operation.md); do not create schedules during init.
+Add missing queue_execution cycle_budget_seconds=900, publication_reserve_seconds=120, bounded_work_items=12 and checkpoint_contract=scan-checkpoint-v1 on explicit init upgrade. Preserve saved user limits, native lifecycle, review decisions and disabled authority. Existing 480/60 budgets remain valid; replace them with 900/120 only when the operator explicitly adopts the new defaults during init upgrade. Do not reset a deliberate 20-minute choice or mutate a live native schedule during init; explicit start reconciles its owned ID/cadence. Use task-state-v2 without registering a unique executor or requiring activity/serialization evidence before reporting readiness under [unattended operation](../../references/unattended-operation.md); do not create schedules during init.
 
-When the operator explicitly assigns this conversation as the sole on-demand executor, record queue_execution.on_demand_executor_thread_id from actual runtime thread evidence and explain the binding. On explicit upgrade/rebind, verify the prior executor is not active and retain original submitted actions, decisions, attempts and scheduler disable state. This sets no native serialization/readiness flag and creates no schedule.
+Do not select/rebind a sole conversation or request native host/thread/turn
+identity. New defaults omit single_owner_required/executor_mode; historical
+values and on_demand_executor_thread_id do not gate current execution. Preserve
+original attempts, approvals, stop state and configured native job IDs. This
+behavior applies immediately on upgrade without another init.
+
 
 ## Compatible records and channel setup
 

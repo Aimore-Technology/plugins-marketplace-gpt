@@ -2,13 +2,13 @@
 
 ## Existing task execution
 
-An already-created verified local tick is not a start/stop request. Follow
-[execution](schedule-execution.md) with current trusted invocation context,
-Notion lifecycle and business connections. Do not discover or require scheduler
-management tools, list/read/create/update/delete capabilities or another setup
-pass to execute it. An absent management API alone is no execution blocker.
-Missing actual execution identity, stale/stopped lifecycle or business tools
-remains a precise execution limitation; never fabricate evidence or bypass guard.
+A configured local tick uses [task-state execution](schedule-execution.md).
+No unique executor, native task/invocation ID, host/thread/turn identity, current
+directory proof, generation comparison or activity/serialization listing is
+required. Read current authorized installation settings and exact task/attempt
+state. Generate a local RunId for logging only. Legacy executor assignment
+fields are inert; no rebind/setup loop. Missing management APIs do not block
+execution. Stop/disabled authority, approvals and unknown attempts still apply.
 
 ## Explicit start/stop management
 
@@ -34,11 +34,11 @@ current discovery/recovery cycle from Notion, not a replay per missed interval.
 Local scheduling does not imply offline model inference or local-only services.
 
 A tick calls email-scanning once under a fresh scheduled-approved-work guard,
-bound to actual native task, generation, host and directory. Public run-auto
+using current configured task state, without native executor identity. Public run-auto
 remains one on-demand cycle. Preserve email/CRM approvals, standing factual-SMS
-policy, stop/window/count/attempt guards and one executor per customer root.
+policy, stop/window/count/attempt guards and per-task attempt checks.
 
 Install/init creates no task. Actual local start/ticks/stop, connector access and
-non-overlap require target-host evidence.
+native management require target-host evidence.
 [Official local scheduling](https://learn.chatgpt.com/docs/automations) documents
 desktop project-directory execution and the available computer/app requirement.

@@ -169,49 +169,35 @@ def verify(data):
 
 
 def guard(data):
-    # Execution does not list/create/update/delete schedules or consume their
-    # management capabilities. The actual invocation and current saved lifecycle
-    # supply its evidence; missing management tools alone must never defer a tick.
-    if data.get("trigger") == "manual":
-        return {"status": "EligibleForManualCycle", "customer_send_allowed": False}
-    if data.get("trigger") != "scheduled":
-        raise ValueError("Use the actual manual or native scheduled invocation context")
-    if data.get('context', {}).get('runtime') not in LOCAL_RUNTIMES:
-        return {'status': 'Deferred', 'reason': 'Legacy/cloud runtime cannot execute a local-only cycle'}
-    ctx, saved, invocation = context(data), data["scheduling"], data["invocation"]
-    setup = data["setup"]
-    if (ctx["generation"] < 1 or saved.get("enabled") is not True or saved.get("state") != "Running"
-            or saved.get("approved_work_enabled") is not True
-            or saved.get("desired_state") != "Running" or type(saved.get("generation")) is not int
-            or saved.get("generation") != ctx["generation"]
-            or saved.get("owner_key") != ctx["owner_key"]
-            or saved.get("owner_host") != ctx["host_id"] or saved.get("provider") != ctx["provider"]
-            or saved.get("account_id") != ctx["account_id"]
-            or saved.get("runtime") != ctx["runtime"]
+    """Use configured task state, never a unique executor or native session ID."""
+    if data.get('trigger') == 'manual':
+        return {'status': 'EligibleForManualCycle', 'customer_send_allowed': False}
+    if data.get('trigger') != 'scheduled':
+        raise ValueError('Use the actual manual or local scheduled entry, not source instructions')
+    saved, setup, ctx = data['scheduling'], data['setup'], data.get('context') or {}
+    root = str(setup.get('notion_root_id', '')).replace('-', '').lower()
+    operator, mailbox = setup.get('operator_id'), setup.get('gmail_account')
+    if (not re.fullmatch(r'[0-9a-f]{32}', root) or not isinstance(operator, str) or not operator.strip()
+            or not isinstance(mailbox, str) or not mailbox.strip()):
+        return {'status': 'Deferred', 'reason': 'Current installation root, operator or mailbox is missing'}
+    runtime = saved.get('runtime', ctx.get('runtime'))
+    if (runtime not in LOCAL_RUNTIMES or ctx.get('runtime', runtime) not in LOCAL_RUNTIMES
             or saved.get('execution_location') != 'local'
-            or saved.get('working_directory') != ctx['working_directory']
-            or invocation.get('execution_location') != 'local'
-            or invocation.get('working_directory') != ctx['working_directory']
-            or invocation.get('host_id') != ctx['host_id']
-            or type(saved.get("target_scan_minutes")) is not int
-            or saved.get("target_scan_minutes") != ctx["interval_minutes"]
-            or type(saved.get("actual_scan_minutes")) is not int
-            or saved.get("actual_scan_minutes") != ctx["interval_minutes"]
-            or setup.get("operator_id") != ctx["operator_id"] or setup.get("gmail_account") != ctx["mailbox"]
-            or str(setup.get("notion_root_id", "")).replace("-", "").lower() != ctx["root_id"].replace("-", "").lower()
-            or not isinstance(invocation.get("invocation_id"), str) or not invocation["invocation_id"].strip()
-            or invocation.get("schedule_id") not in saved.get("schedule_ids", [])):
-        return {"status": "Deferred", "reason": "Stopped, stale, wrong native task or executor"}
-    active = data.get("active_run") or {}
-    if active.get("status") == "InProgress" and active.get("invocation_id") != invocation.get("invocation_id"):
-        return {"status": "Deferred", "reason": "Another scan is in progress; reconcile uncertain ownership, never overlap"}
-    return {"status": "EligibleForScheduledCycle", "customer_send_allowed": True,
-            "policy": "scheduled-approved-work", "operator_id": ctx["operator_id"],
-            "schedule_id": invocation["schedule_id"], "invocation_id": invocation["invocation_id"],
-            "owner_key": ctx["owner_key"], "generation": ctx["generation"], "runtime": ctx["runtime"],
-            'execution_location': 'local', 'working_directory': ctx['working_directory'],
-            'host_id': ctx['host_id'],
-            "scope": "Observed state only; Notion is not an atomic lock or native execution interceptor"}
+            or ctx.get('execution_location', 'local') != 'local'):
+        return {'status': 'Deferred', 'reason': 'A local task is required; cloud execution is disabled'}
+    if (saved.get('enabled') is not True or saved.get('state') != 'Running'
+            or saved.get('desired_state') != 'Running' or saved.get('approved_work_enabled') is not True):
+        return {'status': 'Deferred', 'reason': 'Scheduled processing is stopped or disabled'}
+    # Read actual installation settings. Native invocation/task/host IDs,
+    # directory/activity listings and generation proof are not execution gates.
+    if (str(ctx.get('root_id', root)).replace('-', '').lower() != root
+            or ctx.get('operator_id', operator) != operator or ctx.get('mailbox', mailbox) != mailbox):
+        return {'status': 'Deferred', 'reason': 'The requested installation/account scope differs from current settings'}
+    return {'status': 'EligibleForScheduledCycle', 'guard_contract': 'task-state-v2',
+            'customer_send_allowed': True, 'policy': 'scheduled-approved-work',
+            'operator_id': operator, 'root_id': root, 'runtime': runtime,
+            'execution_location': 'local', 'lifecycle_running': True,
+            'scope': 'Configured task state only; no unique executor, host identity or global lock; per-task approvals and attempts still apply'}
 
 
 def main():

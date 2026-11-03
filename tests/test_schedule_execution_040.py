@@ -101,23 +101,15 @@ class ExecutionWithoutManagementTests(unittest.TestCase):
         route['result'] = workflow_checks.check_resume(item, 'scheduled-approved-work', schedule_guard=guard)
         self.assertEqual(CHECKS.owner_write(data)['status'], 'WithinOwnerScope')
 
-    def test_missing_management_does_not_bypass_stop_or_ownership(self):
-        for patch in ({'approved_work_enabled': False}, {'desired_state': 'Stopped'},
-                      {'state': 'StopRequested'}, {'generation': 0}, {'owner_host': 'other'}):
-            data = self.execution()
-            data['scheduling'].update(patch)
-            data['capabilities'] = {'list': False, 'delete': False}
-            self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
+    def test_missing_management_does_not_bypass_stop(self):
+        for patch in ({'approved_work_enabled':False},{'desired_state':'Stopped'},{'state':'StopRequested'}):
+            data=self.execution();data['scheduling'].update(patch)
+            self.assertEqual(SCHEDULE.guard(data)['status'],'Deferred')
 
-    def test_actual_invocation_and_non_overlap_remain_required(self):
-        for patch in ({'execution_location': None}, {'working_directory': '/another'},
-                      {'invocation_id': None}, {'schedule_id': 'wrong'}, {'host_id': 'wrong'}):
-            data = self.execution()
-            data['invocation'].update(patch)
-            self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
-        data = self.execution()
-        data['active_run'] = {'status': 'InProgress', 'invocation_id': 'other-turn'}
-        self.assertEqual(SCHEDULE.guard(data)['status'], 'Deferred')
+    def test_native_identity_and_global_activity_are_no_longer_execution_gates(self):
+        data=self.execution();data.pop('invocation')
+        data['active_run']={'status':'InProgress','invocation_id':'other-turn'}
+        self.assertEqual(SCHEDULE.guard(data)['status'],'EligibleForScheduledCycle')
 
     def test_tick_prompt_routes_to_execution_without_another_setup_pass(self):
         prompt = SCHEDULE.plan(request())['prompt']

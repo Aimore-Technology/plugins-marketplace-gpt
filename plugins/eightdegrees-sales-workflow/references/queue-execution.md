@@ -14,7 +14,7 @@ opportunity, not a reason to run business owners. ScanIdle stops before the
 steps below; incomplete coverage recovers only missing feeds. These steps apply
 to ready events and their affected successors, not every waiting task.
 
-1. Read configured scope, actual ownership, checkpoints and pending attempts.
+1. Read configured scope, current task state, checkpoints and pending attempts.
 2. Observe current scoped Gmail and available SMS replies/stop, plus Notion
    Pause/Cancel/revocation, before due outbound work. Missing relevant reply
    coverage blocks affected sends; unrelated clients can continue.
@@ -88,7 +88,7 @@ pagination, quota or the time budget left gaps.
 
 Fresh original approval/policy/stop/attempt checks remain mandatory immediately
 before each external effect. Native invocations also recheck their actual
-schedule lifecycle/generation/operator between dependent operations. A future-due or human-waiting business child is not an active scan executor; derive busy ownership only from the current actual scan/native invocation. Notion is not an atomic lock; uncertain ownership waits for reconciliation.
+configured enabled/stop/operator state between dependent operations. No unique executor, host/session identity or activity listing is required. Task-specific completed/pending/unknown results determine duplicate-effect handling. Notion is not an atomic lock; preserve unresolved attempts instead of inventing a new send.
 
 ## Unattended continuation
 

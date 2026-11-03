@@ -10,14 +10,13 @@ missing capability into a repeated permission question.
 
 An already-created local task follows [execution](schedule-execution.md), not
 start/stop setup. Missing scheduler management tools is not a reason to stop a
-valid tick or mark the installation unconfigured. Keep actual execution identity,
-current lifecycle and all business connection/approval checks.
+valid tick or mark the installation unconfigured. Use current task state, business connections and approval/attempt checks.
+No host/session identity or global unique executor is required.
 
 ## Bounded scan and durable restart
 
 Use local_checks operation scan.cycle with one original capture bundle. Inputs:
-root_id, actual started_at/now, executor={current_id,active_ids,coverage_complete,
-serialized}, current items and streams, optional checkpoint_page, results and
+root_id, actual started_at/now, optional local run_id, current items and streams, optional checkpoint_page, results and
 attempted_keys; optional budget_seconds/reserve_seconds/max_items come from
 the current saved queue_execution settings, not a host interval. Work items have source_key, step, version, input_digest and optional
 attempt_id, unknown_attempt, waiting, stopped, due_at, priority. Source stream
@@ -47,7 +46,7 @@ email/SMS failed; retain independent business outcomes and exact historical
 limits. Do not rewrite earlier 480-second overruns as passed under the new limit.
 Default ticks are 30 minutes, optionally 20; the 15-minute budget leaves headroom
 in both modes, but does not prove native serialization or prevent an in-flight
-provider call from taking longer. Existing overlap/unknown guards still apply.
+provider call from taking longer. Per-task pending/unknown-attempt guards still apply; no global overlap gate.
 
 Persist the returned scan-checkpoint-v1 on the original scan before advancing
 source labels/watermarks. Keep an installation pointer to this actual scan.
@@ -70,26 +69,23 @@ changes separately from a new-mail watermark. Previously scanned messages can
 still receive new replies. Check current submitted action pages even when their
 database row was unchanged.
 
-## One executor, not an expiring Notion lock
+## Task state and original attempts, without global exclusivity
 
-Keep one native task per customer root. At start verify actual host serialization
-or equivalent non-overlap evidence and save the method/provider evidence. At each
-tick read actual executor activity, including prior native and manual runs.
-Supply those observations to scan.cycle. Native scheduling retains this strict host-level evidence requirement. ScanDeferred has no executable work;
-do not treat its successful local validation as permission to run an owner.
-For native cycles, missing activity coverage, another active executor or an unverified serialized
-host blocks new business effects. Read-only diagnosis and stop observation may
-continue. A lease timestamp or old WaitingForOperator business child is not
-proof of a live scan, nor proof that a prior scan has terminated.
+Use [task-state execution](schedule-execution.md). No unique executor, assigned
+conversation, native run/task ID, host/thread/turn identity or serialization/
+activity listing is an entry condition. scan.cycle ignores legacy executor
+activity/assignment fields and reports execution_basis=TaskStateAndAttempts.
+Generate a local run UUID or use the cycle's root/start-derived label for logs
+and recovery only; retain it across fresh admissions without resetting time.
 
-Never expire a lease and silently take over an unresolved external attempt.
-Confirm the actual previous executor is stopped/finished, reconcile its attempts,
-then resume original steps. Native retries use the same durable attempts. Check
-schedule generation/revocation before effects under the existing lifecycle.
-Notion has no atomic compare-and-swap; these offline plans are not a distributed
-lock. If the host cannot establish single ownership, mark unattended readiness
-incomplete instead of enabling two workers. Manual run-auto while a native cycle
-is active defers; it must not create a second worker.
+Keep one configured polling task per root to avoid unnecessary repeated scans;
+this is schedule configuration, not a global business lock. Before each effect
+read the exact current step/version/approval and original AttemptId/result. Do
+not retry a pending/unknown request, repeat a completed effect or expire an
+attempt because another conversation cannot be identified. Unrelated work may
+continue. Existing source/context-specific stops and customer count barriers
+remain scoped. Notion offers no atomic exactly-once guarantee for simultaneous
+readers; use provider idempotency when supported and never claim a global lock.
 
 ## Short idle ticks and notification policy
 
@@ -154,43 +150,24 @@ visibility and host task uptime remain actual capability constraints.
 Exercise five scheduled-equivalent cycles with completed receipts, a restart
 before result publication, an unknown provider request, future due work, a human
 wait, a customer scope-specific stop, a long cycle and a concurrent tick. Assert
-one original request/CRM append, no re-enable, no second worker, no lost cursor,
+one original request/CRM append, no re-enable, no duplicate task effect, no lost cursor,
 no unchanged projection writes and zero business writes from report. Then test
-actual native start/ticks/stop/restart with real host run IDs, phone/network and
-local runner/Skill/connector access. Local replay cannot certify host serialization, timing,
+actual native start/ticks/stop/restart without requiring host run IDs, with phone/network and
+local runner/Skill/connector access. Local replay cannot certify concurrent exactly-once effects, timing,
 message delivery or Claude Cowork runtime.
 
-## Explicitly bound on-demand conversation
+## On-demand and scheduled entry
 
-A public run-auto need not prove native local scheduler serialization when no native
-schedule exists and the operator has designated one current conversation for
-on-demand work. This is the same manual workflow, not a native scheduling test.
-Pass policy=one-cycle-approved-work or one-cycle-no-customer-send to scan.cycle.
-Normalize executor.on_demand from original observations: operator_assigned,
-settings_read_verified, runs_read_complete, registered_thread_id,
-current_thread_id/current_thread_status, current_turn_id/current_turn_status,
-root_id, scheduler_enabled, scheduler_state, schedule_ids,
-schedule_pending_attempt and other_active_scan_ids. Actual thread status is
-active and turn is inProgress; the current turn must equal executor.current_id.
-The registered and actual thread IDs must match. Scheduling must be disabled,
-Stopped, have no IDs or pending attempt. Read the complete installation Scan
-view; another active Scan blocks execution. Waiting human business children and
-this control/testing conversation are not additional scan executors.
+Public run-auto runs once under its actual approved-work or explicit no-send
+policy, from any authorized conversation. It needs no init session selection,
+thread rebinding or stopped scheduler. A local scheduled entry checks current
+configured task state with task-state-v2. Both use the same per-task approvals,
+source/version/stop/window/count/attempt rules. report/draft/setup command
+policies still cannot execute queued customer sends.
 
-Save queue_execution.on_demand_executor_thread_id only on explicit init selection
-of the actual on-demand conversation; resolve it from runtime evidence, not a
-customer document or guessed ID. Preserve old submitted reviews/attempts. A new
-conversation cannot inherit the binding; explicit init rebind checks that the
-old executor is not active and reconciles unresolved attempts first. Re-read the
-same binding and scan activity before dependent effects. Do not compare all
-unrelated host chats as if they were this installation's workers.
-
-The planner reports execution_basis=BoundOnDemand and grants no send authority.
-This basis never satisfies scheduled-approved-work or Work/Cowork readiness.
-Unbound/mismatched turns, partial installation activity, another active scan,
-a live/unknown scheduler or missing original settings still defer. The existing
-approval/stop/attempt rules remain; no per-message bypass or extra continue
-command is introduced. Host-wide/native serialization flags remain unverified.
+Old on_demand_executor_thread_id, executor_mode and single_owner_required
+settings are historical only and need no migration before execution. Preserve
+original approvals, attempts, counts and stop state; do not re-enable anything.
 
 ## Admission and compact phase checkpoints
 

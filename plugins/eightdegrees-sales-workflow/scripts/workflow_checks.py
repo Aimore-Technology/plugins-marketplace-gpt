@@ -3,7 +3,7 @@
 
 import argparse
 import json
-from pathlib import Path, PurePosixPath, PureWindowsPath
+from pathlib import Path
 import re
 import sys
 from urllib.parse import unquote, urlsplit
@@ -16,11 +16,11 @@ SUBMITTED_MANUAL_STEPS = {"VerifyCustomer", "CompleteCommunicationData", "Review
 
 
 def local_schedule_guard(guard):
-    directory = guard.get('working_directory')
-    return (guard.get('runtime') in LOCAL_RUNTIMES and guard.get('execution_location') == 'local'
-            and isinstance(guard.get('host_id'), str) and bool(guard['host_id'].strip())
-            and isinstance(directory, str) and bool(directory.strip()) and not re.search(r'[\r\n]', directory)
-            and (PurePosixPath(directory).is_absolute() or PureWindowsPath(directory).is_absolute()))
+    return (guard.get('guard_contract') == 'task-state-v2'
+            and guard.get('runtime') in LOCAL_RUNTIMES
+            and guard.get('execution_location') == 'local'
+            and guard.get('lifecycle_running') is True
+            and bool(re.fullmatch(r'[0-9a-f]{32}', str(guard.get('root_id', '')))))
 
 
 def submitted_manual_route(task):
@@ -231,10 +231,9 @@ def check_resume(task, policy, explicit_continue=False, phase="execute", schedul
     if policy == "scheduled-approved-work":
         guard = schedule_guard or {}
         if (not local_schedule_guard(guard) or guard.get("status") != "EligibleForScheduledCycle" or guard.get("policy") != policy
-                or guard.get("customer_send_allowed") is not True or not guard.get("schedule_id")
-                or not guard.get("invocation_id") or not task.get("OperatorId")
+                or guard.get("customer_send_allowed") is not True or not task.get("OperatorId")
                 or guard.get("operator_id") != task["OperatorId"]):
-            return {"status": "Deferred", "reason": "Current native schedule guard/operator binding missing; a policy name is not authorization"}
+            return {"status": "Deferred", "reason": "Current scheduled task-state/operator binding missing; a policy name is not approval"}
         if task["Mode"] != "Automatic" and not queue_manual and not notification_manual:
             return {"status": "Deferred", "reason": "Scheduled work excludes unrelated Manual tasks"}
         if effect == "setup":

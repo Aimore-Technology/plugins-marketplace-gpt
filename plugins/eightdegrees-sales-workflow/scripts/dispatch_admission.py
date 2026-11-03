@@ -8,7 +8,7 @@ import re
 from email_presentation import blocks
 from notion_checks import object_result, page_body, page_id
 from reply_transport import verify
-from scan_cycle import advance, timestamp, key
+from scan_cycle import advance, timestamp, key, run_id
 import sms_authority
 import material_handoff
 
@@ -90,7 +90,7 @@ def prepare(data):
         raise ValueError('Dispatch task/phase/version differs from current queue admission')
     return {'status': 'DispatchAdmissionPrepared', 'record': {
         'record_type': 'dispatch-admission-v1', 'root_id': page_id(scan['root_id']),
-        'run_page_id': page_id(data['run_page_id']), 'invocation_id': scan['executor']['current_id'],
+        'run_page_id': page_id(data['run_page_id']), 'invocation_id': run_id(scan),
         'task_page_id': task, 'channel': data['channel'], 'work': work,
         'admitted_at': scan['now'], 'deadline': selection['deadline'],
         'estimate_scope': 'remaining-provider-call-only',
@@ -110,11 +110,11 @@ def release(data):
     current = data['current_scan']
     if (current['now'] != data['now'] or current['root_id'] != data['scan']['root_id']
             or current['started_at'] != data['scan']['started_at']
-            or current['executor']['current_id'] != original['invocation_id'] or current.get('policy') != data['scan'].get('policy')):
+            or run_id(current) != original['invocation_id'] or current.get('policy') != data['scan'].get('policy')):
         raise ValueError('Current dispatch observations belong to another clock/scan/policy')
     fresh = advance(dispatch_scan(current, data['work_key']))
     if (fresh['status'] != 'ScanCyclePlanned' or not fresh['work'] or fresh['work'][0] != original['work']):
-        raise ValueError('Stop, ownership, budget, work or version changed after admission')
+        raise ValueError('Stop, run label, budget, work or version changed after admission')
     if data['channel'] == 'sms' and data['notification']['payload']['intent'] in {'material_receipt', 'follow_up_notice'}:
         payload({**data, 'scan': current, 'material_current': data['current_material_current']})
     return {'status': 'DispatchArgumentsPrepared', 'call': copy.deepcopy(data['call']),

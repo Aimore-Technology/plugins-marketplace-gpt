@@ -250,25 +250,25 @@ class BoundedRecovery(unittest.TestCase):
     def test_explicit_current_conversation_can_run_without_claiming_cloud_serialization(self):
         data = self.on_demand(); result = scan_cycle.advance(data)
         self.assertEqual(result['status'], 'ScanCyclePlanned')
-        self.assertEqual(result['execution_basis'], 'BoundOnDemand')
+        self.assertEqual(result['execution_basis'], 'TaskStateAndAttempts')
         self.assertEqual(len(result['work']), 1)
         self.assertFalse(result['external_actions_allowed'])
         data['policy'] = 'one-cycle-no-customer-send'
         self.assertEqual(scan_cycle.advance(data)['status'], 'ScanCyclePlanned')
 
-    def test_on_demand_binding_cannot_bypass_native_policy_or_ambiguous_owner(self):
+    def test_legacy_executor_assignment_is_ignored_but_command_policies_remain(self):
         for patch in ({'current_thread_id': 'other-thread'}, {'current_turn_id': 'old-turn'},
                       {'operator_assigned': False}, {'settings_read_verified': False}, {'runs_read_complete': False},
                       {'other_active_scan_ids': ['other-scan']}, {'scheduler_enabled': True},
                       {'schedule_ids': ['native-task']}, {'schedule_pending_attempt': {'status': 'Unknown'}},
                       {'root_id': 'b'*32}, {'scheduler_state': 'NeedsReconciliation'}):
             data = self.on_demand(); data['executor']['on_demand'].update(patch)
-            with self.subTest(patch=patch):self.assertEqual(scan_cycle.advance(data)['status'], 'ScanDeferred')
-        for policy in ('scheduled-approved-work', 'owner-workflow', 'report-only'):
+            with self.subTest(patch=patch):self.assertEqual(scan_cycle.advance(data)['status'], 'ScanCyclePlanned')
+        for policy in ('owner-workflow', 'report-only'):
             data = self.on_demand(); data['policy'] = policy
             with self.subTest(policy=policy):self.assertEqual(scan_cycle.advance(data)['status'], 'ScanDeferred')
         data = self.on_demand(); data['executor']['active_ids'].append('another-executor')
-        self.assertEqual(scan_cycle.advance(data)['status'], 'ScanDeferred')
+        self.assertEqual(scan_cycle.advance(data)['status'], 'ScanCyclePlanned')
 
     def test_stop_precedes_outbound_and_duplicate_candidate_runs_once(self):
         data = cycle_fixture(); base = data['items'][0]
@@ -326,11 +326,11 @@ class BoundedRecovery(unittest.TestCase):
         self.assertEqual([v['source_key'] for v in result['work']], ['email1'])
         self.assertEqual(len(result['checkpoint']['work_items']), 3)
 
-    def test_overlap_unknown_ownership_or_unserialized_executor_defers(self):
+    def test_global_activity_and_serialization_are_not_required(self):
         for patch in ({'active_ids': ['run1', 'run2']}, {'coverage_complete': False}, {'serialized': False}):
             data = cycle_fixture(); data['executor'].update(patch)
             result = scan_cycle.advance(data)
-            self.assertEqual(result['status'], 'ScanDeferred'); self.assertEqual(result['work'], [])
+            self.assertEqual(result['status'], 'ScanCyclePlanned'); self.assertEqual(len(result['work']), 1)
 
     def test_unsaved_or_partial_source_cannot_advance_watermark(self):
         data = cycle_fixture(); data['streams']['gmail']['durable'] = False
