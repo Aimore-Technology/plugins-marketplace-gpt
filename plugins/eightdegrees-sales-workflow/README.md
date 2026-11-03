@@ -1,6 +1,6 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.39. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.40. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
 ## Skills
 
@@ -131,3 +131,13 @@ Version0.1.37 adds durable intake handoff, whole-page binding/current-section gu
 Version0.1.38 preserves effective invocation restrictions, inquiry-level SMS limits and scoped queue barriers. Ordinary verified inquiries inherit standing SMS authority without re-init; missing inbound SMS is coverage metadata, not a send gate. See [scoped recovery](Experience/scoped-recovery.md).
 
 Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](references/scheduling.md).
+
+## Existing local tasks do not need management tools
+
+0.1.40 separates schedule management from execution. A verified existing local
+tick runs email-scanning with its current execution guard without requiring
+automation_update or scheduler list/read/create/update/delete tools in that
+conversation. Start/stop capability limits affect only those management actions.
+Current local identity, lifecycle, approval, stop and duplicate-effect guards
+remain required; missing execution evidence still defers. No job is created by
+this update. See the packaged schedule-execution.md contract.

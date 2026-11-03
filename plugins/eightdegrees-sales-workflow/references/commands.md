@@ -49,6 +49,12 @@ For new/migrated DataCompletion, open the registered ordinary action page, fill 
 
 ## Periodic scanning
 
+Scheduler management and task execution are separate. Missing native management
+tools limits only start/stop; it does not stop an existing verified local tick or
+block run-auto. A native tick calls email-scanning directly with its current
+execution guard, without repeating start, management-tool discovery or schedule
+setup. See [execution contract](schedule-execution.md).
+
 The optional start argument interval_minutes=20 selects the faster cadence;
 interval_minutes=30 explicitly returns to the default cadence.
 Without an argument preserve a supported saved choice, or use 30 for new setup.

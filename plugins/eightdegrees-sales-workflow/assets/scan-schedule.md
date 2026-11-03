@@ -14,6 +14,10 @@ ScanIntervalMinutes: {interval_minutes}
 Use the installed EightDegrees Sales Workflow plugin's email-scanning skill
 for ONE local native scheduled cycle in the bound working directory. This is
 not the public manual run-auto command and cannot select a cloud executor.
+Execution only: this already-created task does not need scheduler management
+tools. Do not call start/stop, probe automation_update/list/create/update/delete,
+or stop with a generic chat/runtime management setup limitation. Follow the
+installed references/schedule-execution.md; management tools are not a tick gate.
 Read current RunSettings and actual native invocation metadata. Validate the
 native task ID, lifecycle, generation, actual local execution/host/directory and single active-run ownership
 before work and again before each dependent mutation. Stopped, stale, busy or

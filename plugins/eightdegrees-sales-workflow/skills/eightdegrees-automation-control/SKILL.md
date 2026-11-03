@@ -11,6 +11,13 @@ start establishes one local host-owned task; stop deletes it. Use
 [runtime](../../references/platform-runtime.md). Default30 minutes; optionally
 start interval_minutes=20. No new public command.
 
+Management-only boundary: this Skill handles explicit start/stop, never the
+body of an already-created tick. A chat/runtime management limitation applies
+only to the requested native management action. It does not prove execution
+unavailable, disable a verified task or block run-auto. Existing ticks load
+[execution without management tools](../../references/schedule-execution.md)
+and use their execution guard. Do not rediscover management tools each tick.
+
 1. Read RunSettings, actual selected computer and absolute working directory.
    GPT uses codex-local-task; Claude uses cowork-local-task with verified
    local-folder execution. Both require execution_location=local. Discover

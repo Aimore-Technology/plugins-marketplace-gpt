@@ -1,5 +1,13 @@
 # Approved work in a native scheduled cycle
 
+This is execution, not scheduler administration. Use
+[execution without management tools](schedule-execution.md). An existing verified
+local task may run without automation_update or scheduler list/read/create/
+update/delete access in this conversation. Do not call plan/verify or load the
+automation-control Skill as an entry prerequisite. Missing management capability
+alone does not disable this task or block a cycle. Missing actual execution
+identity, lifecycle or business access remains an execution-specific limitation.
+
 Public `run-auto` uses one-cycle-approved-work: one deliberate cycle with the same per-task approval gates, without scheduling. Explicit no-send requests and legacy restricted invocations retain one-cycle-no-customer-send. The native task calls the
 email-scanning skill directly with the packaged scan-schedule prompt, not that
 public command. This avoids contradictory nested policies. A native task never

@@ -8,6 +8,11 @@ result repair without another chat command. A human decision blocks its item,
 not the installation. Never replace an unknown result with a new send or turn
 missing capability into a repeated permission question.
 
+An already-created local task follows [execution](schedule-execution.md), not
+start/stop setup. Missing scheduler management tools is not a reason to stop a
+valid tick or mark the installation unconfigured. Keep actual execution identity,
+current lifecycle and all business connection/approval checks.
+
 ## Bounded scan and durable restart
 
 Use local_checks operation scan.cycle with one original capture bundle. Inputs:

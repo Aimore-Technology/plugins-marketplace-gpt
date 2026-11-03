@@ -5,6 +5,17 @@ directory. Default30 minutes;20 explicitly optional. stop deletes it. Scheduling
 commands do no immediate scan, customer send, CRM/Calendar write or approval.
 Installation/init creates no job.
 
+## Management scope versus execution scope
+
+These list/read/create/update/delete requirements apply to explicit start/stop
+and their native-operation readback. They are not prerequisites for every cycle.
+Existing verified local ticks use [execution](schedule-execution.md) and guard,
+without management-tool discovery, plan/verify or a current scheduler listing.
+A management limitation affects only that management action; do not mark an
+existing Running task unconfigured or recreate it due solely to absent tools.
+Actual stopped/stale/unidentified/busy execution still defers. Never relax
+execution identity or approval gates as a substitute for management capability.
+
 ## Runtime and ownership
 
 GPT uses codex-local-task in the desktop local Automation environment. Claude

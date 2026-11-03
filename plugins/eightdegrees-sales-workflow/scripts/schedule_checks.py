@@ -102,14 +102,21 @@ def local_capabilities(caps, ctx):
             and ctx['interval_minutes'] in supported)
 
 
+def management_limitation(operation, reason, status="NativeSchedulingUnavailable", **details):
+    """A management failure is not evidence that an existing tick cannot run."""
+    return {"status": status, "operation": operation,
+            "limitation_scope": "schedule-management-only", "reason": reason, **details}
+
+
 def plan(data):
-    ctx = context(data)
-    tasks = owned_tasks(data, ctx)
     operation, caps = data.get("operation"), data.get("capabilities", {})
     if operation not in ("start", "stop"):
         raise ValueError("operation must be start or stop")
-    if caps.get("list") is not True:
-        return {"status": "NativeSchedulingUnavailable", "reason": "Native listing capability is required"}
+    for capability in ("list", "read"):
+        if caps.get(capability) is not True:
+            return management_limitation(operation, "Native " + capability + " capability is required for this management operation")
+    ctx = context(data)
+    tasks = owned_tasks(data, ctx)
     saved = data.get("scheduling") or {}
     if saved_executor_conflict(saved, ctx):
         return {"status": "NeedsReconciliation", "reason": "Saved schedule belongs to another executor; access its native scheduler before changing ownership"}
@@ -118,20 +125,21 @@ def plan(data):
         return {"status": "NeedsReconciliation", "reason": "Resolve the existing native create/delete attempt before mutation"}
     if operation == "stop":
         if tasks and caps.get("delete") is not True:
-            return {"status": "NativeDeletionUnavailable", "schedule_ids": [t["id"] for t in tasks]}
+            return management_limitation(operation, "Native deletion is unavailable; no deletion was performed",
+                                         status="NativeDeletionUnavailable", schedule_ids=[t["id"] for t in tasks])
         return {"status": "EligibleForNativeDelete" if tasks else "AlreadyAbsent",
                 "schedule_ids": [t["id"] for t in tasks], "owner_key": ctx["owner_key"]}
     if ctx["generation"] < 1:
         raise ValueError("Start must first register a positive lifecycle generation")
     if not local_capabilities(caps, ctx):
-        return {"status": "NativeSchedulingUnavailable", "reason": "Verify local execution, directory, installed skills/connectors and selected 20/30-minute cadence; no cloud fallback"}
+        return management_limitation(operation, "Verify local execution, directory, installed skills/connectors and selected 20/30-minute cadence; no cloud fallback")
     if len(tasks) > 1:
         return {"status": "NeedsReconciliation", "reason": "Duplicate owned scanners; do not create another", "schedule_ids": [t["id"] for t in tasks]}
     if tasks and exact_task(tasks[0], ctx):
         return {"status": "ReuseExisting", "schedule_id": tasks[0]["id"], "owner_key": ctx["owner_key"]}
     capability = "update" if tasks else "create"
     if caps.get(capability) is not True:
-        return {"status": "NativeSchedulingUnavailable", "reason": "Required native " + capability + " operation is unavailable"}
+        return management_limitation(operation, "Required native " + capability + " operation is unavailable")
     return {"status": "EligibleForNativeUpdate" if tasks else "EligibleForNativeCreate",
             "schedule_id": tasks[0]["id"] if tasks else None, "owner_key": ctx["owner_key"],
             "execution_location": 'local', 'working_directory': ctx['working_directory'],
@@ -161,6 +169,9 @@ def verify(data):
 
 
 def guard(data):
+    # Execution does not list/create/update/delete schedules or consume their
+    # management capabilities. The actual invocation and current saved lifecycle
+    # supply its evidence; missing management tools alone must never defer a tick.
     if data.get("trigger") == "manual":
         return {"status": "EligibleForManualCycle", "customer_send_allowed": False}
     if data.get("trigger") != "scheduled":

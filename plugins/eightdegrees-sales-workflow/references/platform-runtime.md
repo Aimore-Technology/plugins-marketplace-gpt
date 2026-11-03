@@ -1,5 +1,17 @@
 # GPT runtime: local desktop Automation
 
+## Existing task execution
+
+An already-created verified local tick is not a start/stop request. Follow
+[execution](schedule-execution.md) with current trusted invocation context,
+Notion lifecycle and business connections. Do not discover or require scheduler
+management tools, list/read/create/update/delete capabilities or another setup
+pass to execute it. An absent management API alone is no execution blocker.
+Missing actual execution identity, stale/stopped lifecycle or business tools
+remains a precise execution limitation; never fabricate evidence or bypass guard.
+
+## Explicit start/stop management
+
 Periodic work uses a Codex/ChatGPT desktop local Automation on the operator's
 selected computer and existing working directory: runtime=codex-local-task,
 execution_location=local, actual owner_host and absolute working_directory.
@@ -10,9 +22,10 @@ for local environment/directory, recurrence, IDs and deletion. Preserve model
 settings and required native confirmation. Never invent API fields or edit
 hidden task files. An SSH chat is not proof of the intended execution computer.
 
-Use [schedule lifecycle](scheduling.md). Missing local tools/access/cadence stays
-unconfigured with a native local setup action, never a cloud Work task, Page
-controller, reminder, OS cron, daemon or new backend. Do not create a worktree;
+Use [schedule lifecycle](scheduling.md). For an explicit start without an
+existing verified task, missing local management tools/access/cadence leaves
+that management action unconfigured with a native local setup action, never a
+cloud Work task, Page controller, reminder, OS cron, daemon or new backend. Do not create a worktree;
 use the selected existing local directory.
 
 Keep the computer on, awake and connected with its required app/local runner.
