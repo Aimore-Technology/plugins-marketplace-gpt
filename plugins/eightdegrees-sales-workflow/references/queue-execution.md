@@ -6,7 +6,7 @@ immediately. Pending unfinished source handoffs remain demand even with unchange
 mail/index/task rows. Preserve every source key, original task and provider attempt.
 
 New inquiry work follows [email-flow](email-flow.md): one source read, one scoped
-CRM match/name fallback, cached exact project/lot materials, one draft/preview,
+CRM match/name fallback, cached exact project/lot materials, one plain-text draft,
 one combined content-and-send decision, original Gmail acknowledgement and
 standing-authorized SMS registration/dispatch when due. Do not insert a manual
 communication/Notes review into this path. Project ambiguity or missing required

@@ -116,9 +116,18 @@ def check(data, review=None):
             raise ValueError('Do not delete or duplicate the original action-binding during publication')
         prior, current = old[0], new[0]
         stable = ('TaskPageId', 'ActionPageId', 'OwnerSkill', 'ResumeStep', 'StepId', 'Mode', 'Category')
+        ready = bool(review and review.get('status') == 'EmailReviewReady')
+        if (review and review.get('status') == 'SingleEmailReviewPrepared'
+                and review.get('package', {}).get('record_type') == 'email-review-v3'):
+            from email_flow import validate
+            validate(review['package'])
+            ready = (current.get('ApprovalContract') == 'email-review-v3'
+                     and page_id(current['ActionPageId']) == page_id(review['package']['action_page_id'])
+                     and current.get('PackageSha256') == review['package']['package_sha256'])
+            stable = tuple(k for k in stable if k != 'ActionPageId')
         if (any(prior.get(k) != current.get(k) for k in stable)
                 or prior.get('ContentVersion') == current.get('ContentVersion')
-                or not review or review.get('status') != 'EmailReviewReady'
+                or not ready
                 or review['task_page_id'] != page_id(current['TaskPageId'])
                 or review['content_version'] != current['ContentVersion']
                 or review['draft_binding_sha256'] != current.get('DraftBindingSha256')):

@@ -21,36 +21,62 @@ def b64url(value):
     return base64.b64decode(value + "=" * (-len(value) % 4), altchars=b"-_", validate=True)
 
 
+def content_fields(m):
+    mime = m.get('mime_type', 'text/html')
+    if mime == 'text/plain':
+        if 'html_base64url' in m or 'html_sha256' in m:
+            raise ValueError('Plain text cannot carry an alternative HTML payload')
+        return mime, 'text_base64url', 'text_sha256'
+    if mime != 'text/html':
+        raise ValueError('Use one plain-text part, or preserve an original legacy HTML part')
+    return mime, 'html_base64url', 'html_sha256'
+
+
+def binding_fields(m):
+    keys = ('task_page_id', 'content_version', 'draft_id', 'message_id', 'thread_id',
+            'reply_message_id', 'parent_rfc_message_id', 'from_address', 'to', 'cc', 'bcc',
+            'reply_to', 'subject')
+    mime, _, digest_key = content_fields(m)
+    value = {k: m.get(k, '') for k in keys + (digest_key,)}
+    if mime == 'text/plain':
+        value['mime_type'] = mime
+    return value
+
+
 def manifest(data):
     m = data["manifest"]
+    if not isinstance(m, dict):
+        raise ValueError('Expected original draft manifest')
+    mime, body_key, digest_key = content_fields(m)
     required = ("task_page_id", "content_version", "draft_id", "message_id", "thread_id",
-                "reply_message_id", "parent_rfc_message_id", "from_address", "to", "subject", "html_base64url", "html_sha256")
+                "reply_message_id", "parent_rfc_message_id", "from_address", "to", "subject", body_key, digest_key)
     if isinstance(m, dict):
         for key in ("from_address", "to", "cc", "bcc", "reply_to", "subject", "parent_rfc_message_id"):
             if key in m and not isinstance(m[key], str):
                 raise ValueError(key + " must be a header string, not a list or null; use the current connector contract")
     if not isinstance(m, dict) or any(not isinstance(m.get(k), str) or not m[k] for k in required):
-        raise ValueError("Missing original draft/message/thread/version/target/HTML binding")
+        raise ValueError("Missing original draft/message/thread/version/target/body binding")
     if m.get("assets") or m.get("attachments"):
-        raise ValueError("This adapter verifies one HTML part only; frozen multipart assets require a separately verified adapter, never drop them")
+        raise ValueError("This adapter verifies one text part only; frozen multipart assets require a separately verified adapter, never drop them")
     for key in ("from_address", "to", "cc", "bcc", "reply_to", "subject", "parent_rfc_message_id"):
         if any(c in m.get(key, "") for c in "\r\n"):
             raise ValueError("Header injection or malformed header")
     if not re.fullmatch(r"<[^<>\s]+>", m["parent_rfc_message_id"]):
         raise ValueError("Expected the actual original RFC Message-ID")
-    html = b64url(m["html_base64url"])
+    html = b64url(m[body_key])
     html.decode("utf-8", errors="strict")
-    if not html or hashlib.sha256(html).hexdigest() != m["html_sha256"]:
-        raise ValueError("Frozen HTML digest mismatch; preserve exact bytes including trailing newline")
+    if not html or hashlib.sha256(html).hexdigest() != m[digest_key]:
+        raise ValueError("Frozen body digest mismatch; preserve exact bytes including trailing newline")
     return m, html
 
 
 def prepare(data):
     m, html = manifest(data)
+    mime, _, _ = content_fields(m)
     return {"status": "DraftPatchPlanned", "args": {"draft_id": m["draft_id"],
             "from_address": m["from_address"], "to": m["to"], "cc": m.get("cc", ""), "bcc": m.get("bcc", ""),
             "reply_to": m.get("reply_to", ""),
-            "subject": m["subject"], "payload": {"mime_type": "text/html", "charset": "UTF-8",
+            "subject": m["subject"], "payload": {"mime_type": mime, "charset": "UTF-8",
             "body": {"base64_url_content": base64.urlsafe_b64encode(html).decode().rstrip("=")}},
             "response_fields": ["id", "message"]},
             "scope": "Use current update_draft contract; reply_message_id is deliberately omitted to preserve existing reply context; not approval or sending"}
@@ -68,6 +94,9 @@ def expected_addresses(value):
 
 def verify(data):
     m, html = manifest(data)
+    mime, _, digest_key = content_fields(m)
+    if mime == 'text/plain' and 'write_result' not in data:
+        raise ValueError('Plain-text drafts use the original API acknowledgement, never MIME readback')
     if 'write_result' in data:
         import api_result
         if data.get('phase', 'draft') != 'draft':
@@ -77,12 +106,10 @@ def verify(data):
                                       'purpose': 'reply-draft', 'content_version': m['content_version']})
         if receipt['status'] != 'APIWriteConfirmed':
             return {**receipt, 'issues': [receipt.get('reason', 'Draft write is unknown')]}
-        binding = {k: m.get(k, '') for k in ('task_page_id', 'content_version', 'draft_id', 'message_id',
-            'thread_id', 'reply_message_id', 'parent_rfc_message_id', 'from_address', 'to', 'cc', 'bcc',
-            'reply_to', 'subject', 'html_sha256')}
+        binding = binding_fields(m)
         return {'status': 'StoredReplyVerified', 'issues': [], 'phase': 'draft',
                 'entity_id': m['task_page_id'], 'draft_id': m['draft_id'], 'message_id': m['message_id'],
-                'thread_id': m['thread_id'], 'content_version': m['content_version'], 'html_sha256': m['html_sha256'],
+                'thread_id': m['thread_id'], 'content_version': m['content_version'], digest_key: m[digest_key],
                 'draft_binding_sha256': hashlib.sha256(json.dumps(binding, sort_keys=True, separators=(',', ':')).encode()).hexdigest(),
                 'verification_basis': receipt['verification_basis'], 'stored_content_verified': False,
                 'scope': 'Submitted manifest and original draft-write acknowledgement; no raw MIME fetch or saved-body comparison'}

@@ -22,7 +22,7 @@ These are known contract differences to check against the live schema:
 - Notion `insert_content` uses `content`; `replace_content` uses `new_str`; `update_content` uses `content_updates` with minimal unique `old_str`/`new_str` pairs. An old schema may differ; do not copy fields between commands.
 - Notion search uses `page_size`, not `limit`; use a supported small page such as 20, never assume a 100-item limit. Read actual pagination/cap notices before claiming completeness.
 - Dropbox search needs a non-empty query on first search. Browse an empty/new folder with the supported folder-list tool instead. Search pagination sends the returned cursor alone; no query/filters. Use authorized folder paths, not web URLs/file IDs in its path argument.
-- Outlook send results may be text-only with no message ID. Its current plain-text-only sender is not an HTML/EDM transport. Preserve the separately verified Gmail HTML send requirement.
+- Outlook send results may be text-only with no message ID. Its current plain-text-only sender is not an HTML/EDM transport. Inquiry replies use the configured Gmail text/plain stored-draft send; no HTML requirement.
 
 ## Bounded rate-limit recovery
 

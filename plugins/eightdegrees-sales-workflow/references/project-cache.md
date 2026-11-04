@@ -28,7 +28,7 @@ source text and null unknowns. A cached fact is not customer permission.
   fuzzy substitution for a different lot. Pass registered_projects from current saved settings as well, so an uncached known project can resolve and warm without a human-selection task. Model extraction is done once.
 - project.cache-get: use scope/project, optional fields and include_file_ids.
   A ProjectCacheHit returns requested parsed facts and source metadata; raw
-  text is returned only for selected files such as an inline brochure. No
+  text is returned only for selected files such as a requested source excerpt. No
   Dropbox calls or model re-extraction. Expired/missing/corrupt cache asks for
   one affected refresh, never invents empty facts or silently uses stale data.
 - project.cache-invalidate: explicit material refresh or an observed source

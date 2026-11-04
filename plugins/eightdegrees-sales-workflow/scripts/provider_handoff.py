@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 
 from notion_checks import object_result
-from reply_transport import manifest
+from reply_transport import manifest, binding_fields, content_fields
 
 ACCEPTED = {'ProviderAccepted', 'AwaitingPhone', 'PendingApproval', 'Sent', 'SentToNetwork', 'Delivered'}
 
@@ -29,14 +29,13 @@ def verify(data):
             raise ValueError('The response is not a Gmail dispatch acknowledgement')
         m, _ = manifest(data)
         draft = data['draft_verification']
-        binding = {k: m.get(k, '') for k in ('task_page_id', 'content_version', 'draft_id', 'message_id',
-            'thread_id', 'reply_message_id', 'parent_rfc_message_id', 'from_address', 'to', 'cc', 'bcc',
-            'reply_to', 'subject', 'html_sha256')}
+        binding = binding_fields(m)
+        _, _, digest_key = content_fields(m)
         digest = hashlib.sha256(json.dumps(binding, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
         if (draft.get('status') != 'StoredReplyVerified' or draft.get('phase') != 'draft' or draft.get('issues')
                 or draft.get('entity_id') != m['task_page_id'] or draft.get('content_version') != m['content_version']
                 or draft.get('draft_id') != m['draft_id'] or draft.get('message_id') != m['message_id']
-                or draft.get('html_sha256') != m['html_sha256'] or draft.get('draft_binding_sha256') != digest
+                or draft.get(digest_key) != m[digest_key] or draft.get('draft_binding_sha256') != digest
                 or data['request'] != {'draft_id': m['draft_id']}):
             raise ValueError('Dispatch must use the exact current verified draft and its approved binding')
         if response.get('thread_id', response.get('threadId', m['thread_id'])) != m['thread_id']:
@@ -45,8 +44,8 @@ def verify(data):
         if 'DRAFT' in labels:
             raise ValueError('A draft save is not a successful dispatch response')
         raw_status = raw_status or ('Sent' if 'SENT' in labels else 'ProviderAccepted')
-        entity, version, payload = m['task_page_id'], m['content_version'], m['html_sha256']
-        details = {'draft_id': m['draft_id'], 'thread_id': m['thread_id'], 'html_sha256': payload}
+        entity, version, payload = m['task_page_id'], m['content_version'], m[digest_key]
+        details = {'draft_id': m['draft_id'], 'thread_id': m['thread_id'], digest_key: payload}
     elif operation == 'sms':
         if raw_status == 'Sent':
             raise ValueError('Do not reinterpret an email status as an AndroidSync response')

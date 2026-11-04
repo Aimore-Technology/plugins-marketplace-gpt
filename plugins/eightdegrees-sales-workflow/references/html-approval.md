@@ -1,14 +1,11 @@
-# One email review
+# Plain-text review and legacy HTML
 
-Follow [the inquiry flow](email-flow.md). New email-review-v2 uses one page and
-one explicit Approve decision for both draft content and sending within the
-visible date/time window. Show recipients, subject/body, usable preview,
-materials/attachments and CRM operational-receipt scope together. SMS uses
-standing notification permission, not this form.
+New inquiry replies use [the plain-text flow](email-flow.md).
+Show one readable message and one combined decision. No HTML generation, image,
+PNG, render_preview, asset upload, full brochure insertion, separate preview or
+technical JSON is required on the action page. The canonical task retains exact
+version/source/draft binding and original API acknowledgements.
 
-Render the frozen local HTML once, then publish the preview and draft. Successful
-API acknowledgements confirm their writes. Do not download stored assets or raw
-MIME to compare bytes. Keep the local immutable package/version for approval.
-Edits/Return create the new synchronized version with blank choices; no approval
-inheritance. Genuine old content-only decisions remain content-only, and old
-send approvals retain only their originally approved scope.
+Legacy already-frozen HTML approvals preserve their original scope and assets.
+Do not convert an approved payload or copy its checks onto a plain-text version.
+Unsupported legacy media affects only that item, never new text inquiries.

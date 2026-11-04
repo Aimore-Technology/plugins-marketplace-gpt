@@ -22,8 +22,8 @@ no new email is found. Retain complete pagination and partial-coverage reasons.
 
 Pass the full saved queue to scan.queue/scan.cycle and apply stops first. New
 inquiries use [email-flow](../../references/email-flow.md): read each email once,
-match CRM once, resolve cached project material, draft and publish one combined
-review. Ordinary name resolution creates no human task. Add AimoreInquiry after
+match CRM once, resolve cached project material, draft a text/plain message and publish one readable combined
+review, with technical records only on its canonical task. No HTML/image preview. Ordinary name resolution creates no human task. Add AimoreInquiry after
 classification within the saved read scope; it is not an admission requirement.
 Reuse original captures across helpers and all newly ready successors. Do not
 restart scans, refetch unchanged sources or create plans per logical step.

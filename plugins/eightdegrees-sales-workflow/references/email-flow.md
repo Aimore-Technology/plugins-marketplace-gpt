@@ -34,19 +34,25 @@ helper's reference. Do not traverse every historical owner/check document.
    sender/signature and cached project style. Do not fetch a persona/Notes
    history unless personalization actually needs it. No automatic factual CRM
    persona update or pre-draft communication review is required by an inquiry.
-5. Prepare one Gmail reply draft. Replace its complete HTML once if needed to
-   avoid automatic quoted text; use the original write response/IDs as the
-   result. Render the same local package once and publish a usable native
-   preview. No raw MIME download, saved-byte/hash comparison or preview download.
-   Keep one canonical task, one operator action page and one reusable source;
-   do not create separate content-review and send-approval tasks for new mail.
-6. Use email.prepare, then email.review to create the combined email-review-v2
-   page. It displays exact From/To/Cc/Bcc, subject, body, preview, materials and
-   date/time window. One choice, Approve this draft and send in the stated
-   window, approves both content and sending. Return, Pause and Cancel are
-   alternatives; one named submission requests processing. Category=SendApproval,
-   OwnerSkill=eightdegrees-sales-reply, ResumeStep=SendApprovedReply, Mode=Automatic.
-   reply-draft stops after preparing this page; it never sends in that command.
+5. Prepare one **text/plain** Gmail reply draft. Use normal readable paragraphs
+   and the configured signature. No HTML/EDM, inline brochure, image generation,
+   browser rendering, preview upload, separate editable copy or attachment is
+   required. Include an existing usable authorized brochure link only when
+   appropriate; if unavailable, answer from verified facts without inventing a
+   public link. Preserve the original thread. If the connector appends quotes,
+   use reply_transport.prepare once to replace the body with the exact plain
+   text and retain the returned original draft/message IDs. API success finishes
+   that write; never download MIME or compare saved content.
+6. Use email.prepare then email.review for the combined email-review-v3 form.
+   The action page shows recipients, subject, readable message, send window,
+   Approve/Return/Pause/Cancel, comments and one Submit. Put task_records returned
+   by email.review on the original canonical PendingTasks task, not the action
+   page. They bind its real action ID, draft and version; no JSON/base64/hashes
+   or technical records belong on the user form. Save task registration and the
+   action page from their API acknowledgements before offering the active link.
+   Category=SendApproval, OwnerSkill=eightdegrees-sales-reply,
+   ResumeStep=SendApprovedReply, Mode=Automatic. No prior content review.
+   reply-draft stops after this preparation; it does not send.
 
 ## One submitted decision to dispatch
 
@@ -80,7 +86,7 @@ helper's reference. Do not traverse every historical owner/check document.
 ## Read and write budget
 
 A warm inquiry needs one message read, one scoped CRM match and zero Dropbox
-content reads, followed by draft/preview publication and one review page. Scope,
+content reads, followed by plain-text draft publication and one review page. Scope,
 IDs, schemas, templates and source captures are reused. Use [helper input contracts](email-helper-inputs.md) rather than reading Python source. Run local_checks with
 --output and print only summaries, not every raw body or Python source. Log
 observable actions and compact cycle metrics, not every thought/helper call.
@@ -97,3 +103,9 @@ Existing content-only Confirm decisions stay content-only. Existing genuine
 send approvals retain their exact original scope. For an unfinished old content
 review, retain its history and offer one combined sending decision; do not turn
 Confirm into Approve or repeat an already accepted email/SMS/CRM action.
+
+Existing HTML email-review-v2 approvals remain legacy-only and preserve their
+original exact scope. Do not convert or copy checked choices onto a plain-text
+version. An unapproved old draft may be replaced by an owner-prepared plain
+version with blank choices and preserved history; do not recreate HTML previews.
+Deprecated saved HTML/preview flags cannot restore rendering on new inquiries.

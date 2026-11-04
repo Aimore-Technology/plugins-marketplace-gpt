@@ -1,7 +1,7 @@
 # Short pre-action order
 
 Normal inquiry work uses [email-flow](email-flow.md): source API acknowledgement,
-one scoped CRM match, cached project facts, one prepared draft/preview, one
+one scoped CRM match, cached project facts, one prepared plain-text draft, one
 combined review and one email.dispatch. It does not write/fetch a second queue
 admission or repeat a whole owner preflight for every logical step.
 

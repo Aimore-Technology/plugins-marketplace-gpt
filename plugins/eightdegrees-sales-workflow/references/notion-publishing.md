@@ -1,8 +1,9 @@
 # Publish only affected records
 
 For normal mail use [email-flow](email-flow.md). Keep one original Inbox source,
-one canonical task and one active combined review page; a read-only preview may
-be embedded there. Use real registered IDs/schemas and targeted mutations,
+one canonical task and one active readable plain-text review page. Technical
+binding/package records stay on the canonical task; no preview or JSON on the
+action page. Use real registered IDs/schemas and targeted mutations,
 retaining native children, user inputs and historical bindings.
 
 Run notion.mutation on the exact proposed call once before each write. Update

@@ -116,7 +116,7 @@ block their affected work. Existing stop/revocation always remains effective.
 
 ## Short email and local material cache
 
-Register non-authority email_workflow defaults: email-flow-v2, one email-review-v2
+Register non-authority email_workflow defaults: email-flow-v3, text/plain replies, no preview, one email-review-v3
 content-and-send decision and automatic inquiry-name resolution. Project cache
 defaults to private local user state with a 24-hour TTL, scoped by actual Notion
 root, Dropbox account/namespace and authorized work folders. Do not ship or copy

@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-FILES = ('references/email-flow.md', 'references/project-cache.md', 'scripts/email_flow.py', 'scripts/project_cache.py', 'references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
+FILES = ('references/email-flow.md', 'references/project-cache.md', 'scripts/email_flow.py', 'scripts/reply_transport.py', 'scripts/provider_handoff.py', 'assets/email-review-labels.json', 'scripts/project_cache.py', 'references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
          'references/scheduled-work.md', 'references/schedule-execution.md',
          'scripts/schedule_checks.py', 'scripts/scan_control.py', 'scripts/event_probe.py',
          'scripts/backlog_recovery.py', 'scripts/queue_construction.py', 'scripts/scan_cycle.py', 'scripts/cycle_metrics.py')
@@ -31,7 +31,9 @@ def load(data=None):
                                   'bytes': len(body.encode()), 'path': str(root/name)}
                            for name, body in captures.items()},
             'code_output': bool(data.get('include_code')),
-            'email_policy': {'contract': 'email-flow-v2', 'approval_contract': 'email-review-v2',
+            'email_policy': {'contract': 'email-flow-v3', 'approval_contract': 'email-review-v3',
+                             'mime_type': 'text/plain', 'preview_required': False,
+                             'technical_records_on_action_page': False,
                              'human_reviews': 1, 'crm_write_readback_required': False,
                              'project_cache_ttl_seconds': 86400},
             'owner': 'eightdegrees-email-scanning', 'policy': 'scheduled-approved-work',

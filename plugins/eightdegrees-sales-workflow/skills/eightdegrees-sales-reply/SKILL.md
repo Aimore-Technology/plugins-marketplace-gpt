@@ -12,9 +12,10 @@ Reuse the original message/source and the scanner's one scoped CRM match.
 Automatic CRM/signature/From name resolution needs no matching/name approval.
 Project/lot ambiguity or missing required material opens one tailored input.
 
-Prepare one frozen reply draft and usable preview. Publish a single
-email-review-v2 form using email.prepare/email.review, with exact recipients,
-body/materials and window. Category=SendApproval, ResumeStep=SendApprovedReply.
+Prepare one frozen text/plain reply draft; no HTML, JSON on the user page,
+rendering, image or preview. Publish a single email-review-v3 form using email.prepare/email.review, with exact recipients,
+readable body and window. Save returned task_records on the canonical task
+only; the action page contains user content and choices. Category=SendApproval, ResumeStep=SendApprovedReply.
 Do not create a new ReviewReplyDraft or separate content-confirmation task.
 reply-draft stops here, without consuming a send choice or sending.
 

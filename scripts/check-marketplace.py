@@ -162,9 +162,13 @@ def check():
         require(defaults['queue_execution']['continue_commands_required'] is False, 'Queue must not require extra continuation commands')
         require(defaults['data']['deliberate_redaction'] is False, 'Pilot data policy drift')
         require(defaults['send_completion'] == {'policy': 'provider-handoff-v1', 'email': 'successful_gmail_dispatch_response', 'sms': 'successful_androidsync_request_response', 'provider_status_polling': False, 'recipient_verification': False, 'crm_write_readback_required': False}, 'Provider handoff boundary drift')
-        require(defaults.get('email_workflow', {}).get('approval_contract') == 'email-review-v2'
+        require(defaults.get('email_workflow', {}).get('approval_contract') == 'email-review-v3'
                 and defaults['email_workflow'].get('human_reviews_per_email') == 1,
                 'New mail must have one combined review')
+        require(defaults['email_workflow'].get('mime_type') == 'text/plain'
+                and defaults['email_workflow'].get('preview_required') is False
+                and defaults['email_workflow'].get('technical_records_on_action_page') is False,
+                'New inquiry review must be readable plain text without previews or technical JSON')
         require(defaults.get('project_cache', {}).get('ttl_seconds') == 86400
                 and defaults['project_cache'].get('storage') == 'private-local-user-state'
                 and defaults['project_cache'].get('cache_permissions') is False,

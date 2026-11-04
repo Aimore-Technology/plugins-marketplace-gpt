@@ -56,7 +56,7 @@ customer/topic, three short lines (request, proposed response, decision needed),
 and current observed status/next action. `operator_experience.py review` emits
 these lines and explicit field-level before/after differences for a revision.
 These are a guide; preserve full exact-version copy/Notes and the matching saved
-preview BEFORE decision controls. No summary-only approval, new inherited checks,
+readable plain-text message BEFORE decision controls. No summary-only approval, new inherited checks,
 or silent change to approved bytes. New email uses one combined content-and-send decision; manual Notes approval has only CRM-fact scope.
 
 Show already verified applicable values once with provenance, not repeated

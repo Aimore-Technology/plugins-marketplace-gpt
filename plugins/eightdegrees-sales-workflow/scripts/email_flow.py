@@ -11,10 +11,11 @@ from zoneinfo import ZoneInfo
 from api_result import confirm
 from email_presentation import blocks, properties
 from notion_checks import page_body, page_id, object_result
-from reply_transport import manifest, verify
+from reply_transport import manifest, verify, content_fields
 from workflow_checks import visible_markdown
 
-CONTRACT = 'email-review-v2'
+CONTRACT = 'email-review-v2'  # Existing HTML reviews retain their exact scope.
+PLAIN_CONTRACT = 'email-review-v3'
 LABELS = json.loads((Path(__file__).resolve().parents[1]/'assets/email-review-labels.json').read_text())
 
 
@@ -31,9 +32,11 @@ def moment(text):
 
 
 def validate(package):
-    if package.get('record_type') != CONTRACT:
+    if package.get('record_type') not in {CONTRACT, PLAIN_CONTRACT}:
         raise ValueError('This is not a combined email review; old Confirm decisions never authorize sending')
     m, html = manifest({'manifest': package['manifest']})
+    if (package['record_type'] == PLAIN_CONTRACT) != (content_fields(m)[0] == 'text/plain'):
+        raise ValueError('Review format must match the frozen body MIME type')
     for key in ('source_page_id', 'task_page_id', 'action_page_id', 'root_id'):
         page_id(package[key])
     if (page_id(m['task_page_id']) != page_id(package['task_page_id'])
@@ -51,7 +54,7 @@ def validate(package):
 
 
 def prepare(data):
-    """Bind previously prepared draft, source receipt, preview and material snapshot."""
+    """Bind one acknowledged draft and source; new plain text needs no preview."""
     transport = data['transport']
     m, _ = manifest(transport)
     if 'write_result' not in transport:
@@ -62,27 +65,32 @@ def prepare(data):
     source = confirm({**data['source_write'], 'service': 'notion', 'expected_id': data['source_page_id']})
     if source['status'] != 'APIWriteConfirmed':
         raise ValueError('Persist the original source before offering its reply review')
-    preview = data['review_ready']
-    if (preview.get('status') != 'EmailReviewReady'
-            or page_id(preview['task_page_id']) != page_id(m['task_page_id'])
-            or preview['content_version'] != m['content_version']
-            or preview['html_sha256'] != m['html_sha256']
-            or preview['draft_binding_sha256'] != draft['draft_binding_sha256']):
-        raise ValueError('Use the prepared same-version copy/preview acknowledgements')
+    plain = content_fields(m)[0] == 'text/plain'
+    if not plain:
+        preview = data['review_ready']
+        if (preview.get('status') != 'EmailReviewReady'
+                or page_id(preview['task_page_id']) != page_id(m['task_page_id'])
+                or preview['content_version'] != m['content_version']
+                or preview['html_sha256'] != m['html_sha256']
+                or preview['draft_binding_sha256'] != draft['draft_binding_sha256']):
+            raise ValueError('Use the prepared same-version copy/preview acknowledgements')
     package = {k: copy.deepcopy(data[k]) for k in ('root_id', 'source_page_id', 'source_key',
                'action_page_id', 'operator_id', 'window')}
     if type(data.get('material', True)) is not bool:
         raise ValueError('Record whether this reply actually provides project materials')
-    package.update(material=data.get('material', True), receipt_template='send-receipt-v2', record_type=CONTRACT, task_page_id=m['task_page_id'], content_version=m['content_version'],
+    package.update(material=data.get('material', True), receipt_template='send-receipt-v2', record_type=PLAIN_CONTRACT if plain else CONTRACT, task_page_id=m['task_page_id'], content_version=m['content_version'],
                    manifest=copy.deepcopy(m), draft_verification=draft,
                    source_snapshot_id=data.get('source_snapshot_id'),
                    material_sources=copy.deepcopy(data.get('material_sources', [])),
                    crm_target=copy.deepcopy(data.get('crm_target')),
-                   preview_page_id=preview.get('preview_page_id', preview['copy_page_id']),
                    labels=LABELS.get(data.get('language', 'en'), LABELS['en']))
+    if not plain:
+        package['preview_page_id'] = preview.get('preview_page_id', preview['copy_page_id'])
     package['package_sha256'] = digest(package)
     validate(package)
     return {'status': 'SingleEmailReviewPrepared', 'package': package,
+            'task_page_id': m['task_page_id'], 'content_version': m['content_version'],
+            'draft_binding_sha256': draft['draft_binding_sha256'],
             'required_human_decisions': 1, 'next_step': 'SendApprovedReply',
             'send_allowed': False, 'scope': 'Publish one combined review; no prior content-review task or sending authority'}
 
@@ -92,10 +100,30 @@ def window_text(window):
     return ' / '.join(moment(window[k]).astimezone(zone).isoformat() for k in ('not_before', 'not_after'))+' ('+window['timezone']+')'
 
 
+def plain_display(text):
+    from html import escape
+    text = escape(text, quote=False)
+    return re.sub(r'([\\`*_{}\[\]()#+.!|>~-])', r'\\\1', text)
+
+
+def plain_quote(text):
+    return '<quote>\n'+plain_display(text)+'\n</quote>'
+
+
+def plain_read(text, quote=False):
+    """Read Notion's native text serialization, not a second copy of mail bytes."""
+    from html import unescape
+    if quote:
+        if not text.startswith('<quote>\n') or not text.endswith('\n</quote>'):
+            raise ValueError('Keep the message in its registered readable body block')
+        text = text[len('<quote>\n'):-len('\n</quote>')]
+    return unescape(re.sub(r'\\([\\`*_{}\[\]()#+.!|>~-])', r'\1', text)).rstrip('\n')
+
+
 def render(data):
     package = data['package']; m, html = validate(package)
     labels = package['labels']
-    binding = {'record_type': 'action-binding', 'ApprovalContract': CONTRACT,
+    binding = {'record_type': 'action-binding', 'ApprovalContract': package['record_type'],
                'TaskPageId': package['task_page_id'], 'ActionPageId': package['action_page_id'],
                'OwnerSkill': 'eightdegrees-sales-reply', 'ResumeStep': 'SendApprovedReply',
                'StepId': 'SendApprovedReply', 'Category': 'SendApproval', 'Mode': 'Automatic',
@@ -106,6 +134,21 @@ def render(data):
                                                    ('pause', 'Pause'), ('cancel', 'Cancel')]},
                'SubmissionLabel': labels['submit']}
     window = package['window']
+    if package['record_type'] == PLAIN_CONTRACT:
+        lines = ['## '+labels['status'], '', labels['ready'], '',
+                 'From: `'+m['from_address']+'`', 'To: `'+m['to']+'`',
+                 *(['Cc: `'+m['cc']+'`'] if m.get('cc') else []),
+                 *(['Bcc: `'+m['bcc']+'`'] if m.get('bcc') else []), '',
+                 'Window: `'+window_text(window)+'`', '',
+                 '## '+labels['subject'], '', plain_display(m['subject']), '',
+                 '## '+labels['body'], '', plain_quote(html.decode('utf-8')), '',
+                 '## '+labels['input'], '', labels['meaning'], '']
+        lines += ['- [ ] '+labels[k] for k in ('approve', 'return', 'pause', 'cancel')]
+        lines += ['', '### '+labels['comments'], '', labels['placeholder'], '',
+                  '- [ ] '+labels['submit'], '', '## '+labels['result'], '', labels['waiting']]
+        return {'status': 'SingleEmailReviewRendered', 'content': '\n'.join(lines)+'\n',
+                'binding': binding, 'task_records': [binding, package],
+                'scope': 'Keep task_records on the canonical task only; no HTML/JSON/preview on the action page'}
     lines = ['## '+labels['status'], '', labels['ready'], '',
              'From: `'+m['from_address']+'`', 'To: `'+m['to']+'`',
              'Cc: `'+(m.get('cc') or '(none)')+'`', 'Bcc: `'+(m.get('bcc') or '(none)')+'`', '',
@@ -131,8 +174,9 @@ def accept(data):
             raise ValueError('Use the actual registered task and action captures')
         page_body(data[name])
     task = properties(data['task'])
-    package = blocks(data['action'], CONTRACT)[1]
-    binding = blocks(data['action'], 'action-binding')[1]
+    private = blocks(data['task'], PLAIN_CONTRACT, required=False)
+    package = private[1] if private else blocks(data['action'], CONTRACT)[1]
+    binding = blocks(data['task'] if private else data['action'], 'action-binding')[1]
     m, html = validate(package)
     action_id = page_id(data['action_id'])
     if (page_id(data['task_id']) != page_id(package['task_page_id'])
@@ -147,7 +191,7 @@ def accept(data):
             or task.get('State') in {'Completed', 'Cancelled'}
             or task.get('OperatorId') != package['operator_id']
             or data['operator_id'] != package['operator_id']
-            or binding.get('ApprovalContract') != CONTRACT
+            or binding.get('ApprovalContract') != package['record_type']
             or page_id(binding['TaskPageId']) != page_id(package['task_page_id'])
             or page_id(binding['ActionPageId']) != action_id
             or binding.get('ContentVersion') != package['content_version']
@@ -155,23 +199,36 @@ def accept(data):
             or binding.get('DraftBindingSha256') != package['draft_verification']['draft_binding_sha256']):
         raise ValueError('Current task/action/operator/version does not bind this combined review')
     body = page_body(data['action'])
+    plain = package['record_type'] == PLAIN_CONTRACT
+    labels = package['labels']
+    subject_heading = labels['subject'] if plain else 'Email subject'
     for label, value in [('From', m['from_address']), ('To', m['to']), ('Cc', m.get('cc', '')),
                          ('Bcc', m.get('bcc', '')), ('Window', window_text(package['window']))]:
-        if re.findall(r'^'+label+r': ([^\n]*)$', body.split('## Email subject', 1)[0], re.M) != ['`'+(value or '(none)')+'`']:
+        expected = [] if plain and label in {'Cc', 'Bcc'} and not value else ['`'+(value or '(none)')+'`']
+        if re.findall(r'^'+label+r': ([^\n]*)$', body.split('## '+subject_heading, 1)[0], re.M) != expected:
             return {'status': 'EmailRevisionRequired', 'send_allowed': False,
                     'reason': 'Visible recipient/window changed; prepare that new package before approval'}
     def section(name):
-        headings = list(re.finditer(r'^## ([^\n]+)\n', visible_markdown(body), re.M))
+        visible = visible_markdown(body)
+        if plain:
+            visible = re.sub(r'(?ms)^<quote>\n.*?^</quote>[ \t]*$',
+                             lambda match: re.sub(r'[^\n]', ' ', match[0]), visible)
+        headings = list(re.finditer(r'^## ([^\n]+)\n', visible, re.M))
         matches = [v for v in headings if v[1] == name]
         if len(matches) != 1:
             raise ValueError('Missing/duplicate review section: '+name)
         selected = matches[0]
         end = next((v.start() for v in headings if v.start() > selected.start()), len(body))
         return body[selected.end():end].strip('\n')
-    if section('Email subject') != m['subject'] or section('Email HTML') != '```html\n'+html.decode('utf-8')+'\n```':
+    if plain:
+        unchanged = (plain_read(section(subject_heading)) == m['subject']
+                     and plain_read(section(labels['body']), quote=True) == html.decode('utf-8').rstrip('\n'))
+    else:
+        unchanged = (section(subject_heading) == m['subject']
+                     and section('Email HTML') == '```html\n'+html.decode('utf-8')+'\n```')
+    if not unchanged:
         return {'status': 'EmailRevisionRequired', 'send_allowed': False,
                 'reason': 'Editable copy changed; prepare the updated draft/version before accepting approval'}
-    labels = package['labels']
     input_body = section(labels['input'])
     checked = re.findall(r'^\s*- \[[xX]\] ([^\n]+)', visible_markdown(input_body), re.M)
     expected_choices = {labels[k]: v for k, v in [('approve', 'Approve'), ('return', 'Return'),
