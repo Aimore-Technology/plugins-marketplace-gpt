@@ -20,7 +20,7 @@ RUN, TASK, ACTION, HTML, IMAGE = [c * 32 for c in "12345"]
 
 
 def request():
-    return {"owner_skill": "eightdegrees-sales-reply", "policy": "draft-only", "operation": "content",
+    return {"verification_mode": "legacy-readback", "owner_skill": "eightdegrees-sales-reply", "policy": "draft-only", "operation": "content",
             "invocation_id": "synthetic-invocation", "publication_version": "reply-v2",
             "facts": {"finance_status": "unconfirmed", "finance_approved": None}, "intake_handoff": handoff(),
             "resources": [{"role": "run", "type": "run", "entity_id": RUN},

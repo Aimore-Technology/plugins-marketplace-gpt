@@ -5,9 +5,12 @@ description: "Build the EightDegrees daily Notion action list, track important r
 
 # Daily brief, reminders and handover
 
-Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+Apply [API result and minimal-read policy](../../references/api-result-policy.md) before this workflow. Successful writes use acknowledgements/record IDs; do not fetch stored bodies to compare. Reuse initialized workspace metadata.
 
-Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
+
+Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes also finish on successful API acknowledgement and NoteId. Do not re-query external send status or verify delivery.
+
+Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate and persist this owner's affected-role plan, then confirm its API acknowledgement; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
 
 For report-only, first apply [Notion publication](../../references/notion-publishing.md): freeze the actual report/run/log target registry and preflight EACH mutation, including corrections. Execute only the reporting parts of steps 1, 2, 4, 6 and 7 below; step 6 reads existing Health/Dashboard evidence without updating those records. Do not run reminder, Calendar, handover-test or business-repair procedures. Outside-registry task/action/hub/preview defects are findings with a separate owner continuation, never child calls from report. Audit actual writes at exit against the same registry; a later clean publication does not erase an earlier violation.
 
@@ -42,14 +45,14 @@ with scoped counts; do not repair business tasks from reporting.
 
 ## Operator path and local checks
 
-Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
+Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Keep fresh external-action safeguards; confirm saved results from original API acknowledgements only. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
 
 ## Report-run body authoring
 
 Create the report run with execution_plan.run_properties (or local run.record)
-from this installed version/current invocation. Saved readback must retain
-SkillVersion and the generated report SourceKey; a successful report body alone
-does not prove complete run metadata. Do not fill old runs from report-only.
+from this installed version/current invocation. Include SkillVersion and the
+generated report SourceKey in the submitted request, then confirm API success
+and the actual run ID without fetching its body. Do not fill old runs from report-only.
 
 Use timeless initial procedure/plan prose, labeled as history. Current State/Summary and the dated actual daily brief provide status. Do not put generating/not-yet-verified/waiting claims in a run body that report cannot later edit. Retain the frozen report write scope; identifying stale Today/business text does not authorize repair inside report.
 

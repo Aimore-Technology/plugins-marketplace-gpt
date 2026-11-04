@@ -1,128 +1,50 @@
-# Prepare, persist, then execute
+# Prepare once, persist, execute
 
-Apply [phase ordering](phase-ordering.md): new plans are execution-v2, with one
-current ResumeStep per plan. Each task resource includes resume_step. Preparation
-rejects mixed phases and derives their minimum evidence; do not enumerate future
-send tasks in a current content-review completion plan.
+Use [API results/minimal reads](api-result-policy.md). New execution.prepare plans
+are execution-api-v1. Preparation validates proposed facts, Notion values,
+reply parameters, source intake and one current ResumeStep before any dependent
+write. Do not include future send phases in a current draft/review plan.
 
-Use `python3 <plugin>/scripts/execution_preflight.py prepare --input <capture.json>`
-before the owner's first dependent write. This is the shared entry for fact,
-Notion property and stored-reply parameter checks. It derives the completion
-check list from the affected resources instead of asking the model to assemble
-that list from memory. It calls no connector and cannot intercept direct MCP calls.
+Input fields remain owner_skill, policy, operation, invocation_id,
+publication_version, resources, and the actual proposed facts/notion_rows/reply
+when relevant. Each resource has a unique role, type, actual entity_id or null
+creation slot. Exactly one run is required. Tasks have content_version and
+resume_step; actions bind task_role. html/image-preview resources retain their
+frozen package versions. Reuse actual registered schemas, not guessed enums.
+A changed proposed payload is checked once before its actual submission.
 
-For every actual Notion page write, including provisioning before ready, apply
-[exact-call Notion preflight](notion-mutation.md). Its combined links/properties
-check runs BEFORE that call and returns the exact permitted arguments; an earlier
-prepare/schema pass does not validate a later modified body or property object.
+1. Run execution.prepare via local_checks. A failed preflight stops dependent
+   writes. Persist its exact execution_plan/plan_sha256 and generated run_properties
+   on the owning WorkflowRun; include them in the initial create when new.
+   Every Notion call still uses notion.mutation's exact returned arguments.
+2. Inspect the write's original response. Run execution.ready with prepared,
+   bindings (role to returned IDs for declared creation slots), and
+   run_write={response,request}. No saved_plan fetch is required. The helper
+   checks our local original plan/preflight and the run write acknowledgement;
+   it never compares remote content. A failed/unknown write needs reconciliation.
+3. Retain registry/required_checks and ready's execution-plan result. Check the
+   current original task route once before its business action. Reuse that
+   result locally; final completion does not re-read a terminal task as a route.
+4. Collect write.confirm receipts for affected Notion records and the generated
+   current-phase external effects. Use completion-gate and owner-write (or the
+   narrower report-write) before final Completed/Success. Save final changes,
+   confirm their original API responses and return actual links. Never fetch
+   the final body to compare. A later human decision is read when observed.
 
-## Input and generated plan
+Generated receipt kinds: api-write for each affected Notion role; route for
+current tasks; draft acknowledgement for ReviewReplyDraft; CRM Note
+acknowledgement for actual approved Notes/receipt phases; original provider
+handoff for send phases; standing SMS authority for notification dispatch;
+material-handoff persistence for a material send/registration. A content proposal
+for ReviewCommunication does not require the future approved CRM append.
 
-New plans include execution_plan.run_properties generated from the installed
-manifest and actual invocation. Merge those exact fields into the initial
-WorkflowRun; do not copy identity/version from a previous run/checkpoint.
-execution.ready rejects missing/different metadata in its actual saved run.
-Use local run.record when preparing a run outside an owner-plan path. Exact
-Notion mutation checks reject omitted metadata before new run creation, including
-reports. Retain old frozen plans/history; do not blanket-upgrade old versions.
+write.confirm fields: service, response, request, expected_id when known,
+entity_id (workflow task for external effects), purpose, content_version.
+Required purpose/service come from the generated specs. For a Notion write,
+record_id must identify that resource. For CRM, record_id is the actual NoteId;
+entity_id remains the owning task. API acknowledgements never grant approval.
 
-Supply owner_skill, actual policy, invocation_id, publication_version, operation,
-resources and the actual proposed inputs. Operations are content, review, scan,
-setup, schedule, report, recovery and reply-patch. They describe this phase;
-they do not widen the command policy. Content requires facts. Every actual
-customer-fact projection includes facts even in another operation. Reply-patch
-requires reply: the actual reply_transport manifest wrapper. It preserves the
-current scalar header contract and exact frozen bytes, never joins a guessed list.
-
-For each proposed Notion row/property write, notion_rows contains role,
-data_source (the original schema fetch), data_source_id and exact properties.
-Reuse the same schema capture within this phase; do not invent select values.
-An empty notion_rows list does not mean future property writes are validated:
-check their exact current properties with schema-values before those calls.
-
-Each resource has a unique lowercase role, type and entity_id (actual ID, or
-null for an explicitly planned creation). Types generate these checks:
-
-| Type | Checks and bindings |
-| --- | --- |
-| run | page-links; exactly one owning run |
-| task | page-links + route + task-summary; content_version and resume_step required |
-| action | page-links + task-display; task_role points to this owner's task |
-| publication | page-links |
-| html-preview | page-links + preview |
-| image-preview | page-links + preview-image; frozen content_version and html_sha256 |
-
-Minimum evidence is generated from the current resume_step. A task may additionally declare compatible evidence: reply-draft, reply-sent, outcome, crm-receipt and material-handoff,
-as required by its actual route. These are obligations, not fabricated successes.
-Include every affected task/action/publication role and required send evidence.
-The owner profile supplies minimum coverage, not discovery of omitted resources.
-Declare the returned-new-action and preview roles before a Return revision;
-downstream owners make their own plan before mutating their records.
-
-For example, a no-send reply's resource slots are:
-
-```json
-[
-  {"role":"run","type":"run","entity_id":null},
-  {"role":"review","type":"task","entity_id":null,"content_version":"reply-v2","resume_step":"ReviewReplyDraft"},
-  {"role":"review-input","type":"action","entity_id":null,"task_role":"review"},
-  {"role":"html","type":"html-preview","entity_id":null}
-]
-```
-
-Include a PNG role only when producing that optional preview, with its real
-frozen HTML digest. Add the task's reply-draft evidence when preparing a real
-stored draft. Do not introduce fake resources to satisfy a profile.
-
-## Fixed sequence and refusal handling
-
-1. Inspect the actual source/state/schema; generate content locally as needed.
-   Run prepare and inspect BOTH process exit and JSON status. Only integer exit
-   0 plus PreflightPrepared is a successful preparation. On failure it returns
-   no execution_plan or usable outputs: stop dependent calls, preserve the
-   refusal and correct the source input before rerunning. A failed check must
-   not be followed by creating the next run/task/draft first. Recording the
-   failure in the existing own run/log is allowed; it is not business progress.
-2. Persist exactly execution_plan and plan_sha256 in one JSON fenced block in
-   the owning WorkflowRun. For a new run, include it in the initial inert run
-   creation after preparation passes. Register only the declared new resource
-   slots, checking exact schema/tool inputs before each creation. Do not make
-   review controls actionable, accept inputs or execute CRM/sending in this
-   provisioning phase. Log actual returned IDs before their dependent use.
-3. Fetch the actual saved run once. Run `execution_preflight.py ready --input
-   <readback.json>` with prepared (the original prepare output), saved_plan
-   (the original successful Notion fetch), and bindings (role to returned ID
-   for predeclared null slots). Only exit 0 plus ExecutionPlanReady permits the
-   dependent phase. It rejects missing/ambiguous/different saved plans, omitted
-   results, incomplete captures, added roles, existing-ID replacement and
-   unresolved slots. Keep the generated registry/required_checks for the owner
-   completion gate, including its execution-plan evidence kind with this ready
-   result and actual exit code. The final gate binds it to this saved plan digest,
-   run, invocation and publication version; do not drop that generated check.
-   Add actual log source IDs and required schedule evidence
-   without weakening scope. Report retains its narrower report-write registry.
-4. Consume only the current permitted input/owner step. Execute the named checks
-   on actual captures, then apply owner-write or report-write and read back the
-   affected final results. ExecutionPlanReady is not route approval, completion
-   evidence, a send permit or proof that historical tool calls were ordered well.
-
-A schema/input/affected-target change invalidates its preparation. Unexpected
-new dependencies stop the phase: preserve the missing-plan finding, prepare and
-persist a new scoped invocation/phase before that new work. Never replace the
-old plan to make past actions appear compliant, or regenerate a plan merely to
-remove a failed obligation. A later passing plan does not clear an earlier
-order failure. Acceptance examines actual tool order and original saved plans.
-
-Use the package helpers rather than an improvised multi-command driver. When
-host scripting is needed, use Python 3 and standard serializable JSON objects;
-do not assume JavaScript structuredClone or catch a failed assertion and then
-continue to a mutation. Missing Python support leaves this path unverified;
-do not pretend checks ran. The host still controls connector execution.
-
-For a sales material-send plan include `material-handoff` in the original task's evidence array before execution. This binds downstream registration to the same completion contract; run [material handoff](material-handoff.md) verify on actual saved pages before final completion. Plan the downstream SMS owner separately; a blocked channel still gets an observable registration/task, never another email.
-
-Notion may display generated identity punctuation with Markdown escapes. The
-readback guard compares one decoded presentation layer against the frozen
-canonical metadata, retaining the actual original capture unchanged. New writes
-still reject escaped identity values. Do not strip links, change page evidence,
-rewrite saved fields, or guess a raw-property tool option to satisfy the guard.
+Frozen execution-v1/v2 records remain history. legacy-readback is a diagnostic
+compatibility mode, not the current default or a reason to repeat old effects.
+If an old phase is unfinished, preserve it and create a linked current phase
+using the actual previous attempts/receipts; never fabricate historical success.

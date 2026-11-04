@@ -5,6 +5,9 @@ description: "Enable or disable scanning; register actual existing-task configur
 
 # Start or stop scanning
 
+Apply [API result and minimal-read policy](../../references/api-result-policy.md) before this workflow. Successful writes use acknowledgements/record IDs; do not fetch stored bodies to compare. Reuse initialized workspace metadata.
+
+
 start sets scan_control.enabled=true; stop sets it false. Both use
 scan-control-v1 under [scan control](../../references/scheduling.md). These are
 settings-only actions; the historical internal policy name scheduling-only
@@ -18,7 +21,7 @@ does not permit any native scheduler mutation.
    an old argument must not modify cadence or create a task.
 3. If write_required=false, return the existing switch state without another
    write when its actual registration is also unchanged. Otherwise perform one exact-call-preflighted settings update, then
-   read back and run scan.control-verify. Never claim success from a plan or
+   confirm the API response with scan.control-verify(write_result). Never claim success from a plan or
    failed/unknown write. No workflow plan/run/task/action/log creation is needed
    for a flag flip. [Notion mutation](../../references/notion-mutation.md) still
    applies to the exact settings call; no other page is a permitted target.

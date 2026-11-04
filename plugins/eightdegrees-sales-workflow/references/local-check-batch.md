@@ -75,5 +75,16 @@ not a successful read or dispatch permit. See [short scans](scan-fast-path.md).
 
 review.prepare, dispatch.admit and dispatch.prepare support the prospective
 [review/dispatch gates](pre-action-order.md). Only the final operation can emit
-an outgoing call after exact saved-admission readback; batch success grants no
+an outgoing call after original admission API acknowledgement; batch success grants no
 approval. Failed later checks still remove earlier executable calls.
+
+Communication intake adds communication.read-plan and communication.note. The
+former bounds reads for supplied text versus an actual message/file URL; the
+latter calls the existing strict CRM Notes renderer. Neither grants approval or
+performs an external action. Use --output to retain the rendered text without
+reprinting it for each validation. Passing local checks need execution, not
+repeated explanations or additional identical connector reads.
+
+write.confirm verifies only the original success response and actual record ID.
+New execution-api-v1 completion uses these receipts, not post-write body checks.
+Use [current API result policy](api-result-policy.md) for acknowledgement adapters.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare and read back an owner plan offline; never call a connector or send."""
+"""Prepare an owner plan and confirm its API write offline; no connector calls."""
 
 import argparse
 import copy
@@ -15,6 +15,7 @@ from reply_transport import prepare as prepare_reply
 from phase_contracts import task_evidence, validate_phase
 import runtime_records
 import intake_handoff
+import api_result
 
 
 PROFILES = json.loads((Path(__file__).resolve().parents[1] / "references/owner-completion-profiles.json").read_text())
@@ -144,8 +145,13 @@ def prepare(data):
         if code:
             return {"status": "NeedsCorrection", "checks": checks, "scope": SCOPE}
         outputs["reply_args"] = copy.deepcopy(result["args"])
+    mode = data.get('verification_mode', 'api-result')
+    if mode not in {'api-result', 'legacy-readback'}:
+        raise ValueError('Unknown write-result policy')
+    if mode == 'api-result':
+        required = api_result.requirements(resources, operation)
     plan = {k: data[k] for k in ("owner_skill", "policy", "operation", "invocation_id", "publication_version")}
-    plan.update(contract_version="execution-v2", stage_step=stage_step, resources=resources, required_checks=required,
+    plan.update(contract_version=api_result.CONTRACT if mode == 'api-result' else "execution-v2", stage_step=stage_step, resources=resources, required_checks=required,
                 run_properties=runtime_records.prepare(data)['properties'],
                 prechecks=[{k: c[k] for k in ("name", "kind", "input_sha256", "result_sha256", "exit_code")} for c in checks])
     return {"status": "PreflightPrepared", "execution_plan": plan, "plan_sha256": digest(plan),
@@ -153,13 +159,14 @@ def prepare(data):
 
 
 def ready(data):
-    """Verify the exact persisted plan and resolve its predeclared entity slots."""
+    """Bind the prepared local plan to its acknowledged run and actual record IDs."""
     prepared = data["prepared"]
     plan = prepared["execution_plan"]
-    phased = plan.get("contract_version") == "execution-v2"
+    receipt_mode = plan.get("contract_version") == api_result.CONTRACT
+    phased = plan.get("contract_version") in {"execution-v2", api_result.CONTRACT}
     if (prepared.get("status") != "PreflightPrepared" or prepared.get("plan_sha256") != digest(plan)
-            or plan.get("contract_version") not in {"execution-v1", "execution-v2"}
-            or plan["required_checks"] != compile_checks(plan["resources"], phased=phased)):
+            or plan.get("contract_version") not in {"execution-v1", "execution-v2", api_result.CONTRACT}
+            or plan["required_checks"] != (api_result.requirements(plan["resources"], plan["operation"]) if receipt_mode else compile_checks(plan["resources"], phased=phased))):
         raise ValueError("Missing or changed original generated plan")
     if phased and plan.get("stage_step") != validate_phase(plan["resources"], plan["owner_skill"], plan["policy"]):
         raise ValueError("Changed frozen completion phase")
@@ -205,25 +212,32 @@ def ready(data):
         resolved[role] = identity(actual)
     if len(set(resolved.values())) != len(resolved):
         raise ValueError("Distinct resource roles cannot alias the same entity")
-    saved = object_result(data["saved_plan"])
     run_role = next(r["role"] for r in plan["resources"] if r["type"] == "run")
-    if saved.get("metadata", {}).get("type") != "page" or identity(saved.get("id")) != resolved[run_role]:
-        raise ValueError("Plan evidence must be the actual owning run page")
-    if 'run_properties' in plan:
-        from email_presentation import properties
-        actual = properties(data['saved_plan'])
-        if not runtime_records.matches_readback(actual, plan['run_properties']):
-            raise ValueError('Saved run identity/version differs from its frozen current plan')
-    matches = []
-    for text in re.findall(r"```json\s*\n(.*?)\n```", page_body(data["saved_plan"]), re.S):
-        try:
-            candidate = json.loads(text)
-        except ValueError:
-            continue
-        if isinstance(candidate, dict) and candidate.get("execution_plan", {}).get("invocation_id") == plan["invocation_id"]:
-            matches.append(candidate)
-    if len(matches) != 1 or matches[0].get("execution_plan") != plan or matches[0].get("plan_sha256") != digest(plan):
-        raise ValueError("Original saved plan is absent, ambiguous or different; no retrospective pass")
+    if receipt_mode:
+        receipt = api_result.confirm({**data['run_write'], 'service': 'notion',
+                                      'expected_id': resolved[run_role], 'entity_id': resolved[run_role]})
+        if receipt['status'] != 'APIWriteConfirmed':
+            raise ValueError('Owning run write is not acknowledged; reconcile existence, never re-read its content')
+        saved = {'id': receipt['record_id']}
+    else:
+        saved = object_result(data["saved_plan"])
+        if saved.get("metadata", {}).get("type") != "page" or identity(saved.get("id")) != resolved[run_role]:
+            raise ValueError("Plan evidence must be the actual owning run page")
+        if 'run_properties' in plan:
+            from email_presentation import properties
+            actual = properties(data['saved_plan'])
+            if not runtime_records.matches_readback(actual, plan['run_properties']):
+                raise ValueError('Saved run identity/version differs from its frozen current plan')
+        matches = []
+        for text in re.findall(r"```json\s*\n(.*?)\n```", page_body(data["saved_plan"]), re.S):
+            try:
+                candidate = json.loads(text)
+            except ValueError:
+                continue
+            if isinstance(candidate, dict) and candidate.get("execution_plan", {}).get("invocation_id") == plan["invocation_id"]:
+                matches.append(candidate)
+        if len(matches) != 1 or matches[0].get("execution_plan") != plan or matches[0].get("plan_sha256") != digest(plan):
+            raise ValueError("Original saved plan is absent, ambiguous or different; no retrospective pass")
     required = {name: {**{k: v for k, v in spec.items() if k != "entity_role"},
                        "entity_id": resolved[spec["entity_role"]]} for name, spec in plan["required_checks"].items()}
     required["execution-plan"] = {"kind": "execution-plan", "entity_id": resolved[run_role],
@@ -235,12 +249,15 @@ def ready(data):
     registry.update(required_checks=required, task_versions={resolved[r["role"]]: r["content_version"] for r in plan["resources"] if r["type"] == "task"},
                     action_bindings={resolved[r["role"]]: resolved[r["task_role"]] for r in plan["resources"] if r["type"] == "action"},
                     execution_plan_sha256=digest(plan))
+    if receipt_mode:
+        registry.update(api_resources=[{**r, 'entity_id': resolved[r['role']]} for r in plan['resources']],
+                        operation=plan['operation'])
     if phased:
-        registry.update(contract_version="execution-v2", stage_step=plan["stage_step"],
+        registry.update(contract_version=plan["contract_version"], stage_step=plan["stage_step"],
                         task_steps={resolved[r["role"]]: r["resume_step"] for r in plan["resources"] if r["type"] == "task"})
     return {"status": "ExecutionPlanReady", "registry": registry, "plan_page_id": saved["id"],
             "entity_id": saved["id"], "execution_plan_sha256": digest(plan),
-            "invocation_id": plan["invocation_id"], "publication_version": plan["publication_version"], "scope": SCOPE}
+            "invocation_id": plan["invocation_id"], "publication_version": plan["publication_version"], "verification_basis": "api-write-ack" if receipt_mode else "legacy-readback", "scope": SCOPE}
 
 
 def main(argv=None):

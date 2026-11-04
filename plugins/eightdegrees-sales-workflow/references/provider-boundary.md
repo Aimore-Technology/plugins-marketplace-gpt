@@ -1,5 +1,8 @@
 # Dispatch completion boundary
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 Gmail and AndroidSync own transport after a successful dispatch response. Our
 job is to prepare, authorize and hand off the correct request quickly, then
 finish our own records. This policy is `provider-handoff-v1` and applies to both
@@ -24,8 +27,7 @@ new sends and recovery of an already acknowledged original request.
    transmission or receipt. Use Submitted to Gmail/AndroidSync in current UI.
 5. Finish our Notion result, source index, monitor/log and automatic material
    follow-up registration from that same response. These are our records: verify
-   their required saved fields. CRM is the explicit external exception: read
-   back the target, Note ID and exact saved body after a CRM write.
+   their original API success and returned IDs. CRM also finishes with the original successful API acknowledgement and NoteId; no body readback is required.
 
 Do not query Gmail Sent/raw MIME after sending, search the receiving mailbox,
 poll AndroidSync message status, wait for SentToNetwork/Delivered, ask a person

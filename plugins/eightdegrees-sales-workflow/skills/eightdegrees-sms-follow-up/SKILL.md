@@ -5,9 +5,12 @@ description: "Prepare and execute approved, bounded SMS follow-ups after verifie
 
 # Follow up after materials
 
-Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+Apply [API result and minimal-read policy](../../references/api-result-policy.md) before this workflow. Successful writes use acknowledgements/record IDs; do not fetch stored bodies to compare. Reuse initialized workspace metadata.
 
-Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
+
+Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes also finish on successful API acknowledgement and NoteId. Do not re-query external send status or verify delivery.
+
+Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate and persist this owner's affected-role plan, then confirm its API acknowledgement; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
 
 Before dispatch read [connector experience](../../Experience/connector-contracts.md), [SMS rules](../../references/sms-rules.md), [notification authority](../../references/sms-notifications.md) and [operating-contract](../../references/operating-contract.md). Discover the actual request tool and configured device; record inbound-reader availability separately and current device policy. AndroidSync request_sms uses its genuine Trusted route when configured; do not introduce a forced-native-approval draft as a default. Genuine phone/Web restrictions remain a connector capability, not something this Skill can bypass.
 
@@ -60,9 +63,9 @@ network transmission, delivery or an ordinary-inbox capability test.
 ## Before review activation or dispatch
 
 Apply [prospective action gates](../../references/pre-action-order.md) only for
-an affected ready phase. Before email review controls, supply original saved
-copy/draft/preview evidence to review.prepare and notion.mutation.review_release.
-Before a queued Gmail/AndroidSync send, dispatch.admit must be saved/read back;
+an affected ready phase. Before email review controls, supply local prepared copy/render and original
+copy/draft/preview API acknowledgements to review.prepare and notion.mutation.review_release.
+Before a queued Gmail/AndroidSync send, dispatch.admit must be saved and acknowledged by the API;
 dispatch.prepare then emits only the exact admission-bound call. Changed SMS
 payload/version/key requires fresh admission. Retain all fresh approval/stop/
 window/count/attempt guards; these gates do not grant authority or intercept MCP.

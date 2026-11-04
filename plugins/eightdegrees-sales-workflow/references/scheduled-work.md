@@ -1,5 +1,8 @@
 # Approved work in a native scheduled cycle
 
+Use [API results/minimal reads](api-result-policy.md). Do not perform body readbacks after successful writes. Reuse initialized metadata; current approvals, stops and inputs remain live.
+
+
 FIRST follow [scan control](schedule-execution.md): read only RunSettings.
 ScanStopped exits quietly with no discovery, task/source reads or workflow
 writes; ScanControlUnknown permits no scanning. A configured external periodic

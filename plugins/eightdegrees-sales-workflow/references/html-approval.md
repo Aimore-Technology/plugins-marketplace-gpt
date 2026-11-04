@@ -1,5 +1,8 @@
 # HTML/EDM approval
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 Before diagnosing missing saved-file mapping, read [preview evidence](../Experience/preview-evidence.md). For a native PNG alternative, follow [image preview](image-preview.md), including real render provenance, saved-source download and the separate preview-image completion check. Use this in step 2; an image does not replace the original HTML or release Pause.
 
 1. Keep editable subject/body in the source-linked Notion draft. From that version, generate one immutable HTML file and a manifest of frozen image/attachment files. Never overwrite approved assets. Record DraftId, version, generator time, source project versions, HTML ID/content digest where tooling supports it, asset IDs/digests and sender/recipient/subject fields.

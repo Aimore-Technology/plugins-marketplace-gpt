@@ -1,5 +1,8 @@
 # Prospective review and dispatch gates
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 Run these only for the affected event/owner phase, never on an idle tick. These
 offline helpers release exact supported arguments; they do not intercept MCP
 or prove historical execution order. Existing authority/approval guards remain.

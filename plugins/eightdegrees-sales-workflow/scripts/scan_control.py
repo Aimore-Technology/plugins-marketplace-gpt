@@ -73,6 +73,15 @@ def plan(data):
 
 def verify(data):
     expected = plan(data)
+    if 'write_result' in data:
+        from api_result import confirm
+        receipt = confirm({**data['write_result'], 'service': 'notion'})
+        if receipt['status'] != 'APIWriteConfirmed':
+            return receipt
+        return {'status': 'ScanningEnabled' if expected['patch']['scan_control']['enabled'] else 'ScanningStopped',
+                'record_id': receipt['record_id'], 'verification_basis': receipt['verification_basis'],
+                'stored_content_verified': False, 'native_task_mutation_allowed': False,
+                'scope': 'Explicit switch request acknowledged; next wake reads the current live switch'}
     actual = data['saved_settings']
     if not isinstance(actual, dict):
         raise ValueError('Use the actual saved RunSettings readback')

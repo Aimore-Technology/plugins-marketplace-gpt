@@ -1,5 +1,8 @@
 # Fresh rules on every native wake
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 This is an internal entry, not another public command. A native heartbeat goes
 directly to eightdegrees-email-scanning with scheduled-approved-work. Do not
 route it through automation-control, start/stop, or the public run-auto policy.
@@ -29,8 +32,8 @@ route it through automation-control, start/stop, or the public run-auto policy.
    Run backlog.recover over complete original source/task captures. Reuse saved
    source pages; RecoverSourceHandoff repairs a missing successor separately
    from an already completed ReadMessageBody. Read only sources not yet saved.
-   Use intake.plan on a prospective current checkpoint, persist/read back and
-   intake.verify before dependent sales preparation. Register/reuse the original
+   Use intake.plan on a prospective current checkpoint, persist, confirm its original API acknowledgement and run
+   intake.verify(checkpoint_record/checkpoint_write) before dependent sales preparation. Register/reuse the original
    successor task and its review/input wake pointer before acknowledging mail.
    Continue matching, authorized project parsing and draft preparation to the
    exact review or missing-information boundary within this cycle's budget.
@@ -59,3 +62,9 @@ A large draft phase that does not fit must not hide fitting mail or a due brief.
 Use the actual package_root returned by current_rules.py for this wake's local helpers, not a cached path from an older chat. Re-resolve the current package on the next native wake. Execute ordinary package upgrades between active cycles when practical; do not rewrite frozen business approvals or existing attempt records.
 
 Apply the current [inquiry intake rules](inquiry-intake.md) to newly admitted mail: add the inquiry classification label after content discovery, without requiring it for reads. Resolve names by matched CRM, current signature, From name, then anonymous Dear Customer plus a name question. Name-only differences cannot block a uniquely verified CRM association.
+
+Current rule output is compact: it reads/fingerprints every governing file but
+prints only current operational Markdown, paths and digests. Do not reread Python
+source merely to understand a passing guard/check. Execute current helpers from
+package_root; use --full only for a concrete code-debugging problem. No previous
+chat, stored permission or cross-cycle approval cache substitutes for fresh rules.

@@ -68,6 +68,24 @@ def expected_addresses(value):
 
 def verify(data):
     m, html = manifest(data)
+    if 'write_result' in data:
+        import api_result
+        if data.get('phase', 'draft') != 'draft':
+            raise ValueError('Dispatch uses the original provider handoff, not a draft-write acknowledgement')
+        receipt = api_result.confirm({**data['write_result'], 'service': 'gmail',
+                                      'expected_id': m['draft_id'], 'entity_id': m['task_page_id'],
+                                      'purpose': 'reply-draft', 'content_version': m['content_version']})
+        if receipt['status'] != 'APIWriteConfirmed':
+            return {**receipt, 'issues': [receipt.get('reason', 'Draft write is unknown')]}
+        binding = {k: m.get(k, '') for k in ('task_page_id', 'content_version', 'draft_id', 'message_id',
+            'thread_id', 'reply_message_id', 'parent_rfc_message_id', 'from_address', 'to', 'cc', 'bcc',
+            'reply_to', 'subject', 'html_sha256')}
+        return {'status': 'StoredReplyVerified', 'issues': [], 'phase': 'draft',
+                'entity_id': m['task_page_id'], 'draft_id': m['draft_id'], 'message_id': m['message_id'],
+                'thread_id': m['thread_id'], 'content_version': m['content_version'], 'html_sha256': m['html_sha256'],
+                'draft_binding_sha256': hashlib.sha256(json.dumps(binding, sort_keys=True, separators=(',', ':')).encode()).hexdigest(),
+                'verification_basis': receipt['verification_basis'], 'stored_content_verified': False,
+                'scope': 'Submitted manifest and original draft-write acknowledgement; no raw MIME fetch or saved-body comparison'}
     raw = object_result(data["message"])
     phase = data.get("phase", "draft")
     if phase not in {"draft", "sent"}:

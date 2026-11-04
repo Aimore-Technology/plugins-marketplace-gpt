@@ -1,5 +1,8 @@
 # Record actual email sending in CRM
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 Sales replies and general customer emails save their actual result in both
 Communications and GHL Notes/activity log. This is a distinct system-result
 receipt, not the earlier customer-facts Note and not a new persona proposal.

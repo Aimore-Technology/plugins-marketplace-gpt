@@ -1,5 +1,8 @@
 # Experience index
 
+Current default: [API write results](api-write-results.md). This supersedes older fetch/download-and-compare advice for successful writes. Read older cards only for an affected exception; successful acknowledgements do not need a diagnostic investigation.
+
+
 Read this short index once per invocation, then only the card relevant BEFORE its operation. Reuse the loaded card within that invocation; do not load the whole library or reread it for each row/helper. These are evidence-backed execution tips, not a new approval authority, account configuration or proof that a defect is fixed. Actual tool contracts, command scope and approved payloads still govern. Customer data stays in customer records. No development Notion access or historical report fetch is needed at runtime.
 
 | Before this operation | Read | What it prevents |

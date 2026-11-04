@@ -1,5 +1,8 @@
 # Publish current Notion state
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 Use when an owner changes task state/version, creates a preview or publishes a report. These are workflow steps in the existing Skill Pack, not a new runtime. The read-only [publication helper](../scripts/notion_checks.py) plans exact status patches and checks saved preview evidence/report mutation scope. It never calls a connector, grants approval or enforces a server-side boundary. Perform the same checks manually if Python is unavailable and disclose that scope.
 
 Run `python3 <plugin>/scripts/notion_checks.py <section-patch|preview|report-write> --input <capture.json>` (or `--input -` with JSON on stdin). Inspect the JSON status: PatchPlanned is only a proposed edit; NoChange needs no write; SavedEmbedAndBytesMatch is limited evidence; WithinReportScope is only a target comparison. NeedsCorrection and Deferred return exit code 2 and must not be bypassed by changing the evidence/registry. Keep captures outside plugin repositories.

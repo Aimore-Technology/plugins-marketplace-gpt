@@ -328,7 +328,7 @@ def completion_gate(data):
     required, checks = data.get("required_checks"), data.get("checks")
     if not invocation or not version or not isinstance(required, dict) or not required or not isinstance(checks, list):
         raise ValueError("Expected frozen invocation/version, nonempty required checks and their actual results")
-    passed_status = {"page-links": "ClearForCheckedPatterns", "task-display": "DisplayConsistentForCheckedPatterns",
+    passed_status = {"api-write": "APIWriteConfirmed", "page-links": "ClearForCheckedPatterns", "task-display": "DisplayConsistentForCheckedPatterns",
                      "preview": "SavedEmbedAndBytesMatch", "preview-image": "SavedImageAndBytesMatch", "schema-values": "ValidSelectValues",
                      "route": "EligibleForOwnerCheck", "route-observe": "EligibleForInputCheck",
                      "reply-draft": "StoredReplyVerified", "reply-sent": "StoredReplyVerified",
@@ -358,6 +358,15 @@ def completion_gate(data):
                 or not isinstance(result, dict) or result.get("status") != passed_status[spec["kind"]]):
             issues.append(name + ": failed, stale or malformed result")
             continue
+        if spec['kind'] == 'api-write':
+            if (not result.get('record_id') or result.get('service') != spec.get('service')
+                    or result.get('purpose') != spec.get('purpose')
+                    or result.get('verification_basis') not in {'api-success', 'record-exists'}
+                    or spec.get('content_version') and result.get('content_version') != spec['content_version']
+                    or spec.get('expected_record_id') and page_id(result.get('record_id')) != page_id(spec['expected_record_id'])
+                    or spec.get('service') == 'notion' and spec.get('purpose') == 'write'
+                    and page_id(result.get('record_id')) != page_id(spec.get('entity_id'))):
+                issues.append(name + ': missing/mismatched write acknowledgement')
         if spec["kind"] == "page-links" and (result.get("entity_type") != "page" or result.get("issue_count") != 0):
             issues.append(name + ": page coverage or link check incomplete")
         if result.get("issues"):
@@ -429,6 +438,9 @@ def owner_write(data):
     evidence = data.get("completion")
     if not isinstance(evidence, dict) or evidence.get("required_checks") != registry.get("required_checks"):
         return {"status": "Deferred", "reason": "Missing or changed frozen owner completion contract"}
+    if registry.get('contract_version') == 'execution-api-v1':
+        from api_result import completion
+        return completion(evidence, registry)
     gate = completion_gate(evidence)
     if (gate["status"] != "EligibleForCompletion" or evidence["invocation_id"] != registry.get("invocation_id")
             or evidence["publication_version"] != registry.get("publication_version")):
@@ -653,8 +665,9 @@ def report_write(data):
         else:
             gate = completion_gate(evidence)
             covered = {page_id(s["entity_id"]) for s in evidence["required_checks"].values()
-                       if s.get("kind") == "page-links" and s.get("entity_id")}
-            if (gate["status"] != "EligibleForCompletion" or not reports <= covered
+                       if (s.get("kind") == "page-links" or s.get("kind") == "api-write" and s.get("service") == "notion" and s.get("purpose") == "write") and s.get("entity_id")}
+            if (registry.get("required_checks") is not None and evidence["required_checks"] != registry["required_checks"]
+                    or gate["status"] != "EligibleForCompletion" or not reports <= covered
                     or evidence["invocation_id"] != registry.get("invocation_id")
                     or evidence["publication_version"] != registry.get("publication_version")):
                 allowed, reason = False, "Failed/stale/incomplete publication checks block final completion/success"

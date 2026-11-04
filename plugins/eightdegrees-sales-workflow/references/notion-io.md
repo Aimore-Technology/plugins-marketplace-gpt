@@ -1,5 +1,8 @@
 # Notion reads, writes and limited coverage
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 Use for Notion-dependent decisions, updates and reports. Tool errors and stale query results must not become business actions.
 
 ## Read what the action depends on

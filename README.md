@@ -1,8 +1,8 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing `eightdegrees-sales-workflow` 0.1.47: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
+Private marketplace containing `eightdegrees-sales-workflow` 0.1.48: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
 
-Current 0.1.47 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
+Current 0.1.48 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
 A stopped run-auto reads only settings and exits without discovery or logs.
 No command creates/updates/pauses/deletes native automations. Older release
 sections below describe historical behavior and are superseded for start/stop.
@@ -27,7 +27,7 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.46.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
+`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.48.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
 
 This is a skills-only distribution. It adds no server, secret, customer data, account authorization, actual schedule or automatic send. Readiness must be established in the customer's own environment. Real samples and test logs stay in customer accounts.
 
@@ -47,7 +47,11 @@ Garbled mail suspends fact extraction until the same authorized MIME source is s
 
 ## Periodic scan controls
 
-`@eightdegrees-sales-workflow start` creates/reuses one local 30-minute (20-minute optional) approved-work task; `stop` deletes it. Exact host cadence and task readback are required. Installation/init create no schedules. Native ticks may execute valid approved Automatic steps; public run-auto handles independently approved Automatic work and manually initiated communication submissions also resume through the queue. Explicit no-send requests remain restricted. Unsupported native scheduling/deletion is reported explicitly. See [schedule lifecycle](plugins/eightdegrees-sales-workflow/references/scheduling.md).
+`@eightdegrees-sales-workflow start` enables the saved scanning switch and
+registers the actual existing task configuration when readable; stop disables
+scanning. Neither command creates, updates or deletes native tasks. Recurrence
+is configured separately in the host. Every native wake checks the live switch
+and loads current rules; a real stop or revocation continues to block work.
 
 ## Shared queue and standing notification authority
 
@@ -56,8 +60,7 @@ run-auto chains ready work across authorized sources and current Notion submissi
 ## Scan timing defaults
 
 New installs use a 30-minute scan interval; choose the optional faster mode with
-`@eightdegrees-sales-workflow start interval_minutes=20`. An unqualified start
-keeps a supported saved choice. Each cycle has a 15-minute soft budget including
+the separately configured native task's interval setting. start does not change the native cadence. Each cycle has a 15-minute soft budget including
 a 2-minute publication reserve; stop admitting new phases at minute 13 and
 preserve unfinished work for the next tick. Existing explicit customer budgets
 are preserved until deliberate init upgrade; plugin installation never changes
@@ -98,7 +101,7 @@ Version0.1.37 gates sales preparation on durable source intake, preserves review
 
 Version0.1.38 preserves effective invocation restrictions, inquiry-level SMS limits and scoped queue barriers. Ordinary verified inquiries inherit standing SMS authority without re-init; missing inbound SMS is coverage metadata, not a send gate. See [the flow fixes](docs/release-0.1.38.md).
 
-Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](docs/release-0.1.46.md).
+Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](docs/release-0.1.48.md).
 
 ## Existing local tasks do not need management tools
 
@@ -124,3 +127,11 @@ this release creates no schedule and does not claim an atomic parallel lock.
 0.1.46 also reuses original waiting tasks when Notion renders their SourceKey email as a mailto link. Only exact matching email-link rendering is normalized; conflicting source pointers remain scoped recovery, never duplicate tasks.
 
 0.1.46 constructs the complete ready queue in code. scan.queue merges original pending mail, submissions, due/recovery events and validated automatic preparation; scan.cycle cannot lose fitting work through a narrowed caller list. No new native identity or management gate.
+
+## Fast successful-write path (0.1.48)
+
+Reuse initialized workspace metadata and read only affected inputs. New owner
+completion plans trust successful API acknowledgements plus record IDs, including
+CRM; no routine body/MIME/preview-download comparisons. Unknown writes reconcile
+existence before retry, while current approval, stop and attempt guards remain.
+See [current policy](plugins/eightdegrees-sales-workflow/references/api-result-policy.md).

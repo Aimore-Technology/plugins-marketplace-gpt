@@ -113,7 +113,7 @@ class Recovery043(unittest.TestCase):
         self.assertEqual(r['status'],'CurrentScheduledRulesLoaded')
         self.assertEqual(r['owner'],'eightdegrees-email-scanning')
         self.assertEqual(len(r['rule_sha256']),64)
-        self.assertIn('scripts/event_probe.py',r['rules'])
+        self.assertIn('scripts/event_probe.py',r['rule_files'])
         self.assertEqual(current_rules.load()['rule_sha256'],r['rule_sha256'])
 
     def test_metrics_require_progress_or_evidenced_block_and_deduplicate(self):

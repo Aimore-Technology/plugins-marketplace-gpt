@@ -108,3 +108,14 @@ old missing-version/SourceKey evidence to make the release pass.
 Current native execution and backlog/metrics rules: [scheduled entry](scheduled-entry.md). Always restore pending source-to-owner handoffs from original captures; unchanged inputs do not remove executable backlog. Native configuration acceptance and guard pass never imply business progress. Legacy unknown scope blocks its original source/effect, not every unrelated customer/channel.
 
 Use scan.watches.ready_task_records/ready_task_blocks as scan.probe supplementation before claiming idle. After saved discovery, scan.queue constructs the full work set from the original EventIndex and current task/source captures; pass its full result as queue_plan to every scan.cycle. The planner adds omitted fitting work without another scheduler/identity requirement. Keep all remaining pointers across owners and restarts. A subset containing only current draft preparation cannot represent all pending mail/due work. No send or factual approval is synthesized by queue construction.
+
+## Keep code out of the model context
+
+Use current_rules.py's default compact output. All listed code files are still
+read and fingerprinted afresh; their actual helpers run locally. The model needs
+current operational rules, not every Python implementation on each wake. Do not
+use --full as a routine acceptance check. Capture/check failures keep full details
+in local files; open only the specific failed contract.
+
+For provided communication text, use [short intake](communication-fast-path.md);
+recording what a customer asked does not require searching property documents.

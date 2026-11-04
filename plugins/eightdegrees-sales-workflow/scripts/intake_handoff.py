@@ -96,8 +96,16 @@ def verify(data):
     key = source_key(data['source_page'])
     if key != data['source_key'] or properties(data['source_page']).get('ContentVersion') != data['source_version']:
         raise ValueError('Original source key/version differs')
-    checkpoint = blocks(data['checkpoint_page'], 'scan-checkpoint-v1')[1]
-    if object_result(data['checkpoint_page']).get('metadata', {}).get('type') != 'page':
+    if 'checkpoint_write' in data:
+        from api_result import confirm
+        receipt = confirm({**data['checkpoint_write'], 'service': 'notion',
+                           'expected_id': data['checkpoint_page_id']})
+        if receipt['status'] != 'APIWriteConfirmed':
+            raise ValueError('Intake checkpoint write is unknown; recover its original attempt')
+        checkpoint = data['checkpoint_record']
+    else:
+        checkpoint = blocks(data['checkpoint_page'], 'scan-checkpoint-v1')[1]
+    if 'checkpoint_write' not in data and object_result(data['checkpoint_page']).get('metadata', {}).get('type') != 'page':
         raise ValueError('Use the original saved intake checkpoint page')
     if page_id(checkpoint['root_id']) != root or not checkpoint.get('invocation_id'):
         raise ValueError('Use the owning intake checkpoint in this installation')
@@ -109,7 +117,8 @@ def verify(data):
         raise ValueError('Intake receipt must identify the original source page')
     return {'status': 'IntakeHandoffVerified', 'root_id': root, 'source_page_id': source_id,
             'source_key': key, 'source_version': data['source_version'],
-            'checkpoint_page_id': page_id(object_result(data['checkpoint_page'])['id']),
+            'checkpoint_page_id': page_id(data['checkpoint_page_id'] if 'checkpoint_write' in data else object_result(data['checkpoint_page'])['id']),
+            'verification_basis': 'api-write-ack' if 'checkpoint_write' in data else 'existing-record',
             'checkpoint_invocation_id': checkpoint['invocation_id'],
             'source_body_sha256': hashlib.sha256(body.encode()).hexdigest(),
             'checkpoint_sha256': hashlib.sha256(json.dumps(checkpoint, sort_keys=True,

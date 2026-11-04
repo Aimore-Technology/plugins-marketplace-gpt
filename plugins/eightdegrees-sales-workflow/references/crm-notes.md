@@ -55,7 +55,11 @@ Render checks required fields, timezone/offset agreement, sections and unsupport
 1. Before ContentReview, validate the complete combined note and proposed persona changes, then save the exact UTF-8 payload, template version, input snapshot and digest. Missing verified identity/source goes to ClientMatching/DataCompletion; malformed formatting or incomplete note returns for correction before approval.
 2. Immediately before appending, fetch the original task/current approved payload and, for migrated tasks, the registered active action page/current accepted input under [operator actions](operator-actions.md). Recheck mapping/version/mode/decision and prior attempts, and validate the exact payload again. Send the approved plain text without additions or conversions. API request JSON may wrap it; JSON serialization is not the Notes body.
 3. If an approved legacy note lacks fields or changes are needed, retain it and submit a new version for ContentReview. Do not silently repair approved bytes or rewrite an existing CRM note. For an already written incomplete note, preserve the append result and upsert one ExecutionExceptions quality task keyed by CommunicationId + approved version + NoteQuality, linking the actual NoteId, missing fields and original review/run. Do not duplicate it per scan. Obtain an explicit decision on any corrective new version, avoiding duplicate append on retry; ordinary schema upgrade must not automatically append corrections.
-4. Read back the actual CRM body and compare exact text/digest where supported. Record any provider normalization explicitly; an unverified difference is not an exact match. A successful API call with an incomplete or mismatched body is not quality acceptance. Save the NoteId and original approved version separately from quality status.
+4. Inspect the original successful CRM API response and save its NoteId. Use
+   write.confirm(service=crm,purpose=crm-note); do not read the saved body,
+   compare its digest, or treat provider normalization as another review task.
+   On timeout/error/unknown, reconcile only the original record's existence
+   before any retry. Successful append is never repeated for a display repair.
 
 ## Business prose and unknown facts
 

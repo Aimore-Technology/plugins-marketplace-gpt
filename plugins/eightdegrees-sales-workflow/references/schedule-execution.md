@@ -1,5 +1,8 @@
 # Check the scanning switch before all run-auto work
 
+Use [API results/minimal reads](api-result-policy.md). Do not perform body readbacks after successful writes. Reuse initialized metadata; current approvals, stops and inputs remain live.
+
+
 Every manual or periodic run-auto reads only registered RunSettings FIRST and
 calls scan.entry. ScanStopped exits quietly: no watches, source/task/form reads,
 event-index/cursor changes, run/log/Health/Today writes, reminders or business
@@ -31,6 +34,6 @@ Resumption preserves each original task/step/version, approval, due date,
 AttemptId, accepted result and stop/count/window rules. Completed or cancelled
 work is skipped; pending/unknown effects cannot become another send. Notion is
 not an atomic global lock and no unique executor is required. Gmail/AndroidSync
-original success ends external dispatch; CRM writes retain readback.
+original success ends external dispatch; CRM writes also finish on original successful API acknowledgement and NoteId.
 
 Explicit start may read and register the actual existing native task configuration under scan_control.native_registration. This administrative observation is separate from the scanning switch and cycle progress; unavailable native management never blocks an enabled existing tick. Actual scheduled execution follows [fresh scheduled entry](scheduled-entry.md), directly loading the current scanner and guard. Never create duplicate tasks. Real stop/revocation remains binding.

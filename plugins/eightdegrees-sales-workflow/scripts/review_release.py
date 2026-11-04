@@ -26,6 +26,8 @@ def prepare(data):
     stored = verify(transport)
     if stored['status'] != 'StoredReplyVerified':
         raise ValueError('Stored draft verification failed: ' + '; '.join(stored['issues']))
+    if 'publication_writes' in data:
+        return acknowledged_publication(data, m, stored)
     copy_page = data['copy_page']
     original_copy = object_result(copy_page)
     if original_copy.get('metadata', {}).get('type') != 'page':
@@ -61,6 +63,44 @@ def prepare(data):
             'draft_binding_sha256': stored['draft_binding_sha256'],
             'copy_page_id': page_id(original_copy['id']),
             'scope': 'Current saved copy/preview/draft agreement only; no human decision or send permission'}
+
+
+def acknowledged_publication(data, manifest_data, stored):
+    """Release a prepared review from successful copy/asset/preview writes.
+
+    Render and inspect the local package before upload. These results confirm
+    publication exists, not that stored bytes were read or compared.
+    """
+    from api_result import confirm
+    preview, writes = data['preview'], data['publication_writes']
+    source = preview['input']
+    prepared_copy = data['prepared_copy']
+    if any(prepared_copy.get(key) != manifest_data[key]
+           for key in ('task_page_id', 'content_version', 'subject', 'html_sha256')):
+        raise ValueError('Prepared editable copy belongs to another local package/version')
+    if (preview['kind'] not in {'image', 'html'} or source['html_sha256'] != manifest_data['html_sha256']
+            or source['content_version'] != manifest_data['content_version']):
+        raise ValueError('Prepared preview belongs to another approved package/version')
+    if preview['kind'] == 'image':
+        render = source['render_manifest']
+        if (render.get('completed') is not True or render.get('blocked_resources') != []
+                or render.get('source_html_sha256') != manifest_data['html_sha256']
+                or render.get('content_version') != manifest_data['content_version']
+                or not render.get('preview_png_sha256') or not render.get('width') or not render.get('height')
+                or render.get('renderer') != 'playwright-chromium' or render.get('javascript_enabled') is not False):
+            raise ValueError('Complete same-version local render is required before upload')
+    receipts = {}
+    for role in ('copy', 'asset', 'preview'):
+        receipts[role] = confirm({**writes[role], 'service': 'notion'})
+        if receipts[role]['status'] != 'APIWriteConfirmed':
+            raise ValueError('Review publication is unknown: ' + role)
+    return {'status': 'EmailReviewReady', 'task_page_id': page_id(manifest_data['task_page_id']),
+            'content_version': manifest_data['content_version'], 'html_sha256': manifest_data['html_sha256'],
+            'draft_binding_sha256': stored['draft_binding_sha256'],
+            'copy_page_id': page_id(receipts['copy']['record_id']),
+            'preview_page_id': page_id(receipts['preview']['record_id']),
+            'verification_basis': 'api-write-ack', 'stored_content_verified': False,
+            'scope': 'Prepared version/render and copy/asset/preview API acknowledgements; no post-write byte comparison or human approval'}
 
 
 def gate_mutation(data, texts):

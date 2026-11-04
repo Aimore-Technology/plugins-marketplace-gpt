@@ -1,5 +1,8 @@
 # Process discovered ready events
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 FIRST honor scan.entry on current RunSettings. A stopped cycle never reaches
 this processing procedure or writes a plan/run/log; recheck before new work.
 

@@ -99,11 +99,17 @@ def prepare(data):
 
 def release(data):
     original = prepare(data)['record']
-    saved = object_result(data['saved_run'])
-    page_body(data['saved_run'])
-    if (saved.get('metadata', {}).get('type') != 'page' or page_id(saved['id']) != original['run_page_id']
-            or blocks(data['saved_run'], 'dispatch-admission-v1')[1] != original):
-        raise ValueError('Read back this exact prospective admission on its original run before dispatch')
+    if 'admission_write' in data:
+        from api_result import confirm
+        receipt = confirm({**data['admission_write'], 'service': 'notion', 'expected_id': original['run_page_id']})
+        if receipt['status'] != 'APIWriteConfirmed':
+            raise ValueError('Admission write is unknown; do not dispatch or repeat the write blindly')
+    else:
+        saved = object_result(data['saved_run'])
+        page_body(data['saved_run'])
+        if (saved.get('metadata', {}).get('type') != 'page' or page_id(saved['id']) != original['run_page_id']
+                or blocks(data['saved_run'], 'dispatch-admission-v1')[1] != original):
+            raise ValueError('Read back this exact prospective admission on its original run before dispatch')
     now = timestamp(data['now'])
     if now < timestamp(original['admitted_at']) or (now - timestamp(original['admitted_at'])).total_seconds() > 120:
         raise ValueError('Admission expired; obtain fresh queue observations and persist a new admission')

@@ -1,32 +1,40 @@
 ---
 name: eightdegrees-communication-context-process
-description: "Process authorized customer email, text or transcripts into reviewed CRM Notes and approved persona changes; P0-A starts and resumes manually at the operator's request."
+description: "Process authorized customer email, text or transcripts into reviewed CRM Notes and approved persona changes; P0-A starts manually; submitted reviews resume through the shared queue."
 ---
 
 # Process customer communication
 
-Apply [inquiry names and labeling](../../references/inquiry-intake.md): CRM name first after a unique identifier match, then current signature, From name, or anonymous Dear Customer with a name question after answering. A name difference alone never blocks a verified CRM association. Scanner classifies admitted incoming mail and automatically adds AimoreInquiry; no pre-labeling is required. Preserve separate source/progress and exact approval boundaries.
+Apply [API result and minimal-read policy](../../references/api-result-policy.md) before this workflow. Successful writes use acknowledgements/record IDs; do not fetch stored bodies to compare. Reuse initialized workspace metadata.
 
 
-Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+Use [short communication intake](../../references/communication-fast-path.md) as
+this workflow's entry. Run communication.read-plan for the actual source kind
+and phase, then only its scoped reads. Provided readable text needs no mailbox,
+Dropbox, Calendar, preview, scanner or installation-wide query. A property named
+in a transcript does not request a property investigation.
 
-Before saving extracted/clarified customer boolean facts or persona snapshots, apply [customer fact semantics](../../references/customer-facts.md) and run the fact helper on the actual proposal. Unknown is null, never a default false.
+Default Mode=Manual. Match the current scoped CRM customer by email/phone; CRM
+name wins over a differing signature after a verified match. Identity conflicts
+need the original matching form, never a guessed/new CRM contact. Preserve the
+original source, IDs and source/customer archive. Optional unknown fields stay
+unknown. Use communication.note to render the standard plain-text Notes once,
+then create the exact current-version review. Stop before unapproved CRM facts.
 
-Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
+Do not eagerly open every linked reference. The short procedure retains current
+phase requirements; run execution.prepare/ready, facts.canonical, exact
+notion.mutation, pre-call route and receipt completion checks through the existing
+code. Use original captures and compact local-check output. Load detailed docs
+for the actual next phase or a concrete failed/unknown contract only.
 
-Use [task routing](../../references/task-routing.md) for every waiting item: customer selection is communication/VerifyCustomer, missing required communication facts use communication/CompleteCommunicationData, and Notes review/append is communication/ReviewCommunication. Explicit continuation validates the original owner/step/action binding first. A sales reply/send task supplied to add-communication is deferred with its correct next entry, never processed as Notes. A verified approved downstream persona recovery may use persona-update/SyncApprovedPersona while preserving parent evidence and avoiding duplicate append.
+A submitted current review resumes through the shared queue without another
+continue command. Before one approved append, recheck current original task/
+action, exact payload/target, attempts and complete scoped duplicate evidence.
+Persona changes use persona-update for ONE combined append. Confirm the CRM API acknowledgement/NoteId
+and save affected Notion results; unknown effects reconcile, never retry
+blindly. A display repair cannot repeat a CRM write. Never adopt another Manual
+task or process a sales send as communication Notes.
 
-Read [operating-contract](../../references/operating-contract.md) and [notion-model](../../references/notion-model.md). Default Mode=Manual for the operator's P0-A request. Only an explicit upstream automatic workflow may supply Mode=Automatic for a separate new item; it cannot adopt an existing Manual task.
-
-1. Save/reuse a source-linked Inbox record for the authorized email, text or transcript. Record account, original time/timezone and immutable SourceKey/CommunicationId; keep source and derived notes distinct. Link raw Gmail/Dropbox content rather than mirroring it. Mail-derived facts require readable source text; follow [mail decoding](../../references/mail-decoding.md) for corrupted bodies before matching or drafting. Sensitive originals follow manual handling.
-2. Match within the configured CRM LocationId using email/phone; use names/social profiles only as supporting data. Ambiguity, absence or conflict becomes ClientMatching with exact candidates/missing input and original source. The operator selects or supplies data; no guessing or automatic contact creation. The operator submits the current matching form; the shared queue validates and resumes without an extra command.
-3. On verified mapping, resolve/reuse the customer page by LocationId + ContactId and registered page ID. Use a human-readable CRM name for its title under `Clients/{ClientDisplayName}/Communications`, following [customer pages](../../references/client-pages.md); keep full IDs in metadata, never use the display title as identity. Move/link the source while retaining its original page identity. Before ContentReview, verify archival using [Notion I/O](../../references/notion-io.md). A failed link stays pending. Record mapping/state and a local timestamp + unique communication title suffix. Reuse valid upstream mapping instead of asking again.
-4. If facts actually required for this specific communication output are missing, create/reuse DataCompletion with ResumeStep=CompleteCommunicationData and validate its route BEFORE enabling the form. Optional unknown budget/identity/preference fields stay unknown rather than creating artificial blockers. On the shared queue observing the current submission (or a compatible legacy explicit request), validate the current submitted data, persist its exact snapshot, apply/read back only the intended source/Notion facts and complete that data step through owner-write. This step never appends CRM Notes, updates confirmed persona or creates Confirm/Approve. It then prepares a separate fresh ContentReview using ReviewCommunication. Build the complete plain-text note with [CRM Notes](../../references/crm-notes.md): required audit header plus four fixed sections and supported persona proposals. Validate before ContentReview and save exact text/template/input/digest. Provide the current version's dedicated [action page](../../references/operator-actions.md) for review/revision comments and one submitted content decision; the operator never fills actor/version IDs. Changed text needs a new validated review version/page. Confirmation is not permission to send.
-5. On the shared queue observing a current submitted Manual review (or a compatible legacy explicit request), validate/record the submitted action decision or valid original legacy/chat evidence. Re-fetch active action inputs, original approved payload and CRM target/latest records; validate exact bytes/digest and completed writes. Incomplete legacy approvals require a corrected new review, never silent formatting or header additions. With NO persona changes append the approved plain text once. With changes pass that same complete payload and approved changes to [persona update](../eightdegrees-client-persona-update/SKILL.md), which owns ONE append. No duplicate prewrite; reconcile by CommunicationId + approved version. Only verified structured mappings may additionally change.
-6. Read back actual CRM results; save the approved Notion note/persona snapshot and per-step sync status. Use [Notion publication](../../references/notion-publishing.md) to synchronize task summary, action status and hub entry on each review/result transition; do not leave completed work asking for input. A failed display update repairs only that projection, never repeats the CRM append. Return target, external record IDs, confirmed version and task/run links. Partial failure or unknown state goes to ExecutionExceptions; the shared queue reconciles the original attempt before filling only missing steps; no new continue command is required.
-
-Finish only when source is traceable, customer verified, proposed changes approved, CRM result read back and Notion sync state consistent. This skill sends no customer email/SMS, starts no timer, calls no scanner, and never changes an existing Manual task's mode.
-
-## Operator path and local checks
-
-Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
+This skill sends no customer email/SMS, starts no timer, calls no scanner and
+creates no Calendar event. Return one current action/result link with the next
+operator action. No global report/Health rebuild or repeated status narration.

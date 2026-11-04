@@ -45,7 +45,7 @@ def request(data):
                     'task_role': 'task-' + str(index)})
     resources.extend({'role': 'projection-' + str(i), 'type': 'publication', 'entity_id': identity}
                      for i, identity in enumerate(registry['publication_page_ids']))
-    return {'owner_skill': registry['owner_skill'], 'policy': registry['policy'], 'operation': 'review',
+    return {'verification_mode': 'legacy-readback', 'owner_skill': registry['owner_skill'], 'policy': registry['policy'], 'operation': 'review',
             'invocation_id': 'run-1', 'publication_version': 'publication-v1', 'resources': resources,
             'intake_handoff': handoff()}
 
@@ -155,7 +155,7 @@ class PhaseOrderingTests(unittest.TestCase):
 
     def test_all_registered_routes_generate_only_their_phase_requirements(self):
         for step, route in ROUTES.items():
-            data = {'owner_skill': route['owner'], 'policy': 'owner-workflow', 'operation': 'recovery',
+            data = {'verification_mode': 'legacy-readback', 'owner_skill': route['owner'], 'policy': 'owner-workflow', 'operation': 'recovery',
                 'invocation_id': 'run-1', 'publication_version': 'v1', 'resources': [
                     {'role': 'run', 'type': 'run', 'entity_id': RUN},
                     {'role': 'task', 'type': 'task', 'entity_id': TASK, 'content_version': 'v1', 'resume_step': step},

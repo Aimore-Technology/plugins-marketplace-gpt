@@ -1,5 +1,8 @@
 # Validate publication before recording completion
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 The BEFORE-call half is [notion-mutation](notion-mutation.md), mandatory for
 initial creations as well as later text/property writes. Saved-page checks are
 the AFTER-call half; neither can retrospectively stand in for the other.

@@ -1,5 +1,8 @@
 # Exact stored-draft reply transport
 
+Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+
+
 Use for Gmail customer replies before ContentReview/SendApproval and again before a permitted send. The observed direct send_email(reply_message_id, payload) appends a quote, so it is not the default exact-body reply adapter. The current supported update_draft contract replaces the MIME tree without appending quotes; send_draft sends the stored draft. Verify those actual capabilities in the current host. No raw API/SMTP workaround or invented no-quote flag is authorized.
 
 ## Prepare before approval

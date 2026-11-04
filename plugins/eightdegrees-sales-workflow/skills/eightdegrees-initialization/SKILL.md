@@ -5,9 +5,12 @@ description: "Initialize or inspect the EightDegrees sales workflow in the custo
 
 # Initialize EightDegrees
 
-Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+Apply [API result and minimal-read policy](../../references/api-result-policy.md) before this workflow. Successful writes use acknowledgements/record IDs; do not fetch stored bodies to compare. Reuse initialized workspace metadata.
 
-Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate, persist and read back this owner's affected-role plan; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
+
+Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes also finish on successful API acknowledgement and NoteId. Do not re-query external send status or verify delivery.
+
+Before dependent writes, use [execution preflight](../../references/execution-preflight.md) to generate and persist this owner's affected-role plan, then confirm its API acknowledgement; a failed preparation stops the phase. Apply the [owner completion contract](../../references/owner-completion.md). Before final Completed/Success, run its owner-write preflight with the frozen current evidence; report-only uses report-write. A successful provider action with missing publication evidence stays a partial result, never a reason to repeat the provider action. Before EVERY Notion page write, including the first create and progress/result properties, run [exact-call preflight](../../references/notion-mutation.md); only use its returned unchanged arguments after exit 0 and NotionMutationPrepared.
 
 Before making tasks/action pages executable, create and validate OwnerSkill/ResumeStep/ResumeContractVersion using [task routing](../../references/task-routing.md). Explicit upgrade recovers eligible legacy owners from original payload/run/operation evidence while preserving parent Workflow, record IDs, approvals and completed steps. Sales source/draft/send and mailbox checkpoint tasks must not default to communication. Ambiguous routes stay pending; init does not execute repaired tasks. Distinguish GHL Workflow-API capability absence from working contact/Notes access under [connector I/O](../../references/connector-io.md).
 
@@ -27,7 +30,7 @@ Read [operating-contract](../../references/operating-contract.md), [notion-model
 
 ## Operator path and local checks
 
-Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Preserve every required fresh external-action and saved-result check. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
+Apply [operator experience](../../references/operator-experience.md) for Today, short review summaries/differences, verified prefill and explicit post-submit guidance. Give concise chat progress at meaningful stages; an internal read/check does not require another Notion status write. Run [local check batches](../../references/local-check-batch.md) over unchanged original captures instead of repeatedly serializing/rereading them. Keep fresh external-action safeguards; confirm saved results from original API acknowledgements only. Verified Today linked views replace manual queue snapshots; legacy queue mode remains until explicit upgrade.
 
 ## Unattended configuration
 
@@ -52,7 +55,7 @@ an unavailable inbound reader. Init still performs no customer send.
 
 Adopt send_completion.policy=provider-handoff-v1 on the authorized configuration
 update: Gmail/AndroidSync success responses complete dispatch with no provider
-status or recipient checks; required CRM writes still need exact readback.
+status or recipient checks; CRM writes finish on successful API acknowledgement and NoteId.
 Never rewrite old decisions, receipts or observed provider states on upgrade.
 
 ## Event discovery index

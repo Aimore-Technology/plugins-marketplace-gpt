@@ -11,6 +11,7 @@ import sys
 from zoneinfo import ZoneInfo
 
 import crm_note
+import api_result
 
 
 VERSION = "send-receipt-v2"
@@ -58,7 +59,19 @@ def render(data):
 
 
 def verify(data):
-    expected, observed = render(data), data["note_readback"]
+    expected = render(data)
+    if 'write_result' in data:
+        receipt = api_result.confirm({**data['write_result'], 'service': 'crm',
+                                      'entity_id': data['task_id'], 'purpose': 'crm-note',
+                                      'content_version': data['approved']['content_version']})
+        if receipt['status'] != 'APIWriteConfirmed':
+            return receipt
+        return {'status': 'CRMReceiptVerified', 'entity_id': data['task_id'],
+                'content_version': data['approved']['content_version'], 'receipt_key': expected['receipt_key'],
+                'crm_note_id': receipt['record_id'], 'message_id': data['sent']['message_id'],
+                'payload_sha256': data['approved']['payload_sha256'], 'sha256': expected['sha256'],
+                'verification_basis': receipt['verification_basis'], 'stored_content_verified': False}
+    observed = data["note_readback"]
     customer = data["customer"]
     if (observed.get("read_verified") is not True or not observed.get("id")
             or observed.get("contact_id") != customer["contact_id"]
@@ -81,7 +94,11 @@ def reconcile(data):
     if len(matches) > 1:
         return {"status": "NeedsReconciliation", "reason": "Duplicate receipt markers; do not append"}
     if matches:
-        result = verify({**data, "note_readback": matches[0]})
+        resolved = {**data, "note_readback": matches[0]}
+        if 'write_result' in data:
+            resolved['write_result'] = {**data['write_result'], 'expected_id': matches[0]['id'],
+                                        'existence_response': matches[0]}
+        result = verify(resolved)
         return {**result, "append_allowed": False}
     return {"status": "EligibleForReceiptAppend", "entity_id": data["task_id"],
             "receipt_key": expected["receipt_key"], "sha256": expected["sha256"], "append_allowed": True}

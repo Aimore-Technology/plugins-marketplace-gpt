@@ -5,7 +5,10 @@ description: "Route explicit EightDegrees plugin commands: init, start, stop, ad
 
 # EightDegrees command entry
 
-Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
+Apply [API result and minimal-read policy](../../references/api-result-policy.md) before this workflow. Successful writes use acknowledgements/record IDs; do not fetch stored bodies to compare. Reuse initialized workspace metadata.
+
+
+Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes also finish on successful API acknowledgement and NoteId. Do not re-query external send status or verify delivery.
 
 
 Accept `@eightdegrees-sales-workflow <command> [context]`, or a bare command when this plugin/skill is explicitly selected. A Claude native command wrapper supplies the command name and its arguments directly. These are model-routed prompt shortcuts; plugin selection and native command registration remain host capabilities. Do not execute a shell command.
