@@ -34,7 +34,7 @@ def probe(data):
     """Normalize real lightweight observations, not model guesses about changes.
 
     New observations and events are committed together only after the caller
-    persists/readbacks candidate_index. Merely observing a source never handles
+    persists candidate_index and confirms its API acknowledgement. Merely observing a source never handles
     its event. The index contains identities/digests, not cached permissions.
     """
     from scan_control import gate
@@ -203,4 +203,4 @@ def probe(data):
             'pending_count': len(pending), 'next_due_at': min(future, key=timestamp) if future else None,
             'candidate_index': index, 'index_sha256': digest(index),
             'persist_required': index != original, 'external_actions_allowed': False,
-            'scope': 'Discovery only; persist/read back index before cursors, then admit affected owner work with fresh guards'}
+            'scope': 'Discovery only; persist changed index before cursors using its API acknowledgement, then admit affected owner work with fresh guards'}

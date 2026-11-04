@@ -109,3 +109,8 @@ original exact scope. Do not convert or copy checked choices onto a plain-text
 version. An unapproved old draft may be replaced by an owner-prepared plain
 version with blank choices and preserved history; do not recreate HTML previews.
 Deprecated saved HTML/preview flags cannot restore rendering on new inquiries.
+
+Batch independent reads and local capture/check work under
+[phase I/O](local-check-batch.md). Never emit one save/version-observation shell
+call per returned page. Keep originals once, reuse own API write projections,
+and persist only changed recovery state or actual effect boundaries.

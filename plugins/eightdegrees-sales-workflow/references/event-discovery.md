@@ -76,7 +76,7 @@ dated brief or original due-notification task), not just a template version. Inc
 submitted, and future clock events with their due time. Revision changes may
 enqueue several affected work keys; owner routing still uses the saved route.
 
-For a failed feed call, normalize its directly persisted original response or
+For a failed feed call, normalize its original response captured in the phase batch or
 explicit exception with connector.capture. Supply that exact result in the
 observation's failure field and complete=false. scan.probe rejects a fabricated
 diagnostic or failure declared complete; candidate_index retains last_failure's
@@ -122,6 +122,6 @@ event count and owner steps separately in the next live test.
 
 ## Baseline and durable backlog recovery
 
-scan.probe computes baseline Complete/NeedsBaseline from actual current coverage. Persist that projection with its index and update the corresponding settings projection without clearing queues, cursors or attempts. A scope change retains pending/handled identities and requires real snapshots; a failed feed gets exact recovery_actions. Even unchanged snapshots must return original pending ready events. Use backlog.recover before interpreting an already saved ReadMessageBody as a completed source-to-owner handoff. Missing source handoff uses RecoverSourceHandoff, not a repeated source creation. See [scheduled entry](scheduled-entry.md) for the ordered continuation and metrics.
+scan.probe computes baseline Complete/NeedsBaseline from actual current coverage. Persist that projection with its index only when changed and update a changed corresponding settings projection without clearing queues, cursors or attempts. A scope change retains pending/handled identities and requires real snapshots; a failed feed gets exact recovery_actions. Even unchanged snapshots must return original pending ready events. Use backlog.recover before interpreting an already saved ReadMessageBody as a completed source-to-owner handoff. Missing source handoff uses RecoverSourceHandoff, not a repeated source creation. See [scheduled entry](scheduled-entry.md) for the ordered continuation and metrics.
 
 Use scan.watches.ready_task_records/ready_task_blocks as scan.probe supplementation before claiming idle. After saved discovery, scan.queue constructs the full work set from the original EventIndex and current task/source captures; pass its full result as queue_plan to every scan.cycle. The planner adds omitted fitting work without another scheduler/identity requirement. Keep all remaining pointers across owners and restarts. A subset containing only current draft preparation cannot represent all pending mail/due work. No send or factual approval is synthesized by queue construction.

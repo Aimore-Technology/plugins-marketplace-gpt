@@ -15,3 +15,8 @@ code, never by manually reasoning through every old row.
 For actual inquiries use [email-flow](email-flow.md): one message read, one CRM
 match, warm project-cache lookup and one combined review. Coalesce own writes
 at its boundary. Do not load every helper/reference or print Python/raw captures.
+
+Batch independent reads and local capture/check work under
+[phase I/O](local-check-batch.md). Never emit one save/version-observation shell
+call per returned page. Keep originals once, reuse own API write projections,
+and persist only changed recovery state or actual effect boundaries.

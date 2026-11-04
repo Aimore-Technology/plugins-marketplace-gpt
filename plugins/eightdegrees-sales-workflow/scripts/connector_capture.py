@@ -10,7 +10,7 @@ from workflow_checks import inspect_result
 
 def normalize(data):
     if not isinstance(data.get('capture_ref'), str) or not data['capture_ref']:
-        raise ValueError('Persist the original response/exception first and supply its capture reference')
+        raise ValueError('Supply the original host response/exception reference or phase-bundle reference')
     timestamp(data['observed_at'])
     original = data['response']
     if not isinstance(original, dict) or not original:

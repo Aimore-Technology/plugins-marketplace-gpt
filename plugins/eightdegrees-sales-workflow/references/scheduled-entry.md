@@ -31,3 +31,8 @@ No new input/submission/due/recovery means immediate idle; no history/Health
 sweep. Restart from one current saved checkpoint discovery, not every missed
 interval. Existing native tasks are reused and never cloned. Public run-auto
 retains its own policy; explicit no-send/report/draft restrictions stay effective.
+
+Batch independent reads and local capture/check work under
+[phase I/O](local-check-batch.md). Never emit one save/version-observation shell
+call per returned page. Keep originals once, reuse own API write projections,
+and persist only changed recovery state or actual effect boundaries.

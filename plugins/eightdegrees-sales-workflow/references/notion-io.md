@@ -11,3 +11,8 @@ An error is not an empty page. Confirm successful writes from API responses and
 record IDs; no routine content readback. On unknown result resolve original
 existence before retry. Coalesce required source/task/action result changes at
 the business boundary and logs at cycle close. See [API policy](api-result-policy.md).
+
+Batch independent reads and local capture/check work under
+[phase I/O](local-check-batch.md). Never emit one save/version-observation shell
+call per returned page. Keep originals once, reuse own API write projections,
+and persist only changed recovery state or actual effect boundaries.

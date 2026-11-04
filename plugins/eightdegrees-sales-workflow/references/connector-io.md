@@ -15,7 +15,7 @@ handoff, parsing failure and internal publication failure separately. Known
 Gmail/AndroidSync acceptance completes dispatch. Retain original response and
 attempt IDs, and repair only our missing records. Do not search Sent Items or
 recipient mailboxes or poll external status. Missing metadata is not permission
-to resend. CRM write/readback is the explicit exception under provider-boundary.
+to resend. CRM writes also finish on the original successful API response and NoteId; no body readback.
 
 These are known contract differences to check against the live schema:
 
@@ -56,3 +56,7 @@ For recurring Notion reads, preserve the capability-specific quota observation
 and use [Notion I/O](notion-io.md) saved-view discovery; the ordinary bounded
 transient retry rule is not a reason to reprobe a known exhausted SQL/rows quota
 every invocation. A successful view read does not clear the SQL degradation.
+
+Capture returned objects as one phase batch under [local batches](local-check-batch.md).
+Do not run a shell save followed by connector.capture for each successful page.
+Original error diagnostics join that batch; registration does not clear failure.

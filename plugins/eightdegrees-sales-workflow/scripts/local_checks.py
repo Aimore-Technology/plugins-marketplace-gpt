@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run local checks and private project-cache operations; never call a connector."""
+"""Batch local checks and private capture/project-cache I/O; never call a connector."""
 
 import argparse
 import copy
@@ -41,8 +41,10 @@ import communication_intake
 import api_result
 import email_flow
 import project_cache
+import capture_bundle
 
 OPERATIONS = {
+    "capture.commit": capture_bundle.commit,
     "notification.dispatch": sms_authority.dispatch,
     "project.cache-put": project_cache.put,
     "project.cache-get": project_cache.get,
@@ -117,7 +119,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
+PASSED = {"CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
           "ProjectCatalogLoaded", "ProjectMatched", "NeedsProjectSelection", "ProjectCacheInvalidated",
           "SingleEmailReviewPrepared", "SingleEmailReviewRendered", "EmailDecisionAccepted", "EmailRevisionRequired", "EmailDispatchDeferred", "EmailDispatchPrepared", "EmailRecordingPending", "EmailHandoffRecorded", "APIWriteConfirmed", "CommunicationReadPlanPrepared", "CommunicationNotePrepared","InquiryNameResolved", "InquiryLabelPlanned","ReadyQueueConstructed", "ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
@@ -165,7 +167,7 @@ def run(plan, captures):
             # Helpers receive isolated inputs; one check cannot edit the bundle
             # or fabricate evidence for another check in this batch.
             result = operation(copy.deepcopy(expand(check["input"])))
-        except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
             result = {"status": "NeedsCorrection", "issues": [str(exc)]}
         code = 0 if result.get("status") in PASSED and not result.get("issues") else 2
         results[check["name"]] = {"name": check["name"], "operation": check["operation"], "exit_code": code, "result": result}
@@ -184,18 +186,21 @@ def run(plan, captures):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True)
-    parser.add_argument("--captures", required=True)
+    parser.add_argument("--captures", help="Existing capture dictionary/bundle; omit to use inline plan.captures")
     parser.add_argument("--output", help="Save full check results/exact calls and print only small summaries")
     args = parser.parse_args()
     try:
         plan = json.loads(sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8"))
-        captures = json.loads(Path(args.captures).read_text(encoding="utf-8"))
+        captures = capture_bundle.unpack(json.loads(Path(args.captures).read_text(encoding="utf-8"))
+                                         if args.captures else plan.get("captures"))
         result = run(plan, captures)
         if args.output:
             output = Path(args.output)
-            protected = [Path(args.captures).resolve()]
+            protected = [Path(args.captures).resolve()] if args.captures else []
             if args.input != "-":
                 protected.append(Path(args.input).resolve())
+            protected += [Path(c['result']['bundle_path']).resolve() for c in result.get('checks', [])
+                          if c['operation'] == 'capture.commit' and c['result'].get('bundle_path')]
             if output.resolve() in protected:
                 raise ValueError("Do not overwrite captures or the check plan")
             output.parent.mkdir(parents=True, exist_ok=True)

@@ -13,6 +13,8 @@ under scheduled-approved-work. Public run-auto uses one-cycle-approved-work;
 explicit no-send restrictions remain. No native management API, unique executor,
 bound chat or extra lifecycle proof is required.
 
+Batch phase inputs/checks using [local batches](../../references/local-check-batch.md);
+no per-response save or version-observation command, no unchanged local writes.
 Use [event discovery](../../references/event-discovery.md) and scan.probe over
 current scoped mail, active action submissions, controls, due and recovery.
 Complete discovery without executable input exits immediately. Do not load
