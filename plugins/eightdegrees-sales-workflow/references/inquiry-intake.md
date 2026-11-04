@@ -56,7 +56,8 @@ thread as a shortcut. Already present means no modification.
 
 Save classification, name provenance and the labeling result/recovery pointer
 on the existing intake record. A label permission/tool failure becomes a scoped
-LabelInquiry recovery on this original source, not a new source, a global stop,
+label-repair pointer on this original source under the existing scanner-owned
+SaveMailCheckpoint route (label-only unfinished substep), not a new task step, source or global stop,
 an idle result or a reason to repeat downstream work. Other mail receives no
 inquiry label; uncertain mail is not falsely labeled and retains its specific
 classification reason. Saved classification and completed checkpoint prevent
