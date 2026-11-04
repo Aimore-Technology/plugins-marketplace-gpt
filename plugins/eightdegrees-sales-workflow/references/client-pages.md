@@ -7,7 +7,7 @@
 - Default to the verified CRM full/display name, preserving the supplied spelling and any TEST marker. Example: `Alex Harper [TEST]`, not the full `LocationId:ContactId` string. Do not invent a name from an email address, infer a preferred name or use a test batch ID as a real name.
 - When known customers have the same name, append a verified email, for example `Alex Harper - alex@example.com`; use a verified phone if email is unavailable. Disambiguate the affected generated titles consistently when their mappings are known. Do not assume shared names/emails identify one contact.
 - If name and email/phone still collide across CRM locations, include the verified business/location display name, then a short contact-ID suffix only if still necessary. Do not expose full technical IDs as the primary title.
-- If the verified contact has no name, use a localized `Name to confirm - <short contact suffix>` until a real name is provided. This is a presentation fallback, not permission to guess identity or create a CRM contact. Do not block an otherwise verified communication solely for a missing display name.
+- For missing CRM names, apply [inquiry name precedence](inquiry-intake.md) using source-backed signature then From display name without CRM writes. Only when none exists, use a localized `Name to confirm - <short contact suffix>` until a real name is provided. This is a presentation fallback, not permission to guess identity or create a CRM contact. Do not block an otherwise verified communication solely for a missing display name.
 
 ## Identity metadata and registration
 

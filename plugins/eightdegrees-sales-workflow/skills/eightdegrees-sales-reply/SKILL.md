@@ -5,6 +5,9 @@ description: "Turn a verified customer project inquiry into a reviewed, versione
 
 # Reply to a sales inquiry
 
+Apply [inquiry names and labeling](../../references/inquiry-intake.md): CRM name first after a unique identifier match, then current signature, From name, or anonymous Dear Customer with a name question after answering. A name difference alone never blocks a verified CRM association. Scanner classifies admitted incoming mail and automatically adds AimoreInquiry; no pre-labeling is required. Preserve separate source/progress and exact approval boundaries.
+
+
 Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
 
 Before any project/fact/draft preparation, finish the durable source-intake checkpoint and apply [handover integrity](../../references/handover-integrity.md). Supply original intake_handoff evidence to execution.prepare; carry its source_page_id into the send package and publication roles. A public reply-draft with a new source first completes intake; it never skips the checkpoint or recreates an already registered source.

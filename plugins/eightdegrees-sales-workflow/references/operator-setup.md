@@ -58,3 +58,5 @@ conflicting legacy dropbox.work_folders without silently merging/expanding it.
 Collect missing/corrected values in one setup form with explicit submission,
 then resume ValidateSetupInput. Preserve existing validated scope on upgrade;
 this setup audit is not a fresh global prerequisite for every timer wake.
+
+Inquiry labeling is an output, never a prerequisite read filter. Init creates/reuses AimoreInquiry and records actual inquiry_label_name/inquiry_label_id separately. Scan classifies each newly admitted message within the authorized scope, including unknown senders. See [inquiry intake](inquiry-intake.md). Preserve current UNREAD consent; do not require the operator to predict sender addresses or pre-label incoming inquiries.

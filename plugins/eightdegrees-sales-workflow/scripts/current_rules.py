@@ -3,7 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 
-FILES = ('scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
+FILES = ('references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
          'references/scheduled-work.md', 'references/schedule-execution.md',
          'scripts/schedule_checks.py', 'scripts/scan_control.py', 'scripts/event_probe.py',
          'scripts/backlog_recovery.py', 'scripts/queue_construction.py', 'scripts/scan_cycle.py', 'scripts/cycle_metrics.py')

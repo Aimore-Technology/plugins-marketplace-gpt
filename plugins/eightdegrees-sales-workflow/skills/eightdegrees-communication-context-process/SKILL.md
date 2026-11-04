@@ -5,6 +5,9 @@ description: "Process authorized customer email, text or transcripts into review
 
 # Process customer communication
 
+Apply [inquiry names and labeling](../../references/inquiry-intake.md): CRM name first after a unique identifier match, then current signature, From name, or anonymous Dear Customer with a name question after answering. A name difference alone never blocks a verified CRM association. Scanner classifies admitted incoming mail and automatically adds AimoreInquiry; no pre-labeling is required. Preserve separate source/progress and exact approval boundaries.
+
+
 Apply [provider handoff completion](../../references/provider-boundary.md): successful Gmail/AndroidSync acceptance finishes dispatch. Verify our request/approval and own records; CRM writes retain readback. Do not re-query external send status or verify delivery.
 
 Before saving extracted/clarified customer boolean facts or persona snapshots, apply [customer fact semantics](../../references/customer-facts.md) and run the fact helper on the actual proposal. Unknown is null, never a default false.

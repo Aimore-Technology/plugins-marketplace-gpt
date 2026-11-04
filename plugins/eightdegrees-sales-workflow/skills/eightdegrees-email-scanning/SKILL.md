@@ -5,6 +5,9 @@ description: "Discover changed or due EightDegrees inputs, exit immediately when
 
 # Discover input, then process affected work
 
+Apply [inquiry names and labeling](../../references/inquiry-intake.md): CRM name first after a unique identifier match, then current signature, From name, or anonymous Dear Customer with a name question after answering. A name difference alone never blocks a verified CRM association. Scanner classifies admitted incoming mail and automatically adds AimoreInquiry; no pre-labeling is required. Preserve separate source/progress and exact approval boundaries.
+
+
 For every actual native wake FIRST load [current scheduled entry](../../references/scheduled-entry.md) and run current_rules.py from the current installed package. Do not reuse a rule version cached in chat. This selects the direct scanner + current guard, not the public run-auto policy.
 
 FIRST read only registered RunSettings and call scan.entry before any discovery
