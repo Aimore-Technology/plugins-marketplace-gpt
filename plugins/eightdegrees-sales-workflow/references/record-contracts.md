@@ -11,15 +11,14 @@ client_pages entry must bind exact location_id, contact_id and persona_page_id.
 The helper inserts above the unique original snapshot for localized headings,
 preserving every approved byte. A conflicting or unavailable binding refuses.
 
-New sales-send-package records also retain source_page_id from the verified durable intake handoff. New package publication rejects a missing source pointer; email result publication must update/read back that same original page. Legacy frozen packages stay unchanged.
+New sales-send-package records also retain source_page_id from the verified durable intake handoff. New package publication rejects a missing source pointer; email result publication must update that same original page and confirm its API response. Legacy frozen packages stay unchanged.
 
-New sales-send-package records include content_approval={task_page_id,
-action_page_id, decision: Confirm, content_version}, referencing the actual
-accepted review and content_approval_sha256. Legacy pointer-only packages are
-readable only when content_approved, content_task_page_id/content_action_page_id
-and content_approval_sha256 match the original completed review's actual
-accepted-action-submission. This adapter neither invents approval nor rewrites
-the frozen package.
+New inquiry packages use email-review-v2 from email.prepare, retaining the
+original source, exact task/action/version, frozen draft/material snapshot and
+window. One submitted Approve supplies content-and-send permission. Do not
+require a prior completed ReviewReplyDraft or content_approval pointer. Old
+frozen sales-send-package records retain only their original decision scope;
+an old Confirm alone cannot grant sending permission.
 
 Persist email-handoff-proof with verification (ProviderHandoffVerified phase=handoff),
 request (the exact dispatched arguments), manifest, the pre-dispatch

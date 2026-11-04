@@ -79,8 +79,7 @@ not claim that this proves later transport or bypasses native restrictions.
 Standing notification authority includes the configured SMS weekday/hour and
 no-send-date policy; it does not require a separate holiday-date approval per
 SMS. Use configured exclusions, disclose an unverified holiday list and keep
-the actual calendar source/cutoff visible. Email holiday/date approval rules
-remain unchanged. A task-specific explicit expiry/Pause is preserved; do not
+the actual calendar source/cutoff visible. Email date/window approval is included in its single combined review. A task-specific explicit expiry/Pause is preserved; do not
 catch up an expired legacy one-off authorization automatically.
 
 First material follow-up is no earlier than Gmail acceptance+30 minutes; second is no earlier
@@ -116,6 +115,11 @@ required for completion. Inbound capability is recorded separately; its absence
 is not a delivery-check gate for one-way factual notifications. Keep actual
 observable customer stop/reply and all authority/window/count checks.
 
-Use [prospective action gates](pre-action-order.md) before opening new email
-review controls or emitting outgoing call arguments. A post-action check cannot
-repair missing historical order. Run these only on the affected event phase.
+Use notification.dispatch with notification (sms.prepare/verify input including
+write_result), current material_current, scan root/now, policy, exact request_sms
+call, attempt_write and current controls: scan_enabled, channel_enabled,
+no_reply_or_stop, attempt_clear, window_eligible. Existing accepted/pending/
+unknown attempt_status blocks another effect. The helper checks standing
+permission and source/context/count limits locally and emits the frozen request.
+Persist its stable idempotency key/payload once. No second admission record or
+human SMS approval. This is the short path for new due notifications.

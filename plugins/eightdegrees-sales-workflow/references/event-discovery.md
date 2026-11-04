@@ -92,7 +92,7 @@ Results:
   sweep, routine report/Health rewrite or operator notification. A tiny optional
   heartbeat records actual probe duration/coverage only. Existing Today links
   can be returned without rereading/rebuilding the page.
-- ScanWorkReady: persist/read back candidate_index if changed, retain current task state
+- ScanWorkReady: persist candidate_index and confirm its API response if changed, retain current task state
   and a local log label, then use scan.cycle for affected events only. Process stop
   events first; unfinished related successors may run in the same bounded cycle.
   Missing discovery coverage still blocks affected sends through fresh guards.
@@ -102,7 +102,7 @@ Results:
 
 The helper never performs I/O or grants send authority. Pass exit 0 AND the
 explicit status; LocalChecksPassed alone is not ScanIdle or a dispatch permit.
-Persist candidate_index and read back its exact digest BEFORE committing source
+Persist candidate_index and confirm its successful API response BEFORE committing source
 labels/cursors. The proposal is not a saved checkpoint. Pending events survive
 even if the source later vanishes or a discovery cursor advances.
 

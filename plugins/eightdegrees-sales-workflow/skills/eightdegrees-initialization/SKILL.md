@@ -113,3 +113,13 @@ normal init result. Readiness is per capability. This audit is setup-only, not
 another scheduled-cycle gate: existing saved sources can recover without a full
 re-onboarding; only genuinely missing/revoked permissions or necessary facts
 block their affected work. Existing stop/revocation always remains effective.
+
+## Short email and local material cache
+
+Register non-authority email_workflow defaults: email-flow-v2, one email-review-v2
+content-and-send decision and automatic inquiry-name resolution. Project cache
+defaults to private local user state with a 24-hour TTL, scoped by actual Notion
+root, Dropbox account/namespace and authorized work folders. Do not ship or copy
+cache contents into the plugin/repository. Cache structure/materials, never live
+authority or personal CRM records. Existing authorizations/stops/attempts remain
+unchanged; installation alone needs no mandatory init before the short flow.

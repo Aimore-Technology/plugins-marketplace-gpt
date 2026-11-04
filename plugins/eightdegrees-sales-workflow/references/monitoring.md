@@ -48,8 +48,7 @@ Use [outcome state](outcome-state.md) after known provider effects. Derive
 current counters from deduplicated immutable outcomes, not handwritten zero
 copies in RunSettings.internal_audit. Show historical approval-time unknowns
 as historical, distinct from current operator receipt/sender observations.
-Preserve provider status exactly. Send owners verify current task/index/action
-readbacks before final completion. Reports disclose conflicts and stale views
+Preserve provider status exactly. Send owners confirm original task/index/action API write responses at the boundary. Reports disclose conflicts and stale views
 without fixing business state. End-of-owner Health updates use actual service
 observations and can be coalesced; do not probe every unaffected service.
 

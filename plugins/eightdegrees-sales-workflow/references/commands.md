@@ -16,10 +16,10 @@ On first init, choose Chinese or English for workspace pages, forms and reports.
 
 ## Daily operator journey
 
-1. Manually start a communication with add-communication, or let run-auto discover authorized mail. Open Aimore/Today to submit matching/data or exact Notes/email content and sending decisions. Manual describes intake provenance; no extra continue command is needed after a valid submission.
+1. Manually start a communication with add-communication, or let run-auto discover authorized mail. Open Aimore/Today to submit matching/data or Notes decisions or the single email content-and-send decision. Manual describes intake provenance; no extra continue command is needed after a valid submission.
 2. With a verified running native task, wait for its next eligible tick. Otherwise invoke `@eightdegrees-sales-workflow run-auto` once. It scans connected authorized sources, validates current submissions and follows newly ready owner steps in the same bounded cycle. Waiting/future work remains queued; it does not sleep, recursively scan or duplicate prior effects.
 3. Actual material email Sent automatically registers its SMS cycle/due/notification. Factual notification SMS is permitted by default through notification-sms-v1; generate/edit, freeze and send when due without individual ContentReview/SendApproval. Stop/Pause, current channel/time/count/attempt checks still apply. Email and CRM facts retain exact-version human review.
-4. report shows current results/waits without execution. reply-draft prepares/revises the email and separate send approval; it never sends from that command. Use public run-auto or the native queue after submission, not reply-draft continue or an internal owner command.
+4. report shows current results/waits without execution. reply-draft prepares/revises the email and one combined review page; it never sends from that command. Use public run-auto or the native queue after submission, not reply-draft continue or an internal owner command.
 
 The seven names stay unchanged. run-auto runs once; start enables scanning; stop disables scanning while leaving the periodic task intact. Package installation and init create no schedule. Explicit no-send requests and old restricted native jobs remain narrow; the scan switch never changes an existing task prompt or approval. Unknown/closed/stopped work is not reopened. Existing explicit SMS disable/revocation remains effective. See [queue execution](queue-execution.md) and [SMS notifications](sms-notifications.md).
 
@@ -48,7 +48,7 @@ For new/migrated DataCompletion, open the registered ordinary action page, fill 
 ## Scanning control
 
 start enables the RunSettings scan_control switch; stop disables it. Both
-change only that settings field and read it back, without a scan, workflow log
+change only that settings field and confirm its original API response, without a scan, workflow log
 or native task operation. A repeated command with the same state is a no-op.
 The operator/host independently configures the local periodic task to invoke the current internal
 scheduled entry;30 minutes remains suggested,20 optional. Old interval_minutes

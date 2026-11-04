@@ -1,6 +1,5 @@
 # Dispatch completion boundary
 
-Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
 
 
 Gmail and AndroidSync own transport after a successful dispatch response. Our
@@ -52,7 +51,7 @@ For email handoff the helper takes operation=email, manifest, draft_verification
 original response. For SMS it takes operation=sms, the original frozen
 notification, authority=SMSNotificationVerified, exact request and original
 response. Its ProviderHandoffVerified binds task/version/request and provider ID;
-it cannot replace pre-dispatch authority or CRM readback.
+it cannot replace pre-dispatch authority or CRM API acknowledgement.
 
 Use the actual acknowledgement time as accepted_at and for internal follow-up
 delays. Legacy sent_at/last_sent_at fields may carry that handoff time under

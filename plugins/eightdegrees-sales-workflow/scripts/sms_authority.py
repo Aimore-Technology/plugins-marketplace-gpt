@@ -70,22 +70,50 @@ def prepare(data):
 
 def verify(data):
     record = prepare(data)["record"]
-    payload = object_result(data["saved_task"])
-    if payload.get("metadata", {}).get("type") != "page" or page_id(payload["id"]) != page_id(record["task_id"]):
-        raise ValueError("Read the actual original notification task")
-    found = []
-    for block in re.findall(r"```json\s*\n(.*?)\n```", page_body(data["saved_task"]), re.S):
-        value = json.loads(block)
-        if isinstance(value, dict) and value.get("contract") == "sms-notification-v1":
-            found.append(value)
-    if found != [record]:
-        raise ValueError("Current saved notification differs, is duplicated or is missing")
+    if 'write_result' in data:
+        from api_result import confirm
+        receipt = confirm({**data['write_result'], 'service': 'notion', 'expected_id': record['task_id']})
+        if receipt['status'] != 'APIWriteConfirmed':
+            raise ValueError('Notification write is unknown; preserve its original attempt')
+        payload = {'id': receipt['record_id']}
+    else:
+        payload = object_result(data["saved_task"])
+        if payload.get("metadata", {}).get("type") != "page" or page_id(payload["id"]) != page_id(record["task_id"]):
+            raise ValueError("Read the actual original notification task")
+        found = []
+        for block in re.findall(r"```json\s*\n(.*?)\n```", page_body(data["saved_task"]), re.S):
+            value = json.loads(block)
+            if isinstance(value, dict) and value.get("contract") == "sms-notification-v1":
+                found.append(value)
+        if found != [record]:
+            raise ValueError("Current saved notification differs, is duplicated or is missing")
     dispatch = data.get("dispatch")
     if dispatch is not None and dispatch != {k: record[k] for k in ("recipient", "device_id", "body")}:
         raise ValueError("Actual proposed provider payload differs from the frozen notification")
     return {"status": "SMSNotificationVerified", "entity_id": payload["id"],
             "content_version": record["content_version"], "body_sha256": record["body_sha256"],
             "authority_policy": record["authority_policy"], "scope": SCOPE}
+
+
+def dispatch(data):
+    """One standing-authorized notification check; no separate admission record."""
+    import copy
+    from api_result import confirm
+    from dispatch_admission import payload
+    if data['policy'] not in {'one-cycle-approved-work', 'scheduled-approved-work', 'owner-workflow'}:
+        raise ValueError('This invocation cannot dispatch SMS')
+    if any(data['controls'].get(k) is not True for k in
+           ('scan_enabled', 'channel_enabled', 'no_reply_or_stop', 'attempt_clear', 'window_eligible')):
+        return {'status': 'SMSDispatchDeferred', 'send_allowed': False, 'reason': 'Current scoped notification control blocks sending'}
+    if data.get('attempt_status') not in {None, 'RejectedBeforeDispatch', 'NoEffectVerified'}:
+        return {'status': 'SMSDispatchDeferred', 'send_allowed': False, 'reason': 'Preserve the original accepted/pending/unknown attempt'}
+    entity, version = payload({**data, 'channel': 'sms'})
+    receipt = confirm({**data['attempt_write'], 'service': 'notion', 'expected_id': entity})
+    if receipt['status'] != 'APIWriteConfirmed':
+        raise ValueError('Persist the original frozen SMS and stable idempotency key before dispatch')
+    return {'status': 'SMSDispatchPrepared', 'call': copy.deepcopy(data['call']),
+            'entity_id': entity, 'content_version': version, 'send_allowed': True,
+            'scope': 'Frozen notification plus current standing authority/context/count/window/attempt; no human review'}
 
 
 def main():

@@ -73,10 +73,11 @@ Their successful statuses prepare local data only. A failed connector capture
 may be recorded successfully: failed=true still means unavailable coverage,
 not a successful read or dispatch permit. See [short scans](scan-fast-path.md).
 
-review.prepare, dispatch.admit and dispatch.prepare support the prospective
-[review/dispatch gates](pre-action-order.md). Only the final operation can emit
-an outgoing call after original admission API acknowledgement; batch success grants no
-approval. Failed later checks still remove earlier executable calls.
+Normal inquiries use email.prepare/review/accept/dispatch/complete and original
+API acknowledgements; due SMS uses notification.dispatch. These replace extra
+saved owner/admission stages. Legacy dispatch.admit/prepare are only for actual
+older frozen-plan repair, never a prerequisite to the new normal flow. Failed
+later checks still remove earlier executable calls.
 
 Communication intake adds communication.read-plan and communication.note. The
 former bounds reads for supplied text versus an actual message/file URL; the
@@ -88,3 +89,7 @@ repeated explanations or additional identical connector reads.
 write.confirm verifies only the original success response and actual record ID.
 New execution-api-v1 completion uses these receipts, not post-write body checks.
 Use [current API result policy](api-result-policy.md) for acknowledgement adapters.
+
+project.cache-* persists private scoped project materials across invocations.
+No contacts, approvals, stop state or sending permission belongs in that cache.
+A ProjectCacheUnavailable result falls back to already authorized fresh sources.

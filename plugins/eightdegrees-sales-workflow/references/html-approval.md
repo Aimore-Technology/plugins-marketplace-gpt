@@ -1,16 +1,14 @@
-# HTML/EDM approval
+# One email review
 
-Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+Follow [the inquiry flow](email-flow.md). New email-review-v2 uses one page and
+one explicit Approve decision for both draft content and sending within the
+visible date/time window. Show recipients, subject/body, usable preview,
+materials/attachments and CRM operational-receipt scope together. SMS uses
+standing notification permission, not this form.
 
-
-Before diagnosing missing saved-file mapping, read [preview evidence](../Experience/preview-evidence.md). For a native PNG alternative, follow [image preview](image-preview.md), including real render provenance, saved-source download and the separate preview-image completion check. Use this in step 2; an image does not replace the original HTML or release Pause.
-
-1. Keep editable subject/body in the source-linked Notion draft. From that version, generate one immutable HTML file and a manifest of frozen image/attachment files. Never overwrite approved assets. Record DraftId, version, generator time, source project versions, HTML ID/content digest where tooling supports it, asset IDs/digests and sender/recipient/subject fields.
-2. Upload the HTML into the customer's Notion using an actually available file-upload tool. If HTML embedding is supported, place the returned source in a native embed block using the current tool's documented syntax, then fetch the SAVED page and verify the matching block/source and exact downloaded bytes under [Notion publication](notion-publishing.md). A raw upload URI, file block, code block or external render alone is not a saved HTML preview. Otherwise render the SAME file to a read-only image/PDF and verify its saved preview and original HTML mapping beside the versioned HTML. Do not build a Portal or an unrelated preview service. If neither upload nor matching preview is available, mark preview implementation incomplete; neither content confirmation nor send approval may be accepted for that version. Keep copy/comments with a non-approvable recovery explanation. Previously observed decisions without this prerequisite stay historical and unusable for sending; repair requires a fresh synchronized review version with blank choices, without releasing stop/Pause.
-3. The operator edits the Notion copy or leaves revision instructions. Generate a NEW HTML/assets manifest and preview, invalidate old approval and preserve prior versions. Only submit a preview-synchronized version for final SendApproval.
-4. SendApproval uses its dedicated [action page](operator-actions.md) to display sender, To/Cc/Bcc, subject/body, exact preview, attachment names/versions, source and earliest/latest window. Show an explicit send choice and named submission to-do; the workflow binds/records its technical version and actor. ContentReview has a separate page/decision. Approval is specific to that complete package. No client quote/commitment/signing/payment is automatically sent.
-5. Immediately before send, reread the decision and exact files/manifest. Verify content/version, recipient/window, latest accessible replies and attempt state. A changed remote image link is not a frozen asset. If bytes/version cannot be verified using the available tools, stop for reconciliation or manual handling.
-6. For Gmail replies, use [stored-draft transport](reply-transport.md): create a reply draft, replace its complete payload via update_draft without resetting reply_message_id, verify raw stored MIME before review, then send_draft for that approved ID. Direct send_email(reply_message_id) may append unapproved quotes and is not the default exact-body adapter. Verify the channel's real HTML/image/attachment mechanism. Any deterministic MIME/CID or reference conversion must retain a mapping to approved assets and must not change approved text/image selection. Never use expiring private Notion download links as customer-facing image hosting. Do not regenerate the HTML with the model during sending.
-7. Test the operator's review/edit/preview/approval, invalidation after edits, received image/attachment visibility and actual submitted version. Exact content/version correspondence is required; pixel-identical rendering across all email clients is not promised. Store evidence and actual provider identifiers.
-
-Use authorized ordinary real content without deliberate redaction. No sensitive originals in previews/logs, no vendor copies, and no unapproved mailbox attachments. Project assets come from authorized Dropbox sources; raw sources remain linked.
+Render the frozen local HTML once, then publish the preview and draft. Successful
+API acknowledgements confirm their writes. Do not download stored assets or raw
+MIME to compare bytes. Keep the local immutable package/version for approval.
+Edits/Return create the new synchronized version with blank choices; no approval
+inheritance. Genuine old content-only decisions remain content-only, and old
+send approvals retain only their originally approved scope.

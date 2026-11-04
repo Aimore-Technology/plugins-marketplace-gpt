@@ -39,7 +39,7 @@ class CompleteQueue(unittest.TestCase):
         'SourceKey':'user@example.com:inbound:m1','Mode':'Automatic','State':'ReadyToValidate',
         'OwnerSkill':'eightdegrees-sales-reply','ResumeStep':'ResolveProjectSources','ContentVersion':'sources-v1'}
   records=queue.ready_task_records([task]);self.assertEqual(len(records),1)
-  self.assertEqual(records[0]['events'][0]['estimated_seconds'],600)
+  self.assertEqual(records[0]['events'][0]['estimated_seconds'],180)
   d=fixture();d['ready_task_records']=records;r=event_probe.probe(d)
   self.assertEqual(r['status'],'ScanWorkReady');self.assertEqual(r['ready'][0]['step'],'ResolveProjectSources')
   d['index_page']=saved(r);self.assertEqual(event_probe.probe(d)['ready'],r['ready'])

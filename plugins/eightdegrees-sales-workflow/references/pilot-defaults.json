@@ -163,10 +163,25 @@
     "sms": "successful_androidsync_request_response",
     "provider_status_polling": false,
     "recipient_verification": false,
-    "crm_write_readback_required": true
+    "crm_write_readback_required": false
   },
   "scan_control": {
     "contract": "scan-control-v1",
     "enabled": false
+  },
+  "email_workflow": {
+    "contract": "email-flow-v2",
+    "approval_contract": "email-review-v2",
+    "human_reviews_per_email": 1,
+    "automatic_name_resolution": true,
+    "crm_lookups_per_inquiry": 1
+  },
+  "project_cache": {
+    "contract": "project-cache-v1",
+    "enabled": true,
+    "ttl_seconds": 86400,
+    "storage": "private-local-user-state",
+    "cache_permissions": false,
+    "cache_customer_records": false
   }
 }

@@ -13,8 +13,8 @@ from scan_cycle import key, timestamp
 
 ROUTES = json.loads((Path(__file__).resolve().parents[1]/'references/task-routes.json').read_text())
 SAFE_PREPARATION = {'read', 'draft', 'checkpoint', 'report'}
-ESTIMATES = {'ResolveProjectSources': 600, 'ReviewReplyDraft': 300,
-             'VerifyCustomer': 240, 'BuildDailyBrief': 90, 'ReadMessageBody': 90}
+ESTIMATES = {'ResolveProjectSources': 180, 'ReviewReplyDraft': 60,
+             'VerifyCustomer': 60, 'BuildDailyBrief': 90, 'ReadMessageBody': 30}
 
 
 def ready_task_records(rows, issues=None):

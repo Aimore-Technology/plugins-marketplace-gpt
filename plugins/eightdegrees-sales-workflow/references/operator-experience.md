@@ -21,14 +21,14 @@ No placeholder text or copied rows. Today contains timeless navigation/help only
 With actual source/page fetches, run `operator_experience.py today-views` to plan
 native linked views: Needs my review, Needs my information, Needs my attention,
 Waiting and paused, and optional original Business results/daily summaries.
-Use the actual create_view schema and documented view DSL, then read back each
+Use the actual create_view schema and documented view DSL, then confirm the original API response for each
 view's source/filter/show fields. Registration follows verified results; an
 uncertain creation is reconciled by its returned ID before retry.
 
 On explicit setup/upgrade, the planned task_page_layout may hide technical
 properties on task-detail pages while retaining the title/editor. Read the actual
 database-page-layouts specification and source first, apply only the supported
-page_layout operation, and read back the layout. No DDL/property deletion, row
+page_layout operation, and confirm the layout API response. No DDL/property deletion, row
 value change or access-control claim. The original database remains the technical
 view; ordinary action pages remain the input authority. If unsupported, retain
 the direct ActionPageURL and label this layout portion incomplete.
@@ -57,7 +57,7 @@ and current observed status/next action. `operator_experience.py review` emits
 these lines and explicit field-level before/after differences for a revision.
 These are a guide; preserve full exact-version copy/Notes and the matching saved
 preview BEFORE decision controls. No summary-only approval, new inherited checks,
-or silent change to approved bytes. Keep content and send decisions separate.
+or silent change to approved bytes. New email uses one combined content-and-send decision; manual Notes approval has only CRM-fact scope.
 
 Show already verified applicable values once with provenance, not repeated
 editors. The helper returns only missing/invalid/unverified fields as editable,

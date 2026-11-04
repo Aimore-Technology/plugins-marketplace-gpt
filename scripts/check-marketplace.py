@@ -161,7 +161,24 @@ def check():
         require(defaults['sms_notifications']['enabled'] is True and defaults['sms_notifications']['per_message_review_required'] is False, 'Standing notification authority drift')
         require(defaults['queue_execution']['continue_commands_required'] is False, 'Queue must not require extra continuation commands')
         require(defaults['data']['deliberate_redaction'] is False, 'Pilot data policy drift')
-        require(defaults['send_completion'] == {'policy': 'provider-handoff-v1', 'email': 'successful_gmail_dispatch_response', 'sms': 'successful_androidsync_request_response', 'provider_status_polling': False, 'recipient_verification': False, 'crm_write_readback_required': True}, 'Provider handoff boundary drift')
+        require(defaults['send_completion'] == {'policy': 'provider-handoff-v1', 'email': 'successful_gmail_dispatch_response', 'sms': 'successful_androidsync_request_response', 'provider_status_polling': False, 'recipient_verification': False, 'crm_write_readback_required': False}, 'Provider handoff boundary drift')
+        require(defaults.get('email_workflow', {}).get('approval_contract') == 'email-review-v2'
+                and defaults['email_workflow'].get('human_reviews_per_email') == 1,
+                'New mail must have one combined review')
+        require(defaults.get('project_cache', {}).get('ttl_seconds') == 86400
+                and defaults['project_cache'].get('storage') == 'private-local-user-state'
+                and defaults['project_cache'].get('cache_permissions') is False,
+                'Project cache scope/default drift')
+        forbidden = ('Keep content and send decisions separate.',
+                     'Content confirmation and send approval remain separate.',
+                     'Submit ContentReview and separately SendApproval',
+                     'read_email(format=raw)',
+                     'download the returned URL and supply exact bytes',
+                     'saved-result readback remains required', 'CRM writes retain readback')
+        for document in plugin.rglob('*.md'):
+            text = document.read_text()
+            require(not any(phrase in text for phrase in forbidden),
+                    f'Conflicting obsolete runtime rule: {document.relative_to(plugin)}')
         print(f'PASS {platform}: {name} {manifest["version"]}; nine English skills (eight workflows + command entry); command routes, references, defaults and payload checked')
     return platform
 

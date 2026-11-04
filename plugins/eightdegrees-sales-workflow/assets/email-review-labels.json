@@ -1,0 +1,34 @@
+{
+  "en": {
+    "approve": "Approve this draft and send in the stated window",
+    "return": "Return for changes",
+    "pause": "Pause",
+    "cancel": "Cancel",
+    "submit": "Submit decision",
+    "status": "Current status",
+    "ready": "Draft ready for one content-and-send review.",
+    "input": "Your input",
+    "meaning": "Approve confirms this exact draft, recipients, materials and send window. It does not approve another version.",
+    "comments": "Revision comments",
+    "placeholder": "Add requested changes here.",
+    "result": "Processing result",
+    "waiting": "Waiting for your decision; no email has been sent.",
+    "receipt": "Sending also records one operational CRM result Note when a real customer record exists; no new customer facts or persona changes are approved."
+  },
+  "zh-CN": {
+    "approve": "\u786e\u8ba4\u8349\u7a3f\u5e76\u6279\u51c6\u6309\u4e0a\u8ff0\u7a97\u53e3\u53d1\u9001",
+    "return": "\u9000\u56de\u4fee\u6539",
+    "pause": "\u6682\u505c",
+    "cancel": "\u53d6\u6d88",
+    "submit": "\u63d0\u4ea4\u5ba1\u6838\u51b3\u5b9a",
+    "status": "\u5f53\u524d\u72b6\u6001",
+    "ready": "\u8349\u7a3f\u5df2\u51c6\u5907\uff0c\u8bf7\u4e00\u6b21\u5ba1\u6838\u5185\u5bb9\u5e76\u51b3\u5b9a\u662f\u5426\u6309\u6240\u793a\u7a97\u53e3\u53d1\u9001\u3002",
+    "input": "\u60a8\u7684\u8f93\u5165",
+    "meaning": "\u6279\u51c6\u5c06\u540c\u65f6\u786e\u8ba4\u672c\u7248\u6b63\u6587\u3001\u6536\u4ef6\u4eba\u3001\u8d44\u6599\u548c\u53d1\u9001\u7a97\u53e3\uff1b\u4e0d\u6279\u51c6\u5176\u4ed6\u7248\u672c\u3002",
+    "comments": "\u4fee\u6539\u610f\u89c1",
+    "placeholder": "\u5982\u9700\u4fee\u6539\uff0c\u8bf7\u5728\u6b64\u586b\u5199\u5177\u4f53\u610f\u89c1\u3002",
+    "result": "\u5904\u7406\u7ed3\u679c",
+    "waiting": "\u7b49\u5f85\u63d0\u4ea4\u5ba1\u6838\u51b3\u5b9a\uff1b\u5c1a\u672a\u53d1\u9001\u90ae\u4ef6\u3002",
+    "receipt": "\u53d1\u9001\u540e\u53ef\u5728\u5df2\u5339\u914d\u7684 CRM \u5ba2\u6237\u4e0b\u8bb0\u5f55\u4e00\u6761\u53d1\u9001\u7ed3\u679c\uff1b\u672c\u6b21\u4e0d\u6279\u51c6\u65b0\u7684\u5ba2\u6237\u4e8b\u5b9e\u6216\u753b\u50cf\u53d8\u66f4\u3002"
+  }
+}

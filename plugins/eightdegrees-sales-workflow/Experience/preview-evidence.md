@@ -1,9 +1,7 @@
-# Saved preview evidence
+# Preview publication
 
-Trigger: a stable `notion-file-block://` source appears but the preview check lacks download evidence. Observation: the 2026-10-30 probe's ORIGINAL fetch already contained `metadata.references`; the test driver inspected only the top level and omitted `embedded_asset`. The installed HTML checker already supported the nested map. The reported Notion capability failure was withdrawn. Correcting evidence assembly made the original HTML pass; this was a follow-up, not a rerun of the full suite.
-
-Action: preserve the actual fetch envelope, inspect both references locations and resolve the exact saved native source. Use `preview-reference`, download the returned URL and supply exact bytes to the appropriate preview check. Missing downloaded evidence is different from a missing connector mapping. Nonempty unrelated top-level references do not override nested ones; conflicting maps fail. Expired/denied downloads remain unresolved until an actual authorized fresh download succeeds. Never manufacture a filename/ID mapping or weaken a check to close a task.
-
-For image review, use [image-preview](../references/image-preview.md): render the SAME frozen HTML with real browser provenance, save a native PNG, fetch its actual mapping and compare downloaded PNG bytes/dimensions to the renderer manifest. The live probe succeeded. A screenshot hash alone does not prove it is on the saved page or agrees with editable copy. Keep original HTML and asset bindings, inspect pixels, preserve pause/stop, and leave prior invalid review decisions unusable.
-
-Verification: check original HTML bytes, saved source/map and actual downloaded image bytes independently; record the failed historical attempt and later correction separately. Do not call local browser rendering proof of cloud runtime readiness. This card distributes no customer IDs, content, signed links or credentials.
+Render the exact local HTML once and upload its native preview. Confirm original
+asset/page API acknowledgements; no saved-map lookup or downloaded-byte comparison.
+The single email-review-v2 form shows that frozen copy/preview and recipients/
+window. A missing preview is one scoped issue; edits need a new version.
+See [current email flow](../references/email-flow.md).

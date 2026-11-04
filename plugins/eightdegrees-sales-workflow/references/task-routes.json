@@ -1,27 +1,199 @@
 {
-  "VerifyCustomer": {"owner": "eightdegrees-communication-context-process", "categories": ["ClientMatching"], "effect": "read"},
-  "CompleteCommunicationData": {"owner": "eightdegrees-communication-context-process", "categories": ["DataCompletion", "ExecutionExceptions"], "effect": "draft"},
-  "ReviewCommunication": {"owner": "eightdegrees-communication-context-process", "categories": ["ContentReview", "ExecutionExceptions"], "effect": "crm"},
-  "SyncApprovedPersona": {"owner": "eightdegrees-client-persona-update", "categories": ["ExecutionExceptions"], "effect": "crm"},
-  "RecoverSourceHandoff": {"owner": "eightdegrees-email-scanning", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "checkpoint"},
-  "ReadMessageBody": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions"], "effect": "read"},
-  "SaveMailCheckpoint": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions"], "effect": "checkpoint"},
-  "ReviewGeneralReply": {"owner": "eightdegrees-email-scanning", "categories": ["ContentReview"], "effect": "draft"},
-  "SendGeneralReply": {"owner": "eightdegrees-email-scanning", "categories": ["SendApproval", "ExecutionExceptions"], "effect": "customer-send"},
-  "ResolveProjectSources": {"owner": "eightdegrees-sales-reply", "categories": ["DataCompletion", "ContentReview", "ExecutionExceptions"], "effect": "draft"},
-  "ReviewReplyDraft": {"owner": "eightdegrees-sales-reply", "categories": ["ContentReview"], "effect": "draft"},
-  "SendApprovedReply": {"owner": "eightdegrees-sales-reply", "categories": ["SendApproval", "ExecutionExceptions"], "effect": "customer-send"},
-  "ValidateSetupInput": {"owner": "eightdegrees-initialization", "categories": ["DataCompletion", "ExecutionExceptions"], "effect": "setup"},
-  "PrepareSmsFollowUp": {"owner": "eightdegrees-sms-follow-up", "categories": ["DataCompletion", "ContentReview", "ScheduledWork"], "effect": "draft"},
-  "SendApprovedSms": {"owner": "eightdegrees-sms-follow-up", "categories": ["SendApproval", "ExecutionExceptions"], "effect": "customer-send"},
-  "BuildDailyBrief": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["ExecutionExceptions"], "effect": "report"},
-  "CreateConfirmedAppointment": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["DataCompletion", "ContentReview", "ExecutionExceptions"], "effect": "calendar"},
-  "NotifyImportantReminder": {"owner": "eightdegrees-daily-brief-and-handover", "categories": ["ExecutionExceptions"], "effect": "internal-notification"},
-  "RecordSendReceipt": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
-  "RecordGeneralSendReceipt": {"owner": "eightdegrees-email-scanning", "categories": ["ExecutionExceptions", "ContentReview"], "effect": "crm"},
-  "RecordMaterialHandoff": {"owner": "eightdegrees-sales-reply", "categories": ["ExecutionExceptions"], "effect": "draft"},
-  "SendNotificationSms": {"owner": "eightdegrees-sms-follow-up", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "customer-send"},
-  "RefreshEmailOutcome": {"owner": "eightdegrees-sales-reply", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "presentation"},
-  "RefreshSmsOutcome": {"owner": "eightdegrees-sms-follow-up", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "presentation"},
-  "RefreshContactRestrictions": {"owner": "eightdegrees-email-scanning", "categories": ["ScheduledWork", "ExecutionExceptions"], "effect": "presentation"}
+  "VerifyCustomer": {
+    "owner": "eightdegrees-communication-context-process",
+    "categories": [
+      "ClientMatching"
+    ],
+    "effect": "read"
+  },
+  "CompleteCommunicationData": {
+    "owner": "eightdegrees-communication-context-process",
+    "categories": [
+      "DataCompletion",
+      "ExecutionExceptions"
+    ],
+    "effect": "draft"
+  },
+  "ReviewCommunication": {
+    "owner": "eightdegrees-communication-context-process",
+    "categories": [
+      "ContentReview",
+      "ExecutionExceptions"
+    ],
+    "effect": "crm"
+  },
+  "SyncApprovedPersona": {
+    "owner": "eightdegrees-client-persona-update",
+    "categories": [
+      "ExecutionExceptions"
+    ],
+    "effect": "crm"
+  },
+  "RecoverSourceHandoff": {
+    "owner": "eightdegrees-email-scanning",
+    "categories": [
+      "ScheduledWork",
+      "ExecutionExceptions"
+    ],
+    "effect": "checkpoint"
+  },
+  "ReadMessageBody": {
+    "owner": "eightdegrees-email-scanning",
+    "categories": [
+      "ExecutionExceptions"
+    ],
+    "effect": "read"
+  },
+  "SaveMailCheckpoint": {
+    "owner": "eightdegrees-email-scanning",
+    "categories": [
+      "ExecutionExceptions"
+    ],
+    "effect": "checkpoint"
+  },
+  "ReviewGeneralReply": {
+    "owner": "eightdegrees-email-scanning",
+    "categories": [
+      "ContentReview"
+    ],
+    "effect": "draft",
+    "legacy_only": true
+  },
+  "SendGeneralReply": {
+    "owner": "eightdegrees-email-scanning",
+    "categories": [
+      "SendApproval",
+      "ExecutionExceptions"
+    ],
+    "effect": "customer-send"
+  },
+  "ResolveProjectSources": {
+    "owner": "eightdegrees-sales-reply",
+    "categories": [
+      "DataCompletion",
+      "ContentReview",
+      "ExecutionExceptions"
+    ],
+    "effect": "draft"
+  },
+  "ReviewReplyDraft": {
+    "owner": "eightdegrees-sales-reply",
+    "categories": [
+      "ContentReview"
+    ],
+    "effect": "draft",
+    "legacy_only": true
+  },
+  "SendApprovedReply": {
+    "owner": "eightdegrees-sales-reply",
+    "categories": [
+      "SendApproval",
+      "ExecutionExceptions"
+    ],
+    "effect": "customer-send",
+    "approval_contract": "email-review-v2"
+  },
+  "ValidateSetupInput": {
+    "owner": "eightdegrees-initialization",
+    "categories": [
+      "DataCompletion",
+      "ExecutionExceptions"
+    ],
+    "effect": "setup"
+  },
+  "PrepareSmsFollowUp": {
+    "owner": "eightdegrees-sms-follow-up",
+    "categories": [
+      "DataCompletion",
+      "ContentReview",
+      "ScheduledWork"
+    ],
+    "effect": "draft"
+  },
+  "SendApprovedSms": {
+    "owner": "eightdegrees-sms-follow-up",
+    "categories": [
+      "SendApproval",
+      "ExecutionExceptions"
+    ],
+    "effect": "customer-send"
+  },
+  "BuildDailyBrief": {
+    "owner": "eightdegrees-daily-brief-and-handover",
+    "categories": [
+      "ExecutionExceptions"
+    ],
+    "effect": "report"
+  },
+  "CreateConfirmedAppointment": {
+    "owner": "eightdegrees-daily-brief-and-handover",
+    "categories": [
+      "DataCompletion",
+      "ContentReview",
+      "ExecutionExceptions"
+    ],
+    "effect": "calendar"
+  },
+  "NotifyImportantReminder": {
+    "owner": "eightdegrees-daily-brief-and-handover",
+    "categories": [
+      "ExecutionExceptions"
+    ],
+    "effect": "internal-notification"
+  },
+  "RecordSendReceipt": {
+    "owner": "eightdegrees-sales-reply",
+    "categories": [
+      "ExecutionExceptions",
+      "ContentReview"
+    ],
+    "effect": "crm"
+  },
+  "RecordGeneralSendReceipt": {
+    "owner": "eightdegrees-email-scanning",
+    "categories": [
+      "ExecutionExceptions",
+      "ContentReview"
+    ],
+    "effect": "crm"
+  },
+  "RecordMaterialHandoff": {
+    "owner": "eightdegrees-sales-reply",
+    "categories": [
+      "ExecutionExceptions"
+    ],
+    "effect": "draft"
+  },
+  "SendNotificationSms": {
+    "owner": "eightdegrees-sms-follow-up",
+    "categories": [
+      "ScheduledWork",
+      "ExecutionExceptions"
+    ],
+    "effect": "customer-send"
+  },
+  "RefreshEmailOutcome": {
+    "owner": "eightdegrees-sales-reply",
+    "categories": [
+      "ScheduledWork",
+      "ExecutionExceptions"
+    ],
+    "effect": "presentation"
+  },
+  "RefreshSmsOutcome": {
+    "owner": "eightdegrees-sms-follow-up",
+    "categories": [
+      "ScheduledWork",
+      "ExecutionExceptions"
+    ],
+    "effect": "presentation"
+  },
+  "RefreshContactRestrictions": {
+    "owner": "eightdegrees-email-scanning",
+    "categories": [
+      "ScheduledWork",
+      "ExecutionExceptions"
+    ],
+    "effect": "presentation"
+  }
 }

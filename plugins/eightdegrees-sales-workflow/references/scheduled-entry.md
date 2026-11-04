@@ -1,70 +1,33 @@
-# Fresh rules on every native wake
+# Current native entry
 
-Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+Each native wake resolves the installed package and runs current_rules.py.
+Use current rule_version/hash; old chat and deprecated executor/lifecycle fields
+do not override these files. Enter email-scanning directly under
+scheduled-approved-work, not start/stop management or public command dispatch.
 
+1. Read RunSettings FIRST; scan.entry and the current scan-control-v1 guard
+   honor real stop/revocation. A stopped tick exits quietly before discovery,
+   logs or business work. Native management availability, native_runtime_verified,
+   host/thread identity and global serial proofs are not execution conditions.
+2. Discover scoped new mail, current active form submissions, controls, due work
+   and saved recovery. Use complete cursor/pagination coverage for mail/actions/
+   control/scheduled/recovery plus necessary sources. Missing coverage has its
+   actual feed/failure/recovery pointer; no fabricated complete baseline and no
+   permanent NeedsBaseline latch. Idle requires complete discovery and no work.
+3. scan.queue/backlog.recover retain all original pending handoffs, ready work
+   and due events even with unchanged mail/index/rows. Reuse source/task IDs and
+   prior provider attempts. Do not mark stored source as a completed successor.
+   Use [email-flow](email-flow.md) for new inquiries and combined decisions.
+   Preparing an inquiry uses project cache, one CRM match and one review, not
+   repeated owner plans/checkpoint fetches. Stops precede ordinary work.
+4. Outside send windows continue intake, cache refresh and drafting; only
+   dispatch waits. One customer's missing file, channel or old project stop
+   does not block unrelated work. Accepted/pending/unknown attempts never replay.
+5. Save compact cycle.metrics with discovered events, backlog, executed steps,
+   human waits, concrete blocks, duration and next pointers. Timer fired, guard
+   passed and business progressed are separate facts. Deduplicate fault notices.
 
-This is an internal entry, not another public command. A native heartbeat goes
-directly to eightdegrees-email-scanning with scheduled-approved-work. Do not
-route it through automation-control, start/stop, or the public run-auto policy.
-
-1. Resolve the currently installed package, not a version path cached in old
-   chat text. Run `scripts/current_rules.py` from that package on every wake;
-   read its current files and retain actual rule_version/rule_sha256. Load the
-   current scanner and scheduled guard even in a long-running upgraded chat.
-   Historical chat advice and legacy fields cannot supersede these rules.
-2. Read original RunSettings FIRST. scan.entry and the current schedule guard
-   determine execution from scan_control and current root/operator/mailbox.
-   Explicit stop and actual account revocation remain effective. If stopped,
-   exit without discovery or business/log writes. A task being ACTIVE never
-   overrides a real stop. Native management availability, executor identity,
-   bound thread/host, global serialization, native_runtime_verified and other
-   management acceptance flags are not execution gates. Report an actual
-   failing guard result, not a new prerequisite invented from old context.
-3. Discover current scoped mail, submitted actions, control, due scheduled
-   work, recovery pointers and necessary source metadata. Retain complete
-   pagination evidence. Use scan.probe with all real observations. Commit its
-   candidate index and baseline projection together. Complete/NeedsBaseline
-   comes from coverage, never from a permanent setup latch. Missing coverage
-   gets its feed, exact failure and recovery action; work independent of that
-   gap still proceeds. Preserve original backlog, cursors and provider attempts.
-4. Always consider pending events, even with unchanged mail/index/task status.
-   Run scan.queue on the original saved EventIndex plus current complete task/source captures. Pass its entire result as queue_plan to every scan.cycle; never hand-select just the first owner's tasks. All pending mail, submissions, due and recovery events must be accounted for as ready, actual human wait, scoped block or original terminal readback. Enqueue validated automatic preparation from scan.watches.ready_task_records even when its row did not change; pass those records and ready_task_blocks to scan.probe.
-   Run backlog.recover over complete original source/task captures. Reuse saved
-   source pages; RecoverSourceHandoff repairs a missing successor separately
-   from an already completed ReadMessageBody. Read only sources not yet saved.
-   Use intake.plan on a prospective current checkpoint, persist, confirm its original API acknowledgement and run
-   intake.verify(checkpoint_record/checkpoint_write) before dependent sales preparation. Register/reuse the original
-   successor task and its review/input wake pointer before acknowledging mail.
-   Continue matching, authorized project parsing and draft preparation to the
-   exact review or missing-information boundary within this cycle's budget.
-   No additional continue command. Failed, waiting or completed unrelated
-   customer/channel/project work never becomes a global blocker.
-5. Sending windows limit dispatch only. Intake, project facts and review
-   preparation can run outside a window. Preserve exact email/CRM version
-   approval, standing factual-SMS authority, channel/stop/time/count checks and
-   original AttemptId. Accepted/unknown effects cannot be sent again. Reconcile
-   our records and CRM; do not poll Gmail/AndroidSync delivery status.
-6. Save cycle.metrics using actual receipts, clocks, waits, concrete blocks and
-   next recovery pointers. Separate timer_trigger_verified, guard_passed and
-   business_progress. No ready progress means a concrete scoped blocker and
-   resume action, never silent no-change. Deduplicate fault notification by
-   source/code/resume/revision, saving notice keys only after actual notification.
-   ScanIdle requires complete discovery and no ready work; genuine human waits
-   and future due work wait on their actual saved pointers.
-
-After restart, run one current discovery/recovery cycle from saved checkpoints;
-do not replay each missed interval. Old native tasks are reused, never cloned.
-If a host cannot load the fresh entry, record that deployment limitation and do
-not claim cross-version or native-cycle acceptance from an offline helper test.
-
-A large draft phase that does not fit must not hide fitting mail or a due brief. scan.queue constructs the full candidate set and scan.cycle merges missing candidates automatically, preserving scopes/attempts. Save every remaining checkpoint pointer, not only the current owner's next task. Previously admitted Gmail pending IDs remain demand if an unchanged UNREAD filter no longer lists them; recover the saved source/original ID within its still-authorized scope. Explicit stop/revocation remains binding.
-
-Use the actual package_root returned by current_rules.py for this wake's local helpers, not a cached path from an older chat. Re-resolve the current package on the next native wake. Execute ordinary package upgrades between active cycles when practical; do not rewrite frozen business approvals or existing attempt records.
-
-Apply the current [inquiry intake rules](inquiry-intake.md) to newly admitted mail: add the inquiry classification label after content discovery, without requiring it for reads. Resolve names by matched CRM, current signature, From name, then anonymous Dear Customer plus a name question. Name-only differences cannot block a uniquely verified CRM association.
-
-Current rule output is compact: it reads/fingerprints every governing file but
-prints only current operational Markdown, paths and digests. Do not reread Python
-source merely to understand a passing guard/check. Execute current helpers from
-package_root; use --full only for a concrete code-debugging problem. No previous
-chat, stored permission or cross-cycle approval cache substitutes for fresh rules.
+No new input/submission/due/recovery means immediate idle; no history/Health
+sweep. Restart from one current saved checkpoint discovery, not every missed
+interval. Existing native tasks are reused and never cloned. Public run-auto
+retains its own policy; explicit no-send/report/draft restrictions stay effective.

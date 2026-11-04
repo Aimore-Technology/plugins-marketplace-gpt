@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run local checks using one original capture bundle; never call any connector."""
+"""Run local checks and private project-cache operations; never call a connector."""
 
 import argparse
 import copy
@@ -39,8 +39,21 @@ import queue_construction
 import inquiry_intake
 import communication_intake
 import api_result
+import email_flow
+import project_cache
 
 OPERATIONS = {
+    "notification.dispatch": sms_authority.dispatch,
+    "project.cache-put": project_cache.put,
+    "project.cache-get": project_cache.get,
+    "project.cache-catalog": project_cache.catalog,
+    "project.cache-match": project_cache.match,
+    "project.cache-invalidate": project_cache.invalidate,
+    "email.prepare": email_flow.prepare,
+    "email.review": email_flow.render,
+    "email.accept": email_flow.accept,
+    "email.dispatch": email_flow.dispatch,
+    "email.complete": email_flow.complete,
     "write.confirm": api_result.confirm,
     "communication.read-plan": communication_intake.plan,
     "communication.note": communication_intake.note,
@@ -104,7 +117,9 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"APIWriteConfirmed", "CommunicationReadPlanPrepared", "CommunicationNotePrepared","InquiryNameResolved", "InquiryLabelPlanned","ReadyQueueConstructed", "ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
+PASSED = {"SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
+          "ProjectCatalogLoaded", "ProjectMatched", "NeedsProjectSelection", "ProjectCacheInvalidated",
+          "SingleEmailReviewPrepared", "SingleEmailReviewRendered", "EmailDecisionAccepted", "EmailRevisionRequired", "EmailDispatchDeferred", "EmailDispatchPrepared", "EmailRecordingPending", "EmailHandoffRecorded", "APIWriteConfirmed", "CommunicationReadPlanPrepared", "CommunicationNotePrepared","InquiryNameResolved", "InquiryLabelPlanned","ReadyQueueConstructed", "ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
           "PreflightPrepared", "ExecutionPlanReady", "ValidFactSemantics", "OutcomeProjectionsVerified",
           "CurrentOutcomeDisplayVerified", "OperatorFeedbackReady", "ReviewBriefReady", "OperatorResultsReady",
@@ -163,7 +178,7 @@ def run(plan, captures):
     return {"status": "LocalChecksPassed" if passed else "NeedsCorrection",
             "checks": list(results.values()), "capture_hashes": hashes, "capture_references": references,
             "distinct_captures_used": len(hashes), "checks_requested": len(checks), "checks_run": len(results),
-            "scope": "Local selected checks only; no connector I/O, cross-invocation cache, approval, mutation or historical order proof"}
+            "scope": "Local checks and private project material cache only; no connector I/O, inferred approval, provider mutation or historical order proof"}
 
 
 def main():

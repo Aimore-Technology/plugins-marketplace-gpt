@@ -27,7 +27,7 @@ Without a running schedule, public run-auto processes the same queue once.
    its actual page_id/cycle_key/location_id/contact_id/context_key/material_events,
    active, total_count and unknown_attempt=false; include actual stop/manual_pause,
    maximum_count and state when recorded. Supply real observations,
-   not fabricated verification flags. Preserve the input for same-phase readback.
+   not fabricated verification flags. Preserve the prepared input and original API acknowledgement.
    For new inquiries also supply saved_settings (the actual RunSettings fetch),
    observed_at and event.source_message_id (the original incoming inquiry,
    distinct from the outgoing Gmail message_id). Register enquiries[context_key]
@@ -65,15 +65,9 @@ Without a running schedule, public run-auto processes the same queue once.
    attribution is targeted recovery, never a zero-count reset.
 7. Fetch the saved email task and cycle. Run `material_handoff.py verify` with
    input=<frozen plan input>, saved_email_task and saved_cycle as their actual
-   original Notion fetches (saved_cycle is omitted only for explicit nonmaterial NotApplicable). It checks exact persisted blocks, original email
-   target and same cycle page for reuse. Require exit 0/MaterialHandoffVerified;
-   ordinary owner publication checks additionally cover the task/action/binding.
-   A distinct recovery also supplies saved_recovery_task, targeting its own
-   completion as specified in [record contracts](record-contracts.md), without
-   retargeting the original event. Include both saved projection pages.
-   Freeze this as kind=material-handoff on the original email task in the sales
-   send plan, alongside verified draft/provider-handoff and CRM receipt checks. A blocked
-   but verified handoff is valid registration, never successful SMS delivery.
+   original API responses via email_write/cycle_write. The local helper checks
+   the prepared source/context/count plan and actual returned record identities;
+   it does not fetch or compare persisted bodies.
 
 ## Saved new-context initiation and scope
 
@@ -146,8 +140,7 @@ attempt/outcome/request. The original material-handoff-v1 must bind the same
 root/email/provider message/context/customer/event/cycle and current source
 authorization. A genuine stop, cap, unknown/reserved slot or different original
 never qualifies. Keep old failure history and patch only the current registration;
-preserve page/key, email handoff and CRM receipt. Verify the updated email/cycle
-readbacks before clearing the blocker. Then the ordinary shared queue handles
+preserve page/key, email handoff and CRM receipt. Confirm the original updated email/cycle API responses before clearing the blocker. Then the ordinary shared queue handles
 the due notification; no new email, duplicate receipt, SMS approval or user
 continue command. This recovery also requires current unexpired authorization;
 do not silently extend an expired one-off window.
@@ -176,7 +169,7 @@ New material_receipt/follow_up_notice freezes through sms.prepare/verify with
 material_handoff={input,saved_email_task,saved_cycle}, using actual original
 registration captures. The frozen notification includes material_limits; it
 cannot be stripped to fall back to the shared cap. Before dispatch, use
-material.dispatch-guard or the integrated dispatch.admit/dispatch.prepare guard.
+material.dispatch-guard or the short notification.dispatch guard.
 
 Input is limits, cycle_page_id (from material.verify), saved_cycle (the original
 current cycle fetch), now and optional attempt_id. Read its one

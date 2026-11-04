@@ -1,54 +1,18 @@
-# Publish current Notion state
+# Publish only affected records
 
-Apply [current API result policy](api-result-policy.md). Routine successful writes need only acknowledgement and record IDs, including CRM; older body/readback comparisons below apply only to frozen history or explicit diagnostics.
+For normal mail use [email-flow](email-flow.md). Keep one original Inbox source,
+one canonical task and one active combined review page; a read-only preview may
+be embedded there. Use real registered IDs/schemas and targeted mutations,
+retaining native children, user inputs and historical bindings.
 
+Run notion.mutation on the exact proposed call once before each write. Update
+one current status/result at the phase boundary, not per thought/read/helper.
+A successful API acknowledgement and record ID complete publication. No body,
+asset download or final-state readback. Reuse the submitted projection locally
+until a relevant external edit needs a current observation. Today linked views
+follow canonical records; do not rebuild the dashboard for each inquiry.
 
-Use when an owner changes task state/version, creates a preview or publishes a report. These are workflow steps in the existing Skill Pack, not a new runtime. The read-only [publication helper](../scripts/notion_checks.py) plans exact status patches and checks saved preview evidence/report mutation scope. It never calls a connector, grants approval or enforces a server-side boundary. Perform the same checks manually if Python is unavailable and disclose that scope.
-
-Run `python3 <plugin>/scripts/notion_checks.py <section-patch|preview|report-write> --input <capture.json>` (or `--input -` with JSON on stdin). Inspect the JSON status: PatchPlanned is only a proposed edit; NoChange needs no write; SavedEmbedAndBytesMatch is limited evidence; WithinReportScope is only a target comparison. NeedsCorrection and Deferred return exit code 2 and must not be bypassed by changing the evidence/registry. Keep captures outside plugin repositories.
-
-For actual enum preflight, typed saved-page checks, whole-current-form consistency and completion gating, use [publication validation](publication-validation.md). These checks precede completion/final Success registration; never mark completed first and correct it afterward.
-
-## Finish a transition, including its display
-
-Verified operator_experience.today_mode=linked-views uses [Today](operator-experience.md)
-over canonical task rows. Update/read back changed task/action binding and state;
-do not rewrite/read old Actions history or copy another queue snapshot. Today
-stays outside unchanged owner publication targets. Queue-copy instructions below
-apply only to installations still using the legacy manual-link queue.
-
-Every owner transition persists accepted input/attempt and actual result, saves canonical task state/version/action binding, refreshes the task's single current summary and registered action status/result, and verifies changed saved records before returning links. Refresh the Actions current queue only in legacy queue mode. This applies to submission accepted/rejected, Return, Pause/Postpone, Cancel, completion, supersession and new action registration. Do not wait for init or report to fix stale canonical navigation.
-
-Summaries show current business state, version, next action and actual result. A Completed data task says information registered, not waiting for input. A recorded decision awaiting execution says that; it does not claim provider success. Pause is a Decision, not a new State option. Derive paused/postponed display from the actual State plus Decision and binding. Keep answers and historical decisions unchanged. A display failure leaves a presentation repair outstanding, never reverses a successful external result and never causes another CRM append/send. On recovery, reuse the accepted snapshot and actual provider ID and repair only missing projections. Record quality failure if consistency cannot be saved; do not claim completion of publication.
-
-Use a short, uniquely named H2 current-status section, separate from input controls/history. The packaged action layout supplies this section. For existing pages, fetch the original first, identify the real workflow-owned block, and make one supported targeted edit; do not invent a marker or replace user input. `section-patch` accepts `page` (actual fetch), `heading` (actual localized H2 title) and `replacement` (the complete replacement section, starting with that same H2). It returns exact `old_str`/`new_str`, NoChange, or NeedsCorrection. Reuse the returned strings without model paraphrasing; plan again from a fresh fetch after a mismatch. The helper refuses changed sections containing native references (including mentions/dates/media), repeated headings or controls/native children; an exact occurrence in fetched Markdown does not make a native-reference section a safe connector anchor. Use independent plain-text status/result sections or an actually supported smaller block edit. It does not apply the patch or check factual prose. A missing/unsafe legacy section needs a supported smaller edit or explicit setup repair, not append-another-current-section.
-
-## Legacy mode: one Actions queue, history below it
-
-Keep ONE current queue, grouped by category, containing each eligible open task's registered current ActionPageURL once. Include Pause/Postpone with an honest business label; exclude completed/cancelled/superseded pages from this queue. Build from canonical saved bindings, not a growing list of created page links. With partial candidate coverage, update only verified entries, retain unexamined entries as unverified and disclose incomplete coverage; do not erase them or claim an empty queue.
-
-On every new version, swap the original task's queue entry to the newly registered action page in the same owner invocation. Retain all old page IDs, child-page tags, answers and approval evidence. Put workflow-created historical link lists beneath an explicit history heading, preferably a native Notion toggle using the CURRENT documented toggle syntax. Rename old workflow-owned headings such as Current operation to Historical operation; do not leave many apparently active queues below the current one. Native child pages may remain in that history area; preserve their exact tags. Do not use HTML details/div containers or delete children. If safely collapsing old history is unsupported, label the whole area and its stale workflow-owned headings as historical and report the remaining layout limitation.
-
-## Saved preview is a review prerequisite
-
-Use [preview evidence](../Experience/preview-evidence.md) before diagnosing a mapping failure and [image preview](image-preview.md) for the executable PNG path. `preview-reference` resolves only an actual saved native source from either references location, rejects conflicting mappings and returns DownloadRequired. It is a download plan, never a passed preview check. `preview-image` verifies captured render provenance and downloaded saved PNG identity; its SavedImageAndBytesMatch result uses a distinct version/hash-bound completion kind.
-
-An upload response, raw `file-upload://` URI, download hash or external screenshot is not a saved Notion preview. Use the tool's exact HTML embed placement syntax (currently an embed block with the returned source), then fetch the actual preview page before creating an actionable content/send review. Confirm the native block refers to the frozen file and download the exact asset to verify its bytes/digest. Never double-decode JSON or replace literal backslash sequences in HTML. Save PreviewPageURL, native block/source, HTML ID/digest and observation evidence in the existing version manifest/history; not new operator fields.
-
-`preview` accepts `page` (actual saved fetch), `html_file_id`, `html_sha256` and `download` (original tool result or its exact JSON payload). SavedEmbedAndBytesMatch checks a saved native embed and matching frozen HTML bytes only. It is not copy/HTML synchronization, host visual, operator approval or delivery evidence. If the host returns a stable notion-file-block source, fetch with include_file_urls=true (or resolve that exact reference with the documented file tool), then download only its actual returned URL. Supply optional embedded_asset with source, resolved_url and content_base64 of those exact downloaded bytes. The helper requires the source to be present in a saved embed, the exact URL in the original fetch references map (including metadata.references) and the embedded bytes to match the frozen HTML digest. It also verifies the original HTML upload download. Never infer this mapping from a filename, double-decode downloaded content or store signed URLs in operator UI/log summaries. A denied/expired download stays pending; refresh the authorized reference once rather than guess a URL. A documented same-file image/PDF fallback needs its own original render-source/asset mapping, saved block and readback evidence. A plain file link or screenshot from unrelated bytes is insufficient.
-
-Missing/mismatched preview keeps the draft pending; preserve copy/comments and expose only a non-approvable recovery explanation. Do not accept Confirm/Approve for that version. If discovered after review, retain the old decision as historical unusable-for-send evidence; the owner prepares a fresh synchronized review version/page after repair, with blank choices. A report merely records this issue and the next owner action; it cannot repair the preview, invalidate approvals or start a new review itself. Existing stop/Pause remains effective.
-
-## Report-only preflight
-
-At report entry, freeze an invocation registry from actual settings/report records: existing daily brief/batch-report IDs, this report's own WorkflowRuns page IDs and the OperationLogs data-source IDs. Task, action, draft, preview, Actions hub and HealthStatus IDs are NOT report targets. Never add one just to pass a check. For a genuinely new report, register the exact permitted parent/title only after complete discovery proves absence; preserve the existing uniqueness rules. Register a returned new report ID before its next update.
-
-Before EACH planned mutation, compare target and operation to that registry. Use `report-write` with `registry` and the actual proposed `call` (`tool`, `args`). Its registry keys are `report_page_ids`, `report_run_page_ids` and `operation_log_source_ids`. Existing report pages may receive targeted content/metadata updates; report runs may receive only their own status/result/finish/progress summary; required logs may be appended under OperationLogs. To create this report's own run, additionally supply actual `workflow_run_source_ids` and one invocation-specific `report_run_id`; the request must carry that exact RunId and Skill=eightdegrees-daily-brief-and-handover. Register the returned run page ID before updating it. First report creation uses optional `report_creations` entries with exact `parent_page_id` and `title`, or `parent_data_source_id`, actual title_property (Name/title) and exact title for a DailyBriefs data-source row. Unsupported representations stay deferred for schema adaptation. The helper defaults to Deferred for unsupported writes, attachment/preview creation, templates, whole-page replacement, schema/view/navigation changes and all provider/business operations. A passing result is a scope comparison, not authorization or proof the call succeeded.
-
-If report discovers any business/presentation defect outside its records, describe it and link the existing owner task/action plus the recommended separate command. Do not call the owner as a child of report, mutate task history, consume a checkbox or mark the underlying issue resolved. Correct report-owned links/text within scope. If its own report cannot be updated safely, retain a local report/actual error and leave publication incomplete. Audit actual mutations against the same frozen registry at exit; later passing report calls do not erase an earlier boundary violation.
-
-## Current tool schemas and links
-
-Read current tool metadata and the real Notion Markdown specification once when needed. Use only documented notion://docs identifiers; do not probe guessed docs URLs. Fetch a data source before DDL; map logical text to its actual supported type (currently RICH_TEXT), preserve all select/status options and add only missing columns. Serialize only short plain text into error-summary/OperatorInput fields; detailed JSON stays fenced in log/history body. A rejected write is not partial success unless verified from the original record. Dropbox metadata uses the discovered current argument (currently path_or_file_id), not a remembered key.
-
-Use native mentions for verified Notion references, literal code for file/Skill names and explicit Markdown links for external URLs. Do not concatenate naked URLs with prose/semicolons. Run raw-Markdown checks before publishing and typed page-links checks on actual saved page content, keeping database/view/schema descriptions out of page coverage; a detected issue remains open until exact repair/readback. Reuse each page snapshot within an invocation; reread only when changed, warned, needed by the next decision or for this final consistency gate. Do not scan unchanged historical pages repeatedly to obtain the same quality result.
+Manual Notes/legacy repair may use their scoped execution.prepare/owner-write
+contracts with API receipts. report keeps its narrow registered report scope
+and cannot mutate business tasks or send. Publication failure preserves prior
+provider effects and saves only a scoped recovery pointer.

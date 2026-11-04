@@ -1,4 +1,8 @@
-# Prepare once, persist, execute
+# Other-owner and legacy repair preflight
+
+Normal inquiry email uses [email-flow](email-flow.md), without these extra owner
+plan stages. This resource covers manual CRM/other-owner work and explicit
+legacy repair only.
 
 Use [API results/minimal reads](api-result-policy.md). New execution.prepare plans
 are execution-api-v1. Preparation validates proposed facts, Notion values,

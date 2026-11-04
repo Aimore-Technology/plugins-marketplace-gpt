@@ -4,11 +4,11 @@ import hashlib
 import json
 from pathlib import Path
 
-FILES = ('references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
+FILES = ('references/email-flow.md', 'references/project-cache.md', 'scripts/email_flow.py', 'scripts/project_cache.py', 'references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
          'references/scheduled-work.md', 'references/schedule-execution.md',
          'scripts/schedule_checks.py', 'scripts/scan_control.py', 'scripts/event_probe.py',
          'scripts/backlog_recovery.py', 'scripts/queue_construction.py', 'scripts/scan_cycle.py', 'scripts/cycle_metrics.py')
-ENTRY_FILES = tuple(name for name in FILES if name.endswith('.md'))
+ENTRY_FILES = ('references/email-flow.md', 'references/scheduled-entry.md', 'references/api-result-policy.md', 'skills/eightdegrees-email-scanning/SKILL.md')
 
 
 def load(data=None):
@@ -31,6 +31,9 @@ def load(data=None):
                                   'bytes': len(body.encode()), 'path': str(root/name)}
                            for name, body in captures.items()},
             'code_output': bool(data.get('include_code')),
+            'email_policy': {'contract': 'email-flow-v2', 'approval_contract': 'email-review-v2',
+                             'human_reviews': 1, 'crm_write_readback_required': False,
+                             'project_cache_ttl_seconds': 86400},
             'owner': 'eightdegrees-email-scanning', 'policy': 'scheduled-approved-work',
             'scope': 'Actual installed files read on this wake; no approval or scheduler identity requirement'}
 

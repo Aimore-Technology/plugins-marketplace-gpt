@@ -289,8 +289,21 @@ def saved_record(capture, expected):
 
 def verify(data):
     expected = plan(data["input"])["record"]
-    email_id = saved_record(data["saved_email_task"], expected)
-    cycle_id = saved_record(data["saved_cycle"], expected) if expected["material"] else None
+    if 'email_write' in data:
+        from api_result import confirm
+        email_receipt = confirm({**data['email_write'], 'service': 'notion', 'expected_id': expected['email_task_id']})
+        if email_receipt['status'] != 'APIWriteConfirmed':
+            raise ValueError('Original email handoff write is unknown')
+        email_id = page_id(email_receipt['record_id'])
+        cycle_id = None
+        if expected['material']:
+            receipt = confirm({**data['cycle_write'], 'service': 'notion'})
+            if receipt['status'] != 'APIWriteConfirmed':
+                raise ValueError('Original follow-up registration write is unknown')
+            cycle_id = page_id(receipt['record_id'])
+    else:
+        email_id = saved_record(data["saved_email_task"], expected)
+        cycle_id = saved_record(data["saved_cycle"], expected) if expected["material"] else None
     if email_id != expected["email_task_id"] or email_id == cycle_id:
         raise ValueError("Handoff must persist on the original email task and its distinct cycle page")
     if expected.get("operation") == "reuse":

@@ -18,7 +18,7 @@ Email approval and CRM fact review remain separate.
   and configured no-send dates. Roll outside-window due work to the next allowed
   time; never send early just to fit. The standing SMS policy includes that
   calendar fallback; an unverified holiday list is disclosed without asking for
-  approval per SMS. Email holiday/date confirmation remains unchanged.
+  approval per SMS. Email date/window approval belongs to its single combined review.
 - Manual and AI related follow-ups count together toward TWO per cycle. One
   active cycle/customer. Repeated material events/resends never reset counts or
   existing due times. Unknown results reserve a slot and block later attempts.
