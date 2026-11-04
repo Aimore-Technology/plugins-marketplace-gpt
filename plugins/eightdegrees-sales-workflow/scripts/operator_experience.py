@@ -170,7 +170,7 @@ def feedback(data):
                 command = "@eightdegrees-sales-workflow run-auto" if route["effect"] != "setup" else "@eightdegrees-sales-workflow init"
             # Legacy Manual sends remain Manual. Do not fabricate a private
             # command or suggest a public scanner that cannot adopt this work.
-    window = data.get("approved_window") or {}
+    window = {} if task.get("ResumeStep") in {"SendApprovedReply", "SendGeneralReply"} else data.get("approved_window") or {}
     if window and stage not in {"completed", "cancelled", "paused", "postponed", "unknown", "external_pending", "stopped_pending"}:
         if (window.get("read_verified") is not True or window.get("content_version") != task.get("ContentVersion")
                 or window.get("task_id") != task["PageId"]):

@@ -41,7 +41,7 @@ def dispatch_input():
     d=captures();a=email_flow.accept(d)
     d.update(policy='one-cycle-approved-work',sender_account=a['package']['manifest']['from_address'],
              controls={k:True for k in ('scan_enabled','channel_enabled','no_reply_or_stop',
-                                        'attempt_clear','approval_current','date_allowed')},
+                                        'attempt_clear','approval_current')},
              attempt_id='one-click-attempt',accepted_input_sha256=a['input_sha256'],
              attempt_write=response(d['task_id']),send_tool='mcp__gmail__send_draft')
     return d
@@ -70,7 +70,7 @@ class ConsentTests(unittest.TestCase):
 
     def test_narrative_or_window_edits_require_new_synchronized_version(self):
         for old,new in [('918,000','900,000'),('receiver@example.invalid','other@example.invalid'),
-                         ('17:00:00','18:00:00')]:
+]:
             d=captures();d['task']['text']=d['task']['text'].replace(old,new,1)
             self.assertEqual(email_flow.accept(d)['status'],'EmailRevisionRequired')
 

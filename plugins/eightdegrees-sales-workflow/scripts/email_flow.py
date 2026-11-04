@@ -45,10 +45,8 @@ def validate(package):
             or package['source_key'] != m['from_address']+':inbound:'+m['reply_message_id']
             or not package.get('operator_id')):
         raise ValueError('Reply differs from its original source/task/version/operator')
-    window = package['window']
-    ZoneInfo(window['timezone'])
-    if moment(window['not_before']) >= moment(window['not_after']):
-        raise ValueError('Invalid visible send window')
+    # Legacy frozen packages retain historical window bytes only; no email
+    # timing/weekday/holiday/expiry condition is derived from them.
     if package.get('package_sha256') != digest({k: v for k, v in package.items() if k != 'package_sha256'}):
         raise ValueError('Frozen local package changed; prepare a new version for review')
     return m, html
@@ -76,7 +74,7 @@ def prepare(data):
                 or preview['draft_binding_sha256'] != draft['draft_binding_sha256']):
             raise ValueError('Use the prepared same-version copy/preview acknowledgements')
     package = {k: copy.deepcopy(data[k]) for k in ('root_id', 'source_page_id', 'source_key',
-               'operator_id', 'window')}
+               'operator_id')}
     if type(data.get('material', True)) is not bool:
         raise ValueError('Record whether this reply actually provides project materials')
     package.update(material=data.get('material', True), receipt_template='send-receipt-v2', record_type=(PLAIN_CONTRACT if data.get('review_ui') == 'legacy-form' else CONSENT_CONTRACT) if plain else CONTRACT, task_page_id=m['task_page_id'], content_version=m['content_version'],
@@ -87,6 +85,10 @@ def prepare(data):
                    labels=LABELS.get(data.get('language', 'en'), LABELS['en']))
     package['action_page_id'] = (m['task_page_id'] if plain and package['record_type'] == CONSENT_CONTRACT
                                  else data['action_page_id'])
+    if package['record_type'] != CONSENT_CONTRACT and 'window' in data:
+        package['window'] = copy.deepcopy(data['window'])
+    if package['record_type'] == CONSENT_CONTRACT:
+        package['timing_policy'] = 'email-immediate-after-approval-v1'
     if not plain:
         package['preview_page_id'] = preview.get('preview_page_id', preview['copy_page_id'])
     package['package_sha256'] = digest(package)
@@ -213,7 +215,7 @@ def accept(data):
     labels = package['labels']
     subject_heading = labels['subject'] if plain else 'Email subject'
     for label, value in [('From', m['from_address']), ('To', m['to']), ('Cc', m.get('cc', '')),
-                         ('Bcc', m.get('bcc', '')), ('Window', window_text(package['window']))]:
+                         ('Bcc', m.get('bcc', ''))]:
         expected = [] if plain and label in {'Cc', 'Bcc'} and not value else ['`'+(value or '(none)')+'`']
         if re.findall(r'^'+label+r': ([^\n]*)$', body.split('## '+subject_heading, 1)[0], re.M) != expected:
             return {'status': 'EmailRevisionRequired', 'send_allowed': False,
@@ -287,12 +289,10 @@ def dispatch(data):
     package = accepted['package']; controls = data['controls']
     if data['sender_account'] != package['manifest']['from_address']:
         raise ValueError('Current authorized sender differs from this approved draft')
-    required = ('scan_enabled', 'channel_enabled', 'no_reply_or_stop', 'attempt_clear', 'approval_current', 'date_allowed')
+    required = ('scan_enabled', 'channel_enabled', 'no_reply_or_stop', 'attempt_clear', 'approval_current')
     if any(controls.get(key) is not True for key in required):
         return {'status': 'EmailDispatchDeferred', 'send_allowed': False, 'reason': 'Current stop/channel/approval/attempt control blocks this item'}
-    now, window = moment(data['now']), package['window']
-    if not moment(window['not_before']) <= now <= moment(window['not_after']):
-        return {'status': 'EmailDispatchDeferred', 'send_allowed': False, 'reason': 'Outside the approved window'}
+    moment(data['now'])  # Observation time is not a sending-hours gate.
     if data.get('attempt_status') not in {None, 'RejectedBeforeDispatch', 'NoEffectVerified'}:
         return {'status': 'EmailDispatchDeferred', 'send_allowed': False, 'reason': 'Preserve the existing accepted/pending/unknown attempt; never resend'}
     if not data.get('attempt_id'):
@@ -305,6 +305,7 @@ def dispatch(data):
     return {'status': 'EmailDispatchPrepared', 'send_allowed': True,
             'call': {'tool': data['send_tool'], 'args': {'draft_id': package['manifest']['draft_id']}},
             'package_sha256': package['package_sha256'], 'attempt_id': data['attempt_id'],
+            'timing_policy': 'email-immediate-after-approval-v1',
             'scope': 'Exact approved draft only; store original Gmail response, then enqueue standing-authorized SMS'}
 
 

@@ -247,7 +247,9 @@ def advance(data):
     for identity, state in states.items():
         if state.get('state') == 'unknown' and identity not in candidates:
             barriers.append({**state, 'key': identity, 'unknown_attempt': True})
-    for item in candidates.values():
+    from email_timing import release as release_email_delay
+    for candidate in candidates.values():
+        item = release_email_delay(candidate)
         identity = key(item)
         if identity in seen:
             continue
@@ -308,7 +310,8 @@ def advance(data):
     work = [] if expired or len(attempted) >= limit else fitting[:1]
     work_items = [{k: v[k] for k in ('source_key', 'step', 'version', 'input_digest', 'attempt_id', 'unknown_attempt',
                                    'due_at', 'waiting', 'stopped', 'priority', 'estimated_seconds', 'scope',
-                                   'recovery_wakeup', 'recovery_due_at') if k in v}
+                                   'recovery_wakeup', 'recovery_due_at', 'legacy_email_due_at',
+                                   'provider_retry_after', 'retry_not_before', 'delay_reason') if k in v}
                   for identity, v in candidates.items() if states.get(identity, {}).get('state') not in {'completed', 'cancelled'} and not finished(v)]
     checkpoint = {'record_type': 'scan-checkpoint-v1', 'root_id': root,
                   'invocation_id': current_id, 'items': states, 'streams': streams,

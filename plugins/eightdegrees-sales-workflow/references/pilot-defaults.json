@@ -1,22 +1,6 @@
 {
   "configuration_version": "pilot-v1",
   "timezone": "Australia/Adelaide",
-  "customer_send_window": {
-    "weekdays": [
-      "MON",
-      "TUE",
-      "WED",
-      "THU",
-      "FRI"
-    ],
-    "start": "10:00",
-    "end": "17:00",
-    "no_send_dates": [],
-    "holiday_list_verified": false,
-    "require_date_confirmation_without_holiday_list": true,
-    "approval_expiry": "send_not_after",
-    "allow_explicit_single_message_window": true
-  },
   "sms_follow_up": {
     "first_delay_minutes": 30,
     "second_delay_hours": 24,
@@ -180,7 +164,11 @@
     "technical_records_on_action_page": false,
     "review_surface": "canonical-task-view",
     "consent_checkbox": true,
-    "separate_submit": false
+    "separate_submit": false,
+    "send_timing": "immediate-after-approval",
+    "send_window_required": false,
+    "date_confirmation_required": false,
+    "approval_time_expiry": false
   },
   "project_cache": {
     "contract": "project-cache-v1",
@@ -189,5 +177,19 @@
     "storage": "private-local-user-state",
     "cache_permissions": false,
     "cache_customer_records": false
+  },
+  "sms_send_window": {
+    "weekdays": [
+      "MON",
+      "TUE",
+      "WED",
+      "THU",
+      "FRI"
+    ],
+    "start": "10:00",
+    "end": "17:00",
+    "no_send_dates": [],
+    "holiday_list_verified": false,
+    "require_date_confirmation_without_holiday_list": true
   }
 }

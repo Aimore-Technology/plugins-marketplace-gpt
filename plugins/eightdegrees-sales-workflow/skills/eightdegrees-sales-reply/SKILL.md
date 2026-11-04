@@ -23,7 +23,7 @@ unchecked new version. reply-draft stops without consuming consent or sending.
 
 On run-auto use the original task capture once with email.accept.
 Persist its exact Approve and stable attempt, then email.dispatch performs one
-final current control/window/attempt check. Use only the emitted stored-draft
+final current control/attempt check. Use only the emitted stored-draft
 call. Old Confirm alone never supplies sending authority; edits require the
 new version with Consent unchecked. No extra continue command or chat confirmation.
 
@@ -35,3 +35,7 @@ CRM/file lookup or multi-page presentation sweep. Source/task/attempt recovery
 never repeats accepted/unknown sends. Manual Notes fact review remains separate
 from this inquiry workflow. Do not create CRM contacts or promise quotations,
 reservations, appointments, payments, signatures or guaranteed handover.
+
+Email has no sending window or date confirmation. Once current consent passes,
+send this same cycle at any hour. Old date fields/approval-window metadata do
+not postpone or expire the unchanged approved reply. SMS alone keeps timing.

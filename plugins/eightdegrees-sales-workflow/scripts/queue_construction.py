@@ -10,6 +10,7 @@ from intake_handoff import source_key
 from notion_checks import page_id
 from scan_control import gate
 from scan_cycle import key, timestamp
+from email_timing import release as release_email_delay, is_email
 
 ROUTES = json.loads((Path(__file__).resolve().parents[1]/'references/task-routes.json').read_text())
 SAFE_PREPARATION = {'read', 'draft', 'checkpoint', 'report'}
@@ -21,18 +22,20 @@ def ready_task_records(rows, issues=None):
     """Current validated preparation is backlog; never synthesize send approval."""
     records = []
     for row in rows:
-        if row.get('Mode') != 'Automatic' or row.get('State') != 'ReadyToValidate':
+        approved_email = (is_email(row) and row.get('State') not in {'Completed', 'Cancelled'}
+                          and ((row.get('Consent') is True or row.get('Consent') == '__YES__') or row.get('Decision') == 'Approve'))
+        if row.get('Mode') != 'Automatic' or (row.get('State') != 'ReadyToValidate' and not approved_email):
             continue
         step = row.get('ResumeStep')
         route = ROUTES.get(step, {})
-        if route.get('effect') not in SAFE_PREPARATION or route.get('owner') != row.get('OwnerSkill'):
+        if (route.get('effect') not in SAFE_PREPARATION and not approved_email) or route.get('owner') != row.get('OwnerSkill'):
             continue
         identity, version = backlog_recovery.task_source_key(row), row.get('ContentVersion')
         if not identity or not version or not row.get('url'):
             if issues is not None:
                 issues.append({'source_key':identity or row.get('url'), 'code':'ReadyTaskMetadataMissing', 'reason':'Ready preparation lacks original source/step/version metadata', 'resume_step':step, 'evidence_ref':row.get('url') or 'current-task-discovery'})
             continue
-        due = row.get('date:NextDue:start')
+        due = None if is_email(row) else row.get('date:NextDue:start')
         digest = hashlib.sha256(json.dumps([page_id(row['url']), identity, step, version, due], separators=(',', ':')).encode()).hexdigest()
         event = {'kind': 'recovery', 'source_key': identity, 'step': step, 'version': version,
                  'input_digest': digest, 'evidence_ref': row['url'], 'task_id': row['url'],
@@ -52,10 +55,11 @@ def build(data):
     index = blocks(data['index_page'], 'scan-event-index-v1')[1]
     if page_id(index['root_id']) != root:
         raise ValueError('Use this installation\'s original saved event index')
-    events = [dict(v, key=k) for k, v in index['pending'].items()
+    normalized = {k: release_email_delay(v) for k, v in index['pending'].items()}
+    events = [dict(v, key=k) for k, v in normalized.items()
               if not v.get('due_at') or timestamp(v['due_at']) <= now]
     tasks = data.get('tasks', [])
-    items = {key(v): copy.deepcopy(v) for v in data.get('items', [])}
+    items = {key(v): release_email_delay(v) for v in data.get('items', [])}
     waiting, blocked, terminal, coverage = [], [], [], []
     for event in events:
         if event['kind'] != 'mail':

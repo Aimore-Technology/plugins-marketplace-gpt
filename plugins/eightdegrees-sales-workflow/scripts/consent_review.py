@@ -6,14 +6,18 @@ from notion_checks import object_result, page_body, page_id
 CONTRACT = 'email-review-v4'
 
 
-def narrative(package):
-    from email_flow import validate, window_text
+def narrative(package, historical=False):
+    from email_flow import validate, window_text, LABELS
     m, text = validate(package)
     labels = package['labels']
     lines = ['From: '+m['from_address'], 'To: '+m['to']]
     lines += [key+': '+m[key.lower()] for key in ('Cc', 'Bcc') if m.get(key.lower())]
-    lines += [labels['subject']+': '+m['subject'], '', text.decode('utf-8').rstrip('\n'), '',
-              'Window: '+window_text(package['window']), labels['consent_help']]
+    lines += [labels['subject']+': '+m['subject'], '', text.decode('utf-8').rstrip('\n'), '']
+    if historical and package.get('window'):
+        lines += ['Window: '+window_text(package['window']), labels['consent_help']]
+    else:
+        language = 'zh-CN' if labels['subject'] == LABELS['zh-CN']['subject'] else 'en'
+        lines.append(LABELS[language]['consent_help'])
     return '\n'.join(lines)
 
 
@@ -40,6 +44,8 @@ def render(package):
                 'SourceURL': 'https://app.notion.com/p/'+page_id(package['source_page_id']),
                 'StepId': 'SendApprovedReply',
                 'ResumeContractVersion': 'resume-v1',
+                'date:NextDue:start': None, 'date:SendNotBefore:start': None,
+                'date:SendNotAfter:start': None,
                 'ActionPageURL': 'https://app.notion.com/p/'+page_id(package['task_page_id'])},
             'scope': 'Publish on the canonical task; show ReviewText and Consent in one native view; no separate form or Submit'}
 
@@ -74,7 +80,7 @@ def accept(data):
             or data['operator_id'] != package['operator_id']
             or binding != render(package)['binding']):
         raise ValueError('Consent must bind the actual current task/operator/version')
-    if props.get('ReviewText') != narrative(package):
+    if props.get('ReviewText') not in {narrative(package), narrative(package, historical=True)}:
         return {'status': 'EmailRevisionRequired', 'send_allowed': False,
                 'reason': 'Narrative edited; synchronize a new draft/version and reset Consent before approval'}
     if not checked(props.get('Consent')):

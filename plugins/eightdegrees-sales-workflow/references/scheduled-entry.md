@@ -20,8 +20,9 @@ scheduled-approved-work, not start/stop management or public command dispatch.
    Use [email-flow](email-flow.md) for new inquiries and combined decisions.
    Preparing an inquiry uses project cache, one CRM match and one review, not
    repeated owner plans/checkpoint fetches. Stops precede ordinary work.
-4. Outside send windows continue intake, cache refresh and drafting; only
-   dispatch waits. One customer's missing file, channel or old project stop
+4. Approved email dispatch runs immediately at any hour in this cycle. Never
+   wait for business hours, dates, holidays or old future email timers. SMS alone
+   follows configured quiet hours/delays. One customer's missing file, channel or old project stop
    does not block unrelated work. Accepted/pending/unknown attempts never replay.
 5. Save compact cycle.metrics with discovered events, backlog, executed steps,
    human waits, concrete blocks, duration and next pointers. Timer fired, guard

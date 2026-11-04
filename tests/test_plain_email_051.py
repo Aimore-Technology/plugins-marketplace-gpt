@@ -44,7 +44,7 @@ def send_input():
     d = captures(); a = email_flow.accept(d)
     d.update(policy='one-cycle-approved-work', sender_account=a['package']['manifest']['from_address'],
              controls={k: True for k in ('scan_enabled', 'channel_enabled', 'no_reply_or_stop',
-                                        'attempt_clear', 'approval_current', 'date_allowed')},
+                                        'attempt_clear', 'approval_current')},
              attempt_id='plain-attempt-1', accepted_input_sha256=a['input_sha256'],
              attempt_write=response(d['task_id']), send_tool='mcp__gmail__send_draft')
     return d
@@ -79,8 +79,7 @@ class PlainEmailTests(unittest.TestCase):
     def test_header_body_subject_and_window_edits_never_send_stale_draft(self):
         for old, new in [('To: `receiver@example.invalid`', 'To: `other@example.invalid`'),
                          ('AUD 918,000', 'AUD 900,000'),
-                         ('Re: TEST inquiry', 'Different subject'),
-                         ('17:00:00', '18:00:00')]:
+                         ('Re: TEST inquiry', 'Different subject')]:
             d = captures(); d['action']['text'] = d['action']['text'].replace(old, new, 1)
             self.assertEqual(email_flow.accept(d)['status'], 'EmailRevisionRequired', old)
 
@@ -113,7 +112,7 @@ class PlainEmailTests(unittest.TestCase):
             d = send_input(); d['attempt_status'] = state
             self.assertFalse(email_flow.dispatch(d)['send_allowed'])
         d = send_input(); d['now'] = '2026-11-04T18:00:00+10:30'
-        self.assertFalse(email_flow.dispatch(d)['send_allowed'])
+        self.assertTrue(email_flow.dispatch(d)['send_allowed'])
 
     def test_consumed_submission_resumes_without_second_review(self):
         d = send_input(); a = email_flow.accept(d)

@@ -66,7 +66,7 @@ def send_input():
     data = captures()
     accepted = email_flow.accept(data)
     data.update(policy='one-cycle-approved-work', sender_account=accepted['package']['manifest']['from_address'],
-                controls={k: True for k in ('scan_enabled', 'channel_enabled', 'no_reply_or_stop', 'attempt_clear', 'approval_current', 'date_allowed')},
+                controls={k: True for k in ('scan_enabled', 'channel_enabled', 'no_reply_or_stop', 'attempt_clear', 'approval_current')},
                 attempt_id='stable-attempt', accepted_input_sha256=accepted['input_sha256'],
                 attempt_write=response(data['task_id']), send_tool='mcp__gmail__send_draft')
     return data
@@ -118,7 +118,6 @@ class SingleReviewTests(unittest.TestCase):
 
     def test_current_header_subject_body_and_window_edits_need_new_review(self):
         for old, new in [('To: `receiver@example.invalid`', 'To: `other@example.invalid`'),
-                         ('2026-11-04T17:00:00+10:30', '2026-11-04T18:00:00+10:30'),
                          ('Re: TEST inquiry\n\n## Email HTML', 'Changed subject\n\n## Email HTML'),
                          ('<p>Approved TEST reply.</p>', '<p>Changed reply.</p>')]:
             data = captures(); self.assertIn(old, data['action']['text'])
@@ -140,7 +139,7 @@ class SingleReviewTests(unittest.TestCase):
             data = send_input(); data['attempt_status'] = state
             self.assertEqual(email_flow.dispatch(data)['status'], 'EmailDispatchDeferred')
         data = send_input(); data['now'] = '2026-11-04T18:00:00+10:30'
-        self.assertEqual(email_flow.dispatch(data)['status'], 'EmailDispatchDeferred')
+        self.assertEqual(email_flow.dispatch(data)['status'], 'EmailDispatchPrepared')
         for policy in ('draft-only', 'report-only', 'one-cycle-no-customer-send'):
             data = send_input(); data['policy'] = policy
             with self.assertRaises(ValueError): email_flow.dispatch(data)

@@ -126,3 +126,8 @@ root, Dropbox account/namespace and authorized work folders. Do not ship or copy
 cache contents into the plugin/repository. Cache structure/materials, never live
 authority or personal CRM records. Existing authorizations/stops/attempts remain
 unchanged; installation alone needs no mandatory init before the short flow.
+
+Register email send_timing=immediate-after-approval, send_window_required=false,
+date_confirmation_required=false and approval_time_expiry=false. No email
+sending-hours question or window is needed. New sms_send_window is SMS-only;
+legacy customer_send_window must never gate email. Preserve actual SMS scope.

@@ -8,7 +8,7 @@ finish our own records. This policy is `provider-handoff-v1` and applies to both
 new sends and recovery of an already acknowledged original request.
 
 1. Before dispatch, verify our customer/recipient, approved email version and
-   stored plain-text draft, standing SMS authority, current stop/window/count rules,
+   stored plain-text draft, standing SMS authority, current stop/count rules and SMS-only timing,
    configured account/device and durable attempt/idempotency identity.
 2. Call the sending tool once. Inspect its original success/error envelope and
    retain its actual request ID/status. A successful `send_draft` response ends

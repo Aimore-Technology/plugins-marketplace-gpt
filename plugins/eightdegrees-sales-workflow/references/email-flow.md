@@ -47,7 +47,7 @@ helper's reference. Do not traverse every historical owner/check document.
    properties and task_records on the original PendingTasks task. The task is
    also its own action target; create no separate action/copy/form page. Reuse
    the one registered Email Review view on Today. ReviewText shows recipients,
-   subject, complete readable text and sending window. Consent is the only
+   subject and complete readable text. Email has no send window. Consent is the only
    input: checking it submits approval of this exact version and sending. No
    extra Submit, date-confirmation, Return/Pause/Cancel checklist or signature
    field. Unchecked means wait; unchecking before dispatch withdraws permission.
@@ -67,8 +67,7 @@ helper's reference. Do not traverse every historical owner/check document.
 8. Use email.dispatch once with that current observation, the accepted input
    digest, original attempt-write response, actual policy and current scoped
    controls: scan enabled, channel enabled, no relevant reply/stop, approval
-   current, allowed date and attempt clear. Window and accepted/pending/unknown attempts are
-   checked in code. There is no separate native admission record, second review,
+   current, attempt clear. Accepted/pending/unknown attempts are checked in code. There is no separate native admission record, second review,
    full owner-plan cycle, global executor proof or repeated CRM/file lookup.
    Refresh only if an intervening change or delayed/later-cycle send needs it.
    Send exactly send_draft(draft_id); never regenerate approved content.
@@ -120,3 +119,15 @@ and persist only changed recovery state or actual effect boundaries.
 Use [consent view](consent-view.md) for native setup and discovery. Existing
 v2/v3 forms retain their original decision scope and input until reconciled.
 Do not turn an old content-only confirmation into Consent or copy old checks.
+
+Email timing is immediate-after-approval at any hour, including nights, weekends
+and holidays. Do not generate or enforce sending windows, date confirmations,
+not-before/not-after bounds or time-based approval expiry for email. Ignore
+legacy customer_send_window, package.window, SendNotBefore/SendNotAfter and
+window-only NextDue in mail execution. Keep those old values as history without
+changing approved payload bytes. approval_current means exact version/recipient
+and no withdrawal, not clock eligibility. Process approved recovery in this same
+scan even when an old email timer is future-dated; no new approval is needed
+solely to remove the obsolete clock restriction. Real provider backoff, stop,
+revocation and accepted/unknown attempt controls remain. SMS alone keeps its
+configured quiet hours, delays and limits.

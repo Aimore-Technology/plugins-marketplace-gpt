@@ -20,7 +20,7 @@ once without repeating full init. A stopped scan does no setup or migration.
 
 The view shows Consent, ReviewText and the identifying Name, with wrapped full
 text and no technical columns. It filters v4, SendApproval, sales-reply and
-nonterminal records. Do not filter checked rows away: waiting-window consent
+nonterminal records. Do not filter checked rows away: approved consent
 must remain visible so the operator can uncheck before dispatch. Existing
 manual Notes/data forms and their views remain separate business workflows.
 A view is presentation, never access control or the scanner's coverage scope.
@@ -38,7 +38,7 @@ The operator reads the complete narrative and checks Consent once. Native save
 is the submission. No second Submit, content-only confirmation, date checkbox,
 actor field or repeated chat permission. Keeping it unchecked waits. Unchecking
 before provider dispatch withdraws only this email approval; no global SMS stop.
-If text/recipients/window change, email.accept returns EmailRevisionRequired.
+If text/recipients change, email.accept returns EmailRevisionRequired.
 The owner synchronizes the actual Gmail draft, publishes a new version and
 clears Consent; the user then checks the final updated reply. Never send changed
 content using an earlier check or silently overwrite their requested edit.
@@ -55,8 +55,14 @@ no new work. No-input observations do not write another local version log.
 email.accept/dispatch accept the task capture only for v4; no action capture is
 required. Approval binds the exact displayed narrative/package/version. Persist
 accepted decision and stable attempt before send. Keep checked Consent visible
-through a delayed send; do not clear a consumed checkbox as though it were
+through an interrupted send; do not clear a consumed checkbox as though it were
 withdrawn. Existing accepted snapshots avoid repeated business execution.
-Stop/channel/window/attempt controls still apply. Successful Gmail handoff
+Stop/channel/attempt controls still apply. Successful Gmail handoff
 ends email, with no delivery polling. In email.complete reuse the same original
 task-write acknowledgement for task and action roles, not a second write.
+
+New email packages contain no window, and new review text states that sending
+happens at any hour on the next scan. Old windowed narrative may remain exact
+historical evidence or be repaired to the same payload with the current timing
+explanation; no copy edit or new approval is needed just to remove clock gating.
+Clear only mail's obsolete date fields; SMS quiet hours remain independent.

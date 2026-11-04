@@ -32,7 +32,11 @@ Reuse original captures across helpers and all newly ready successors. Do not
 restart scans, refetch unchanged sources or create plans per logical step.
 
 Process submitted combined approvals and standing-authorized due SMS under
-current source/channel/stop/window/count/attempt controls. One customer's block
+current source/channel/stop/count/attempt controls and SMS-only timing. One customer's block
 is scoped to that work. Accepted/pending/unknown effects never replay. Coalesce
 own writes and save actual event/backlog/step/wait/block/duration metrics once
 at the cycle boundary. No routine Health/report/history sweeps or delivery polls.
+
+Approved mail sends immediately in this cycle. Do not defer to business hours,
+weekdays, holidays or legacy email due dates. Recover approved backlog with no
+new mail input. Never bypass provider backoff or replay unknown/accepted sends.

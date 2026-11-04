@@ -8,6 +8,7 @@ import json
 from email_presentation import blocks
 from notion_checks import object_result, page_id
 from scan_cycle import key, timestamp
+from email_timing import release as release_email_delay
 
 CONTRACT = 'scan-event-index-v1'
 KINDS = {'mail', 'stop', 'submission', 'control', 'source', 'timer', 'recovery'}
@@ -27,7 +28,7 @@ def event(value):
         timestamp(value['due_at'])
     if value['kind'] == 'timer' and not value.get('due_at'):
         raise ValueError('A clock event needs its actual due time')
-    return identity, copy.deepcopy(value)
+    return identity, release_email_delay(value)
 
 
 def probe(data):
@@ -68,6 +69,7 @@ def probe(data):
     if scope_changed:
         for feed in index['feeds'].values():
             feed.setdefault('scope_sha256', original['scope_sha256'])
+    index['pending'] = {identity: release_email_delay(value) for identity, value in index['pending'].items()}
     pending, handled = index['pending'], index['handled']
     # Acknowledgements come from saved owner results, never from probe success.
     for ack in data.get('acknowledgements', []):

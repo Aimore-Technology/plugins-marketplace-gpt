@@ -199,12 +199,12 @@ class OperatorExperienceTests(unittest.TestCase):
         result=UX.feedback({'task':t,'result_unknown':True})
         self.assertEqual(result['stage'],'unknown');self.assertIsNone(result['continue_command'])
 
-    def test_expired_approval_keeps_work_but_requires_new_window(self):
+    def test_legacy_email_window_does_not_expire_approved_content(self):
         data={'task':item('Automatic','SendApprovedReply'),'submission':'requested',
               'now':'2026-10-31T06:00:00Z','approved_window':{'read_verified':True,'task_id':'b'*32,'content_version':'test-v1','send_not_after':'2026-10-31T05:00:00Z'}}
         data['approved_window']['content_version']=data['task']['ContentVersion']
         before=copy.deepcopy(data);result=UX.feedback(data)
-        self.assertEqual(result['stage'],'expired');self.assertIsNone(result['continue_command']);self.assertEqual(data,before)
+        self.assertNotEqual(result['stage'],'expired');self.assertEqual(data,before)
 
     def test_no_guessed_owner_or_unsupported_language(self):
         t=item();t['OwnerSkill']='unknown'

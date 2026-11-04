@@ -173,6 +173,12 @@ def check():
                 and defaults['email_workflow'].get('consent_checkbox') is True
                 and defaults['email_workflow'].get('separate_submit') is False,
                 'One native consent checkbox must submit without a separate action form')
+        require(defaults['email_workflow'].get('send_timing') == 'immediate-after-approval'
+                and defaults['email_workflow'].get('send_window_required') is False
+                and defaults['email_workflow'].get('date_confirmation_required') is False
+                and defaults['email_workflow'].get('approval_time_expiry') is False
+                and 'customer_send_window' not in defaults and 'sms_send_window' in defaults,
+                'Email has no sending clock/window; SMS timing is separate')
         require(defaults.get('project_cache', {}).get('ttl_seconds') == 86400
                 and defaults['project_cache'].get('storage') == 'private-local-user-state'
                 and defaults['project_cache'].get('cache_permissions') is False,

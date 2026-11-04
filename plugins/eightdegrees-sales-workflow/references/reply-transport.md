@@ -13,7 +13,7 @@ rendering, preview, image, attachment or full brochure copy. A real existing
 brochure link can be included when appropriate, without inventing a public URL.
 
 The single [email review](email-flow.md) approves the exact text, recipients
-and window. email.dispatch emits only send_draft(draft_id), never reconstructed
+and content. Email has no time window. email.dispatch emits only send_draft(draft_id), never reconstructed
 text. Successful Gmail acknowledgement ends dispatch; CRM/follow-up failures
 recover independently and cannot resend the email.
 

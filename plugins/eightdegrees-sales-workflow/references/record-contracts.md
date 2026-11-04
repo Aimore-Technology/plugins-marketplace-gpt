@@ -14,8 +14,7 @@ preserving every approved byte. A conflicting or unavailable binding refuses.
 New sales-send-package records also retain source_page_id from the verified durable intake handoff. New package publication rejects a missing source pointer; email result publication must update that same original page and confirm its API response. Legacy frozen packages stay unchanged.
 
 New inquiry packages use email-review-v4 from email.prepare, retaining the
-original source, exact task/action/version, frozen draft/material snapshot and
-window. One submitted Approve supplies content-and-send permission. Do not
+original source, exact task/action/version, frozen draft/material snapshot. Email has no sending window. One submitted Approve supplies content-and-send permission. Do not
 require a prior completed ReviewReplyDraft or content_approval pointer. Old
 frozen sales-send-package records retain only their original decision scope;
 an old Confirm alone cannot grant sending permission.

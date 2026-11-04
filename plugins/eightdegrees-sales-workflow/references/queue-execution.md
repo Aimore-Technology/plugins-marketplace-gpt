@@ -33,3 +33,10 @@ API acknowledgement/ID confirms own writes; accepted/pending/unknown provider
 effects cannot replay after restart or a later projection failure. Save compact
 actual result/wait/block/time metrics at the boundary. No per-step saved-plan,
 extra admission record, historical sweep or successful-write body comparison.
+
+Approved email is immediate recovery demand, even when an old NextDue or event
+was future-dated for business hours. ready_task_records supplements submitted
+or approved automatic email rows for real acceptance checks; it grants no send
+permission. event_probe, scan.queue and scan.cycle discard only obsolete mail
+clock delays while preserving identities/attempts. SMS clocks, unknown effects,
+provider retry-after, stops and real human waits remain enforced.

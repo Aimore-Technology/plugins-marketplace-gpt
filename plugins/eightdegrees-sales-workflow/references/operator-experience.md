@@ -75,12 +75,12 @@ snapshot when claiming acceptance. A checked submit to-do only requests processi
 an unobserved edit never means accepted or sent. The helper does not execute.
 
 - Manually initiated communication tasks submit in Notion and resume through the shared queue; no extra continue command.
-- Eligible data/content/email-send work uses the next verified native tick, or the single public `@eightdegrees-sales-workflow run-auto` command. It may consume an independently approved exact-version/window email send without another chat permission question. Missing approval or changed scope stays pending. Never print an internal owner invocation or an invented continue subcommand.
+- Eligible data/content/email-send work uses the next verified native tick, or the single public `@eightdegrees-sales-workflow run-auto` command. It may consume an independently approved exact-version email send at any hour without another chat permission question. Missing approval or changed scope stays pending. Never print an internal owner invocation or an invented continue subcommand.
 - Notification SMS has a read-only queued/result page and no per-message review. The default standing policy supplies its authority; current channel/stop/time/count/attempt checks remain. Legacy unrelated Manual sends are not silently adopted.
 - Promise scheduled checking only from enabled, verified native task evidence;
   do not invent a countdown or infer a next run from the target selected 20/30-minute cadence.
 - Paused/cancelled/completed tasks do not offer an old submission as a new action.
-  Expired windows preserve the draft/answers and require a newly approved window.
+  Email approvals have no time window or clock expiry. SMS quiet hours remain independent.
   Unknown outcomes require original-attempt reconciliation, never blind resend.
 
 UI text can change when the owner observes new evidence; Notion edits do not

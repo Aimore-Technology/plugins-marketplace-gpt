@@ -321,7 +321,7 @@ class BoundedRecovery(unittest.TestCase):
     def test_unsubmitted_and_future_items_do_not_block_another_client(self):
         data = cycle_fixture(); base = data['items'][0]
         data['items'] += [base | {'source_key': 'waiting', 'waiting': True},
-                          base | {'source_key': 'future', 'due_at': '2026-11-02T00:00:00Z'}]
+                          base | {'source_key': 'future', 'step': 'SendNotificationSms', 'due_at': '2026-11-02T00:00:00Z'}]
         result = scan_cycle.advance(data)
         self.assertEqual([v['source_key'] for v in result['work']], ['email1'])
         self.assertEqual(len(result['checkpoint']['work_items']), 3)
