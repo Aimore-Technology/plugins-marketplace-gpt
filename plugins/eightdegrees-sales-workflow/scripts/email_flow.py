@@ -171,8 +171,9 @@ def accept(data):
     if section('Email subject') != m['subject'] or section('Email HTML') != '```html\n'+html.decode('utf-8')+'\n```':
         return {'status': 'EmailRevisionRequired', 'send_allowed': False,
                 'reason': 'Editable copy changed; prepare the updated draft/version before accepting approval'}
-    checked = re.findall(r'^\s*- \[[xX]\] ([^\n]+)', visible_markdown(body), re.M)
     labels = package['labels']
+    input_body = section(labels['input'])
+    checked = re.findall(r'^\s*- \[[xX]\] ([^\n]+)', visible_markdown(input_body), re.M)
     expected_choices = {labels[k]: v for k, v in [('approve', 'Approve'), ('return', 'Return'),
                                                 ('pause', 'Pause'), ('cancel', 'Cancel')]}
     if binding.get('Choices') != expected_choices or binding.get('SubmissionLabel') != labels['submit']:
@@ -180,7 +181,7 @@ def accept(data):
     selected = [choice for label, choice in expected_choices.items() if label in checked]
     if checked.count(labels['submit']) > 1 or len(selected) != 1:
         raise ValueError('Submit exactly one decision; saving a draft or old Confirm is not send approval')
-    comment = re.search(r'^### '+re.escape(labels['comments'])+r'\n([\s\S]*?)(?=^- \[|^## |\Z)', body, re.M)
+    comment = re.search(r'^### '+re.escape(labels['comments'])+r'\n([\s\S]*?)(?=^- \[|^## |\Z)', input_body, re.M)
     comments = comment[1].strip() if comment else ''
     if comments == labels['placeholder']:
         comments = ''

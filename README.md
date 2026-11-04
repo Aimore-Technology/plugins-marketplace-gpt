@@ -1,8 +1,8 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing `eightdegrees-sales-workflow` 0.1.49: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
+Private marketplace containing `eightdegrees-sales-workflow` 0.1.50: eight workflow skills plus one command entry derived from the current EightDegrees P0 workflow. Shared business rules are identical across the Claude and GPT editions; manifests and runtime guidance differ.
 
-Current 0.1.49 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
+Current 0.1.50 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
 A stopped run-auto reads only settings and exits without discovery or logs.
 No command creates/updates/pauses/deletes native automations. Older release
 sections below describe historical behavior and are superseded for start/stop.
@@ -27,7 +27,7 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.49.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
+`dist/` contains one plugin ZIP plus a SHA-256 file. It excludes the marketplace and development tooling. See [plugin instructions](plugins/eightdegrees-sales-workflow/README.md), [release record](docs/release-0.1.50.md) and [pilot acceptance](plugins/eightdegrees-sales-workflow/references/pilot-acceptance.md).
 
 This is a skills-only distribution. It adds no server, secret, customer data, account authorization, actual schedule or automatic send. Readiness must be established in the customer's own environment. Real samples and test logs stay in customer accounts.
 
@@ -101,7 +101,7 @@ Version0.1.37 gates sales preparation on durable source intake, preserves review
 
 Version0.1.38 preserves effective invocation restrictions, inquiry-level SMS limits and scoped queue barriers. Ordinary verified inquiries inherit standing SMS authority without re-init; missing inbound SMS is coverage metadata, not a send gate. See [the flow fixes](docs/release-0.1.38.md).
 
-Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](docs/release-0.1.49.md).
+Version0.1.39 makes start/stop local-only: bind the selected computer and directory, verify actual local task readback and retain safe legacy cleanup. Installation/init does not create or enable a task. See [local scheduling](docs/release-0.1.50.md).
 
 ## Existing local tasks do not need management tools
 

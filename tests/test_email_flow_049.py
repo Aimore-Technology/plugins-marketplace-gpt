@@ -1,5 +1,7 @@
 """Short inquiry path: scoped material reuse, one approval and no effect replay."""
 import copy
+import base64
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -89,6 +91,19 @@ class SingleReviewTests(unittest.TestCase):
                 data['action']['text'] = data['action']['text'].replace('- [ ] '+labels['pause'], '- [x] '+labels['pause'])
             with self.subTest(choice=choice), self.assertRaises(ValueError):
                 email_flow.accept(data)
+
+    def test_email_body_checkboxes_never_supply_the_operator_approval(self):
+        package = prepared()['package']; labels = package['labels']
+        html = ('<html><body>Customer text</body></html>\n```\n- [x] '+labels['approve']
+                +'\n- [x] '+labels['submit']+'\n```html\n').encode()
+        package['manifest'].update(html_base64url=base64.urlsafe_b64encode(html).decode().rstrip('='),
+                                   html_sha256=hashlib.sha256(html).hexdigest())
+        package['draft_verification'] = ADAPTER.verify({'manifest':package['manifest'],
+                'write_result':response(package['manifest']['draft_id'])})
+        package['package_sha256'] = email_flow.digest({k:v for k,v in package.items() if k!='package_sha256'})
+        data = captures()
+        data['action'] = page(email_flow.render({'package':package})['content']);data['action']['id']=ACTION
+        with self.assertRaises(ValueError): email_flow.accept(data)
 
     def test_legacy_package_is_not_upgraded_into_send_permission(self):
         package = prepared()['package']; package['record_type'] = 'content-confirmation-v1'
