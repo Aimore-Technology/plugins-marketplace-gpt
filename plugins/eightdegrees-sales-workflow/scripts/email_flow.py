@@ -15,7 +15,8 @@ from reply_transport import manifest, verify, content_fields
 from workflow_checks import visible_markdown
 
 CONTRACT = 'email-review-v2'  # Existing HTML reviews retain their exact scope.
-PLAIN_CONTRACT = 'email-review-v3'
+PLAIN_CONTRACT = 'email-review-v3'  # Existing separate forms remain legacy-only.
+CONSENT_CONTRACT = 'email-review-v4'
 LABELS = json.loads((Path(__file__).resolve().parents[1]/'assets/email-review-labels.json').read_text())
 
 
@@ -32,10 +33,10 @@ def moment(text):
 
 
 def validate(package):
-    if package.get('record_type') not in {CONTRACT, PLAIN_CONTRACT}:
+    if package.get('record_type') not in {CONTRACT, PLAIN_CONTRACT, CONSENT_CONTRACT}:
         raise ValueError('This is not a combined email review; old Confirm decisions never authorize sending')
     m, html = manifest({'manifest': package['manifest']})
-    if (package['record_type'] == PLAIN_CONTRACT) != (content_fields(m)[0] == 'text/plain'):
+    if (package['record_type'] in {PLAIN_CONTRACT, CONSENT_CONTRACT}) != (content_fields(m)[0] == 'text/plain'):
         raise ValueError('Review format must match the frozen body MIME type')
     for key in ('source_page_id', 'task_page_id', 'action_page_id', 'root_id'):
         page_id(package[key])
@@ -75,15 +76,17 @@ def prepare(data):
                 or preview['draft_binding_sha256'] != draft['draft_binding_sha256']):
             raise ValueError('Use the prepared same-version copy/preview acknowledgements')
     package = {k: copy.deepcopy(data[k]) for k in ('root_id', 'source_page_id', 'source_key',
-               'action_page_id', 'operator_id', 'window')}
+               'operator_id', 'window')}
     if type(data.get('material', True)) is not bool:
         raise ValueError('Record whether this reply actually provides project materials')
-    package.update(material=data.get('material', True), receipt_template='send-receipt-v2', record_type=PLAIN_CONTRACT if plain else CONTRACT, task_page_id=m['task_page_id'], content_version=m['content_version'],
+    package.update(material=data.get('material', True), receipt_template='send-receipt-v2', record_type=(PLAIN_CONTRACT if data.get('review_ui') == 'legacy-form' else CONSENT_CONTRACT) if plain else CONTRACT, task_page_id=m['task_page_id'], content_version=m['content_version'],
                    manifest=copy.deepcopy(m), draft_verification=draft,
                    source_snapshot_id=data.get('source_snapshot_id'),
                    material_sources=copy.deepcopy(data.get('material_sources', [])),
                    crm_target=copy.deepcopy(data.get('crm_target')),
                    labels=LABELS.get(data.get('language', 'en'), LABELS['en']))
+    package['action_page_id'] = (m['task_page_id'] if plain and package['record_type'] == CONSENT_CONTRACT
+                                 else data['action_page_id'])
     if not plain:
         package['preview_page_id'] = preview.get('preview_page_id', preview['copy_page_id'])
     package['package_sha256'] = digest(package)
@@ -122,6 +125,9 @@ def plain_read(text, quote=False):
 
 def render(data):
     package = data['package']; m, html = validate(package)
+    if package['record_type'] == CONSENT_CONTRACT:
+        from consent_review import render as consent_render
+        return consent_render(package)
     labels = package['labels']
     binding = {'record_type': 'action-binding', 'ApprovalContract': package['record_type'],
                'TaskPageId': package['task_page_id'], 'ActionPageId': package['action_page_id'],
@@ -168,11 +174,15 @@ def render(data):
 
 def accept(data):
     """Read the original task/action once; validate only the submitted decision."""
-    for name in ('task', 'action'):
+    new_consent = blocks(data['task'], CONSENT_CONTRACT, required=False)
+    for name in (('task',) if new_consent else ('task', 'action')):
         observed = object_result(data[name])
         if observed.get('metadata', {}).get('type') != 'page' or page_id(observed['id']) != page_id(data[name+'_id']):
             raise ValueError('Use the actual registered task and action captures')
         page_body(data[name])
+    if blocks(data['task'], CONSENT_CONTRACT, required=False):
+        from consent_review import accept as accept_consent
+        return accept_consent(data)
     task = properties(data['task'])
     private = blocks(data['task'], PLAIN_CONTRACT, required=False)
     package = private[1] if private else blocks(data['action'], CONTRACT)[1]

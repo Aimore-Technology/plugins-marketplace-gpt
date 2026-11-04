@@ -2,7 +2,7 @@
 
 New inquiry preparation proceeds directly to one SendApprovedReply combined
 review under [email-flow](email-flow.md). Preparing its inert task/form is not a
-send. A submitted email-review-v3 Approve can execute on run-auto; reply-draft
+send. A checked email-review-v4 Consent can execute on run-auto; reply-draft
 itself remains no-send. Do not create a new ReviewReplyDraft task first.
 
 Legacy ReviewReplyDraft/ReviewGeneralReply Confirm decisions cannot supply

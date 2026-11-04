@@ -22,7 +22,7 @@ def prepared(text=TEXT, language='en'):
     return email_flow.prepare({'transport': {'manifest': m, 'write_result': response(m['draft_id'])},
         'root_id': ROOT, 'source_page_id': SOURCE, 'source_write': response(SOURCE),
         'source_key': m['from_address']+':inbound:'+m['reply_message_id'],
-        'action_page_id': ACTION, 'operator_id': 'configured-operator', 'language': language,
+        'action_page_id': ACTION, 'review_ui': 'legacy-form', 'operator_id': 'configured-operator', 'language': language,
         'crm_target': {'location_id': 'location-1', 'contact_id': 'contact-1'},
         'window': {'timezone': 'Australia/Adelaide', 'not_before': '2026-11-04T10:00:00+10:30',
                    'not_after': '2026-11-04T17:00:00+10:30'}})

@@ -15,7 +15,8 @@
     "waiting": "Waiting for your decision; no email has been sent.",
     "receipt": "Sending also records one operational CRM result Note when a real customer record exists; no new customer facts or persona changes are approved.",
     "subject": "Subject",
-    "body": "Message"
+    "body": "Message",
+    "consent_help": "Check Consent to approve this reply and sending in this window. Leave unchecked to wait; uncheck before sending to withdraw."
   },
   "zh-CN": {
     "approve": "\u786e\u8ba4\u8349\u7a3f\u5e76\u6279\u51c6\u6309\u4e0a\u8ff0\u7a97\u53e3\u53d1\u9001",
@@ -33,6 +34,7 @@
     "waiting": "\u7b49\u5f85\u63d0\u4ea4\u5ba1\u6838\u51b3\u5b9a\uff1b\u5c1a\u672a\u53d1\u9001\u90ae\u4ef6\u3002",
     "receipt": "\u53d1\u9001\u540e\u53ef\u5728\u5df2\u5339\u914d\u7684 CRM \u5ba2\u6237\u4e0b\u8bb0\u5f55\u4e00\u6761\u53d1\u9001\u7ed3\u679c\uff1b\u672c\u6b21\u4e0d\u6279\u51c6\u65b0\u7684\u5ba2\u6237\u4e8b\u5b9e\u6216\u753b\u50cf\u53d8\u66f4\u3002",
     "subject": "\u90ae\u4ef6\u4e3b\u9898",
-    "body": "\u90ae\u4ef6\u6b63\u6587"
+    "body": "\u90ae\u4ef6\u6b63\u6587",
+    "consent_help": "\u52fe\u9009 Consent \u5373\u540c\u610f\u672c\u7248\u56de\u590d\u5e76\u6309\u4e0a\u8ff0\u7a97\u53e3\u53d1\u9001\u3002\u4e0d\u52fe\u9009\u5219\u7b49\u5f85\uff1b\u53d1\u9001\u524d\u53ef\u53d6\u6d88\u52fe\u9009\u64a4\u56de\u3002"
   }
 }

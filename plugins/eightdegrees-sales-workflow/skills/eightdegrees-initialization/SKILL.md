@@ -116,8 +116,11 @@ block their affected work. Existing stop/revocation always remains effective.
 
 ## Short email and local material cache
 
-Register non-authority email_workflow defaults: email-flow-v3, text/plain replies, no preview, one email-review-v3
-content-and-send decision and automatic inquiry-name resolution. Project cache
+Register non-authority email_workflow defaults: email-flow-v3, text/plain replies, no preview, one email-review-v4
+native Consent checkbox over the canonical task. Use email.view-plan to add
+missing ReviewText/Consent properties and create/reuse one registered Today
+Email Review view. No extra form or Submit. Keep checkbox/narrative blank of
+old approvals; preserve manual Notes/data forms. Retain one content-and-send decision and automatic inquiry-name resolution. Project cache
 defaults to private local user state with a 24-hour TTL, scoped by actual Notion
 root, Dropbox account/namespace and authorized work folders. Do not ship or copy
 cache contents into the plugin/repository. Cache structure/materials, never live

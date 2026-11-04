@@ -1,0 +1,62 @@
+# One view and one consent click
+
+Use the original PendingTasks database. New email-review-v4 needs only two added
+properties: ReviewText (rich text) and Consent (native checkbox). Do not create
+a new database, task, ordinary action form, separate copy or Submit control.
+The canonical task is also its ActionPageURL. Technical package/binding and
+accepted decision history stay in that task's body, outside the view columns.
+
+## Setup once
+
+email.view-plan takes pending_source (the original schema capture), page (actual
+Today capture) and language. It emits ADD statements for missing properties and
+a native linked table view spec. Never change existing property types. Reuse
+RunSettings.operator_experience.email_review_view_id if registered. Otherwise
+finish complete Today/view discovery before creating one view. Apply supported
+DDL, create the view and register its original response ID once. A failed setup
+is a scoped input-surface issue; do not create another view on each scan.
+Explicit init installs/upgrades it; an enabled owner may finish a missing view
+once without repeating full init. A stopped scan does no setup or migration.
+
+The view shows Consent, ReviewText and the identifying Name, with wrapped full
+text and no technical columns. It filters v4, SendApproval, sales-reply and
+nonterminal records. Do not filter checked rows away: waiting-window consent
+must remain visible so the operator can uncheck before dispatch. Existing
+manual Notes/data forms and their views remain separate business workflows.
+A view is presentation, never access control or the scanner's coverage scope.
+
+## Publish and process
+
+email.prepare defaults new text/plain replies to v4 and makes task/action IDs
+identical. email.review returns properties plus task_records. Save them together
+on the canonical task; properties include ReviewText, Consent=__NO__, version,
+route and self ActionPageURL. Do not put a checkbox inside ReviewText. A new
+package/version must atomically publish its new narrative with Consent reset;
+publication checks reject inherited checks or workflow-manufactured consent.
+
+The operator reads the complete narrative and checks Consent once. Native save
+is the submission. No second Submit, content-only confirmation, date checkbox,
+actor field or repeated chat permission. Keeping it unchecked waits. Unchecking
+before provider dispatch withdraws only this email approval; no global SMS stop.
+If text/recipients/window change, email.accept returns EmailRevisionRequired.
+The owner synchronizes the actual Gmail draft, publishes a new version and
+clears Consent; the user then checks the final updated reply. Never send changed
+content using an earlier check or silently overwrite their requested edit.
+
+scan.watches returns consent_task_urls for v4 instead of action_page_urls. Read
+each actual task once, use email.consent-observe with the actual previous_revision from the saved
+actions feed (omit only on the first observation) to supply its stable revision
+and events to the actions feed, then reuse that capture for email.accept and
+imminent dispatch. Ordinary row timestamps, Decision/InputSubmitted properties
+and checkboxes appearing inside email text cannot supply Consent. A checkbox
+withdrawal after saved acceptance is an input event too. Completed rows produce
+no new work. No-input observations do not write another local version log.
+
+email.accept/dispatch accept the task capture only for v4; no action capture is
+required. Approval binds the exact displayed narrative/package/version. Persist
+accepted decision and stable attempt before send. Keep checked Consent visible
+through a delayed send; do not clear a consumed checkbox as though it were
+withdrawn. Existing accepted snapshots avoid repeated business execution.
+Stop/channel/window/attempt controls still apply. Successful Gmail handoff
+ends email, with no delivery polling. In email.complete reuse the same original
+task-write acknowledgement for task and action roles, not a second write.

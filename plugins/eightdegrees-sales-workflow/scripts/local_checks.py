@@ -42,8 +42,11 @@ import api_result
 import email_flow
 import project_cache
 import capture_bundle
+import consent_review
 
 OPERATIONS = {
+    "email.consent-observe": consent_review.observe,
+    "email.view-plan": consent_review.view_plan,
     "capture.commit": capture_bundle.commit,
     "notification.dispatch": sms_authority.dispatch,
     "project.cache-put": project_cache.put,
@@ -119,7 +122,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
+PASSED = {"EmailConsentPending", "EmailConsentObserved", "ConsentViewPlanned", "CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
           "ProjectCatalogLoaded", "ProjectMatched", "NeedsProjectSelection", "ProjectCacheInvalidated",
           "SingleEmailReviewPrepared", "SingleEmailReviewRendered", "EmailDecisionAccepted", "EmailRevisionRequired", "EmailDispatchDeferred", "EmailDispatchPrepared", "EmailRecordingPending", "EmailHandoffRecorded", "APIWriteConfirmed", "CommunicationReadPlanPrepared", "CommunicationNotePrepared","InquiryNameResolved", "InquiryLabelPlanned","ReadyQueueConstructed", "ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",

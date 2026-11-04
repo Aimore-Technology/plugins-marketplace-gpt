@@ -171,13 +171,16 @@
   },
   "email_workflow": {
     "contract": "email-flow-v3",
-    "approval_contract": "email-review-v3",
+    "approval_contract": "email-review-v4",
     "human_reviews_per_email": 1,
     "automatic_name_resolution": true,
     "crm_lookups_per_inquiry": 1,
     "mime_type": "text/plain",
     "preview_required": false,
-    "technical_records_on_action_page": false
+    "technical_records_on_action_page": false,
+    "review_surface": "canonical-task-view",
+    "consent_checkbox": true,
+    "separate_submit": false
   },
   "project_cache": {
     "contract": "project-cache-v1",

@@ -29,8 +29,9 @@ On explicit setup/upgrade, the planned task_page_layout may hide technical
 properties on task-detail pages while retaining the title/editor. Read the actual
 database-page-layouts specification and source first, apply only the supported
 page_layout operation, and confirm the layout API response. No DDL/property deletion, row
-value change or access-control claim. The original database remains the technical
-view; ordinary action pages remain the input authority. If unsupported, retain
+value change or access-control claim. New email uses the [single consent view](consent-view.md), with ReviewText and
+one native checkbox on the canonical task. Ordinary action pages remain the
+input authority for manual Notes, data completion and unchanged legacy forms. If unsupported, retain
 the direct ActionPageURL and label this layout portion incomplete.
 
 Save operator_experience.version=operator-ui-v1, today_page_id, today_view_ids and
@@ -120,3 +121,7 @@ before claiming a speed improvement.
 ## Timeless scaffolding and current facts
 
 Create Today help and report-run body as timeless procedure/history scaffolding. Do not seed phrases such as currently waiting, generating, not yet verified or ready now that require later unauthorized body repairs. Run State/Summary and dated linked task outcomes carry the current status. Initial plan headings are explicitly historical. Report updates only its permitted properties/report/log targets; it does not repair Today or business actions. An owner or explicit init upgrade may remove stale owned Today help with exact text edits while preserving native blocks.
+
+For new email, setup/reuse one Email Review view through email.view-plan. Do not
+create an ordinary action page or second approval view per message. Use the
+registered original view ID; keep consent rows visible until completed/cancelled.

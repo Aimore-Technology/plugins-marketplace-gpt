@@ -34,8 +34,11 @@ def plan(data):
                 'WaitingForOperator', 'NeedsCorrection', 'ReadyToValidate', 'InProgress', 'Completed', 'Cancelled'}:
             raise ValueError('Incomplete task identity/state cannot prove an inactive dependency')
     active = [r for r in rows if r.get('State') not in {'Completed', 'Cancelled'}]
-    actions = []
+    actions, consent_tasks = [], []
     for row in active:
+        if row.get('ActionFormVersion') == 'email-review-v4':
+            consent_tasks.append(row['url'])
+            continue
         if row.get('Category') in HUMAN:
             target = row.get('ActionPageURL')
             if not target:
@@ -78,6 +81,7 @@ def plan(data):
     ready_issues = []
     ready_records = ready_task_records(rows, ready_issues)
     return {'status': 'DiscoveryWatchesPrepared', 'action_page_urls': sorted(set(actions)),
+            'consent_task_urls': sorted(set(consent_tasks)),
             'ready_task_records': ready_records, 'ready_task_blocks': ready_issues,
             'source_metadata': list(watches.values()), 'excluded_projects': excluded,
             'conservative_source_watch': conservative,

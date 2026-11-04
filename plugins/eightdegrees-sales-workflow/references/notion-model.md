@@ -30,6 +30,8 @@ Register saved-view IDs and dated brief IDs as they are created, alongside the a
 
 Today is the primary operator entry under [operator experience](operator-experience.md).
 It contains linked display views over the existing databases, not copied tasks.
+New email uses [one consent view](consent-view.md): ReviewText plus Consent on
+the canonical task; no extra form or second submission.
 Actions remains storage for registered ordinary action pages/history. Save the
 verified Today/view IDs under RunSettings.operator_experience; preserve existing
 actions and execution-discovery view IDs. Successful linked-view setup removes

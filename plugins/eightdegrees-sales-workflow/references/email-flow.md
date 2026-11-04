@@ -43,22 +43,24 @@ helper's reference. Do not traverse every historical owner/check document.
    use reply_transport.prepare once to replace the body with the exact plain
    text and retain the returned original draft/message IDs. API success finishes
    that write; never download MIME or compare saved content.
-6. Use email.prepare then email.review for the combined email-review-v3 form.
-   The action page shows recipients, subject, readable message, send window,
-   Approve/Return/Pause/Cancel, comments and one Submit. Put task_records returned
-   by email.review on the original canonical PendingTasks task, not the action
-   page. They bind its real action ID, draft and version; no JSON/base64/hashes
-   or technical records belong on the user form. Save task registration and the
-   action page from their API acknowledgements before offering the active link.
+6. Use email.prepare then email.review for email-review-v4. Publish returned
+   properties and task_records on the original PendingTasks task. The task is
+   also its own action target; create no separate action/copy/form page. Reuse
+   the one registered Email Review view on Today. ReviewText shows recipients,
+   subject, complete readable text and sending window. Consent is the only
+   input: checking it submits approval of this exact version and sending. No
+   extra Submit, date-confirmation, Return/Pause/Cancel checklist or signature
+   field. Unchecked means wait; unchecking before dispatch withdraws permission.
    Category=SendApproval, OwnerSkill=eightdegrees-sales-reply,
-   ResumeStep=SendApprovedReply, Mode=Automatic. No prior content review.
-   reply-draft stops after this preparation; it does not send.
+   ResumeStep=SendApprovedReply, ActionFormVersion=email-review-v4.
+   reply-draft stops here and does not consume consent or send.
 
 ## One submitted decision to dispatch
 
-7. Read the original task and its active action page once on a new submission.
-   Run email.accept on those same captures. Editing recipient/window/body or
-   returning useful comments creates a new draft/version with blank choices;
+7. Read the original consent task once after checkbox/narrative changes; no
+   second action-page fetch. Run email.consent-observe for its actual revision.
+   Run email.accept on that capture. Editing ReviewText means the owner must
+   synchronize a new draft/version and publish it with Consent unchecked;
    do not approve a changed payload with the old decision. An actual Approve is
    recorded with that exact package and stable AttemptId on the original task.
    Confirm this write by its API response/ID, without fetching the result.
@@ -86,7 +88,7 @@ helper's reference. Do not traverse every historical owner/check document.
 ## Read and write budget
 
 A warm inquiry needs one message read, one scoped CRM match and zero Dropbox
-content reads, followed by plain-text draft publication and one review page. Scope,
+content reads, followed by plain-text draft publication and one native consent view. Scope,
 IDs, schemas, templates and source captures are reused. Use [helper input contracts](email-helper-inputs.md) rather than reading Python source. Run local_checks with
 --output and print only summaries, not every raw body or Python source. Log
 observable actions and compact cycle metrics, not every thought/helper call.
@@ -101,7 +103,7 @@ never replays each missed interval. Installation creates no task or approval.
 
 Existing content-only Confirm decisions stay content-only. Existing genuine
 send approvals retain their exact original scope. For an unfinished old content
-review, retain its history and offer one combined sending decision; do not turn
+review, retain its history and offer one new unchecked combined consent review; do not turn
 Confirm into Approve or repeat an already accepted email/SMS/CRM action.
 
 Existing HTML email-review-v2 approvals remain legacy-only and preserve their
@@ -114,3 +116,7 @@ Batch independent reads and local capture/check work under
 [phase I/O](local-check-batch.md). Never emit one save/version-observation shell
 call per returned page. Keep originals once, reuse own API write projections,
 and persist only changed recovery state or actual effect boundaries.
+
+Use [consent view](consent-view.md) for native setup and discovery. Existing
+v2/v3 forms retain their original decision scope and input until reconciled.
+Do not turn an old content-only confirmation into Consent or copy old checks.

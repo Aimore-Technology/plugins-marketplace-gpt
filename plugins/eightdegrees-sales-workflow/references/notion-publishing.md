@@ -1,7 +1,8 @@
 # Publish only affected records
 
 For normal mail use [email-flow](email-flow.md). Keep one original Inbox source,
-one canonical task and one active readable plain-text review page. Technical
+one canonical task shown in the registered one-click consent view. No separate
+email action page or form. Technical
 binding/package records stay on the canonical task; no preview or JSON on the
 action page. Use real registered IDs/schemas and targeted mutations,
 retaining native children, user inputs and historical bindings.

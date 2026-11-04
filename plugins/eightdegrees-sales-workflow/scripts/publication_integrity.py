@@ -75,6 +75,8 @@ def check(data, review=None):
     if call['tool'].endswith('__notion_notion_create_pages'):
         for page in args['pages']:
             check_body(page.get('content', ''))
+            from consent_review import check_publication
+            check_publication('', page.get('content', ''), page.get('properties', {}))
             for package in send_packages(page.get('content', '')):
                 require_source(package)
         return
@@ -82,6 +84,8 @@ def check(data, review=None):
         return
     before = page_body(data['target'])
     after = proposed_body(data['target'], args)
+    from consent_review import check_publication
+    check_publication(before, after, args.get('properties', {}))
     def pins(body):
         values = []
         for raw in re.findall(r'```json\s*\n(.*?)\n```', body, re.S):
@@ -118,10 +122,10 @@ def check(data, review=None):
         stable = ('TaskPageId', 'ActionPageId', 'OwnerSkill', 'ResumeStep', 'StepId', 'Mode', 'Category')
         ready = bool(review and review.get('status') == 'EmailReviewReady')
         if (review and review.get('status') == 'SingleEmailReviewPrepared'
-                and review.get('package', {}).get('record_type') == 'email-review-v3'):
+                and review.get('package', {}).get('record_type') in {'email-review-v3', 'email-review-v4'}):
             from email_flow import validate
             validate(review['package'])
-            ready = (current.get('ApprovalContract') == 'email-review-v3'
+            ready = (current.get('ApprovalContract') == review['package']['record_type']
                      and page_id(current['ActionPageId']) == page_id(review['package']['action_page_id'])
                      and current.get('PackageSha256') == review['package']['package_sha256'])
             stable = tuple(k for k in stable if k != 'ActionPageId')
