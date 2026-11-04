@@ -30,6 +30,21 @@ Use the returned greeting and ask_customer_name in the versioned reply draft.
 Client navigation uses the verified CRM name first; fallback display labels
 never replace the LocationId/ContactId mapping or alter approved old payloads.
 
+A completed, scoped CRM search with no match is not by itself an ambiguous
+recipient for answering the actual inquiry. Keep a mail-only association on the
+original Inbox source and prepare the source-bound reply without a blocking
+ClientMatching/name form. Carry the actual inbound account, immutable message,
+reply address and thread into separate content and send approvals. Do not create
+a fake ClientId or a Clients tree with invented IDs. This inquiry-only path does
+not permit manual communication Notes or persona writes without their target.
+If the exact approved reply is handed to Gmail before a CRM target exists,
+record that accepted outcome in our own source/task immediately; keep CRM
+recording separately pending on the existing RecordSendReceipt route until a
+real target and its receipt scope are confirmed. Do not call the CRM receipt
+renderer with placeholders, claim CRM completion or resend to repair recording.
+Multiple actual matches or conflicting email/phone evidence still require
+resolution before any affected send. No-match evidence is not send approval.
+
 ## Label after discovery
 
 The configured Gmail read scope is an authorization boundary, not an inquiry

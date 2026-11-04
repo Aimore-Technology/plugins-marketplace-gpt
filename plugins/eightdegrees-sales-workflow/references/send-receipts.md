@@ -4,6 +4,14 @@ Sales replies and general customer emails save their actual result in both
 Communications and GHL Notes/activity log. This is a distinct system-result
 receipt, not the earlier customer-facts Note and not a new persona proposal.
 
+For the [unmatched inquiry path](inquiry-intake.md), an actual no-match has no
+CRM target yet. Preserve the original accepted email and own Notion outcome;
+leave RecordSendReceipt pending separately until target and receipt scope are
+confirmed. Do not block an otherwise exact-approved source-bound inquiry send
+solely for this no-match, render placeholder CRM IDs, claim CRMReceiptVerified
+or repeat Gmail dispatch. Existing verified CRM targets retain the full receipt
+requirements below. Actual multi-candidate/conflicting identities remain blocked.
+
 Before final send approval, show that sending includes one internal CRM receipt
 using send-receipt-v2: approved content/source reference, actual sender/recipient,
 verified provider message/status/time and verified CRM customer. Freeze the
