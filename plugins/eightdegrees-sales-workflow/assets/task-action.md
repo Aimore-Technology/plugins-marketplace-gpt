@@ -1,3 +1,4 @@
+<!-- Business-facing content only: no JSON, IDs or raw helper failures. System issues have no input form and belong to Dashboard / System Recovery. Legacy machine bindings may remain only in a closed maintenance toggle until safely migrated. -->
 <!-- Authoring layout: localize text, replace placeholders and omit irrelevant sections. -->
 <!-- On every transition update Current status AND Processing result; inactive input prompts/controls become historical while answers remain. -->
 <!-- Set the ordinary page title in properties; never copy these comments to the operator page. -->

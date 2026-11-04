@@ -45,8 +45,12 @@ def render(package):
                'PackageSha256': package['package_sha256'],
                'DraftBindingSha256': package['draft_verification']['draft_binding_sha256'],
                'ConsentProperty': 'Consent', 'ReviewProperty': 'ReviewText', 'ResumeContractVersion': 'resume-v1'}
-    return {'status': 'SingleEmailReviewRendered', 'binding': binding,
-            'task_records': [binding, package], 'properties': {
+    import json
+    records = [binding, package]
+    details = '<toggle>System maintenance records (no action required)\n\n' + '\n\n'.join(
+        '```json\n'+json.dumps(record, ensure_ascii=False, indent=2)+'\n```' for record in records) + '\n</toggle>'
+    return {'status': 'SingleEmailReviewRendered', 'binding': binding, 'technical_content': details,
+            'task_records': records, 'properties': {
                 'ReviewText': narrative(package), 'Consent': '__NO__',
                 'State': 'WaitingForOperator', 'InputSubmitted': '__NO__',
                 'Result': package['labels']['consent_help'],

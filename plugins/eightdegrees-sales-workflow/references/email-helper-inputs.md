@@ -86,3 +86,5 @@ the returned property write, then wait for actual native Consent; no sends,
 new action form or duplicate draft. Missing saved package is a scoped recovery
 problem, never authority to invent one. Reuse task rows to select incomplete
 publication instead of rechecking every finished review each scan.
+
+For new canonical mail records, publish the returned technical_content native closed toggle rather than dumping task_records as visible JSON. The records themselves are unchanged; the business reply and Consent remain in Today. Preserve existing records and user inputs during targeted updates.

@@ -61,3 +61,5 @@ native review, never dispatches. The normal email operator path is exclusively
 Today -> read ReviewText -> check Consent -> next scan sends. No Actions or
 additional confirmation. Publish the whole review projection at one boundary;
 canonical native reviews do not belong in generic waiting/action-link lists.
+
+On an actual failure or changed repair outcome, apply [exception handling](../../references/exception-handling.md). Internal registration, connector and state bugs belong to System Recovery, not an invented human task. Only a specific Operator question/input route enters Today attention. Keep business summaries plain and existing machine evidence in closed maintenance details. Reuse this phase captures; do not rewrite unchanged failures or replay external actions to repair their display.

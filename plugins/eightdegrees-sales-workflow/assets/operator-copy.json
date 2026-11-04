@@ -41,7 +41,8 @@
     "sms_confirmation_not_required": "No external status or receipt check required",
     "email_handoff_complete": "Submitted to Gmail",
     "sms_handoff_complete": "Submitted to AndroidSync",
-    "runs": "Run history"
+    "runs": "Run history",
+    "system_recovery": "System maintenance is pending. No action or repeated approval is required from you."
   },
   "zh-CN": {
     "review": "\u9700\u8981\u6211\u5ba1\u6838",
@@ -85,6 +86,7 @@
     "sms_confirmation_not_required": "\u65e0\u9700\u56de\u67e5\u5916\u90e8\u53d1\u9001\u6216\u9001\u8fbe\u72b6\u6001",
     "email_handoff_complete": "\u5df2\u4ea4\u4ed8Gmail",
     "sms_handoff_complete": "\u5df2\u4ea4\u4ed8AndroidSync",
-    "runs": "\u8fd0\u884c\u8bb0\u5f55"
+    "runs": "\u8fd0\u884c\u8bb0\u5f55",
+    "system_recovery": "\u7cfb\u7edf\u5f85\u4fee\u590d\uff0c\u65e0\u9700\u4f60\u64cd\u4f5c\u6216\u91cd\u590d\u5ba1\u6838\u3002"
   }
 }

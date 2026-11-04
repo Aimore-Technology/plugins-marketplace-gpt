@@ -12,7 +12,7 @@ import operator_experience as UX
 
 
 def source():
-    schema = {"Name": {"type": "title"}, "ActionPageURL": {"type": "url"}, "ObservedAt": {"type": "date"}}
+    schema = {"Name": {"type": "title"}, "ActionPageURL": {"type": "url"}, "ObservedAt": {"type": "date"}, "RequiredInputs": {"type": "text"}}
     for key, values in {"Category": ["ClientMatching", "DataCompletion", "ContentReview", "SendApproval", "ExecutionExceptions"],
                         "State": ["WaitingForOperator", "NeedsCorrection", "ReadyToValidate", "InProgress", "Completed", "Cancelled"],
                         "Decision": ["Pause", "Postpone", "Confirm", "Approve", "Return", "Cancel"]}.items():
@@ -66,7 +66,7 @@ class OperatorExperienceTests(unittest.TestCase):
         self.assertIsNone(result['continue_command'])
 
     def test_all_automatic_owners_use_public_commands_not_private_continuations(self):
-        for step in ('PrepareSmsFollowUp', 'SendApprovedSms', 'SendGeneralReply', 'RecordMaterialHandoff', 'ResolveProjectSources', 'ReviewReplyDraft'):
+        for step in ('PrepareSmsFollowUp', 'SendApprovedSms', 'SendGeneralReply', 'ResolveProjectSources', 'ReviewReplyDraft'):
             result = UX.feedback({'task': item('Automatic', step), 'submission': 'requested'})
             self.assertEqual(result['continue_command'], '@eightdegrees-sales-workflow run-auto')
 
@@ -116,7 +116,7 @@ class OperatorExperienceTests(unittest.TestCase):
             self.assertNotIn("database_id", view["args"])
             self.assertIn('"State" != "Completed"', view["args"]["configure"])
             self.assertIn('"State" != "Cancelled"', view["args"]["configure"])
-            self.assertIn('SHOW "Name", "ActionPageURL"', view["args"]["configure"])
+            self.assertIn('SHOW "Name", ' + ('"RequiredInputs", ' if view['key'] == 'attention' else '') + '"ActionPageURL"', view["args"]["configure"])
         layout=result['task_page_layout']
         self.assertNotIn('statements',layout)
         self.assertIn({'type':'editor'},layout['page_layout']['main'])

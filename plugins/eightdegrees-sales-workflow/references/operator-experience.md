@@ -155,3 +155,7 @@ Create Today help and report-run body as timeless procedure/history scaffolding.
 For new email, setup/reuse one Email Review view through email.view-plan. Do not
 create an ordinary action page or second approval view per message. Use the
 registered original view ID; keep consent rows visible until completed/cancelled.
+
+## Actionable exceptions only
+
+Apply [exception handling](exception-handling.md). A fault code alone is not an operator task. Only an explicit Operator responsibility, concrete RequiredInputs question and actual input route enter attention. System/unclassified failures remain in Dashboard System Recovery, with honest impact and No action required. Machine history stays in closed maintenance details, never above the user action. No fake completion, silent failure erasure or unchanged-cycle re-notification.

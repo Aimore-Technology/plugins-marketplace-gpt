@@ -55,7 +55,7 @@ def today_views(data):
         raise ValueError("Read the actual Today page before planning placement")
     page_body(data["page"])
     source, state = _schema(data["pending_source"])
-    required = {"Name", "Category", "State", "Decision", "ActionPageURL"}
+    required = {"Name", "Category", "State", "Decision", "ActionPageURL", "RequiredInputs"}
     if not required <= state["schema"].keys():
         raise ValueError("Today setup needs the original task properties; no guessed schema")
     for key, values in {"Category": ["ClientMatching", "DataCompletion", "ContentReview", "SendApproval", "ExecutionExceptions"],
@@ -71,16 +71,20 @@ def today_views(data):
         needs_input += ' AND "InputSubmitted" = FALSE'
     requested = ' OR "InputSubmitted" = TRUE' if "InputSubmitted" in state["schema"] else ''
     ordinary = ' AND ("ActionFormVersion" IS EMPTY OR "ActionFormVersion" != "email-review-v4")' if "ActionFormVersion" in state["schema"] else ''
+    actionable = ' AND "RequiredInputs" IS NOT EMPTY AND "ActionPageURL" IS NOT EMPTY'
+    if "ResolutionOwner" in state["schema"]:
+        actionable += ' AND "ResolutionOwner" = "Operator"'
+    personal_wait = ' AND ("Category" != "ExecutionExceptions" OR ("RequiredInputs" IS NOT EMPTY AND "ActionPageURL" IS NOT EMPTY' + (' AND "ResolutionOwner" = "Operator"' if "ResolutionOwner" in state["schema"] else '') + '))'
     specs = [
         ("review", opened + ' AND "Category" IN ("ContentReview", "SendApproval") AND ' + needs_input + ordinary),
         ("information", opened + ' AND "Category" IN ("ClientMatching", "DataCompletion") AND ' + needs_input),
-        ("attention", opened + ' AND "Category" = "ExecutionExceptions" AND ' + needs_input),
-        ("waiting", opened + ' AND ("State" IN ("InProgress", "ReadyToValidate") OR "Decision" IN ("Pause", "Postpone", "Confirm", "Approve", "Cancel")' + requested + ')' + ordinary)]
+        ("attention", opened + ' AND "Category" = "ExecutionExceptions" AND ' + needs_input + actionable),
+        ("waiting", opened + ' AND ("State" IN ("InProgress", "ReadyToValidate") OR "Decision" IN ("Pause", "Postpone", "Confirm", "Approve", "Cancel")' + requested + ')' + ordinary + personal_wait)]
     sort = '"ObservedAt" DESC' if "ObservedAt" in state["schema"] else '"Name" ASC'
     views = [{"key": key, "args": {
         "parent_page_id": page["id"], "data_source_id": source["id"], "type": "list",
         "name": copy[key], "show_data_source_title": False,
-        "configure": 'FILTER ' + predicate + '; SORT BY ' + sort + '; SHOW "Name", "ActionPageURL"'}} for key, predicate in specs]
+        "configure": 'FILTER ' + predicate + '; SORT BY ' + sort + '; SHOW "Name", ' + ('"RequiredInputs", ' if key == 'attention' else '') + '"ActionPageURL"'}} for key, predicate in specs]
     result_columns = ['"Name"'] + ['"' + name + '"' for name in ("Result", "ActionPageURL") if name in state["schema"]]
     views.append({"key": "task_results", "args": {
         "parent_page_id": page["id"], "data_source_id": source["id"], "type": "list",
@@ -124,6 +128,12 @@ def feedback(data):
         raise ValueError("Use the original task's content version")
     if state not in {"WaitingForOperator", "NeedsCorrection", "ReadyToValidate", "InProgress", "Completed", "Cancelled"} or mode not in {"Manual", "Automatic"}:
         raise ValueError("Use actual canonical task state and mode")
+    if (task.get("Category") == "ExecutionExceptions" and state not in {"Completed", "Cancelled"}
+            and (task.get("ResolutionOwner") != "Operator" or not task.get("RequiredInputs") or not task.get("ActionPageURL"))):
+        return {"status": "OperatorFeedbackReady", "stage": "system_recovery", "message": copy["system_recovery"],
+                "continue_command": None, "operator_action_required": False,
+                "last_checked_at": data.get("observed_at"),
+                "scope": "System issue or unclassified exception; no invented user task, completion or retry"}
     phase = data.get("submission", "not_observed")
     if phase not in {"not_observed", "requested", "accepted"}:
         raise ValueError("Unknown submission observation")

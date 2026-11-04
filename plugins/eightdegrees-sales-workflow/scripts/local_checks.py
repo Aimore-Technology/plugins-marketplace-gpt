@@ -43,9 +43,12 @@ import email_flow
 import project_cache
 import capture_bundle
 import consent_review
+import exception_presentation
 import task_submission
 
 OPERATIONS = {
+    "exception.presentation": exception_presentation.plan,
+    "operator.system-view": exception_presentation.system_view,
     "email.review-repair": consent_review.repair_publication,
     "task.submission": task_submission.observe,
     "operator.today-views": operator_experience.today_views,
@@ -127,7 +130,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"EmailReviewPublicationPlanned", "EmailReviewPublicationUnchanged", "TaskSubmissionQueued", "TaskSubmissionUnchanged", "TaskSubmissionProjectionRepair", "TodayViewsPlanned", "ConsentReadPlanPrepared", "EmailConsentPending", "EmailConsentObserved", "ConsentViewPlanned", "CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
+PASSED = {"ExceptionPresentationPlanned", "ExceptionPresentationUnchanged", "SystemRecoveryViewPlanned", "EmailReviewPublicationPlanned", "EmailReviewPublicationUnchanged", "TaskSubmissionQueued", "TaskSubmissionUnchanged", "TaskSubmissionProjectionRepair", "TodayViewsPlanned", "ConsentReadPlanPrepared", "EmailConsentPending", "EmailConsentObserved", "ConsentViewPlanned", "CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
           "ProjectCatalogLoaded", "ProjectMatched", "NeedsProjectSelection", "ProjectCacheInvalidated",
           "SingleEmailReviewPrepared", "SingleEmailReviewRendered", "EmailDecisionAccepted", "EmailRevisionRequired", "EmailDispatchDeferred", "EmailDispatchPrepared", "EmailRecordingPending", "EmailHandoffRecorded", "APIWriteConfirmed", "CommunicationReadPlanPrepared", "CommunicationNotePrepared","InquiryNameResolved", "InquiryLabelPlanned","ReadyQueueConstructed", "ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",

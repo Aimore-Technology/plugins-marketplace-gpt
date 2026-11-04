@@ -89,3 +89,5 @@ to finish its missing native properties, then wait for the user's one Consent.
 No action-page lookup, duplicate task, new draft, inherited old confirmation or
 synthetic approval. This local repair cannot send. Complete current reviews
 are not rewritten, and existing consent/attempt evidence is never reset.
+
+For new canonical mail records, publish the returned technical_content native closed toggle rather than dumping task_records as visible JSON. The records themselves are unchanged; the business reply and Consent remain in Today. Preserve existing records and user inputs during targeted updates.

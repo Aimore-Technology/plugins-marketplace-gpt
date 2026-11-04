@@ -74,3 +74,5 @@ original task/action captures, now and language. Persist its observation before
 its projected properties; the owning workflow still validates the request.
 Repeated queued snapshots produce no writes. `operator.today-views` always plans
 task_results from PendingTasks and keeps optional WorkflowRuns as run history.
+
+For an actual new/changed exception, batch exception.presentation using the original captures and business copy. System maintenance is not operator input; operator.system-view is setup-only linked-view planning over original PendingTasks. Repeated unchanged presentation has no writes; classify no-action faults before feedback.
