@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-FILES = ('scripts/email_timing.py', 'scripts/consent_review.py', 'scripts/capture_bundle.py', 'scripts/local_checks.py', 'references/local-check-batch.md', 'references/email-flow.md', 'references/project-cache.md', 'scripts/email_flow.py', 'scripts/reply_transport.py', 'scripts/provider_handoff.py', 'assets/email-review-labels.json', 'scripts/project_cache.py', 'references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
+FILES = ('scripts/discovery_watch.py', 'scripts/email_timing.py', 'scripts/consent_review.py', 'scripts/capture_bundle.py', 'scripts/local_checks.py', 'references/local-check-batch.md', 'references/email-flow.md', 'references/project-cache.md', 'scripts/email_flow.py', 'scripts/reply_transport.py', 'scripts/provider_handoff.py', 'assets/email-review-labels.json', 'scripts/project_cache.py', 'references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
          'references/scheduled-work.md', 'references/schedule-execution.md',
          'scripts/schedule_checks.py', 'scripts/scan_control.py', 'scripts/event_probe.py',
          'scripts/backlog_recovery.py', 'scripts/queue_construction.py', 'scripts/scan_cycle.py', 'scripts/cycle_metrics.py')
@@ -39,7 +39,9 @@ def load(data=None):
                              'technical_records_on_action_page': False,
                              'human_reviews': 1, 'crm_write_readback_required': False,
                              'project_cache_ttl_seconds': 86400},
-            'capture_io_policy': {'contract': 'phase-capture-v1', 'batch_per_phase': True,
+            'capture_io_policy': {'contract': 'phase-capture-v1', 'batch_per_phase': True, 'result_artifact_includes_originals': True,
+                                  'separate_capture_save_required': False,
+                                  'consent_page_reads': 'changed-or-ready-recovery-only',
                                   'per_response_save_calls': False, 'unchanged_writes': False,
                                   'api_write_readback': False, 'new_execution_gate': False},
             'owner': 'eightdegrees-email-scanning', 'policy': 'scheduled-approved-work',

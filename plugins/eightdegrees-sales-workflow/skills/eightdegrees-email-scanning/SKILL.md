@@ -14,7 +14,9 @@ explicit no-send restrictions remain. No native management API, unique executor,
 bound chat or extra lifecycle proof is required.
 
 Batch phase inputs/checks using [local batches](../../references/local-check-batch.md);
-no per-response save or version-observation command, no unchanged local writes.
+the one result artifact already saves originals, so no separate save/capture.commit
+call or unchanged local write. Reuse current task rows to select only changed
+or recovery-demanded v4 task details; do not fetch every unchanged consent task.
 Use [event discovery](../../references/event-discovery.md) and scan.probe over
 current scoped mail, active action submissions, controls, due and recovery.
 Complete discovery without executable input exits immediately. Do not load

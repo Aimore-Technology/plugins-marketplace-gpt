@@ -45,6 +45,7 @@ import capture_bundle
 import consent_review
 
 OPERATIONS = {
+    "email.consent-read-plan": consent_review.read_plan,
     "email.consent-observe": consent_review.observe,
     "email.view-plan": consent_review.view_plan,
     "capture.commit": capture_bundle.commit,
@@ -122,7 +123,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"EmailConsentPending", "EmailConsentObserved", "ConsentViewPlanned", "CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
+PASSED = {"ConsentReadPlanPrepared", "EmailConsentPending", "EmailConsentObserved", "ConsentViewPlanned", "CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
           "ProjectCatalogLoaded", "ProjectMatched", "NeedsProjectSelection", "ProjectCacheInvalidated",
           "SingleEmailReviewPrepared", "SingleEmailReviewRendered", "EmailDecisionAccepted", "EmailRevisionRequired", "EmailDispatchDeferred", "EmailDispatchPrepared", "EmailRecordingPending", "EmailHandoffRecorded", "APIWriteConfirmed", "CommunicationReadPlanPrepared", "CommunicationNotePrepared","InquiryNameResolved", "InquiryLabelPlanned","ReadyQueueConstructed", "ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
@@ -194,8 +195,9 @@ def main():
     args = parser.parse_args()
     try:
         plan = json.loads(sys.stdin.read() if args.input == "-" else Path(args.input).read_text(encoding="utf-8"))
-        captures = capture_bundle.unpack(json.loads(Path(args.captures).read_text(encoding="utf-8"))
-                                         if args.captures else plan.get("captures"))
+        captures = capture_bundle.merge_originals(
+            capture_bundle.unpack(json.loads(Path(args.captures).read_text(encoding='utf-8'))) if args.captures else {},
+            plan.get('captures', {}))
         result = run(plan, captures)
         if args.output:
             output = Path(args.output)
@@ -206,13 +208,15 @@ def main():
                           if c['operation'] == 'capture.commit' and c['result'].get('bundle_path')]
             if output.resolve() in protected:
                 raise ValueError("Do not overwrite captures or the check plan")
-            output.parent.mkdir(parents=True, exist_ok=True)
-            output.write_text(json.dumps(result, ensure_ascii=False, allow_nan=False), encoding="utf-8")
+            artifact = {**result, 'record_type': 'local-check-phase-v1',
+                        'captures': captures, 'plan': {k:v for k,v in plan.items() if k != 'captures'}}
+            written = capture_bundle.save_private(output, artifact)
             result = {**result, "checks": [{"name": c["name"], "operation": c["operation"],
                        "exit_code": c["exit_code"], "status": c["result"]["status"],
                        "issues": c["result"].get("issues", []),
                        "call_sha256": c["result"].get("call_sha256")} for c in result["checks"]],
-                      "output_file": str(output)}
+                      "output_file": str(output), "output_written": written,
+                      "original_inputs_saved": True, "separate_capture_save_required": False}
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as exc:
         result = {"status": "NeedsCorrection", "issues": [str(exc)]}
     print(json.dumps(result, ensure_ascii=False, allow_nan=False))

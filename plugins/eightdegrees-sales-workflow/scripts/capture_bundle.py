@@ -21,13 +21,48 @@ def encoded(value):
 
 def unpack(value):
     """Keep plain legacy capture dictionaries usable by the same local checks."""
-    if isinstance(value, dict) and value.get('record_type') == CONTRACT:
+    if isinstance(value, dict) and value.get('record_type') in {CONTRACT, 'local-check-phase-v1'}:
         if not isinstance(value.get('captures'), dict):
             raise ValueError('Malformed original capture bundle')
         return value['captures']
     if not isinstance(value, dict):
         raise ValueError('Use named original capture objects')
     return value
+
+
+def save_private(path, value):
+    """One atomic result file already contains its original input evidence."""
+    target = Path(path).expanduser()
+    if not target.is_absolute():
+        target = Path.cwd()/target
+    if target.resolve().is_relative_to(PLUGIN) or any(p.is_symlink() for p in (target, *target.parents)):
+        raise ValueError('Store phase results outside the plugin without symlinks')
+    payload = encoded(value)
+    if target.exists() and target.read_bytes() == payload:
+        return False
+    target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    fd, temp_name = tempfile.mkstemp(dir=target.parent, prefix='.'+target.name+'.')
+    try:
+        with os.fdopen(fd, 'wb') as output:
+            if hasattr(os, 'fchmod'):
+                os.fchmod(output.fileno(), 0o600)
+            else:
+                os.chmod(temp_name, 0o600)
+            output.write(payload); output.flush(); os.fsync(output.fileno())
+        os.replace(temp_name, target)
+    finally:
+        if os.path.exists(temp_name):
+            os.unlink(temp_name)
+    return True
+
+
+def merge_originals(previous, incoming):
+    if not isinstance(previous, dict) or not isinstance(incoming, dict):
+        raise ValueError('Use named original capture dictionaries')
+    for name in previous.keys() & incoming.keys():
+        if encoded(previous[name]) != encoded(incoming[name]):
+            raise ValueError('Original capture alias changed: '+name+'; use a new revision alias')
+    return {**previous, **incoming}
 
 
 def commit(data):

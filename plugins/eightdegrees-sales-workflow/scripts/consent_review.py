@@ -135,6 +135,67 @@ def observe(data):
             'send_allowed': False, 'scope': 'Current checkbox/narrative revision only, not approval acceptance'}
 
 
+def read_plan(data):
+    """Reuse the actual task-list query; fetch full pages only on real demand."""
+    from email_flow import digest, moment
+    from backlog_recovery import task_source_key
+    now = moment(data['now'])
+    if data.get('rows_complete') is not True or not isinstance(data.get('rows'), list):
+        raise ValueError('Incomplete task-list coverage cannot prove no changed input')
+    previous, pending = {}, []
+    if data.get('index_page') is not None:
+        index = blocks(data['index_page'], 'scan-event-index-v1')[1]
+        if page_id(index['root_id']) != page_id(data['root_id']):
+            raise ValueError('Use the original event index for this installation')
+        previous = index.get('feeds', {}).get('actions', {}).get('revisions', {})
+        pending = list(index.get('pending', {}).values())
+    from email_timing import release as release_email_delay
+    eligible = [release_email_delay(v) for v in pending]
+    demand_keys = {(v.get('source_key'), v.get('step'), v.get('version')) for v in eligible
+                   if not v.get('due_at') or moment(v['due_at']) <= now}
+    fetch, records, fallback, seen = [], [], [], set()
+    for row in data['rows']:
+        if row.get('ActionFormVersion') != CONTRACT or row.get('State') in {'Completed', 'Cancelled'}:
+            continue
+        identity = page_id(row['url'])
+        if identity in seen:
+            raise ValueError('Duplicate canonical task rows')
+        seen.add(identity)
+        needed = {'Consent', 'ReviewText', 'ContentVersion', 'SourceKey', 'OwnerSkill', 'ResumeStep', 'Mode'}
+        if not needed.issubset(row):
+            fallback.append(row['url']); continue
+        if (row['OwnerSkill'] != 'eightdegrees-sales-reply' or row['ResumeStep'] != 'SendApprovedReply'
+                or row['Mode'] != 'Automatic'):
+            fallback.append(row['url']); continue
+        consent = checked(row['Consent'])
+        source = task_source_key(row)
+        if not source or not isinstance(row['ReviewText'], str) or not row['ContentVersion']:
+            fallback.append(row['url']); continue
+        record_id = 'consent-row:'+identity
+        base = digest({'task': identity, 'version': row['ContentVersion'],
+                       'consent': consent, 'review': row['ReviewText']})
+        old = previous.get(record_id)
+        revision = old if old and old.split(':', 1)[0] == base else base+(':'+data['now'] if old else '')
+        changed = revision != old
+        # A new unchecked row is a wait, not input. Later edits/withdrawals are
+        # actual events; ready saved recovery still runs without a new edit.
+        events = []
+        if changed and (consent or old is not None):
+            events.append({'kind': 'submission', 'source_key': source,
+                           'step': 'SendApprovedReply', 'version': row['ContentVersion'],
+                           'input_digest': revision, 'task_id': identity, 'evidence_ref': row['url']})
+        demand = (source, 'SendApprovedReply', row['ContentVersion']) in demand_keys
+        if events or demand:
+            fetch.append(row['url'])
+        records.append({'id': record_id, 'revision': revision, 'events': events})
+    return {'status': 'ConsentReadPlanPrepared', 'task_page_urls': sorted(set(fetch+fallback)),
+            'row_records': records, 'fallback_task_urls': fallback,
+            'page_fetches_required': len(set(fetch+fallback)),
+            'unchanged_or_unsubmitted_skipped': len(seen)-len(set(fetch+fallback)),
+            'external_actions_allowed': False,
+            'scope': 'Current scoped task-list properties select reads only; full current acceptance still gates sending'}
+
+
 def view_plan(data):
     from operator_experience import _schema
     source, state = _schema(data['pending_source'])

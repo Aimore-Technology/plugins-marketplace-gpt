@@ -5,8 +5,9 @@ Discover scoped mail IDs, current active action submissions, controls, due work
 and saved recovery. Complete discovery plus no runnable demand means immediate
 idle. No inference, CRM/Dropbox/preview checks or routine dashboard writes.
 
-Use metadata/delta feeds when available. Otherwise fetch only registered active
-forms once; unchanged human waits enqueue nothing. Retain cursors and incomplete
+Use metadata/delta feeds when available. Reuse current v4 task-list
+Consent/ReviewText fields; scan.watches selects only changed/demanded task pages.
+Legacy forms require current original input; unchanged human waits enqueue nothing. Retain cursors and incomplete
 pagination honestly. Saved pending/due work is demand even when nothing changed.
 Native ticks load current rules from the installed package; no scheduler API,
 unique executor or bound conversation is required. Queue/event helpers run in

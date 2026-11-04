@@ -37,7 +37,6 @@ def plan(data):
     actions, consent_tasks = [], []
     for row in active:
         if row.get('ActionFormVersion') == 'email-review-v4':
-            consent_tasks.append(row['url'])
             continue
         if row.get('Category') in HUMAN:
             target = row.get('ActionPageURL')
@@ -77,11 +76,21 @@ def plan(data):
             if identity in watches and watches[identity] != watch:
                 raise ValueError('A dependency has conflicting registered revisions or paths')
             watches[identity] = watch
+    consent_plan = {'task_page_urls': [], 'row_records': [], 'fallback_task_urls': []}
+    if any(row.get('ActionFormVersion') == 'email-review-v4' for row in active):
+        from consent_review import read_plan as consent_read_plan
+        consent_plan = consent_read_plan({'rows': rows, 'rows_complete': True,
+            'root_id': config.get('customer_setup', {}).get('notion_root_id') or
+                       config.get('notion_ids', {}).get('root'), 'now': data['now'],
+            **({'index_page': data['index_page']} if data.get('index_page') is not None else {})})
+    consent_tasks = consent_plan['task_page_urls']
     from queue_construction import ready_task_records
     ready_issues = []
     ready_records = ready_task_records(rows, ready_issues)
     return {'status': 'DiscoveryWatchesPrepared', 'action_page_urls': sorted(set(actions)),
             'consent_task_urls': sorted(set(consent_tasks)),
+            'consent_row_records': consent_plan['row_records'],
+            'consent_read_plan': consent_plan,
             'ready_task_records': ready_records, 'ready_task_blocks': ready_issues,
             'source_metadata': list(watches.values()), 'excluded_projects': excluded,
             'conservative_source_watch': conservative,

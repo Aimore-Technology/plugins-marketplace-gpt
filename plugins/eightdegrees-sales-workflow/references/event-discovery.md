@@ -27,6 +27,9 @@ reminders and confirmed appointment changes; explicitly pending recovery.
 Add project/Calendar/SMS-reply feeds only where configured and relevant. An
 unconnected optional channel is not covered and cannot be claimed as monitored.
 
+Reuse native v4 Consent/ReviewText row projections through scan.watches and
+its consent_row_records; fetch only changed/demanded task details. Do not emit
+duplicate row/full-page triggers. Legacy forms still need their current input.
 Prefer supported incremental queries and metadata/version observations. If a
 connector cannot list action-page revisions, fetch only registered active forms
 once and locally digest binding, answers, intent and submission state. A task

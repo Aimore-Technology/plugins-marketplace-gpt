@@ -43,14 +43,16 @@ The owner synchronizes the actual Gmail draft, publishes a new version and
 clears Consent; the user then checks the final updated reply. Never send changed
 content using an earlier check or silently overwrite their requested edit.
 
-scan.watches returns consent_task_urls for v4 instead of action_page_urls. Read
-each actual task once, use email.consent-observe with the actual previous_revision from the saved
-actions feed (omit only on the first observation) to supply its stable revision
-and events to the actions feed, then reuse that capture for email.accept and
-imminent dispatch. Ordinary row timestamps, Decision/InputSubmitted properties
-and checkboxes appearing inside email text cannot supply Consent. A checkbox
-withdrawal after saved acceptance is an input event too. Completed rows produce
-no new work. No-input observations do not write another local version log.
+Reuse the complete current task-list properties for native consent discovery.
+scan.watches selects changed/demanded v4 consent_task_urls with
+email.consent-read-plan, returning consent_row_records for the actions feed.
+Unchanged unsubmitted or already observed rows without ready recovery need no
+full page fetch. Fetch only affected task pages once; reuse those originals for
+email.accept/dispatch. Missing list fields fall back to a current original page;
+incomplete coverage cannot establish idle. Full email.consent-observe remains a
+legacy/direct-input adapter; do not emit both row and full-page triggers for the
+same new submission. Package/input acceptance still reads the actual task on
+runnable demand; no cached decision is promoted to new authority.
 
 email.accept/dispatch accept the task capture only for v4; no action capture is
 required. Approval binds the exact displayed narrative/package/version. Persist

@@ -1,66 +1,68 @@
-# One tool orchestration and one local batch per phase
+# Read once, check once, keep one result artifact
 
-Collect independent current reads in one host orchestration when available.
-Keep returned objects in memory, keyed by original tool call/page/message ID.
-Do not invoke a shell once per response to save active input, register a version
-observation, serialize the same page again or inspect files just written.
-A repeated tool title is not a business checkpoint. Do not create read/save/
-observation loops while waiting for a result that was already returned.
+Normal phases do not have a separate preserve-originals/save-input/version-log
+step. Do not call capture.commit or capture_bundle.py for every response or
+phase; these remain legacy diagnostic/recovery adapters only. Do not split a
+large original into model-authored append-file calls. Preserve actual tool
+objects with the host's supported orchestration/native artifact facility.
 
-## Normal path
+## One complete phase
 
-1. Read the phase's affected settings/tasks/actions/messages once. Preserve
-   original response objects, errors, warnings and complete pagination. Reuse
-   these objects in every local check and newly ready successor in this phase.
-2. Supply one small plan with named captures and all ready checks. Use
-   python3 <plugin>/scripts/local_checks.py --input <phase.json> --output <result.json>.
-   phase.json may contain both captures={name:original_response} and checks.
-   It can also be passed with --input - as one complete stdin payload. No
-   preliminary capture file or separate version-registration command is needed.
-3. Inputs use {"$capture":"name"} and {"$result":"earlier-check"}. Helpers
-   receive isolated original objects. Require exit 0 and LocalChecksPassed;
-   inspect each actual helper status. A successful batch is not send authority.
-   --output retains exact results/calls while stdout prints compact summaries.
-   Execute the checked call directly from that local result; do not print its
-   body, split it into shell chunks or repeatedly reconstruct it in context.
-4. If originals need a durable local checkpoint, include capture.commit in that
-   same phase batch, or call capture_bundle.py once with the whole phase input.
-   It atomically merges originals into one private cycle bundle outside the
-   plugin. Identical aliases/objects write nothing. An alias is immutable: use
-   a new phase/revision alias for a genuinely changed original. This is local
-   recovery data, not another Notion log, authority cache or execution identity.
+1. Reuse already returned original objects. Collect independent current reads in
+   one host orchestration when supported. Preserve errors/warnings/pagination;
+   print only IDs, counts and actual failure summaries, not full raw bodies.
+2. Run local_checks.py --input <plan.json> --output <phase-result.json> once for
+   all ready checks. Inline plan.captures contains named original objects.
+   --input - also accepts one complete stdin payload. No preliminary capture
+   file is required. The output file itself atomically contains originals,
+   plan and actual results, including original errors on failure. Stdout is a
+   compact summary. The same phase does not need a second original-record file.
+3. Subsequent checks use --captures <phase-result.json> and a small new plan.
+   New originals may join plan.captures; existing aliases must match exactly.
+   Use a new revision alias for a changed response. Do not retype old page bodies
+   into model context or upload them as shell chunks. Identical output is not
+   rewritten. Never overwrite the source bundle or plan with result output.
+4. Inputs use {"$capture":"name"} and {"$result":"earlier-check"}. Require
+   actual helper statuses plus LocalChecksPassed/exit 0. A saved result is not
+   permission. Refused batches strip executable result calls. Original proposed
+   arguments in captures remain evidence, never an executable approval.
 
-capture.commit input: bundle_path (absolute private local path), root_id,
-cycle_key (local cycle correlation only), observed_at with offset, captures
-(nonempty named exact original response or explicit exception objects). The
-result reports counts/path/fingerprints and failed diagnostics. A saved failure
-still means missing coverage; it never becomes a successful read. Bundles can
-be loaded with --captures <bundle.json>; plain legacy dictionaries still work.
-Other invocations never reuse captured approval/stop state as current evidence.
+Host support varies. If original tool artifacts are already saved by the host,
+reference them directly. If the host cannot preserve/programmatically pass an
+original object, report that concrete limitation; do not create a long series
+of capture-writing calls or claim a smaller tool count merely by renaming them.
+No hidden thread databases, new service or additional native task is needed.
 
-An unchanged idle scan needs no capture checkpoint solely to report that it
-checked versions. Use actual discovery fingerprints/cursors in EventIndex;
-persist it only when scan.probe.persist_required is true. A changed cursor,
-pending handoff, incomplete pagination or real failure still needs its recovery
-record. The original incoming response is not a replacement for a durable
-Inbox source required before customer processing.
+## Read only demanded Notion pages
 
-## Keep business boundaries
+Reuse the current complete canonical task-list query/view response. Include
+url, State, ActionFormVersion, ContentVersion, Consent, ReviewText, SourceKey,
+OwnerSkill, ResumeStep and Mode in that existing discovery projection; no extra
+query per task. scan.watches input includes the existing current now timestamp, complete tasks
+and original index/settings captures. It runs email.consent-read-plan and returns
+consent_row_records and only required consent_task_urls. Compare row input
+fingerprints to the actual saved actions-feed revisions. Feed consent_row_records
+into actions discovery; do not also enqueue a second full-task-observe event for
+the same native row. Fetch a full current task only for a changed consent/text,
+runnable saved recovery or an incomplete projection. Read that task once and
+reuse it for exact acceptance and imminent dispatch. No separate v4 action page.
 
-Batching does not postpone a required durable effect boundary: save original
-source/accepted decision/AttemptId before its dependent operation, and retain a
-provider's accepted or unknown result immediately. One provider response can
-join one result batch; it must never be resent to repair logging. Persist the
-changed event index before advancing its cursors and confirm API success.
+No changes and no executable backlog means zero full v4 task fetches, not one
+fetch for every active row. This is selection, never cached approval authority.
+True withdrawals, new versions, edited text, due recovery and incomplete pages
+still get their actual current observation. Unchanged complete rows may be
+skipped; incomplete task-list coverage cannot justify idle. Missing projected
+fields fall back to the original registered task, never guessed values.
+Legacy ordinary action forms still require current actual input; do not cache
+away unobserved human edits or broaden the configured discovery scope. Respect
+known Notion SQL capability/quota; reuse a supported existing saved-view query
+when necessary, and do not reprobe a known exhausted query method each scan.
 
-A successful own write updates the local projection from its original API
-acknowledgement; it does not invalidate every captured page or trigger a new
-fetch. A relevant external edit, new version, stop/reply or delayed send needs
-one affected fresh observation. No saved-body/MIME/preview readback. Reuse the
-same imminent accepted task/action/control observation for dispatch.
+## Durable effect boundaries remain
 
-Coalesce source/task/action status at their real business boundary and cycle
-metrics once at cycle close. Do not write logs for file saves, helper calls,
-metadata reads or logging itself. Later errors preserve original captures and
-completed effects; rerun only the affected failed check with new evidence.
-No new service, native task or global execution lock is introduced.
+Persist original Inbox source, accepted decision/AttemptId before dependent
+provider actions, and accepted/unknown outcomes immediately. Local phase artifacts
+cannot substitute for those business records. Confirm writes from original API
+acknowledgements; do not refetch own writes or re-run all checks after each
+projection. Coalesce source/task/action outcomes at a real boundary and cycle
+metrics once. Do not log file saves, metadata reads or the act of logging.
