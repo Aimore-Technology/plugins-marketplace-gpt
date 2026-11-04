@@ -11,6 +11,7 @@ from notion_checks import page_id
 from scan_control import gate
 from scan_cycle import key, timestamp
 from email_timing import release as release_email_delay, is_email
+from consent_review import needs_publication
 
 ROUTES = json.loads((Path(__file__).resolve().parents[1]/'references/task-routes.json').read_text())
 SAFE_PREPARATION = {'read', 'draft', 'checkpoint', 'report'}
@@ -22,13 +23,14 @@ def ready_task_records(rows, issues=None):
     """Current validated preparation is backlog; never synthesize send approval."""
     records = []
     for row in rows:
+        publication = needs_publication(row)
         approved_email = (is_email(row) and row.get('State') not in {'Completed', 'Cancelled'}
                           and ((row.get('Consent') is True or row.get('Consent') == '__YES__') or row.get('Decision') == 'Approve'))
-        if row.get('Mode') != 'Automatic' or (row.get('State') != 'ReadyToValidate' and not approved_email):
+        if row.get('Mode') != 'Automatic' or (row.get('State') != 'ReadyToValidate' and not approved_email and not publication):
             continue
         step = row.get('ResumeStep')
         route = ROUTES.get(step, {})
-        if (route.get('effect') not in SAFE_PREPARATION and not approved_email) or route.get('owner') != row.get('OwnerSkill'):
+        if (route.get('effect') not in SAFE_PREPARATION and not approved_email and not publication) or route.get('owner') != row.get('OwnerSkill'):
             continue
         identity, version = backlog_recovery.task_source_key(row), row.get('ContentVersion')
         if not identity or not version or not row.get('url'):
@@ -40,6 +42,8 @@ def ready_task_records(rows, issues=None):
         event = {'kind': 'recovery', 'source_key': identity, 'step': step, 'version': version,
                  'input_digest': digest, 'evidence_ref': row['url'], 'task_id': row['url'],
                  'estimated_seconds': ESTIMATES.get(step, 90)}
+        if publication:
+            event['review_publication_only'] = True
         if due:
             timestamp(due)
             event.update(kind='timer', due_at=due)

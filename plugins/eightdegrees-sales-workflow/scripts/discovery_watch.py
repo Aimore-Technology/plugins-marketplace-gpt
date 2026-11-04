@@ -2,6 +2,7 @@
 
 from email_presentation import blocks
 from notion_checks import page_id
+from consent_review import needs_publication
 
 HUMAN = {'ClientMatching', 'DataCompletion', 'ContentReview', 'SendApproval', 'ExecutionExceptions'}
 FACT_STEPS = {'ResolveProjectSources', 'ReviewReplyDraft', 'SendApprovedReply'}
@@ -36,7 +37,7 @@ def plan(data):
     active = [r for r in rows if r.get('State') not in {'Completed', 'Cancelled'}]
     actions, consent_tasks = [], []
     for row in active:
-        if row.get('ActionFormVersion') == 'email-review-v4':
+        if row.get('ActionFormVersion') == 'email-review-v4' or needs_publication(row):
             continue
         if row.get('Category') in HUMAN:
             target = row.get('ActionPageURL')
@@ -88,6 +89,7 @@ def plan(data):
     ready_issues = []
     ready_records = ready_task_records(rows, ready_issues)
     return {'status': 'DiscoveryWatchesPrepared', 'action_page_urls': sorted(set(actions)),
+            'review_publication_task_urls': sorted({r['url'] for r in active if needs_publication(r)}),
             'consent_task_urls': sorted(set(consent_tasks)),
             'consent_row_records': consent_plan['row_records'],
             'consent_read_plan': consent_plan,

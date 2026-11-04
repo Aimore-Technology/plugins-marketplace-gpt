@@ -6,6 +6,17 @@ from notion_checks import object_result, page_body, page_id
 CONTRACT = 'email-review-v4'
 
 
+def needs_publication(row):
+    """Select incomplete native review projections, never infer consent."""
+    return (row.get('Mode') == 'Automatic' and row.get('State') not in {'Completed', 'Cancelled'}
+            and row.get('OwnerSkill') == 'eightdegrees-sales-reply'
+            and row.get('ResumeStep') == 'SendApprovedReply'
+            and {'ActionFormVersion', 'ReviewText', 'ActionPageURL', 'Category'} <= row.keys()
+            and row.get('ActionFormVersion') in {None, '', CONTRACT}
+            and (row.get('ActionFormVersion') != CONTRACT or row.get('Category') != 'SendApproval'
+                 or not row.get('ReviewText') or not row.get('ActionPageURL')))
+
+
 def narrative(package, historical=False):
     from email_flow import validate, window_text, LABELS
     m, text = validate(package)
@@ -37,6 +48,8 @@ def render(package):
     return {'status': 'SingleEmailReviewRendered', 'binding': binding,
             'task_records': [binding, package], 'properties': {
                 'ReviewText': narrative(package), 'Consent': '__NO__',
+                'State': 'WaitingForOperator', 'InputSubmitted': '__NO__',
+                'Result': package['labels']['consent_help'],
                 'ActionFormVersion': CONTRACT, 'ContentVersion': package['content_version'],
                 'Mode': 'Automatic', 'Category': 'SendApproval',
                 'OwnerSkill': 'eightdegrees-sales-reply', 'ResumeStep': 'SendApprovedReply',
@@ -48,6 +61,32 @@ def render(package):
                 'date:SendNotAfter:start': None,
                 'ActionPageURL': 'https://app.notion.com/p/'+page_id(package['task_page_id'])},
             'scope': 'Publish on the canonical task; show ReviewText and Consent in one native view; no separate form or Submit'}
+
+
+def repair_publication(data):
+    """Finish a saved v4 review's missing native properties, without approval."""
+    task = data['task']
+    props = properties(task)
+    if props.get('State') in {'Completed', 'Cancelled'}:
+        return {'status': 'EmailReviewPublicationUnchanged', 'writes': [], 'send_allowed': False}
+    package = blocks(task, CONTRACT)[1]
+    rendered = render(package)
+    identity = page_id(object_result(task)['id'])
+    if (identity != page_id(package['task_page_id']) or blocks(task, 'action-binding')[1] != rendered['binding']
+            or props.get('ContentVersion') != package['content_version']):
+        raise ValueError('Repair the original current v4 package and binding only')
+    expected = rendered['properties']
+    keys = ('ReviewText', 'ActionFormVersion', 'Category', 'ActionPageURL', 'OwnerSkill', 'ResumeStep')
+    if all(props.get(k) == expected[k] for k in keys):
+        return {'status': 'EmailReviewPublicationUnchanged', 'writes': [], 'send_allowed': False}
+    if (checked(props.get('Consent')) or props.get('AttemptId') or props.get('Decision') == 'Approve'
+            or blocks(task, 'email-decision-v2', required=False)):
+        raise ValueError('Preserve existing consent/attempt evidence; do not reset or invent approval during repair')
+    message = package['labels']['consent_help']
+    expected = {**expected, 'Result': message}
+    return {'status': 'EmailReviewPublicationPlanned', 'writes': [
+                {'page_id': identity, 'command': 'update_properties', 'properties': expected}],
+            'send_allowed': False, 'scope': 'Finish the original saved review projection only; never create another task or consent'}
 
 
 def checked(value):

@@ -75,3 +75,14 @@ New mail has no window input or date_allowed/window_eligible gate. email.dispatc
 ignores legacy date/window fields but validates current consent/version and
 stop/attempt controls. A genuine provider retry-after is operational backoff,
 not a user/business-hours window. SMS notification timing remains unchanged.
+
+## email.review-repair
+
+Input: task, the original saved canonical v4 task capture. Repairs only missing
+native review properties from the actual same-version package and binding.
+A complete/terminal task yields no writes. Existing checked consent, accepted
+decisions or attempts prevent reconstruction that would reset approval. Apply
+the returned property write, then wait for actual native Consent; no sends,
+new action form or duplicate draft. Missing saved package is a scoped recovery
+problem, never authority to invent one. Reuse task rows to select incomplete
+publication instead of rechecking every finished review each scan.

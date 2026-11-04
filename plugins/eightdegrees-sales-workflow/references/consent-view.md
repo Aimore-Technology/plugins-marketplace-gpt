@@ -68,3 +68,24 @@ happens at any hour on the next scan. Old windowed narrative may remain exact
 historical evidence or be repaired to the same payload with the current timing
 explanation; no copy edit or new approval is needed just to remove clock gating.
 Clear only mail's obsolete date fields; SMS quiet hours remain independent.
+
+## Today is the complete operator journey
+
+The only normal email journey is Today -> read the full ReviewText -> check
+Consent -> the next scan dispatches. Do not route a customer email through an
+Actions page, a content confirmation or a second consent. Email reviews stay
+in the native Email Review table, including checked rows before dispatch; they
+are excluded from generic review/waiting lists that open technical task bodies.
+A pending unchecked review is WaitingForOperator, Category=SendApproval, never
+ScheduledWork merely because sending has not happened. Keep the real table
+reachable from Today with a native reference; preserve existing native layout
+when the connector cannot safely reposition linked database blocks.
+
+Publish the exact email.review properties together with the saved package and
+binding; saved technical body alone is not a usable review. On interruption,
+scan.watches selects review_publication_task_urls and ready records tagged
+review_publication_only. Reuse the original task/package with email.review-repair
+to finish its missing native properties, then wait for the user's one Consent.
+No action-page lookup, duplicate task, new draft, inherited old confirmation or
+synthetic approval. This local repair cannot send. Complete current reviews
+are not rewritten, and existing consent/attempt evidence is never reset.

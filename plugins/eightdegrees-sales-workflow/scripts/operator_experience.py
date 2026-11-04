@@ -70,11 +70,12 @@ def today_views(data):
     if "InputSubmitted" in state["schema"]:
         needs_input += ' AND "InputSubmitted" = FALSE'
     requested = ' OR "InputSubmitted" = TRUE' if "InputSubmitted" in state["schema"] else ''
+    ordinary = ' AND ("ActionFormVersion" IS EMPTY OR "ActionFormVersion" != "email-review-v4")' if "ActionFormVersion" in state["schema"] else ''
     specs = [
-        ("review", opened + ' AND "Category" IN ("ContentReview", "SendApproval") AND ' + needs_input),
+        ("review", opened + ' AND "Category" IN ("ContentReview", "SendApproval") AND ' + needs_input + ordinary),
         ("information", opened + ' AND "Category" IN ("ClientMatching", "DataCompletion") AND ' + needs_input),
         ("attention", opened + ' AND "Category" = "ExecutionExceptions" AND ' + needs_input),
-        ("waiting", opened + ' AND ("State" IN ("InProgress", "ReadyToValidate") OR "Decision" IN ("Pause", "Postpone", "Confirm", "Approve", "Cancel")' + requested + ')')]
+        ("waiting", opened + ' AND ("State" IN ("InProgress", "ReadyToValidate") OR "Decision" IN ("Pause", "Postpone", "Confirm", "Approve", "Cancel")' + requested + ')' + ordinary)]
     sort = '"ObservedAt" DESC' if "ObservedAt" in state["schema"] else '"Name" ASC'
     views = [{"key": key, "args": {
         "parent_page_id": page["id"], "data_source_id": source["id"], "type": "list",

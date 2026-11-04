@@ -52,3 +52,12 @@ at the cycle boundary. No routine Health/report/history sweeps or delivery polls
 Approved mail sends immediately in this cycle. Do not defer to business hours,
 weekdays, holidays or legacy email due dates. Recover approved backlog with no
 new mail input. Never bypass provider backoff or replay unknown/accepted sends.
+
+
+Before treating an incomplete SendApprovedReply as waiting/idle, process only
+review_publication_task_urls from scan.watches with email.review-repair over
+those original captures. A review_publication_only recovery event repairs the
+native review, never dispatches. The normal email operator path is exclusively
+Today -> read ReviewText -> check Consent -> next scan sends. No Actions or
+additional confirmation. Publish the whole review projection at one boundary;
+canonical native reviews do not belong in generic waiting/action-link lists.

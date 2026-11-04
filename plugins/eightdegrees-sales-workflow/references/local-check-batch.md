@@ -37,7 +37,7 @@ No hidden thread databases, new service or additional native task is needed.
 
 Reuse the current complete canonical task-list query/view response. Include
 url, State, ActionFormVersion, ContentVersion, Consent, ReviewText, SourceKey,
-OwnerSkill, ResumeStep and Mode in that existing discovery projection; no extra
+OwnerSkill, ResumeStep, Mode, Category and ActionPageURL in that existing discovery projection; no extra
 query per task. scan.watches input includes the existing current now timestamp, complete tasks
 and original index/settings captures. It runs email.consent-read-plan and returns
 consent_row_records and only required consent_task_urls. Compare row input
