@@ -1,8 +1,8 @@
 # EightDegrees Sales Workflow
 
-Version 0.1.46. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
+Version 0.1.56. Eight workflow skills plus one command entry for the EightDegrees pilot. Start with `eightdegrees-initialization`; shared rules live in `references/operating-contract.md`. Actual customer settings belong in `Aimore/Dashboard`, not in this installation directory. Open `Aimore/Today` for the current work; dedicated input pages stay under Actions. See [operator experience](references/operator-experience.md) for setup, short reviews and honest post-submit guidance.
 
-Current 0.1.46 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
+Current 0.1.56 behavior: start/stop controls the scanning switch; explicit start registers the existing native task configuration when readable. Every native wake loads current scheduled rules, recovers durable backlog independently of new input, and records timer/guard/business progress separately. No duplicate tasks are created.
 A stopped run-auto reads only settings and exits without discovery or logs.
 No command creates/updates/pauses/deletes native automations. Older release
 sections below describe historical behavior and are superseded for start/stop.
@@ -162,3 +162,7 @@ this release creates no schedule and does not claim an atomic parallel lock.
 0.1.46 also reuses original waiting tasks when Notion renders their SourceKey email as a mailto link. Only exact matching email-link rendering is normalized; conflicting source pointers remain scoped recovery, never duplicate tasks.
 
 0.1.46 constructs the complete ready queue in code. scan.queue merges original pending mail, submissions, due/recovery events and validated automatic preparation; scan.cycle cannot lose fitting work through a narrowed caller list. No new native identity or management gate.
+
+## Task status and results
+
+Today shows completed/cancelled original PendingTasks in Recent results; WorkflowRuns remains Run history. Submitted legacy input leaves needs-input views and joins the saved queue without another continue command. Observation does not approve facts or sending; owners close their original step at the outcome boundary.

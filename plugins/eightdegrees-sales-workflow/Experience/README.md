@@ -11,6 +11,7 @@ Open only a relevant exception card when an actual problem occurs:
 | --- | --- |
 | Quoting or supported Gmail update contract | [Stored reply](mail-delivery.md) |
 | Native preview publication | [Preview](preview-evidence.md) |
+| Completed task missing from results or submitted form still requests input | [Task state](task-results-and-submissions.md) |
 | Notion targeted edit rejected | [Edits](notion-edits.md) |
 | Notion quota/pagination | [Quota](notion-quota.md) |
 | Garbled incoming body | [Mail decoding](../references/mail-decoding.md) |

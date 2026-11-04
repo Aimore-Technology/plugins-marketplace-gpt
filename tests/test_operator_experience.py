@@ -107,12 +107,12 @@ class OperatorExperienceTests(unittest.TestCase):
         a={**outcome(),'account':'operator@example.com'};b=copy.deepcopy(a);b['provider']['status']='Unknown'
         self.assertEqual(UX.result_summary({'events':[a,b],'coverage_complete':True})['status'],'NeedsReconciliation')
 
-    def test_today_uses_four_linked_views_over_original_tasks_not_new_databases(self):
+    def test_today_uses_task_results_and_linked_views_over_original_tasks_not_new_databases(self):
         result = UX.today_views({"page": page("Today"), "pending_source": source()})
         self.assertEqual(result["status"], "TodayViewsPlanned")
-        self.assertEqual([v["key"] for v in result["views"]], ["review", "information", "attention", "waiting"])
+        self.assertEqual([v["key"] for v in result["views"]], ["review", "information", "attention", "waiting", "task_results"])
         self.assertEqual({v["args"]["data_source_id"] for v in result["views"]}, {"collection://"+PARENT})
-        for view in result["views"]:
+        for view in result["views"][:4]:
             self.assertNotIn("database_id", view["args"])
             self.assertIn('"State" != "Completed"', view["args"]["configure"])
             self.assertIn('"State" != "Cancelled"', view["args"]["configure"])
@@ -138,9 +138,9 @@ class OperatorExperienceTests(unittest.TestCase):
         state['schema']['State']['options'] += [{'name':'Error'},{'name':'Unknown'}]
         extra['text']='<data-source-state>'+json.dumps(state)+'</data-source-state>'
         result=UX.today_views({'page':page('Today'),'pending_source':source(),'runs_source':extra,'brief_source':extra})
-        self.assertEqual(len(result['views']),6)
+        self.assertEqual(len(result['views']),7)
         for view in result['views']:self.assertNotIn('\\"',view['args']['configure'])
-        self.assertIn('"RecordType" = "Business"',result['views'][4]['args']['configure'])
+        self.assertIn('"RecordType" = "Business"',result['views'][5]['args']['configure'])
 
     def test_manual_request_uses_shared_queue_without_promising_a_job(self):
         result = UX.feedback({"task": item(), "submission": "requested"})

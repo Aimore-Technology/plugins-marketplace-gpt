@@ -40,7 +40,8 @@
     "stopped_pending": "Future notifications are stopped. The existing request remains pending; cancellation is not confirmed. Check the original request.",
     "sms_confirmation_not_required": "No external status or receipt check required",
     "email_handoff_complete": "Submitted to Gmail",
-    "sms_handoff_complete": "Submitted to AndroidSync"
+    "sms_handoff_complete": "Submitted to AndroidSync",
+    "runs": "Run history"
   },
   "zh-CN": {
     "review": "\u9700\u8981\u6211\u5ba1\u6838",
@@ -83,6 +84,7 @@
     "stopped_pending": "\u540e\u7eed\u901a\u77e5\u5df2\u505c\u53d1\u3002\u539f\u8bf7\u6c42\u4ecd\u5f85\u5904\u7406\uff0c\u64a4\u56de\u5c1a\u672a\u786e\u8ba4\uff0c\u8bf7\u6838\u67e5\u539f\u8bf7\u6c42\u3002",
     "sms_confirmation_not_required": "\u65e0\u9700\u56de\u67e5\u5916\u90e8\u53d1\u9001\u6216\u9001\u8fbe\u72b6\u6001",
     "email_handoff_complete": "\u5df2\u4ea4\u4ed8Gmail",
-    "sms_handoff_complete": "\u5df2\u4ea4\u4ed8AndroidSync"
+    "sms_handoff_complete": "\u5df2\u4ea4\u4ed8AndroidSync",
+    "runs": "\u8fd0\u884c\u8bb0\u5f55"
   }
 }

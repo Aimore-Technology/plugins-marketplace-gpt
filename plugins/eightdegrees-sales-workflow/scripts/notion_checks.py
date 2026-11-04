@@ -189,8 +189,10 @@ def page_id(value):
         raise ValueError("Expected a registered Notion page/data-source ID")
     if value.startswith("collection://"):
         value = value[len("collection://"):]
-    elif value.startswith("https://app.notion.com/p/"):
-        value = urlsplit(value).path[len("/p/"):].rstrip("/")
+    elif value.startswith("https://app.notion.com/"):
+        path = urlsplit(value).path
+        value = path[3:] if path.startswith("/p/") else path[1:]
+        value = value.rstrip("/")
     compact = value.replace("-", "").lower()
     if not re.fullmatch(r"[0-9a-f]{32}", compact):
         raise ValueError("Use actual registered Notion IDs, not titles or guessed URLs")

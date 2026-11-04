@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-FILES = ('scripts/discovery_watch.py', 'scripts/email_timing.py', 'scripts/consent_review.py', 'scripts/capture_bundle.py', 'scripts/local_checks.py', 'references/local-check-batch.md', 'references/email-flow.md', 'references/project-cache.md', 'scripts/email_flow.py', 'scripts/reply_transport.py', 'scripts/provider_handoff.py', 'assets/email-review-labels.json', 'scripts/project_cache.py', 'references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
+FILES = ('scripts/task_submission.py', 'scripts/operator_experience.py', 'references/operator-experience.md', 'scripts/discovery_watch.py', 'scripts/email_timing.py', 'scripts/consent_review.py', 'scripts/capture_bundle.py', 'scripts/local_checks.py', 'references/local-check-batch.md', 'references/email-flow.md', 'references/project-cache.md', 'scripts/email_flow.py', 'scripts/reply_transport.py', 'scripts/provider_handoff.py', 'assets/email-review-labels.json', 'scripts/project_cache.py', 'references/api-result-policy.md', 'scripts/api_result.py', 'references/inquiry-intake.md', 'scripts/inquiry_intake.py', 'scripts/current_rules.py', 'skills/eightdegrees-email-scanning/SKILL.md', 'references/scheduled-entry.md',
          'references/scheduled-work.md', 'references/schedule-execution.md',
          'scripts/schedule_checks.py', 'scripts/scan_control.py', 'scripts/event_probe.py',
          'scripts/backlog_recovery.py', 'scripts/queue_construction.py', 'scripts/scan_cycle.py', 'scripts/cycle_metrics.py')

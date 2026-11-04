@@ -67,16 +67,24 @@ def today_views(data):
                 raise ValueError("Current task options differ; explicit setup repair required")
     opened = '"State" != "Completed" AND "State" != "Cancelled"'
     needs_input = '("Decision" IS EMPTY OR "Decision" = "Return") AND "State" IN ("WaitingForOperator", "NeedsCorrection")'
+    if "InputSubmitted" in state["schema"]:
+        needs_input += ' AND "InputSubmitted" = FALSE'
+    requested = ' OR "InputSubmitted" = TRUE' if "InputSubmitted" in state["schema"] else ''
     specs = [
         ("review", opened + ' AND "Category" IN ("ContentReview", "SendApproval") AND ' + needs_input),
         ("information", opened + ' AND "Category" IN ("ClientMatching", "DataCompletion") AND ' + needs_input),
         ("attention", opened + ' AND "Category" = "ExecutionExceptions" AND ' + needs_input),
-        ("waiting", opened + ' AND ("State" IN ("InProgress", "ReadyToValidate") OR "Decision" IN ("Pause", "Postpone", "Confirm", "Approve", "Cancel"))')]
+        ("waiting", opened + ' AND ("State" IN ("InProgress", "ReadyToValidate") OR "Decision" IN ("Pause", "Postpone", "Confirm", "Approve", "Cancel")' + requested + ')')]
     sort = '"ObservedAt" DESC' if "ObservedAt" in state["schema"] else '"Name" ASC'
     views = [{"key": key, "args": {
         "parent_page_id": page["id"], "data_source_id": source["id"], "type": "list",
         "name": copy[key], "show_data_source_title": False,
         "configure": 'FILTER ' + predicate + '; SORT BY ' + sort + '; SHOW "Name", "ActionPageURL"'}} for key, predicate in specs]
+    result_columns = ['"Name"'] + ['"' + name + '"' for name in ("Result", "ActionPageURL") if name in state["schema"]]
+    views.append({"key": "task_results", "args": {
+        "parent_page_id": page["id"], "data_source_id": source["id"], "type": "list",
+        "name": copy["results"], "show_data_source_title": False,
+        "configure": 'FILTER "State" IN ("Completed", "Cancelled"); SORT BY ' + sort + '; SHOW ' + ', '.join(result_columns)}})
     for name, required, predicate, sorting, columns in [
             ("runs_source", {"Name", "RecordType", "State", "Summary", "LastActiveAt"},
              '\"RecordType\" = \"Business\" AND \"State\" IN (\"Completed\", \"Error\", \"Unknown\")',
@@ -95,7 +103,7 @@ def today_views(data):
                 raise ValueError("Results view options differ from the original schema")
         key = "results" if name == "runs_source" else "briefs"
         views.append({"key": key, "args": {"parent_page_id": page["id"], "data_source_id": extra_source["id"],
-            "type": "list", "name": copy[key], "show_data_source_title": False,
+            "type": "list", "name": copy["runs"] if key == "results" else copy[key], "show_data_source_title": False,
             "configure": 'FILTER ' + predicate + '; SORT BY ' + sorting + '; SHOW ' + columns}})
     task_layout = {"data_source_id": source["id"], "page_layout": {
         "main": [{"type": "title", "pinnedProperties": [], "propertyLabels": "hide"}, {"type": "editor"}, {"type": "discussions"}],

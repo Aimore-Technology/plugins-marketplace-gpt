@@ -66,3 +66,11 @@ cannot substitute for those business records. Confirm writes from original API
 acknowledgements; do not refetch own writes or re-run all checks after each
 projection. Coalesce source/task/action outcomes at a real boundary and cycle
 metrics once. Do not log file saves, metadata reads or the act of logging.
+
+## Legacy submission projection
+
+Batch `task.submission` for actually submitted task-action-v1 forms using current
+original task/action captures, now and language. Persist its observation before
+its projected properties; the owning workflow still validates the request.
+Repeated queued snapshots produce no writes. `operator.today-views` always plans
+task_results from PendingTasks and keeps optional WorkflowRuns as run history.

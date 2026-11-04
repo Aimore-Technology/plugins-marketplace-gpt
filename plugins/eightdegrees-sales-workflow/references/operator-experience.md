@@ -20,7 +20,13 @@ and use small text-only edits; unsupported positioning remains a layout limit.
 No placeholder text or copied rows. Today contains timeless navigation/help only: do not add static current-readiness or waiting-for-approval claims that can outlive the actual task. Current business state comes from verified linked views and dated original outcomes. Explicit init upgrade removes only stale owned help text using exact text edits, preserving all native blocks and history.
 With actual source/page fetches, run `operator_experience.py today-views` to plan
 native linked views: Needs my review, Needs my information, Needs my attention,
-Waiting and paused, and optional original Business results/daily summaries.
+Waiting and paused, Recent results over the original PendingTasks, and optional
+Run history/daily summaries. Recent results MUST use the PendingTasks source,
+State IN (Completed, Cancelled), and show the original Result. WorkflowRuns is
+run history, never a substitute for completed task results. When repairing an
+older Today whose results view points at WorkflowRuns, preserve and rename that
+view Run history, create/reuse one task_results view over PendingTasks, and
+register its actual ID. Do not recreate tasks or replace native database tags.
 Use the actual create_view schema and documented view DSL, then confirm the original API response for each
 view's source/filter/show fields. Registration follows verified results; an
 uncertain creation is reconciled by its returned ID before retry.
@@ -49,6 +55,30 @@ and bindings, then verify affected records. Do not register unchanged Today as a
 owner publication target. Legacy installations retain their one verified queue
 until explicit upgrade succeeds. A native row title still opens the task record;
 the visible action-page URL is the direct processing link.
+
+## Project submissions and close the step in the same owner phase
+
+For an actually submitted task-action-v1 form run local `task.submission` with
+the original task/action captures, current time and saved language. Apply its
+ordered observation/projection writes once: the task becomes ReadyToValidate
+and leaves Needs my review/information. This records a request only, not fact
+acceptance, completion or send approval. Re-observing the same queued snapshot
+produces no writes. Keep checked input visible until the owner validates and
+consumes it; unsubmitted, copied, read-only and terminal forms do not reopen.
+This includes old forms whose InputSubmitted projection was never updated.
+If validation rejects or the operator withdraws this request, restore the actual
+needs-input state and InputSubmitted=false together; retain its observation and
+typed answers. Never hide invalid input behind an old true projection.
+
+On actual step success, persist State=Completed and a short Result on that
+original task in the same phase as the API acknowledgement or saved successor
+handoff. On cancellation use Cancelled. Finish the current step even when a
+separate successor waits for review or an SMS window. Submission alone never
+finishes data application, CRM mutation or sending. A machine recovery failure
+remains an explicit exception with its real reason; it must not be hidden in
+results or marked complete to tidy the dashboard. A failed status projection
+retries only the missing Notion projection, never the business/provider action.
+Do not defer this close-out to report/init or require another continue command.
 
 ## Review before deciding
 

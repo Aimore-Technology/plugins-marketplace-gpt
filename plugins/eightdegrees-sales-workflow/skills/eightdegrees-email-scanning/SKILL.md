@@ -24,6 +24,16 @@ business procedures or query CRM/Dropbox while idle. Unchanged waits do not
 create work; pending source handoffs and due events remain demand even when
 no new email is found. Retain complete pagination and partial-coverage reasons.
 
+For actually submitted ordinary/legacy action forms, use local task.submission
+once over the current task/action captures to save the request and ReadyToValidate
+projection before continuing the owning skill. Do not leave checked submissions
+in a needs-input view because the compatibility InputSubmitted field is false.
+This is observation only; preserve original approval scope. Same queued input
+needs no writes. Close successful original steps in the same outcome phase with
+State=Completed and Result, even if the successor awaits review or SMS timing.
+Today task_results follows PendingTasks, not WorkflowRuns; never rerun a business
+action to fix a stale classification. See [operator experience](../../references/operator-experience.md).
+
 Pass the full saved queue to scan.queue/scan.cycle and apply stops first. New
 inquiries use [email-flow](../../references/email-flow.md): read each email once,
 match CRM once, resolve cached project material, draft a text/plain message and publish one readable combined

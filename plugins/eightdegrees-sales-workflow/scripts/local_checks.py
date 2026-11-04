@@ -43,8 +43,11 @@ import email_flow
 import project_cache
 import capture_bundle
 import consent_review
+import task_submission
 
 OPERATIONS = {
+    "task.submission": task_submission.observe,
+    "operator.today-views": operator_experience.today_views,
     "email.consent-read-plan": consent_review.read_plan,
     "email.consent-observe": consent_review.observe,
     "email.view-plan": consent_review.view_plan,
@@ -123,7 +126,7 @@ OPERATIONS = {
     "review.prepare": review_release.prepare,
     "sms.channel-check": sms_channel.gate,
 }
-PASSED = {"ConsentReadPlanPrepared", "EmailConsentPending", "EmailConsentObserved", "ConsentViewPlanned", "CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
+PASSED = {"TaskSubmissionQueued", "TaskSubmissionUnchanged", "TaskSubmissionProjectionRepair", "TodayViewsPlanned", "ConsentReadPlanPrepared", "EmailConsentPending", "EmailConsentObserved", "ConsentViewPlanned", "CaptureBundleSaved", "CaptureBundleUnchanged", "SMSDispatchPrepared", "SMSDispatchDeferred", "ProjectCacheUnavailable", "ProjectCacheStored", "ProjectCacheHit", "ProjectCacheMiss", "ProjectCacheRefreshRequired",
           "ProjectCatalogLoaded", "ProjectMatched", "NeedsProjectSelection", "ProjectCacheInvalidated",
           "SingleEmailReviewPrepared", "SingleEmailReviewRendered", "EmailDecisionAccepted", "EmailRevisionRequired", "EmailDispatchDeferred", "EmailDispatchPrepared", "EmailRecordingPending", "EmailHandoffRecorded", "APIWriteConfirmed", "CommunicationReadPlanPrepared", "CommunicationNotePrepared","InquiryNameResolved", "InquiryLabelPlanned","ReadyQueueConstructed", "ConfigurationAuditPrepared", "CurrentScheduledRulesLoaded", "BacklogRecoveryPlanned", "CycleMetricsPrepared","ScanEnabled", "ScanStopped", "ScanControlPlanned", "ScanningEnabled", "ScanningStopped","RunRecordPrepared", "LegacyRunProjectionPrepared", "IntakeCheckpointPlanned", "IntakeHandoffVerified", "InvocationContextPrepared", "InvocationResumeChecked", "CheckpointReconciled", "ConnectorCaptureRecorded", "DiscoveryWatchesPrepared", "ClearForCheckedPatterns", "ValidSelectValues", "DisplayConsistentForCheckedPatterns",
           "SavedEmbedAndBytesMatch", "SavedImageAndBytesMatch", "EligibleForCompletion",
@@ -181,6 +184,7 @@ def run(plan, captures):
     if not passed:
         for checked in results.values():
             checked['result'].pop('call', None)
+            checked['result'].pop('writes', None)
     return {"status": "LocalChecksPassed" if passed else "NeedsCorrection",
             "checks": list(results.values()), "capture_hashes": hashes, "capture_references": references,
             "distinct_captures_used": len(hashes), "checks_requested": len(checks), "checks_run": len(results),
