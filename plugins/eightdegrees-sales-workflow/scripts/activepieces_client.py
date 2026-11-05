@@ -123,10 +123,11 @@ def validate_init(payload, saved):
     require(valid_email(operator.get('email')) and text(operator.get('name'))
             and text(operator.get('crmUserId')), 'Provide actual operator email, name and CRM user ID')
     require(text(merged.get('crmLocationId')), 'Provide actual CRM location ID')
-    mail = merged.get('gmail', {})
-    only(mail, ['to', 'label', 'afterDate'], 'gmail')
-    require(valid_email(mail.get('to')) or text(mail.get('label')), 'Provide the authorized mailbox recipient or label')
-    from datetime import datetime
+    mail = dict(merged.get('gmail', {}))
+    only(mail, ['scope', 'afterDate', 'to', 'label'], 'gmail')
+    require(mail.get('scope', 'all-new') == 'all-new', 'Gmail scope must be all-new')
+    from datetime import datetime, timezone
+    mail = {'scope': 'all-new', 'afterDate': mail.get('afterDate') or datetime.now(timezone.utc).isoformat()}
     try:
         instant = datetime.fromisoformat(str(mail.get('afterDate', '')).replace('Z', '+00:00'))
         require(instant.tzinfo is not None, 'gmail.afterDate needs an explicit timezone')
@@ -141,7 +142,7 @@ def validate_init(payload, saved):
         only(project, ['materialPath', 'revision', 'lots'], 'project')
         require(text(key) and valid_path(project.get('materialPath'), roots), 'Project material path is outside authorized roots')
         require(isinstance(project.get('lots', []), list) and all(text(lot) for lot in project.get('lots', [])), 'Project lots must be strings')
-    return payload
+    return {**payload, 'gmail': mail}
 
 
 def validate_source(payload, command, config):

@@ -124,6 +124,20 @@ class RequestTests(unittest.TestCase):
         data['payload'] = copy.deepcopy(CONFIG); data['payload']['projects']['project']['materialPath'] = '/other/file.pdf'
         self.assertNotIn('tool', client.run('plan', data))
 
+    def test_init_scans_all_new_mail_without_recipient_or_label_and_defaults_start_to_now(self):
+        data=request('init',copy.deepcopy(CONFIG));data['payload']['gmail']={}
+        result=client.run('plan',data)
+        self.assertEqual(result['status'],'Ready')
+        mail=result['tool']['arguments']['input']['flowProps']['payload']['gmail']
+        self.assertEqual(mail['scope'],'all-new')
+        self.assertNotIn('to',mail);self.assertNotIn('label',mail)
+        self.assertIn('+00:00',mail['afterDate'])
+
+    def test_init_preserves_explicit_start_and_drops_retired_filters(self):
+        result=client.run('plan',request('init',copy.deepcopy(CONFIG)))
+        mail=result['tool']['arguments']['input']['flowProps']['payload']['gmail']
+        self.assertEqual(mail,{'scope':'all-new','afterDate':'2026-11-01T00:00:00Z'})
+
 
 class ObservationTests(unittest.TestCase):
     def test_filters_old_and_unrelated_candidates_and_caps_lookups(self):

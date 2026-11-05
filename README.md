@@ -1,6 +1,6 @@
 # Aimore GPT Plugin Marketplace
 
-Private marketplace containing 8Degrees Sales Workflow 0.2.1, a lightweight client for published Activepieces flows. The public commands are init, add-communication, reply-draft and report. Activepieces owns business execution, scheduling and queue/approval state; the plugin collects input, submits one request and shows its correlated result.
+Private marketplace containing 8Degrees Sales Workflow 0.2.2, a lightweight client for published Activepieces flows. The public commands are init, add-communication, reply-draft and report. Activepieces owns business execution, scheduling and queue/approval state; the plugin collects input, submits one request and shows its correlated result.
 
 ## Local install
 
@@ -31,4 +31,4 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-The small installable payload is under plugins/eightdegrees-sales-workflow. Original 0.1.58 execution code is retained under legacy/eightdegrees-sales-workflow-0.1.58 and excluded from release ZIPs. Existing tests still cover that archive; new request/result boundary tests cover the active client. See [client instructions](plugins/eightdegrees-sales-workflow/README.md) and [release record](docs/release-0.2.1.md).
+The small installable payload is under plugins/eightdegrees-sales-workflow. Original 0.1.58 execution code is retained under legacy/eightdegrees-sales-workflow-0.1.58 and excluded from release ZIPs. Existing tests still cover that archive; new request/result boundary tests cover the active client. See [client instructions](plugins/eightdegrees-sales-workflow/README.md) and [release record](docs/release-0.2.2.md).

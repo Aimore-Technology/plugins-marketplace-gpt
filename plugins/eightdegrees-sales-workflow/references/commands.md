@@ -4,7 +4,7 @@ Select EightDegrees and use a deliberate command or equivalent request.
 
 | Command | Input | Result |
 | --- | --- | --- |
-| init | Actual operator, explicit language, Gmail scope/start time, authorized Dropbox catalog, CRM location/user, Portal review storage | Initialized or missing setup fields |
+| init | Actual operator, explicit language, all-new incoming Gmail (optional start time; defaults to now), authorized Dropbox catalog, CRM location/user, Portal review storage | Initialized or missing setup fields |
 | add-communication | source.text plus email/verified phone, or an actual Gmail messageId, or authorized filePath plus identity | Original workbench Notes review |
 | reply-draft | Original Gmail messageId, exact projectKey and registered lot | Original workbench draft review |
 | report | Empty business payload | Exact backend report and optional report link |
