@@ -1,44 +1,26 @@
 {
   "init": {
     "skill": "eightdegrees-initialization",
-    "description": "Initialize the customer workspace and inspect connection readiness.",
+    "description": "Collect and submit workspace configuration.",
     "policy": "setup-only",
-    "instructions": "Configure the operator and authorized accounts, create or reuse the clean Aimore structure and pilot settings, and report readiness. Use supplied context and saved settings; ask only for missing actual values. Do not enable/create schedules, send messages, or run live CRM write/send acceptance tests from this command. Return setup, missing-input and next-test links."
+    "instructions": "Validate explicit operator, language, mailbox scope, Dropbox catalog and Notion IDs. Dispatch init once through the Activepieces client; return actual initialized/missing status. Do not run a scan or change schedules."
   },
   "add-communication": {
     "skill": "eightdegrees-communication-context-process",
-    "description": "Add a communication for review; the shared queue resumes submitted work.",
+    "description": "Submit customer communication for one Notion review.",
     "policy": "manual-review",
-    "instructions": "Manually initiate a communication intake with Mode=Manual provenance. Accept authorized source content, a message or transcript. Prepare matching/data/Notes-persona review and stop before unapproved CRM changes. The operator submits in Notion; run-auto or the native queue observes and validates the current submission, then resumes the exact unfinished owner step without a continue command. Existing legacy continuation syntax may still be understood for compatibility, but never require or recommend it. Preserve source, task/run IDs and Mode; no customer sends from this intake command. Use communication-fast-path.md and communication.read-plan. Provided readable content goes directly to scoped customer matching and one standard Notes review; do not scan Gmail, browse project folders or re-audit setup merely because they are mentioned. Run existing phase guards locally; use communication.note for layout."
-  },
-  "run-auto": {
-    "skill": "eightdegrees-email-scanning",
-    "description": "Discover inputs once; exit idle immediately or process affected ready work.",
-    "policy": "one-cycle-approved-work",
-    "instructions": "FIRST read RunSettings and scan.entry; stopped exits without other reads or writes. Discover current scoped mail, active submissions, controls, due work and original recovery; complete discovery with no runnable input exits immediately. Process the full saved queue once. Normal inquiry email follows email-flow.md: one message read, one scoped CRM match with automatic name resolution, project-cache material lookup, one draft/preview and one combined content-and-send review. On a submitted email-review-v2 Approve, use email.accept/dispatch and original API acknowledgements, then register/send due factual SMS under standing permission without human review. Reuse original captures/IDs; no per-step owner-plan, extra admission record, raw MIME/body/preview readback or repeated CRM/Dropbox query. Existing explicit stop/no-send restrictions and accepted/pending/unknown attempt guards remain. Keep backlog even with no new messages. Coalesce results and save compact cycle metrics once."
-  },
-  "report": {
-    "skill": "eightdegrees-daily-brief-and-handover",
-    "description": "Update and show the current daily action report with original task links.",
-    "policy": "report-only",
-    "instructions": "Upsert the daily brief for the configured business timezone and show pending review/approval/follow-up/submitted-intake tasks, important-reminder state and actual failures with original links. Treat this as a report invocation, not a scheduled reminder run: do not send notifications or customer messages, create/change Calendar events, resume tasks, write CRM business data or run handover rehearsals. Read existing records and write only the report and required operational logs. Missing optional sources remain visible as incomplete coverage, not invented success. Freeze actual report/run/log target IDs at entry and preflight every mutation under notion-publishing.md. Quality recovery cannot edit tasks/actions/hub/previews/Health or call their owners from report. Describe outside-scope findings with a separate next owner command; audit actual writes at exit. Before Completed/final Success, typed saved-page checks and current completion-gate evidence are required; do not accept skipped entities, failed exits or stale evidence."
+    "instructions": "Require initialized workspace and explicit source plus customer identity when not supplied by a Gmail source. Submit the exact payload to Activepieces; stop at the actual review link. Do not write CRM or send messages from the plugin."
   },
   "reply-draft": {
     "skill": "eightdegrees-sales-reply",
-    "description": "Prepare an inquiry draft and one combined review page; do not send in this command.",
+    "description": "Submit an inquiry for a grounded draft and Notion review.",
     "policy": "draft-only",
-    "instructions": "Use email-flow.md and project-cache.md to prepare or revise the supplied actual inquiry. Reuse its original message/source and one CRM match; resolve names automatically. A warm project cache avoids Dropbox content reads. Create one versioned email-review-v2 page displaying exact draft/preview, recipients/materials and window with one combined approval choice. Stop after preparation; do not consume send choices or send in this draft-only invocation. A later authorized run-auto/native cycle handles the actual submitted Approve without another continue command or second content review. Changed payloads need the new version with blank choices."
+    "instructions": "Require initialized workspace, actual Gmail message ID and exact registered project/lot. Submit once; return the actual draft review. Do not send, consume Consent, draft a second copy locally or query Dropbox directly."
   },
-  "start": {
-    "skill": "eightdegrees-automation-control",
-    "description": "Enable scanning; leave periodic tasks unchanged.",
-    "policy": "scheduling-only",
-    "instructions": "Operation=start. Read only actual registered RunSettings. Run scan.control-plan and patch only scan_control.enabled=true under scan-control-v1, preserving all other settings and business/native task records. Repeat with the same flag is a no-op. Read back and run scan.control-verify before claiming Scanning enabled. No native scheduler discovery/list/create/update/pause/delete, cadence change, workflow plan/run/log creation, immediate scan, task processing or send. Legacy interval_minutes arguments do not change scheduling. Missing settings reports a setup limitation without automatically initializing. On explicit start reuse and read the registered existing native task where the host supports readback; pass native_observation to scan.control-plan and register actual configuration separately from scanning enabled and live business progress. Never create duplicates. Missing management access is a registration limitation only, not an execution gate. Preserve real concurrent stop/revocation."
-  },
-  "stop": {
-    "skill": "eightdegrees-automation-control",
-    "description": "Disable scanning; leave periodic tasks unchanged.",
-    "policy": "scheduling-only",
-    "instructions": "Operation=stop. Read only actual registered RunSettings. Run scan.control-plan and patch only scan_control.enabled=false, preserving all other settings, tasks, decisions, cursors, approvals, provider attempts and native jobs. Repeat is a no-op. Verify actual saved settings before Scanning stopped. Do not query/create/update/pause/delete any automation, scan business data, create workflow logs or send. Subsequent manual/periodic run-auto only reads this switch and exits quietly. A running cycle stops before its next admission; persist only the original result of an already in-flight effect."
+  "report": {
+    "skill": "eightdegrees-daily-brief-and-handover",
+    "description": "Show the report returned by the report flow.",
+    "policy": "report-only",
+    "instructions": "Submit the empty report payload and show its actual result. No mailbox scan, business task execution, CRM writes or customer notifications. Report can describe missing initialization."
   }
 }

@@ -9,11 +9,11 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = {
-    'eightdegrees-initialization', 'eightdegrees-email-scanning',
-    'eightdegrees-communication-context-process', 'eightdegrees-client-persona-update',
-    'eightdegrees-sms-follow-up', 'eightdegrees-sales-reply',
-    'eightdegrees-daily-brief-and-handover', 'eightdegrees-sales-workflow', 'eightdegrees-automation-control',
+    'eightdegrees-initialization', 'eightdegrees-communication-context-process',
+    'eightdegrees-sales-reply', 'eightdegrees-daily-brief-and-handover',
+    'eightdegrees-sales-workflow',
 }
+
 
 def require(condition, message):
     if not condition:
@@ -105,7 +105,7 @@ def check():
                 require(target.is_relative_to(plugin.resolve()), f'Unpackaged dependency: {path}: {link}')
                 require(target.exists(), f'Broken reference: {path}: {link}')
         routes = read_json(plugin / 'references/commands.json')
-        require(set(routes) == {'init', 'start', 'stop', 'add-communication', 'run-auto', 'report', 'reply-draft'}, 'Command inventory mismatch')
+        require(set(routes) == {'init', 'add-communication', 'report', 'reply-draft'}, 'Command inventory mismatch')
         for alias, route in routes.items():
             require(route['skill'] in EXPECTED - {'eightdegrees-sales-workflow'}, f'Invalid command target: {alias}')
             require((plugin / 'skills' / route['skill'] / 'SKILL.md').is_file(), f'Missing command target: {alias}')
@@ -124,76 +124,17 @@ def check():
                 require(f'Dispatch `{command.stem}`' in parts[2], f'Wrong command dispatch: {command}')
         else:
             require(not (plugin / 'commands').exists(), 'Do not ship Claude commands as an OpenAI runtime component')
-        task_routes = read_json(plugin / 'references/task-routes.json')
-        require(bool(task_routes), 'Missing task resume routes')
-        for step, route in task_routes.items():
-            require(re.fullmatch(r'[A-Za-z][A-Za-z0-9]+', step), f'Invalid resume step: {step}')
-            require(route.get('owner') in EXPECTED - {'eightdegrees-sales-workflow'}, f'Unknown task owner: {step}')
-            require(bool(route.get('categories')) and set(route['categories']) <= {'ClientMatching', 'DataCompletion', 'ContentReview', 'SendApproval', 'ExecutionExceptions', 'ScheduledWork'}, f'Invalid task category: {step}')
-            require(route.get('effect') in {'read', 'crm', 'checkpoint', 'draft', 'customer-send', 'setup', 'report', 'calendar', 'internal-notification', 'presentation'}, f'Unknown task effect: {step}')
-        owner_profiles = read_json(plugin / 'references/owner-completion-profiles.json')
-        require(set(owner_profiles) == EXPECTED - {'eightdegrees-sales-workflow'}, 'Owner completion profile inventory mismatch')
-        for owner, kinds in owner_profiles.items():
-            require(bool(kinds) and set(kinds) <= {'page-links', 'task-display', 'route'}, f'Unknown owner completion checks: {owner}')
-        defaults = read_json(plugin / 'references/pilot-defaults.json')
-        require(defaults['configuration_version'] == 'pilot-v1', 'Configuration version drift')
-        require(defaults['settings_schema_version'] == 2, 'Settings schema drift')
-        setup = defaults['customer_setup']
-        require(all(setup[k] is None for k in ('operator_id', 'operator_name', 'operator_email', 'operator_sms_number')), 'Do not ship a fixed operator identity/destination')
-        require('operator_gmail' in defaults['important_reminders']['priority'], 'Operator reminder channel missing')
-        require(defaults['data']['sensitive_originals'] == 'operator_manual_only', 'Manual-handling role drift')
-        for resource in plugin.rglob('*'):
-            if resource.is_file() and resource.suffix in {'.md', '.json'} and resource.name != 'operator-setup.md':
-                require(not re.search(r'john|vivian', resource.read_text(encoding='utf-8'), re.I), f'Fixed pilot person in runtime payload: {resource.relative_to(plugin)}')
-        require(defaults['timezone'] == 'Australia/Adelaide', 'Pilot timezone drift')
-        require(defaults.get('scan_control') == {'contract': 'scan-control-v1', 'enabled': False}, 'Package must default to stopped scanning')
-        require(defaults['scheduling']['enabled'] is False, 'Package must not enable schedules')
-        require(defaults['scheduling']['target_scan_minutes'] == 30
-                and defaults['scheduling']['allowed_scan_minutes'] == [20, 30], 'Scan cadence defaults drift')
-        require(defaults['queue_execution']['cycle_budget_seconds'] == 900
-                and defaults['queue_execution']['publication_reserve_seconds'] == 120, 'Cycle budget defaults drift')
-        require(defaults['queue_execution']['cycle_budget_seconds'] < min(defaults['scheduling']['allowed_scan_minutes']) * 60,
-                'Soft cycle budget must leave room before the shortest supported interval')
-        require(defaults['customer_setup']['allowed_label_ids'] == [], 'Do not ship a customer mail scope')
-        require(defaults['customer_setup']['notion_root_id'] is None, 'Do not ship a developer Notion root')
-        require(defaults['sms_follow_up']['max_messages_per_cycle_including_manual'] == 2, 'SMS cap drift')
-        require(defaults['sms_follow_up']['automatic_sending_enabled'] is True, 'Notification SMS permission defaults enabled; capability gates stay separate')
-        require(defaults['sms_notifications']['enabled'] is True and defaults['sms_notifications']['per_message_review_required'] is False, 'Standing notification authority drift')
-        require(defaults['queue_execution']['continue_commands_required'] is False, 'Queue must not require extra continuation commands')
-        require(defaults['data']['deliberate_redaction'] is False, 'Pilot data policy drift')
-        require(defaults['send_completion'] == {'policy': 'provider-handoff-v1', 'email': 'successful_gmail_dispatch_response', 'sms': 'successful_androidsync_request_response', 'provider_status_polling': False, 'recipient_verification': False, 'crm_write_readback_required': False}, 'Provider handoff boundary drift')
-        require(defaults.get('email_workflow', {}).get('approval_contract') == 'email-review-v4'
-                and defaults['email_workflow'].get('human_reviews_per_email') == 1,
-                'New mail must have one combined review')
-        require(defaults['email_workflow'].get('mime_type') == 'text/plain'
-                and defaults['email_workflow'].get('preview_required') is False
-                and defaults['email_workflow'].get('technical_records_on_action_page') is False,
-                'New inquiry review must be readable plain text without previews or technical JSON')
-        require(defaults['email_workflow'].get('review_surface') == 'canonical-task-view'
-                and defaults['email_workflow'].get('consent_checkbox') is True
-                and defaults['email_workflow'].get('separate_submit') is False,
-                'One native consent checkbox must submit without a separate action form')
-        require(defaults['email_workflow'].get('send_timing') == 'immediate-after-approval'
-                and defaults['email_workflow'].get('send_window_required') is False
-                and defaults['email_workflow'].get('date_confirmation_required') is False
-                and defaults['email_workflow'].get('approval_time_expiry') is False
-                and 'customer_send_window' not in defaults and 'sms_send_window' in defaults,
-                'Email has no sending clock/window; SMS timing is separate')
-        require(defaults.get('project_cache', {}).get('ttl_seconds') == 86400
-                and defaults['project_cache'].get('storage') == 'private-local-user-state'
-                and defaults['project_cache'].get('cache_permissions') is False,
-                'Project cache scope/default drift')
-        forbidden = ('Keep content and send decisions separate.',
-                     'Content confirmation and send approval remain separate.',
-                     'Submit ContentReview and separately SendApproval',
-                     'read_email(format=raw)',
-                     'download the returned URL and supply exact bytes',
-                     'saved-result readback remains required', 'CRM writes retain readback')
-        for document in plugin.rglob('*.md'):
+        client = plugin / 'scripts/activepieces_client.py'
+        require(client.is_file(), 'Missing offline Activepieces request client')
+        require({p.name for p in (plugin / 'scripts').glob('*.py')} == {'activepieces_client.py'},
+                'Business executors must not ship in the client package')
+        require(not (plugin / 'legacy').exists(), 'Do not package archived owners')
+        for document in (plugin / 'skills').glob('*/SKILL.md'):
             text = document.read_text()
-            require(not any(phrase in text for phrase in forbidden),
-                    f'Conflicting obsolete runtime rule: {document.relative_to(plugin)}')
-        print(f'PASS {platform}: {name} {manifest["version"]}; nine English skills (eight workflows + command entry); command routes, references, defaults and payload checked')
+            require('Activepieces' in text and 'client' in text.lower(), 'Skill does not declare client ownership')
+        require('waitForResponse=false' in (plugin / 'references/activepieces-client.md').read_text(),
+                'Document asynchronous action-runner boundary')
+        print(f'PASS {platform}: {name} {manifest["version"]}; five English client skills; four routes, references and payload checked')
     return platform
 
 if __name__ == '__main__':

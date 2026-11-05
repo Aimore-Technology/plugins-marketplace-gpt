@@ -1,41 +1,12 @@
 ---
 name: eightdegrees-sales-reply
-description: "Prepare project inquiry replies from cached materials with one combined content-and-send review; dispatch only the submitted approved version."
+description: "Activepieces client entry for the EightDegrees reply-draft command. Submit an inquiry for a grounded draft and Notion review."
 ---
 
-# Prepare and send an inquiry reply
+# reply-draft client entry
 
-Use [the short inquiry flow](../../references/email-flow.md) as the complete
-normal entry. Read only that procedure and the current affected exception.
-Use [project cache](../../references/project-cache.md) before any Dropbox reads.
-Reuse the original message/source and the scanner's one scoped CRM match.
-Automatic CRM/signature/From name resolution needs no matching/name approval.
-Project/lot ambiguity or missing required material opens one tailored input.
+Apply the [client protocol](../../references/activepieces-client.md) and the `reply-draft` route in [commands.json](../../references/commands.json). This entry's policy is `draft-only`. It is a request adapter, not a business executor.
 
-Prepare one frozen text/plain reply. Use email.prepare/email.review for
-email-review-v4: publish returned properties and technical records on the
-original task and show ReviewText plus one Consent checkbox in the registered
-Today Email Review view. No action form, Submit button, decision checklist,
-date checkbox, HTML or preview. Reuse/create that view once under
-[consent view](../../references/consent-view.md). Checking Consent submits;
-unchecking before send withdraws. Edited text needs a synced new draft and
-unchecked new version. reply-draft stops without consuming consent or sending.
+Collect the original Gmail message ID, exact projectKey and exact registered lot when the project catalog has lots. Supplied captured text may accompany the message ID; it does not remove the thread requirement. Present valid saved catalog choices when ambiguous. Do not infer a project/lot from a vague match, promise prices/delivery, fetch a second set of materials or prepare another chat draft. Activepieces performs cache lookup, grounded drafting and draft publication. Return ReviewRequired with the original Notion review link only after the exact owner response is observed. The flow stops at review; the scheduled backend handles any later valid approval.
 
-On run-auto use the original task capture once with email.accept.
-Persist its exact Approve and stable attempt, then email.dispatch performs one
-final current control/attempt check. Use only the emitted stored-draft
-call. Old Confirm alone never supplies sending authority; edits require the
-new version with Consent unchecked. No extra continue command or chat confirmation.
-
-Successful Gmail acknowledgement ends dispatch. email.complete records own API
-write results. Append/reuse the scoped CRM operational receipt and register
-standing-authorized SMS immediately, independently of CRM recording failure.
-No post-write content audits, separate admission record, repeated owner plans,
-CRM/file lookup or multi-page presentation sweep. Source/task/attempt recovery
-never repeats accepted/unknown sends. Manual Notes fact review remains separate
-from this inquiry workflow. Do not create CRM contacts or promise quotations,
-reservations, appointments, payments, signatures or guaranteed handover.
-
-Email has no sending window or date confirmation. Once current consent passes,
-send this same cycle at any hour. Old date fields/approval-window metadata do
-not postpone or expire the unchanged approved reply. SMS alone keeps timing.
+Use `activepieces_client.py plan` to validate the request against verified workspace and flow captures. Missing input or a disabled/unpublished/ambiguous flow produces no executable call. Execute only the planned MCP call once, then use bounded result lookup and `observe` to match the transport ID and flow ID. Do not silently switch operation, retry an uncertain call, inspect unrelated service data or use old workflow helpers as a fallback. Return only the owner's actual result and one appropriate next action.

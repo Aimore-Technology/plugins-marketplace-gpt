@@ -9,7 +9,7 @@ import subprocess
 import sys
 import unittest
 
-SCRIPT = Path(__file__).resolve().parents[1] / "plugins/eightdegrees-sales-workflow/scripts/decode_mail.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "legacy/eightdegrees-sales-workflow-0.1.58/scripts/decode_mail.py"
 SPEC = importlib.util.spec_from_file_location("decode_mail", SCRIPT)
 decoder = importlib.util.module_from_spec(SPEC)
 sys.dont_write_bytecode = True

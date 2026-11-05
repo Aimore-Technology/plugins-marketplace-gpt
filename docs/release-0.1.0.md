@@ -2,7 +2,7 @@
 
 ## Change and review path
 
-Package the current approved pilot description as seven English skills, with shared operational rules, Notion model, machine-readable defaults and acceptance cases. Start review at `plugins/eightdegrees-sales-workflow/README.md`, then `references/operating-contract.md` and the specific skill. Provenance and source hash are in `source-provenance.json`; the private Notion source is not a runtime dependency.
+Package the current approved pilot description as seven English skills, with shared operational rules, Notion model, machine-readable defaults and acceptance cases. Start review at `legacy/eightdegrees-sales-workflow-0.1.58/README.md`, then `references/operating-contract.md` and the specific skill. Provenance and source hash are in `source-provenance.json`; the private Notion source is not a runtime dependency.
 
 The user requested direct delivery to this repository for pilot testing. This release initializes its marketplace without changing repository visibility or customer environments. Versioned Git commits are the change record. No public-directory submission or account installation is performed by a push.
 
