@@ -1,6 +1,6 @@
 ---
 name: eightdegrees-communication-context-process
-description: "Activepieces client entry for the EightDegrees add-communication command. Submit customer communication for one Notion review."
+description: "Activepieces client entry for the EightDegrees add-communication command. Submit customer communication for one workbench review."
 ---
 
 # add-communication client entry

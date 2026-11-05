@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "eightdegrees-sales-workflow",
-  "version": "0.2.0",
-  "description": "A lightweight client for published EightDegrees Activepieces flows. Commands: init, add-communication, reply-draft, report. Activepieces owns execution, queue state and scheduling; Notion holds exact-version reviews. Requires an already authorized Activepieces MCP connection. No direct mailbox, CRM, SMS or scheduler operations.",
+  "version": "0.2.1",
+  "description": "A lightweight client for published 8Degrees Activepieces flows. Commands: init, add-communication, reply-draft, report. Activepieces owns execution, queue state and scheduling; Portal holds exact-version reviews. Requires an already authorized Activepieces MCP connection. No direct mailbox, CRM, SMS or scheduler operations.",
   "author": {
     "name": "Aimore Technology",
     "url": "https://github.com/Aimore-Technology"
@@ -12,21 +12,21 @@
     "activepieces",
     "sales",
     "workflow",
-    "notion",
-    "crm"
+    "crm",
+    "portal"
   ],
   "extensions": {
     "com.openai": {
       "onboardingSkill": "./skills/eightdegrees-initialization/SKILL.md",
       "interface": {
-        "displayName": "EightDegrees Sales Workflow",
+        "displayName": "8Degrees Sales Workflow",
         "shortDescription": "Activepieces sales client",
-        "longDescription": "A lightweight client for published EightDegrees Activepieces flows. Commands: init, add-communication, reply-draft, report. Activepieces owns execution, queue state and scheduling; Notion holds exact-version reviews. Requires an already authorized Activepieces MCP connection. No direct mailbox, CRM, SMS or scheduler operations.",
+        "longDescription": "A lightweight client for published 8Degrees Activepieces flows. Commands: init, add-communication, reply-draft, report. Activepieces owns execution, queue state and scheduling; Portal holds exact-version reviews. Requires an already authorized Activepieces MCP connection. No direct mailbox, CRM, SMS or scheduler operations.",
         "developerName": "Aimore Technology",
         "category": "Business & Operations",
         "capabilities": [],
         "defaultPrompt": [
-          "Initialize EightDegrees in my authorized Notion workspace.",
+          "Initialize 8Degrees with my authorized mailbox and project materials.",
           "Process this customer communication and prepare Notes for my review.",
           "Show my current EightDegrees daily report."
         ]

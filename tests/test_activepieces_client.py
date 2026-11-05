@@ -14,8 +14,7 @@ PAGE = '11111111-1111-4111-8111-111111111111'
 CONFIG = {'workspaceLanguage': 'en', 'operator': {'email': 'operator@example.invalid', 'name': 'Operator',
           'crmUserId': 'user'}, 'crmLocationId': 'location',
           'gmail': {'to': 'operator@example.invalid', 'afterDate': '2026-11-01T00:00:00Z'},
-          'dropboxRoots': ['/authorized'], 'projects': {'project': {'materialPath': '/authorized/material.pdf', 'lots': ['1']}},
-          'notion': {'rootPageId': PAGE, 'pendingTasksId': PAGE, 'dailyBriefPageId': PAGE}}
+          'dropboxRoots': ['/authorized'], 'projects': {'project': {'materialPath': '/authorized/material.pdf', 'lots': ['1']}}}
 
 
 def settings(initialized=True):
@@ -149,12 +148,20 @@ class ObservationTests(unittest.TestCase):
             result = client.run('observe', {'plan': plan, 'run': run_for(plan, {}, status)})
             self.assertEqual(result['status'], expected)
 
-    def test_review_requires_actual_page_and_is_not_crm_completion(self):
-        plan = client.run('plan', request()); response = {'status': 'review_required', 'taskId': 'task', 'reviewPageId': PAGE}
+    def test_review_requires_actual_workbench_id_and_is_not_crm_completion(self):
+        plan = client.run('plan', request()); response = {'status': 'review_required', 'reviewId': 'task', 'reviewUrl': 'https://workbench.example.invalid/portal/tasks?task=task'}
         result = client.run('observe', {'plan': plan, 'run': run_for(plan, response)})
-        self.assertEqual(result['status'], 'ReviewRequired'); self.assertIn('notion.so/', result['resultUrl'])
-        del response['reviewPageId']
+        self.assertEqual(result['status'], 'ReviewRequired'); self.assertIn('/portal/tasks?task=', result['resultUrl'])
+        del response['reviewId']
         self.assertEqual(client.run('observe', {'plan': plan, 'run': run_for(plan, response)})['status'], 'NeedsInput')
+
+    def test_review_url_must_match_the_exact_task_and_use_https(self):
+        plan = client.run('plan', request())
+        for url in ['http://workbench.example.invalid/portal/tasks?task=task',
+                    'https://workbench.example.invalid/portal/tasks?task=other',
+                    'https://user:password@workbench.example.invalid/portal/tasks?task=task']:
+            response = {'status': 'review_required', 'reviewId': 'task', 'reviewUrl': url}
+            self.assertEqual(client.run('observe', {'plan': plan, 'run': run_for(plan, response)})['status'], 'NeedsInput')
 
     def test_partial_init_is_visible(self):
         plan = client.run('plan', request('init', copy.deepcopy(CONFIG)))

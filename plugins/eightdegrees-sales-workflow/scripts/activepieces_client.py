@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 import re
 import sys
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -115,7 +115,7 @@ def valid_path(path, roots):
 
 def validate_init(payload, saved):
     only(payload, ['workspaceLanguage', 'operator', 'gmail', 'dropboxRoots', 'projects',
-                   'crmLocationId', 'notion', 'provisionNotion'], 'init payload')
+                   'crmLocationId'], 'init payload')
     merged = {**saved, **payload}
     require(merged.get('workspaceLanguage') in ('zh-CN', 'en'), 'Choose workspaceLanguage explicitly: zh-CN or en')
     operator = merged.get('operator', {})
@@ -141,14 +141,6 @@ def validate_init(payload, saved):
         only(project, ['materialPath', 'revision', 'lots'], 'project')
         require(text(key) and valid_path(project.get('materialPath'), roots), 'Project material path is outside authorized roots')
         require(isinstance(project.get('lots', []), list) and all(text(lot) for lot in project.get('lots', [])), 'Project lots must be strings')
-    notion = merged.get('notion', {})
-    only(notion, ['rootPageId', 'aimorePageId', 'pendingTasksId', 'dailyBriefPageId'], 'notion')
-    require(bool(PAGE.fullmatch(str(notion.get('rootPageId', '')))), 'Provide actual Notion rootPageId')
-    provision = payload.get('provisionNotion', False)
-    require(isinstance(provision, bool), 'provisionNotion must be boolean')
-    if not provision or notion.get('pendingTasksId'):
-        require(all(PAGE.fullmatch(str(notion.get(key, ''))) for key in ['pendingTasksId', 'dailyBriefPageId']),
-                'Provide existing Notion review/report IDs or explicitly choose provisionNotion=true')
     return payload
 
 
@@ -244,14 +236,15 @@ def observe(data):
     if request['command'] == 'report':
         require(response['status'] == 'report_ready' and text(response.get('reportText')), 'Missing report result')
         result.update(status='ReportReady', reportText=response['reportText'])
-        page = response.get('reportPageId')
     else:
-        require(response['status'] == 'review_required' and text(response.get('taskId')), 'Missing review result')
-        result.update(status='ReviewRequired', taskId=response['taskId'])
-        page = response.get('reviewPageId')
-        require(bool(PAGE.fullmatch(str(page))), 'Missing actual Notion review page ID')
-    if PAGE.fullmatch(str(page)):
-        result['resultUrl'] = 'https://www.notion.so/' + page.replace('-', '')
+        review_id = response.get('reviewId')
+        require(response['status'] == 'review_required' and bool(ID.fullmatch(str(review_id))), 'Missing actual workbench review ID')
+        url = response.get('reviewUrl', '')
+        parsed = urlsplit(url)
+        require(parsed.scheme == 'https' and parsed.hostname and not parsed.username and not parsed.password
+                and parsed.path == '/portal/tasks' and parse_qs(parsed.query).get('task') == [review_id],
+                'Missing verified workbench review URL')
+        result.update(status='ReviewRequired', taskId=review_id, resultUrl=url)
     return result
 
 

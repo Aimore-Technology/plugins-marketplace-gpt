@@ -3,17 +3,17 @@
     "skill": "eightdegrees-initialization",
     "description": "Collect and submit workspace configuration.",
     "policy": "setup-only",
-    "instructions": "Validate explicit operator, language, mailbox scope, Dropbox catalog and Notion IDs. Dispatch init once through the Activepieces client; return actual initialized/missing status. Do not run a scan or change schedules."
+    "instructions": "Validate explicit operator, language, mailbox scope, Dropbox catalog and Portal review storage. Dispatch init once through the Activepieces client; return actual initialized/missing status. Do not run a scan or change schedules."
   },
   "add-communication": {
     "skill": "eightdegrees-communication-context-process",
-    "description": "Submit customer communication for one Notion review.",
+    "description": "Submit customer communication for one workbench review.",
     "policy": "manual-review",
     "instructions": "Require initialized workspace and explicit source plus customer identity when not supplied by a Gmail source. Submit the exact payload to Activepieces; stop at the actual review link. Do not write CRM or send messages from the plugin."
   },
   "reply-draft": {
     "skill": "eightdegrees-sales-reply",
-    "description": "Submit an inquiry for a grounded draft and Notion review.",
+    "description": "Submit an inquiry for a grounded draft and workbench review.",
     "policy": "draft-only",
     "instructions": "Require initialized workspace, actual Gmail message ID and exact registered project/lot. Submit once; return the actual draft review. Do not send, consume Consent, draft a second copy locally or query Dropbox directly."
   },
