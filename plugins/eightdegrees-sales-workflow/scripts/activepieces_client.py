@@ -137,7 +137,7 @@ def validate_init(payload, saved):
     require(isinstance(roots, list) and roots and all(text(root) and root.startswith('/')
             and '..' not in root for root in roots), 'Provide authorized Dropbox roots')
     projects = merged.get('projects', {})
-    require(isinstance(projects, dict) and projects, 'Provide the authorized project catalog')
+    require(isinstance(projects, dict), 'Project overrides must be an object')
     for key, project in projects.items():
         only(project, ['materialPath', 'revision', 'lots'], 'project')
         require(text(key) and valid_path(project.get('materialPath'), roots), 'Project material path is outside authorized roots')
@@ -171,7 +171,8 @@ def validate_source(payload, command, config):
     if command == 'reply-draft':
         require(source.get('messageId'), 'Reply drafts require the actual original Gmail message ID')
         project = config.get('projects', {}).get(payload.get('projectKey'))
-        require(isinstance(project, dict), 'Choose an exact projectKey from the saved catalog')
+        require(text(payload.get('projectKey')), 'Provide the exact projectKey for backend resolution')
+        project = project or {}
         lot = payload.get('lot', '')
         require(isinstance(lot, str) and (not project.get('lots') or lot in project['lots']), 'Choose the exact registered lot')
     return payload

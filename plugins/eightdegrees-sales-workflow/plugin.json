@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "eightdegrees-sales-workflow",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A lightweight client for published 8Degrees Activepieces flows. Commands: init, add-communication, reply-draft, report. Activepieces owns execution, queue state and scheduling; Portal holds exact-version reviews. Requires an already authorized Activepieces MCP connection. No direct mailbox, CRM, SMS or scheduler operations.",
   "author": {
     "name": "Aimore Technology",

@@ -1,6 +1,6 @@
 # 8Degrees Activepieces client
 
-Version 0.2.2 preserves the existing plugin identity and replaces local business orchestration with four client commands: init, add-communication, reply-draft and report. Five small skills provide the command router and these four entries. Activepieces owns workflows, scheduling, queues and current-version approval checks; the Portal workbench provides versioned human review.
+Version 0.2.3 preserves the existing plugin identity and replaces local business orchestration with four client commands: init, add-communication, reply-draft and report. Five small skills provide the command router and these four entries. Activepieces owns workflows, scheduling, queues and current-version approval checks; the Portal workbench provides versioned human review.
 
 The host must already have an authorized Activepieces MCP connection. This package has no server or credential store, introduces no duplicate OAuth connection and contains no customer-specific flow/workspace IDs. Bindings are resolved from the connected project's published callable flows. Install/enable the plugin, select it, then request a command or its deliberate natural-language equivalent. See [commands](references/commands.md) and [client protocol](references/activepieces-client.md).
 

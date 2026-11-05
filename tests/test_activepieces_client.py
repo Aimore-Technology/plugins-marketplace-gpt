@@ -112,7 +112,7 @@ class RequestTests(unittest.TestCase):
     def test_reply_requires_original_message_and_registered_project_lot(self):
         payload = {'source': {'messageId': 'actual-message'}, 'projectKey': 'project', 'lot': '1'}
         self.assertEqual(client.run('plan', request('reply-draft', payload))['status'], 'Ready')
-        for field, value in [('projectKey', 'guessed'), ('lot', '2')]:
+        for field, value in [('projectKey', ''), ('lot', '2')]:
             bad = copy.deepcopy(payload); bad[field] = value
             self.assertNotIn('tool', client.run('plan', request('reply-draft', bad)))
 
@@ -137,6 +137,16 @@ class RequestTests(unittest.TestCase):
         result=client.run('plan',request('init',copy.deepcopy(CONFIG)))
         mail=result['tool']['arguments']['input']['flowProps']['payload']['gmail']
         self.assertEqual(mail,{'scope':'all-new','afterDate':'2026-11-01T00:00:00Z'})
+
+    def test_init_needs_source_folders_but_no_manual_project_catalog(self):
+        data=request('init',copy.deepcopy(CONFIG));data['payload'].pop('projects');data['settings']={'records':[{'cells':{'Key':'workspace','ConfigJSON':'{}'}}]}
+        result=client.run('plan',data);self.assertEqual(result['status'],'Ready')
+        self.assertNotIn('projects',result['tool']['arguments']['input']['flowProps']['payload'])
+
+    def test_automatic_project_resolution_is_backend_owned(self):
+        data=request('reply-draft',{'source':{'messageId':'actual-message'},'projectKey':'Auto project','lot':'64'})
+        automatic=copy.deepcopy(CONFIG);automatic['projects']={'Other manual override':{'materialPath':'/authorized/other.md'}};data['settings']['records'][0]['cells']['ConfigJSON']=json.dumps(automatic)
+        self.assertEqual(client.run('plan',data)['status'],'Ready')
 
 
 class ObservationTests(unittest.TestCase):
