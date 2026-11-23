@@ -10,21 +10,24 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 
-def package(output_dir):
+def package(output_dir, internal=False):
     subprocess.run([sys.executable, str(ROOT / 'scripts/check-marketplace.py')], check=True)
     claude = ROOT / '.claude-plugin/marketplace.json'
     platform = 'claude' if claude.exists() else 'gpt'
     catalog = json.loads((claude if claude.exists() else ROOT / '.agents/plugins/marketplace.json').read_text())
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    for entry in catalog['plugins']:
-        source = entry['source'] if platform == 'claude' else entry['source']['path']
+    targets = [(entry['name'], entry['source'] if platform == 'claude' else entry['source']['path']) for entry in catalog['plugins']]
+    if internal and (ROOT / 'internal').is_dir():
+        # Internal plugins are built only on request and never listed in the catalog.
+        targets += [(p.name, f'./internal/{p.name}') for p in sorted((ROOT / 'internal').iterdir()) if p.is_dir()]
+    for name, source in targets:
         plugin = (ROOT / source).resolve()
         if output_dir.is_relative_to(plugin):
             raise ValueError('Archive output must be outside the packaged plugin')
         manifest_path = plugin / ('.claude-plugin/plugin.json' if platform == 'claude' else 'plugin.json')
         manifest = json.loads(manifest_path.read_text())
-        filename = f'{entry["name"]}-{manifest["version"]}-{platform}.zip'
+        filename = f'{name}-{manifest["version"]}-{platform}.zip'
         archive = output_dir / filename
         files = sorted(p for p in plugin.rglob('*') if p.is_file()
                        and '__pycache__' not in p.relative_to(plugin).parts
@@ -53,4 +56,6 @@ def package(output_dir):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--output-dir', default=str(ROOT / 'dist'))
-    package(parser.parse_args().output_dir)
+    parser.add_argument('--internal', action='store_true', help='also build the internal plugins')
+    args = parser.parse_args()
+    package(args.output_dir, args.internal)

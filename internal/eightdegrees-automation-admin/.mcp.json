@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "eightdegrees-admin": {
+      "type": "http",
+      "url": "https://act.demo.starfield.com.au/portal/mcp/admin"
+    }
+  }
+}
