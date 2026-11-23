@@ -1,0 +1,35 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "eightdegrees-automation-admin",
+  "version": "0.1.0-beta.1",
+  "description": "Internal maintenance of the 8Degrees Activepieces flows through the workbench's administration MCP server: read, compare, change, validate and publish the seven workbench flows with snapshots and checks. Portal administrators only. Not for customers.",
+  "author": {
+    "name": "Aimore Technology",
+    "url": "https://github.com/Aimore-Technology"
+  },
+  "repository": "https://github.com/Aimore-Technology/plugins-marketplace-gpt",
+  "keywords": [
+    "activepieces",
+    "automation",
+    "maintenance",
+    "mcp",
+    "eightdegrees"
+  ],
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/eightdegrees-automation-admin/SKILL.md",
+      "interface": {
+        "displayName": "8Degrees Automation Admin",
+        "shortDescription": "Maintain workbench flows",
+        "longDescription": "Internal maintenance of the 8Degrees Activepieces flows through the workbench's administration MCP server: read, compare, change, validate and publish the seven workbench flows with snapshots and checks. Portal administrators only. Not for customers.",
+        "developerName": "Aimore Technology",
+        "category": "Business & Operations",
+        "capabilities": [],
+        "defaultPrompt": [
+          "List the 8Degrees flows and their published versions.",
+          "Show the last failed run-auto run and why it failed."
+        ]
+      }
+    }
+  }
+}

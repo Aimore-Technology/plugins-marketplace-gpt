@@ -1,0 +1,38 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "eightdegrees-workbench",
+  "version": "0.1.0-beta.1",
+  "description": "Operate the 8Degrees sales workbench from your assistant through its business MCP server: see what waits, review and approve reply drafts and CRM Notes, prepare replies, record communications, resolve contacts, customer SMS, commitments, the daily brief, knowledge and notifications. Every customer send still needs an approval of the exact version. Beta 01; connects to the Demo workbench.",
+  "author": {
+    "name": "Aimore Technology",
+    "url": "https://github.com/Aimore-Technology"
+  },
+  "repository": "https://github.com/Aimore-Technology/plugins-marketplace-gpt",
+  "keywords": [
+    "sales",
+    "crm",
+    "email",
+    "sms",
+    "real-estate",
+    "mcp",
+    "eightdegrees"
+  ],
+  "extensions": {
+    "com.openai": {
+      "onboardingSkill": "./skills/eightdegrees-workbench/SKILL.md",
+      "interface": {
+        "displayName": "8Degrees Workbench",
+        "shortDescription": "Sales workbench via MCP",
+        "longDescription": "Operate the 8Degrees sales workbench from your assistant through its business MCP server: see what waits, review and approve reply drafts and CRM Notes, prepare replies, record communications, resolve contacts, customer SMS, commitments, the daily brief, knowledge and notifications. Every customer send still needs an approval of the exact version. Beta 01; connects to the Demo workbench.",
+        "developerName": "Aimore Technology",
+        "category": "Business & Operations",
+        "capabilities": [],
+        "defaultPrompt": [
+          "What is waiting for me in 8Degrees today?",
+          "Show the reply drafts waiting for review.",
+          "Prepare a reply to the latest Elmwood Park inquiry."
+        ]
+      }
+    }
+  }
+}

@@ -1,5 +1,9 @@
 # Aimore GPT Plugin Marketplace
 
+## 8Degrees Workbench (beta 01, 2026-11-23)
+
+`eightdegrees-workbench` 0.1.0-beta.1 connects an assistant to the workbench's business MCP server and adds one skill for using its tools; install it with `codex plugin add eightdegrees-workbench@aimore-gpt-marketplace`. The internal `eightdegrees-automation-admin` plugin is kept under `internal/` and is not listed. See [plugin instructions](plugins/eightdegrees-workbench/README.md) and [release record](docs/release-0.1.0-beta.1.md). The sections below describe the earlier skills-only plugin.
+
 Private marketplace containing 8Degrees Sales Workflow 0.2.3, a lightweight client for published Activepieces flows. The public commands are init, add-communication, reply-draft and report. Activepieces owns business execution, scheduling and queue/approval state; the plugin collects input, submits one request and shows its correlated result.
 
 ## Local install
