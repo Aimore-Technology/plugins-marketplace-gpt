@@ -1,7 +1,7 @@
 """Full ready-event construction prevents model-selected queue omissions."""
 import copy,json,sys,unittest
 from pathlib import Path
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'plugins/eightdegrees-sales-workflow/scripts'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'legacy/eightdegrees-sales-workflow-0.1.58/scripts'))
 import queue_construction as queue
 import event_probe,scan_cycle
 from test_event_probe import fixture,changed,saved,work

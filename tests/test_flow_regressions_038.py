@@ -260,7 +260,7 @@ class DispatchRecheck(unittest.TestCase):
 
     def test_actual_sending_rules_do_not_require_inbound_or_delivery_trials(self):
         from pathlib import Path
-        root=Path(__file__).resolve().parents[1]/'plugins/eightdegrees-sales-workflow'
+        root=Path(__file__).resolve().parents[1]/'legacy/eightdegrees-sales-workflow-0.1.58'
         skill=(root/'skills/eightdegrees-sms-follow-up/SKILL.md').read_text()
         self.assertNotIn('Unverified gateway or missing inbound coverage produces',skill)
         rules=(root/'references/sms-rules.md').read_text()

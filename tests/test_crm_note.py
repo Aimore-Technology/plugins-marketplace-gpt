@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 
-SCRIPT = Path(__file__).resolve().parents[1] / "plugins/eightdegrees-sales-workflow/scripts/crm_note.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "legacy/eightdegrees-sales-workflow-0.1.58/scripts/crm_note.py"
 SPEC = importlib.util.spec_from_file_location("crm_note", SCRIPT)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)

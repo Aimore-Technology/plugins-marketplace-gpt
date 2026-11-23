@@ -137,7 +137,7 @@ class ScanControlTests(unittest.TestCase):
         import json
         from pathlib import Path
         default = json.loads((Path(__file__).resolve().parents[1] /
-           'plugins/eightdegrees-sales-workflow/references/pilot-defaults.json').read_text())
+           'legacy/eightdegrees-sales-workflow-0.1.58/references/pilot-defaults.json').read_text())
         self.assertEqual(scan_control.gate({'settings': default})['status'], 'ScanStopped')
 
 

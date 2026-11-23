@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'plugins/eightdegrees-sales-workflow/scripts'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'legacy/eightdegrees-sales-workflow-0.1.58/scripts'))
 import event_probe
 import local_checks
 

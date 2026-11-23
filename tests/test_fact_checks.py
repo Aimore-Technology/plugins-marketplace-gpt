@@ -4,7 +4,7 @@ import importlib.util
 from pathlib import Path
 import unittest
 
-PATH = Path(__file__).resolve().parents[1] / "plugins/eightdegrees-sales-workflow/scripts/fact_checks.py"
+PATH = Path(__file__).resolve().parents[1] / "legacy/eightdegrees-sales-workflow-0.1.58/scripts/fact_checks.py"
 SPEC = importlib.util.spec_from_file_location("fact_checks", PATH)
 FACTS = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(FACTS)

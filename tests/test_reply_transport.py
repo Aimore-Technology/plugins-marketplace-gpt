@@ -10,7 +10,7 @@ import subprocess
 import sys
 import unittest
 
-SCRIPTS = Path(__file__).resolve().parents[1] / "plugins/eightdegrees-sales-workflow/scripts"
+SCRIPTS = Path(__file__).resolve().parents[1] / "legacy/eightdegrees-sales-workflow-0.1.58/scripts"
 sys.path.insert(0, str(SCRIPTS))
 SPEC = importlib.util.spec_from_file_location("reply_transport", SCRIPTS / "reply_transport.py")
 ADAPTER = importlib.util.module_from_spec(SPEC)

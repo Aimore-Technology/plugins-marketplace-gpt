@@ -1,40 +1,12 @@
 ---
 name: eightdegrees-communication-context-process
-description: "Process authorized customer email, text or transcripts into reviewed CRM Notes and approved persona changes; P0-A starts manually; submitted reviews resume through the shared queue."
+description: "Activepieces client entry for the EightDegrees add-communication command. Submit customer communication for one workbench review."
 ---
 
-# Process customer communication
+# add-communication client entry
 
-Apply [API result and minimal-read policy](../../references/api-result-policy.md) before this workflow. Successful writes use acknowledgements/record IDs; do not fetch stored bodies to compare. Reuse initialized workspace metadata.
+Apply the [client protocol](../../references/activepieces-client.md) and the `add-communication` route in [commands.json](../../references/commands.json). This entry's policy is `manual-review`. It is a request adapter, not a business executor.
 
+For readable supplied text, collect the customer email or verified E.164 phone and submit source.text. Do not retrieve mailbox or project material just because it is mentioned. A supplied actual Gmail message ID can supply sender identity inside the owner. An authorized Dropbox file uses source.filePath within saved roots. A Gmail thread URL is not a message ID; collect the correct source instead of guessing. Preserve original communication time and provenance when available. A repeated source continues its existing owner review; do not retry a failed or unknown business write. The owner performs semantic extraction, exact matching and Notes rendering; this client only submits the request.
 
-Use [short communication intake](../../references/communication-fast-path.md) as
-this workflow's entry. Run communication.read-plan for the actual source kind
-and phase, then only its scoped reads. Provided readable text needs no mailbox,
-Dropbox, Calendar, preview, scanner or installation-wide query. A property named
-in a transcript does not request a property investigation.
-
-Default Mode=Manual. Match the current scoped CRM customer by email/phone; CRM
-name wins over a differing signature after a verified match. Identity conflicts
-need the original matching form, never a guessed/new CRM contact. Preserve the
-original source, IDs and source/customer archive. Optional unknown fields stay
-unknown. Use communication.note to render the standard plain-text Notes once,
-then create the exact current-version review. Stop before unapproved CRM facts.
-
-Do not eagerly open every linked reference. The short procedure retains current
-phase requirements; run execution.prepare/ready, facts.canonical, exact
-notion.mutation, pre-call route and receipt completion checks through the existing
-code. Use original captures and compact local-check output. Load detailed docs
-for the actual next phase or a concrete failed/unknown contract only.
-
-A submitted current review resumes through the shared queue without another
-continue command. Before one approved append, recheck current original task/
-action, exact payload/target, attempts and complete scoped duplicate evidence.
-Persona changes use persona-update for ONE combined append. Confirm the CRM API acknowledgement/NoteId
-and save affected Notion results; unknown effects reconcile, never retry
-blindly. A display repair cannot repeat a CRM write. Never adopt another Manual
-task or process a sales send as communication Notes.
-
-This skill sends no customer email/SMS, starts no timer, calls no scanner and
-creates no Calendar event. Return one current action/result link with the next
-operator action. No global report/Health rebuild or repeated status narration.
+Use `activepieces_client.py plan` to validate the request against verified workspace and flow captures. Missing input or a disabled/unpublished/ambiguous flow produces no executable call. Execute only the planned MCP call once, then use bounded result lookup and `observe` to match the transport ID and flow ID. Do not silently switch operation, retry an uncertain call, inspect unrelated service data or use old workflow helpers as a fallback. Return only the owner's actual result and one appropriate next action.

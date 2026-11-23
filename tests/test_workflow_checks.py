@@ -8,7 +8,7 @@ import sys
 import unittest
 
 
-SCRIPT = Path(__file__).resolve().parents[1] / "plugins/eightdegrees-sales-workflow/scripts/workflow_checks.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "legacy/eightdegrees-sales-workflow-0.1.58/scripts/workflow_checks.py"
 SPEC = importlib.util.spec_from_file_location("workflow_checks", SCRIPT)
 CHECKS = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(CHECKS)
