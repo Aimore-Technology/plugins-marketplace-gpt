@@ -6,7 +6,7 @@ from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PATH = ROOT / 'plugins/eightdegrees-sales-workflow/scripts/activepieces_client.py'
+PATH = ROOT / 'legacy/eightdegrees-sales-workflow-0.2.3/scripts/activepieces_client.py'
 spec = importlib.util.spec_from_file_location('activepieces_client', PATH)
 client = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(client)

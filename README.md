@@ -1,32 +1,32 @@
 # Aimore GPT Plugin Marketplace
 
-## 8Degrees Workbench (beta 01, 2026-11-23)
+Private marketplace for the 8Degrees sales workbench. It lists one plugin.
 
-`eightdegrees-workbench` 0.1.0-beta.1 connects an assistant to the workbench's business MCP server and adds one skill for using its tools; install it with `codex plugin add eightdegrees-workbench@aimore-gpt-marketplace`. The internal `eightdegrees-automation-admin` plugin is kept under `internal/` and is not listed. See [plugin instructions](plugins/eightdegrees-workbench/README.md) and [release record](docs/release-0.1.0-beta.1.md). The sections below describe the earlier skills-only plugin.
+| Plugin | Version | What it does |
+| --- | --- | --- |
+| `eightdegrees-workbench` | 0.1.0-beta.1 | Connects an assistant to the workbench's business MCP server and adds one skill for using its tools. |
 
-Private marketplace containing 8Degrees Sales Workflow 0.2.3, a lightweight client for published Activepieces flows. The public commands are init, add-communication, reply-draft and report. Activepieces owns business execution, scheduling and queue/approval state; the plugin collects input, submits one request and shows its correlated result.
+See the [plugin instructions](plugins/eightdegrees-workbench/README.md) and the [release record](docs/release-0.1.0-beta.1.md).
 
 ## Local install
 
-Register this checkout and install the existing plugin identity using the host CLI:
+Register this checkout and install the plugin using the host CLI:
 
 ```bash
 codex plugin marketplace add /absolute/path/to/plugins-marketplace-gpt
-codex plugin add eightdegrees-sales-workflow@aimore-gpt-marketplace
+codex plugin add eightdegrees-workbench@aimore-gpt-marketplace
 ```
 
-The host needs its already authorized Activepieces MCP connection. The package introduces no extra OAuth connection, server, credentials or customer-specific flow IDs. Do not modify the host cache manually. A local install is separate from a shared marketplace push or account/public publication.
+The plugin signs in to the workbench with OAuth and holds no credentials. Do not modify the host cache manually. A local install is separate from a shared marketplace push or account/public publication.
 
-## Commands
+## Not listed
 
-- init: collect explicit workspace configuration and return actual readiness.
-- add-communication: submit the supplied communication/source for one Portal workbench review.
-- reply-draft: submit the actual inquiry message and exact project/lot for one draft review.
-- report: show the backend report without running business actions.
-
-start, stop and run-auto are not client commands. The backend uses native scheduling; pause/resume on its Activepieces page. Initialization remains required before business intake. Review-required is not CRM completion or a customer send. This update does not complete missing backend capabilities or real-customer acceptance.
+- `internal/eightdegrees-automation-admin` is for Aimore maintenance only. It is built on request with `scripts/package.py --internal`.
+- `legacy/eightdegrees-sales-workflow-0.2.3` is the earlier client for published Activepieces flows, and `legacy/eightdegrees-sales-workflow-0.1.58` the skills-only package before it. `eightdegrees-sales-workflow` was taken out of the marketplace on 2026-11-27 because it works outside the workbench's business MCP server. See [legacy/README.md](legacy/README.md). A host that still has it installed keeps its copy until the plugin is removed there.
 
 ## Validation and packaging
+
+Requires Python 3.11+; validation dependencies are pinned in `requirements-dev.txt`.
 
 ```bash
 python3 -m pip install -r requirements-dev.txt
@@ -35,4 +35,8 @@ python3 scripts/check-marketplace.py
 python3 scripts/package.py --output-dir dist
 ```
 
-The small installable payload is under plugins/eightdegrees-sales-workflow. Original 0.1.58 execution code is retained under legacy/eightdegrees-sales-workflow-0.1.58 and excluded from release ZIPs. Existing tests still cover that archive; new request/result boundary tests cover the active client. See [client instructions](plugins/eightdegrees-sales-workflow/README.md) and [release record](docs/release-0.2.3.md).
+`scripts/check-marketplace.py` accepts only MCP plugins in the catalog: each is one skill plus one `.mcp.json` naming a plain HTTPS server, with nothing but Markdown and JSON. It also checks every file in the repository, including `legacy/`, for valid JSON, English text, credential patterns and stray runtime wiring files.
+
+`scripts/package.py` writes one ZIP and a SHA-256 file per listed plugin to `dist/`. The unit tests exercise the helper scripts of the two retired packages.
+
+`docs/` holds the release records. Records before 0.1.0-beta.1 describe the retired packages and name the old path, `plugins/eightdegrees-sales-workflow`.
