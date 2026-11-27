@@ -1,6 +1,6 @@
 # Release 0.1.0-beta.1: 8Degrees Workbench MCP plugins (2026-11-23)
 
-Released with workbench beta 01 (Portal tag `v0.1.0-beta.1`). It adds two plugins that work through the workbench's MCP servers instead of running workflow steps locally. The skills-only `eightdegrees-sales-workflow` plugin is unchanged and remains listed for existing installs; new installs should use `eightdegrees-workbench`.
+Released with workbench beta 01 (Portal tag `v0.1.0-beta.1`). It adds two plugins that work through the workbench's MCP servers instead of running workflow steps locally. The skills-only `eightdegrees-sales-workflow` plugin is unchanged and remains listed for existing installs; new installs should use `eightdegrees-workbench`. Update 2026-11-27: `eightdegrees-sales-workflow` was taken out of the marketplace and moved to `legacy/eightdegrees-sales-workflow-0.2.3`; the legacy checks named below were removed from `scripts/check-marketplace.py` with it.
 
 | Plugin | Who | MCP server | Listed |
 | --- | --- | --- | --- |
